@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "run_name": "go2_flat_scale_e256_i10_s42_20260824-111927",
+  "task": "Isaac-Velocity-Flat-Unitree-Go2-v0",
+  "num_envs": 256,
+  "max_iterations": 10,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "--task",
+    "Isaac-Velocity-Flat-Unitree-Go2-v0",
+    "--num_envs",
+    256,
+    "--max_iterations",
+    10,
+    "--seed",
+    42,
+    "--run_name",
+    "go2_flat_scale_e256_i10_s42_20260824-111927",
+    "--headless"
+  ],
+  "started_at": "2026-08-24T11:20:19.8901829+09:00",
+  "ended_at": "2026-08-24T11:20:57.7348199+09:00",
+  "wall_time_seconds": 37.844,
+  "exit_code": 0,
+  "last_iteration": 9,
+  "iteration_target": 10,
+  "gpu": {
+    "baseline_used_mib": 889,
+    "peak_used_mib": 3334.0,
+    "delta_used_mib": 2445.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.21,
+        "used_mib": 892
+      },
+      {
+        "elapsed_seconds": 2.377,
+        "used_mib": 892
+      },
+      {
+        "elapsed_seconds": 4.521,
+        "used_mib": 892
+      },
+      {
+        "elapsed_seconds": 6.7,
+        "used_mib": 985
+      },
+      {
+        "elapsed_seconds": 8.804,
+        "used_mib": 985
+      },
+      {
+        "elapsed_seconds": 10.909,
+        "used_mib": 985
+      },
+      {
+        "elapsed_seconds": 13.019,
+        "used_mib": 1017
+      },
+      {
+        "elapsed_seconds": 15.113,
+        "used_mib": 1017
+      },
+      {
+        "elapsed_seconds": 17.205,
+        "used_mib": 1074
+      },
+      {
+        "elapsed_seconds": 19.264,
+        "used_mib": 1048
+      },
+      {
+        "elapsed_seconds": 21.346,
+        "used_mib": 3306
+      },
+      {
+        "elapsed_seconds": 23.405,
+        "used_mib": 3312
+      },
+      {
+        "elapsed_seconds": 25.485,
+        "used_mib": 3334
+      },
+      {
+        "elapsed_seconds": 27.544,
+        "used_mib": 3334
+      },
+      {
+        "elapsed_seconds": 29.646,
+        "used_mib": 3334
+      },
+      {
+        "elapsed_seconds": 31.717,
+        "used_mib": 3334
+      },
+      {
+        "elapsed_seconds": 33.777,
+        "used_mib": 3334
+      },
+      {
+        "elapsed_seconds": 35.842,
+        "used_mib": 3334
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.049,
+        "used_mib": 889
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      2573,
+      4559,
+      4709,
+      3231,
+      4640,
+      5069,
+      5213,
+      4705,
+      5438,
+      5762
+    ],
+    "mean_steps_per_second": 4589.9,
+    "median_steps_per_second": 4707.0,
+    "final_mean_reward": -3.33,
+    "final_mean_episode_length": 144.8
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_scale_e256_i10_s42_20260824-111927.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_scale_e256_i10_s42_20260824-111927.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-20-38_go2_flat_scale_e256_i10_s42_20260824-111927",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-20-38_go2_flat_scale_e256_i10_s42_20260824-111927\\model_9.pt",
+    "checkpoint_sha256": "61fe3ba2b4563c1085c3469eb42a0ec70aa3e22c3a0b2e59c889345d89b5005c"
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true
+}

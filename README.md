@@ -65,3 +65,14 @@ cd "$HOME\isaac-walk-rl"
 ```
 
 G003에서는 1-iteration probe, 50-iteration smoke, 300-iteration flat baseline을 순서대로 통과했습니다. 측정값과 체크포인트 해시는 `reports/runs/g003_anymal_summary.json`을 기준으로 봅니다.
+
+## Go2 환경 수 scale ladder
+
+`scripts/run_scale_ladder.ps1`은 Go2 flat 태스크를 seed 42, 각 10 iterations로 64→256→512→1024→2048 environments 순서로 실행합니다. rung 실패나 GPU 측정·회복 실패가 있으면 상위를 중단하며, 4096은 2048이 PASS하고 peak VRAM이 총 12,288 MiB의 80%(9,830.4 MiB) 이하일 때만 실행합니다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+.\scripts\run_scale_ladder.ps1
+```
+
+현재 호스트에서는 4096까지 짧은 10-iteration 실행이 통과해 `highest_operational=4096`, `highest_safe=4096`으로 측정됐습니다. 이는 장기 안정성 판정이 아닙니다. 전체 표, checkpoint hash와 TensorBoard 경로는 `reports/runs/g004_go2_scale_summary.json`과 `RUN_NOTES.md`에 있습니다. 사용자 제공 MuJoCo 51k steps/s는 동일 조건 벤치마크가 아니므로 직접 비교하지 않습니다.

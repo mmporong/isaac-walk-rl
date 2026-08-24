@@ -7,11 +7,11 @@
 | RSL-RL 2.3.3 | v2.1.1 `isaaclab_rl/setup.py`와 로컬 package metadata | 설치·버전 검증 완료 |
 | 대상 task ID 4개 | headless AppLauncher 이후 Gym registry | 로컬 등록 검증 완료 |
 | headless 프로세스 정상 종료 | bundled `python.bat` 직접 실행, AppLauncher 종료 코드 0 | 검증 완료; `isaaclab.bat -p` exit 1은 wrapper false-negative 경고로 분리 |
-| RTX 3060 12GB에서 2048 envs | 현재 호스트 짧은 학습 | 실측 대기 |
-| RTX 3060 12GB에서 4096 envs | 20% VRAM 여유와 안정 실행 | 조건부 실측 대기 |
+| RTX 3060 12GB에서 2048 envs | 현재 호스트 짧은 학습 | 10 iterations PASS; peak 4,058 MiB(33.02%), GPU 회복 확인 |
+| RTX 3060 12GB에서 4096 envs | 2048 PASS·peak 80% 이하·GPU 회복 뒤 조건부 실행 | 게이트 충족 후 10 iterations PASS; peak 4,822 MiB(39.24%), GPU 회복 확인 |
 | ANYmal-C 50 iterations | 정상 종료와 checkpoint/log | 64 env, seed 42, exit 0, model_49.pt 확인으로 검증 완료 |
 | ANYmal-C flat 300 iterations | 정상 종료, TensorBoard scalar, checkpoint hash | 64 env, seed 42, exit 0, 299/300, model_299.pt 확인으로 검증 완료 |
-| Go2 flat baseline | 정량 지표와 재현 명령 | 실행 대기 |
+| Go2 flat scale ladder | 64→2048 순차 실행과 조건부 4096, 각 checkpoint·TensorBoard·GPU 회복 | seed 42, 각 10 iterations, 64/256/512/1024/2048/4096 모두 PASS; 장기 baseline은 별도 |
 | 보상 ablation | 동일 budget·3 seeds 이상 비교 | 실행 대기 |
 | rough·DR | flat baseline 대비 지표 | 실행 대기 |
 | 외란 회복 개선 | 고정 protocol과 Wilson 95% CI | 실행 대기 |

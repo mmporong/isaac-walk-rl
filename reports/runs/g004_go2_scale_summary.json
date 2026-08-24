@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "goal": "G004",
+  "task": "Isaac-Velocity-Flat-Unitree-Go2-v0",
+  "seed": 42,
+  "max_iterations_per_rung": 10,
+  "run_name_rule": "go2_flat_scale_e{num_envs}_i{iterations}_s{seed}_{yyyyMMdd-HHmmss}",
+  "total_vram": {
+    "nvidia_smi_mib": 12288,
+    "environment_manifest_mib": 12288,
+    "values_match": true,
+    "safe_limit_percent": 80.0,
+    "safe_limit_mib": 9830.4
+  },
+  "highest_operational": 4096.0,
+  "highest_safe": 4096.0,
+  "stopped_after_failure": false,
+  "gate_4096": {
+    "evaluated": true,
+    "allowed": true,
+    "reason": "2048 PASS, GPU 측정 complete/recovered, peak <= 9830.4 MiB"
+  },
+  "mujoco_reference": {
+    "user_provided_steps_per_second": 51000,
+    "comparable_benchmark": false,
+    "warning": "사용자 제공 MuJoCo 51k steps/s는 환경, 물리 설정, rollout 길이와 측정법이 통제된 동일 조건 벤치마크가 아니므로 직접 성능 비교가 불가능하다. 아래 비율은 참고 계산일 뿐 우열의 근거가 아니다.",
+    "ratios": [
+      {
+        "num_envs": 64,
+        "isaac_mean_divided_by_reference": 0.014231,
+        "isaac_steady_median_divided_by_reference": 0.014922
+      },
+      {
+        "num_envs": 256,
+        "isaac_mean_divided_by_reference": 0.089998,
+        "isaac_steady_median_divided_by_reference": 0.092333
+      },
+      {
+        "num_envs": 512,
+        "isaac_mean_divided_by_reference": 0.182849,
+        "isaac_steady_median_divided_by_reference": 0.196235
+      },
+      {
+        "num_envs": 1024,
+        "isaac_mean_divided_by_reference": 0.261057,
+        "isaac_steady_median_divided_by_reference": 0.286118
+      },
+      {
+        "num_envs": 2048,
+        "isaac_mean_divided_by_reference": 0.60552,
+        "isaac_steady_median_divided_by_reference": 0.644333
+      },
+      {
+        "num_envs": 4096,
+        "isaac_mean_divided_by_reference": 0.943208,
+        "isaac_steady_median_divided_by_reference": 0.993725
+      }
+    ]
+  },
+  "runs": [
+    {
+      "num_envs": 64,
+      "run_name": "go2_flat_scale_e64_i10_s42_20260824-111927",
+      "report": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\go2_flat_scale_e64_i10_s42_20260824-111927.json",
+      "harness_exit_code": 0,
+      "passed": true,
+      "safe": true,
+      "wall_time_seconds": 51.15,
+      "gpu": {
+        "baseline_used_mib": 889,
+        "peak_used_mib": 3316.0,
+        "delta_used_mib": 2427.0,
+        "peak_percent_total": 26.99,
+        "measurement_complete": true,
+        "recovered_to_baseline": true
+      },
+      "performance": {
+        "samples": [
+          432,
+          577,
+          811,
+          752,
+          804,
+          804,
+          759,
+          758,
+          800,
+          761
+        ],
+        "mean_steps_per_second": 725.8,
+        "median_steps_per_second": 760.0,
+        "steady_state_sample_count": 9,
+        "steady_state_median_steps_per_second": 761.0,
+        "final_mean_reward": -2.95,
+        "final_mean_episode_length": 118.05
+      },
+      "artifacts": {
+        "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-19-46_go2_flat_scale_e64_i10_s42_20260824-111927",
+        "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-19-46_go2_flat_scale_e64_i10_s42_20260824-111927\\model_9.pt",
+        "checkpoint_sha256": "e744eba1759a641c7cbac3bdd138bed094d9e164989a30d9713bf7a75ddb3611"
+      },
+      "error": null
+    },
+    {
+      "num_envs": 256,
+      "run_name": "go2_flat_scale_e256_i10_s42_20260824-111927",
+      "report": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\go2_flat_scale_e256_i10_s42_20260824-111927.json",
+      "harness_exit_code": 0,
+      "passed": true,
+      "safe": true,
+      "wall_time_seconds": 37.844,
+      "gpu": {
+        "baseline_used_mib": 889,
+        "peak_used_mib": 3334.0,
+        "delta_used_mib": 2445.0,
+        "peak_percent_total": 27.13,
+        "measurement_complete": true,
+        "recovered_to_baseline": true
+      },
+      "performance": {
+        "samples": [
+          2573,
+          4559,
+          4709,
+          3231,
+          4640,
+          5069,
+          5213,
+          4705,
+          5438,
+          5762
+        ],
+        "mean_steps_per_second": 4589.9,
+        "median_steps_per_second": 4707.0,
+        "steady_state_sample_count": 9,
+        "steady_state_median_steps_per_second": 4709.0,
+        "final_mean_reward": -3.33,
+        "final_mean_episode_length": 144.8
+      },
+      "artifacts": {
+        "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-20-38_go2_flat_scale_e256_i10_s42_20260824-111927",
+        "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-20-38_go2_flat_scale_e256_i10_s42_20260824-111927\\model_9.pt",
+        "checkpoint_sha256": "61fe3ba2b4563c1085c3469eb42a0ec70aa3e22c3a0b2e59c889345d89b5005c"
+      },
+      "error": null
+    },
+    {
+      "num_envs": 512,
+      "run_name": "go2_flat_scale_e512_i10_s42_20260824-111927",
+      "report": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\go2_flat_scale_e512_i10_s42_20260824-111927.json",
+      "harness_exit_code": 0,
+      "passed": true,
+      "safe": true,
+      "wall_time_seconds": 29.012,
+      "gpu": {
+        "baseline_used_mib": 889,
+        "peak_used_mib": 3498.0,
+        "delta_used_mib": 2609.0,
+        "peak_percent_total": 28.47,
+        "measurement_complete": true,
+        "recovered_to_baseline": true
+      },
+      "performance": {
+        "samples": [
+          5949,
+          10678,
+          6754,
+          9390,
+          9447,
+          10198,
+          11153,
+          10008,
+          10016,
+          9660
+        ],
+        "mean_steps_per_second": 9325.3,
+        "median_steps_per_second": 9834.0,
+        "steady_state_sample_count": 9,
+        "steady_state_median_steps_per_second": 10008.0,
+        "final_mean_reward": -3.53,
+        "final_mean_episode_length": 158.87
+      },
+      "artifacts": {
+        "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-21-06_go2_flat_scale_e512_i10_s42_20260824-111927",
+        "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-21-06_go2_flat_scale_e512_i10_s42_20260824-111927\\model_9.pt",
+        "checkpoint_sha256": "367db3ac6e62c05b7017b855d30139fc63b4ba68d3f7c1bd7d4c25a1b7cb1411"
+      },
+      "error": null
+    },
+    {
+      "num_envs": 1024,
+      "run_name": "go2_flat_scale_e1024_i10_s42_20260824-111927",
+      "report": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\go2_flat_scale_e1024_i10_s42_20260824-111927.json",
+      "harness_exit_code": 0,
+      "passed": true,
+      "safe": true,
+      "wall_time_seconds": 35.378,
+      "gpu": {
+        "baseline_used_mib": 889,
+        "peak_used_mib": 3678.0,
+        "delta_used_mib": 2789.0,
+        "peak_percent_total": 29.93,
+        "measurement_complete": true,
+        "recovered_to_baseline": true
+      },
+      "performance": {
+        "samples": [
+          5951,
+          13574,
+          14682,
+          15400,
+          14804,
+          12958,
+          13051,
+          13320,
+          14807,
+          14592
+        ],
+        "mean_steps_per_second": 13313.9,
+        "median_steps_per_second": 14083.0,
+        "steady_state_sample_count": 9,
+        "steady_state_median_steps_per_second": 14592.0,
+        "final_mean_reward": -4.16,
+        "final_mean_episode_length": 196.56
+      },
+      "artifacts": {
+        "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-21-35_go2_flat_scale_e1024_i10_s42_20260824-111927",
+        "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-21-35_go2_flat_scale_e1024_i10_s42_20260824-111927\\model_9.pt",
+        "checkpoint_sha256": "25c5bc73395c2d56744257d94a79e25758462ad02158f9d7bd0d8bc03c5fb6b8"
+      },
+      "error": null
+    },
+    {
+      "num_envs": 2048,
+      "run_name": "go2_flat_scale_e2048_i10_s42_20260824-111927",
+      "report": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\go2_flat_scale_e2048_i10_s42_20260824-111927.json",
+      "harness_exit_code": 0,
+      "passed": true,
+      "safe": true,
+      "wall_time_seconds": 35.141,
+      "gpu": {
+        "baseline_used_mib": 889,
+        "peak_used_mib": 4058.0,
+        "delta_used_mib": 3169.0,
+        "peak_percent_total": 33.02,
+        "measurement_complete": true,
+        "recovered_to_baseline": true
+      },
+      "performance": {
+        "samples": [
+          15790,
+          32861,
+          33936,
+          33999,
+          32301,
+          30842,
+          31275,
+          30787,
+          33647,
+          33377
+        ],
+        "mean_steps_per_second": 30881.5,
+        "median_steps_per_second": 32581.0,
+        "steady_state_sample_count": 9,
+        "steady_state_median_steps_per_second": 32861.0,
+        "final_mean_reward": -5.34,
+        "final_mean_episode_length": 219.48
+      },
+      "artifacts": {
+        "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-22-11_go2_flat_scale_e2048_i10_s42_20260824-111927",
+        "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-22-11_go2_flat_scale_e2048_i10_s42_20260824-111927\\model_9.pt",
+        "checkpoint_sha256": "9a315471afd4eea478cf2e2df258bb49970482e5ff28ab2a6a659fc6224ae853"
+      },
+      "error": null
+    },
+    {
+      "num_envs": 4096,
+      "run_name": "go2_flat_scale_e4096_i10_s42_20260824-111927",
+      "report": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\go2_flat_scale_e4096_i10_s42_20260824-111927.json",
+      "harness_exit_code": 0,
+      "passed": true,
+      "safe": true,
+      "wall_time_seconds": 43.421,
+      "gpu": {
+        "baseline_used_mib": 889,
+        "peak_used_mib": 4822.0,
+        "delta_used_mib": 3933.0,
+        "peak_percent_total": 39.24,
+        "measurement_complete": true,
+        "recovered_to_baseline": true
+      },
+      "performance": {
+        "samples": [
+          31117,
+          56331,
+          47024,
+          39879,
+          43507,
+          45898,
+          50680,
+          57568,
+          54665,
+          54367
+        ],
+        "mean_steps_per_second": 48103.6,
+        "median_steps_per_second": 48852.0,
+        "steady_state_sample_count": 9,
+        "steady_state_median_steps_per_second": 50680.0,
+        "final_mean_reward": -3.93,
+        "final_mean_episode_length": 229.02
+      },
+      "artifacts": {
+        "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-22-47_go2_flat_scale_e4096_i10_s42_20260824-111927",
+        "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-22-47_go2_flat_scale_e4096_i10_s42_20260824-111927\\model_9.pt",
+        "checkpoint_sha256": "69d4d5f5770d947484ea65994b8bf5d1a02f407ed653473b7631fa7b874654f1"
+      },
+      "error": null
+    }
+  ]
+}

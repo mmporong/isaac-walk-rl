@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "run_name": "go2_flat_scale_e512_i10_s42_20260824-111927",
+  "task": "Isaac-Velocity-Flat-Unitree-Go2-v0",
+  "num_envs": 512,
+  "max_iterations": 10,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "--task",
+    "Isaac-Velocity-Flat-Unitree-Go2-v0",
+    "--num_envs",
+    512,
+    "--max_iterations",
+    10,
+    "--seed",
+    42,
+    "--run_name",
+    "go2_flat_scale_e512_i10_s42_20260824-111927",
+    "--headless"
+  ],
+  "started_at": "2026-08-24T11:20:57.8747398+09:00",
+  "ended_at": "2026-08-24T11:21:26.8872490+09:00",
+  "wall_time_seconds": 29.012,
+  "exit_code": 0,
+  "last_iteration": 9,
+  "iteration_target": 10,
+  "gpu": {
+    "baseline_used_mib": 889,
+    "peak_used_mib": 3498.0,
+    "delta_used_mib": 2609.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.074,
+        "used_mib": 892
+      },
+      {
+        "elapsed_seconds": 2.132,
+        "used_mib": 985
+      },
+      {
+        "elapsed_seconds": 4.194,
+        "used_mib": 985
+      },
+      {
+        "elapsed_seconds": 6.257,
+        "used_mib": 1017
+      },
+      {
+        "elapsed_seconds": 8.306,
+        "used_mib": 1074
+      },
+      {
+        "elapsed_seconds": 10.385,
+        "used_mib": 2020
+      },
+      {
+        "elapsed_seconds": 12.448,
+        "used_mib": 3382
+      },
+      {
+        "elapsed_seconds": 14.515,
+        "used_mib": 3498
+      },
+      {
+        "elapsed_seconds": 16.606,
+        "used_mib": 3498
+      },
+      {
+        "elapsed_seconds": 18.669,
+        "used_mib": 3498
+      },
+      {
+        "elapsed_seconds": 20.73,
+        "used_mib": 3498
+      },
+      {
+        "elapsed_seconds": 22.794,
+        "used_mib": 3498
+      },
+      {
+        "elapsed_seconds": 24.855,
+        "used_mib": 3498
+      },
+      {
+        "elapsed_seconds": 27.004,
+        "used_mib": 1162
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.041,
+        "used_mib": 889
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      5949,
+      10678,
+      6754,
+      9390,
+      9447,
+      10198,
+      11153,
+      10008,
+      10016,
+      9660
+    ],
+    "mean_steps_per_second": 9325.3,
+    "median_steps_per_second": 9834.0,
+    "final_mean_reward": -3.53,
+    "final_mean_episode_length": 158.87
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_scale_e512_i10_s42_20260824-111927.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_scale_e512_i10_s42_20260824-111927.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-21-06_go2_flat_scale_e512_i10_s42_20260824-111927",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_11-21-06_go2_flat_scale_e512_i10_s42_20260824-111927\\model_9.pt",
+    "checkpoint_sha256": "367db3ac6e62c05b7017b855d30139fc63b4ba68d3f7c1bd7d4c25a1b7cb1411"
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true
+}
