@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-08-24T00:54:40.416Z",
-  "updatedAt": "2026-08-24T01:37:12.894Z",
+  "updatedAt": "2026-08-24T02:16:35.388Z",
   "briefPath": ".omx/ultragoal/brief.md",
   "goalsPath": ".omx/ultragoal/goals.json",
   "ledgerPath": ".omx/ultragoal/ledger.jsonl",
@@ -35,10 +35,13 @@
       "id": "G003-anymal-c",
       "title": "ANYmal-C 관문",
       "objective": "64 environments 50-iteration smoke와 flat baseline을 실행하고 자원·로그·checkpoint·핵심 지표를 기록한다.",
-      "status": "pending",
-      "attempt": 0,
+      "status": "complete",
+      "attempt": 1,
       "createdAt": "2026-08-24T00:54:40.416Z",
-      "updatedAt": "2026-08-24T00:54:40.416Z"
+      "updatedAt": "2026-08-24T02:16:35.388Z",
+      "startedAt": "2026-08-24T01:37:36.011Z",
+      "completedAt": "2026-08-24T02:16:35.388Z",
+      "evidence": "commit 83c923f; 64env seed42 probe 1iter exit0 19.327s peak3970MiB; smoke 50iter exit0 80.690s mean1279.16 steps/s model_49 hash934a5b34; baseline 300iter exit0 591.632s mean892.99 steps/s TB step299 fps873 reward-1.0668987 length16.42 model_299 hash70cfe5ef; all GPU recovered to889MiB no traceback/error; JSON/checkpoint/TensorBoard independently verified; run harness space-path and failure semantics PASS; validator PASS; independent verifier APPROVE; PowerShell 7.x documented"
     },
     {
       "id": "G004-go2-flat",
