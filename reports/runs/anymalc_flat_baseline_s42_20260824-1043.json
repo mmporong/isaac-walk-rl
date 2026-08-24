@@ -1,0 +1,1498 @@
+{
+  "schema_version": 1,
+  "run_name": "anymalc_flat_baseline_s42_20260824-1043",
+  "task": "Isaac-Velocity-Flat-Anymal-C-v0",
+  "num_envs": 64,
+  "max_iterations": 300,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "--task",
+    "Isaac-Velocity-Flat-Anymal-C-v0",
+    "--num_envs",
+    64,
+    "--max_iterations",
+    300,
+    "--seed",
+    42,
+    "--run_name",
+    "anymalc_flat_baseline_s42_20260824-1043",
+    "--headless"
+  ],
+  "started_at": "2026-08-24T10:43:57.7095045+09:00",
+  "ended_at": "2026-08-24T10:53:49.3424474+09:00",
+  "wall_time_seconds": 591.632,
+  "exit_code": 0,
+  "last_iteration": 299,
+  "iteration_target": 300,
+  "gpu": {
+    "baseline_used_mib": 889,
+    "peak_used_mib": 3970.0,
+    "delta_used_mib": 3081.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.068,
+        "used_mib": 892
+      },
+      {
+        "elapsed_seconds": 2.141,
+        "used_mib": 985
+      },
+      {
+        "elapsed_seconds": 4.203,
+        "used_mib": 985
+      },
+      {
+        "elapsed_seconds": 6.268,
+        "used_mib": 1017
+      },
+      {
+        "elapsed_seconds": 8.331,
+        "used_mib": 1074
+      },
+      {
+        "elapsed_seconds": 10.378,
+        "used_mib": 3236
+      },
+      {
+        "elapsed_seconds": 12.444,
+        "used_mib": 3958
+      },
+      {
+        "elapsed_seconds": 14.521,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 16.584,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 18.65,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 20.715,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 22.789,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 24.868,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 26.931,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 28.995,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 31.074,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 33.136,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 35.2,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 37.261,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 39.324,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 41.386,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 43.45,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 45.528,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 47.607,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 49.672,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 51.744,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 53.809,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 55.882,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 57.954,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 60.03,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 62.092,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 64.163,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 66.234,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 68.32,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 70.432,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 72.518,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 74.578,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 76.661,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 78.738,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 80.797,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 82.877,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 84.956,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 87.031,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 89.109,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 91.188,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 93.248,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 95.309,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 97.372,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 99.442,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 101.498,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 103.561,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 105.647,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 107.703,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 109.765,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 111.831,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 113.907,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 115.971,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 118.041,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 120.099,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 122.169,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 124.228,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 126.289,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 128.351,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 130.414,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 132.496,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 134.576,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 136.658,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 138.732,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 140.795,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 142.856,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 144.948,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 147.03,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 149.114,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 151.314,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 153.469,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 155.604,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 157.778,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 159.95,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 162.248,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 164.36,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 166.53,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 168.642,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 170.763,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 172.842,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 174.918,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 176.989,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 179.056,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 181.119,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 183.21,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 185.29,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 187.368,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 189.447,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 191.52,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 193.602,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 195.664,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 197.728,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 199.793,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 201.855,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 203.941,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 205.997,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 208.063,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 210.123,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 212.195,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 214.288,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 216.467,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 218.593,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 220.804,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 222.913,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 225.131,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 227.273,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 229.469,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 231.729,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 233.863,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 236.004,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 238.161,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 240.326,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 242.437,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 244.513,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 246.589,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 248.659,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 250.728,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 252.797,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 254.852,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 256.922,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 258.979,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 261.041,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 263.104,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 265.186,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 267.27,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 269.339,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 271.429,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 273.498,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 275.563,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 277.637,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 279.702,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 281.779,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 283.841,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 285.904,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 287.968,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 290.168,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 292.254,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 294.377,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 296.497,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 298.596,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 300.674,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 302.753,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 304.829,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 306.905,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 308.991,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 311.082,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 313.175,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 315.259,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 317.345,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 319.429,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 321.498,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 323.56,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 325.643,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 327.724,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 329.784,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 331.844,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 333.922,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 335.984,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 338.068,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 340.145,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 342.277,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 344.387,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 346.492,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 348.621,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 350.748,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 352.87,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 354.972,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 357.109,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 359.217,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 361.321,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 363.397,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 365.457,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 367.537,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 369.602,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 371.664,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 373.726,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 375.804,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 377.887,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 379.948,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 382.079,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 384.191,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 386.304,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 388.497,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 390.64,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 392.813,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 394.956,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 397.134,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 399.347,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 401.527,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 403.609,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 405.801,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 407.971,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 410.078,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 412.189,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 414.321,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 416.42,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 418.647,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 420.837,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 423.007,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 425.137,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 427.247,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 429.377,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 431.481,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 433.59,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 435.703,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 437.791,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 439.87,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 441.963,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 444.047,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 446.152,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 448.236,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 450.329,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 452.434,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 454.541,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 456.656,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 458.754,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 460.856,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 462.962,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 465.059,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 467.154,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 469.266,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 471.379,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 473.512,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 475.611,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 477.734,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 479.858,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 482.007,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 484.12,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 486.213,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 488.323,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 490.524,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 492.746,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 494.931,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 497.053,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 499.255,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 501.426,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 503.603,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 505.799,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 507.89,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 510.001,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 512.156,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 514.342,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 516.467,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 518.559,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 520.683,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 522.797,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 524.886,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 526.983,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 529.12,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 531.268,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 533.37,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 535.467,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 537.582,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 539.68,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 541.775,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 543.858,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 545.958,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 548.073,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 550.149,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 552.242,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 554.322,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 556.417,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 558.494,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 560.579,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 562.665,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 564.742,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 566.822,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 568.888,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 570.979,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 573.053,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 575.116,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 577.18,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 579.267,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 581.355,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 583.413,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 585.492,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 587.552,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 589.618,
+        "used_mib": 3970
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.048,
+        "used_mib": 889
+      }
+    ],
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "steps_per_second_samples": [
+      829,
+      1534,
+      1479,
+      1555,
+      1581,
+      1522,
+      1567,
+      1572,
+      1452,
+      1455,
+      1402,
+      1433,
+      1580,
+      1544,
+      1382,
+      1371,
+      1425,
+      1514,
+      1007,
+      1484,
+      1476,
+      1541,
+      1477,
+      1403,
+      1290,
+      1292,
+      1407,
+      1433,
+      1342,
+      1343,
+      1061,
+      897,
+      1174,
+      1070,
+      1039,
+      882,
+      944,
+      1094,
+      1086,
+      1015,
+      1038,
+      997,
+      963,
+      1037,
+      1069,
+      648,
+      630,
+      776,
+      872,
+      844,
+      851,
+      924,
+      825,
+      810,
+      855,
+      884,
+      888,
+      891,
+      996,
+      1122,
+      1241,
+      1136,
+      1158,
+      1159,
+      1050,
+      1072,
+      1217,
+      1213,
+      1275,
+      1300,
+      1284,
+      1256,
+      1179,
+      1259,
+      1262,
+      1249,
+      1278,
+      1286,
+      1169,
+      1171,
+      1175,
+      1054,
+      1174,
+      1294,
+      1260,
+      1179,
+      1053,
+      866,
+      674,
+      784,
+      798,
+      784,
+      892,
+      832,
+      806,
+      755,
+      540,
+      537,
+      536,
+      531,
+      573,
+      593,
+      569,
+      603,
+      726,
+      792,
+      861,
+      907,
+      942,
+      1033,
+      1128,
+      1111,
+      1229,
+      1292,
+      1297,
+      1282,
+      1249,
+      1194,
+      1156,
+      1076,
+      1120,
+      1256,
+      1283,
+      1259,
+      1180,
+      856,
+      793,
+      854,
+      795,
+      879,
+      894,
+      819,
+      602,
+      527,
+      542,
+      556,
+      550,
+      553,
+      571,
+      573,
+      590,
+      559,
+      690,
+      786,
+      913,
+      972,
+      1025,
+      1103,
+      1241,
+      1268,
+      1194,
+      1108,
+      1279,
+      1286,
+      1299,
+      1253,
+      1182,
+      797,
+      831,
+      914,
+      912,
+      923,
+      947,
+      895,
+      803,
+      801,
+      904,
+      911,
+      951,
+      816,
+      804,
+      528,
+      593,
+      591,
+      635,
+      764,
+      684,
+      824,
+      767,
+      738,
+      802,
+      803,
+      731,
+      841,
+      950,
+      1080,
+      1007,
+      1055,
+      681,
+      709,
+      887,
+      922,
+      929,
+      929,
+      804,
+      761,
+      612,
+      577,
+      580,
+      604,
+      605,
+      612,
+      612,
+      601,
+      631,
+      735,
+      785,
+      861,
+      874,
+      917,
+      915,
+      917,
+      919,
+      841,
+      716,
+      568,
+      603,
+      544,
+      583,
+      556,
+      570,
+      571,
+      578,
+      553,
+      565,
+      564,
+      581,
+      615,
+      561,
+      559,
+      591,
+      620,
+      585,
+      601,
+      610,
+      610,
+      609,
+      618,
+      625,
+      638,
+      618,
+      613,
+      616,
+      614,
+      613,
+      630,
+      624,
+      626,
+      615,
+      620,
+      611,
+      627,
+      622,
+      580,
+      608,
+      601,
+      576,
+      580,
+      577,
+      588,
+      580,
+      576,
+      590,
+      610,
+      605,
+      599,
+      615,
+      626,
+      619,
+      629,
+      617,
+      630,
+      622,
+      619,
+      630,
+      629,
+      632,
+      618,
+      633,
+      642,
+      666,
+      667,
+      675,
+      681,
+      805,
+      804,
+      780,
+      838,
+      915,
+      931,
+      817,
+      850,
+      908,
+      815,
+      795,
+      739,
+      778,
+      883,
+      945,
+      873
+    ],
+    "mean_steps_per_second": 892.99,
+    "median_steps_per_second": 839.5,
+    "final_mean_reward": -1.07,
+    "final_mean_episode_length": 16.42
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\anymalc_flat_baseline_s42_20260824-1043.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\anymalc_flat_baseline_s42_20260824-1043.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\anymal_c_flat\\2026-08-24_10-44-06_anymalc_flat_baseline_s42_20260824-1043",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\anymal_c_flat\\2026-08-24_10-44-06_anymalc_flat_baseline_s42_20260824-1043\\model_299.pt",
+    "checkpoint_sha256": "70cfe5ef45f74859aec1ef9182e8496fd32151860b861cab80bd50635022519f"
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true
+  },
+  "passed": true
+}

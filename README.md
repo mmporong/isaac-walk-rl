@@ -42,7 +42,9 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 
 ## 환경 매니페스트와 저장소 검증
 
-PowerShell에서 다음 명령을 실행하면 사용자명이나 인증정보를 기록하지 않고 Git, GPU, Isaac 설치 상태와 현재 commit 상태를 `reports/environment_manifest.json`에 갱신합니다.
+이 프로젝트의 명령은 PowerShell 7.x(`pwsh`)에서 실행합니다. 현재 검증 버전은 7.6.5이며, Windows PowerShell 5.1은 지원 검증 대상이 아닙니다.
+
+다음 명령을 실행하면 사용자명이나 인증정보를 기록하지 않고 Git, GPU, Isaac 설치 상태와 현재 commit 상태를 `reports/environment_manifest.json`에 갱신합니다.
 
 ```powershell
 cd "$HOME\isaac-walk-rl"
@@ -52,3 +54,14 @@ cd "$HOME\isaac-walk-rl"
 ```
 
 Isaac Lab을 다른 위치에 설치한 경우 `-IsaacLabPath` 인자로 경로를 지정합니다. 사용자 홈 아래 경로는 보고서에서 `%USERPROFILE%`로 치환됩니다. Isaac Lab v2.1.1의 Windows `isaaclab.bat -p`는 nested batch를 `call` 없이 실행해 성공 후에도 exit 1을 전달할 수 있으므로, runtime 검증은 동일한 공식 bundled `python.bat`를 직접 사용하고 wrapper 문제는 경고로 기록합니다.
+
+## ANYmal-C 학습 하네스
+
+`scripts/run_training.ps1`은 Isaac Sim bundled `python.bat`로 headless RSL-RL 학습을 실행하고, 원시 로그는 저장소 밖 `%USERPROFILE%\IsaacLab\logs\harness`에 두며 휴대 가능한 JSON 요약만 `reports/runs`에 기록합니다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+.\scripts\run_training.ps1 -Task Isaac-Velocity-Flat-Anymal-C-v0 -NumEnvs 64 -MaxIterations 50 -Seed 42 -RunName "anymalc_flat_smoke_s42_YYYYMMDD-HHmm"
+```
+
+G003에서는 1-iteration probe, 50-iteration smoke, 300-iteration flat baseline을 순서대로 통과했습니다. 측정값과 체크포인트 해시는 `reports/runs/g003_anymal_summary.json`을 기준으로 봅니다.

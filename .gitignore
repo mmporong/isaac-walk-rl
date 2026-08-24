@@ -18,6 +18,9 @@ _isaac_sim/
 IsaacLab/
 logs/
 runs/
+!reports/runs/
+reports/runs/*
+!reports/runs/*.json
 outputs/
 artifacts/
 checkpoints/

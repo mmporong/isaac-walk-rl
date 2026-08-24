@@ -123,6 +123,17 @@ foreach ($artifact in $durableOmxArtifacts) {
     }
 }
 
+$rawRunProbe = 'reports/runs/ignore-boundary-probe.raw.log'
+$jsonRunProbe = 'reports/runs/ignore-boundary-probe.json'
+& git -C $repoRoot check-ignore -q --no-index -- $rawRunProbe
+if ($LASTEXITCODE -ne 0) {
+    Add-Failure "reports/runs 비JSON 파일이 ignore되지 않음: $rawRunProbe"
+}
+& git -C $repoRoot check-ignore -q --no-index -- $jsonRunProbe
+if ($LASTEXITCODE -eq 0) {
+    Add-Failure "reports/runs JSON 파일이 ignore됨: $jsonRunProbe"
+}
+
 $diffCheck = & git -C $repoRoot diff --check 2>&1
 if ($LASTEXITCODE -ne 0) {
     Add-Failure "git diff --check 실패: $($diffCheck -join ' ')"
@@ -137,5 +148,5 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-Write-Host "저장소 검증 PASS: 필수 파일, 의존성 경계, 산출물 제한, OMX 추적 경계, git diff 검사"
+Write-Host "저장소 검증 PASS: 필수 파일, 의존성 경계, 산출물 제한, reports/runs JSON-only 경계, OMX 추적 경계, git diff 검사"
 exit 0

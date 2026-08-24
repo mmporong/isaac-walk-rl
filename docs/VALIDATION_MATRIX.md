@@ -9,7 +9,8 @@
 | headless 프로세스 정상 종료 | bundled `python.bat` 직접 실행, AppLauncher 종료 코드 0 | 검증 완료; `isaaclab.bat -p` exit 1은 wrapper false-negative 경고로 분리 |
 | RTX 3060 12GB에서 2048 envs | 현재 호스트 짧은 학습 | 실측 대기 |
 | RTX 3060 12GB에서 4096 envs | 20% VRAM 여유와 안정 실행 | 조건부 실측 대기 |
-| ANYmal-C 50 iterations | 정상 종료와 checkpoint/log | 실행 대기 |
+| ANYmal-C 50 iterations | 정상 종료와 checkpoint/log | 64 env, seed 42, exit 0, model_49.pt 확인으로 검증 완료 |
+| ANYmal-C flat 300 iterations | 정상 종료, TensorBoard scalar, checkpoint hash | 64 env, seed 42, exit 0, 299/300, model_299.pt 확인으로 검증 완료 |
 | Go2 flat baseline | 정량 지표와 재현 명령 | 실행 대기 |
 | 보상 ablation | 동일 budget·3 seeds 이상 비교 | 실행 대기 |
 | rough·DR | flat baseline 대비 지표 | 실행 대기 |

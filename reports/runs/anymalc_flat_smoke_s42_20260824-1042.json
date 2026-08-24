@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "run_name": "anymalc_flat_smoke_s42_20260824-1042",
+  "task": "Isaac-Velocity-Flat-Anymal-C-v0",
+  "num_envs": 64,
+  "max_iterations": 50,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "--task",
+    "Isaac-Velocity-Flat-Anymal-C-v0",
+    "--num_envs",
+    64,
+    "--max_iterations",
+    50,
+    "--seed",
+    42,
+    "--run_name",
+    "anymalc_flat_smoke_s42_20260824-1042",
+    "--headless"
+  ],
+  "started_at": "2026-08-24T10:42:17.0312565+09:00",
+  "ended_at": "2026-08-24T10:43:37.7232224+09:00",
+  "wall_time_seconds": 80.69,
+  "exit_code": 0,
+  "last_iteration": 49,
+  "iteration_target": 50,
+  "gpu": {
+    "baseline_used_mib": 889,
+    "peak_used_mib": 3970.0,
+    "delta_used_mib": 3081.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.081,
+        "used_mib": 892
+      },
+      {
+        "elapsed_seconds": 2.162,
+        "used_mib": 892
+      },
+      {
+        "elapsed_seconds": 4.237,
+        "used_mib": 985
+      },
+      {
+        "elapsed_seconds": 6.299,
+        "used_mib": 985
+      },
+      {
+        "elapsed_seconds": 8.364,
+        "used_mib": 1017
+      },
+      {
+        "elapsed_seconds": 10.422,
+        "used_mib": 1074
+      },
+      {
+        "elapsed_seconds": 12.485,
+        "used_mib": 1114
+      },
+      {
+        "elapsed_seconds": 14.548,
+        "used_mib": 3242
+      },
+      {
+        "elapsed_seconds": 16.63,
+        "used_mib": 3958
+      },
+      {
+        "elapsed_seconds": 18.705,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 20.794,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 22.863,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 24.961,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 27.031,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 29.111,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 31.173,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 33.253,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 35.317,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 37.378,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 39.443,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 41.504,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 43.569,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 45.647,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 47.717,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 49.773,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 51.842,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 53.887,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 55.945,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 58.008,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 60.075,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 62.137,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 64.2,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 66.262,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 68.332,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 70.403,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 72.476,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 74.56,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 76.626,
+        "used_mib": 3970
+      },
+      {
+        "elapsed_seconds": 78.689,
+        "used_mib": 889
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.041,
+        "used_mib": 889
+      }
+    ],
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "steps_per_second_samples": [
+      521,
+      1016,
+      1027,
+      981,
+      1107,
+      1127,
+      1205,
+      1245,
+      1326,
+      1342,
+      1274,
+      1428,
+      1540,
+      1558,
+      1558,
+      1556,
+      1479,
+      1543,
+      985,
+      1302,
+      1341,
+      1344,
+      1372,
+      1436,
+      1447,
+      1488,
+      1410,
+      1426,
+      1348,
+      1363,
+      1326,
+      1305,
+      1294,
+      1160,
+      1163,
+      1230,
+      1282,
+      1200,
+      1107,
+      1181,
+      1275,
+      1237,
+      1172,
+      1285,
+      1267,
+      1269,
+      1295,
+      1300,
+      1287,
+      1228
+    ],
+    "mean_steps_per_second": 1279.16,
+    "median_steps_per_second": 1290.5,
+    "final_mean_reward": -1.5,
+    "final_mean_episode_length": 21.28
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\anymalc_flat_smoke_s42_20260824-1042.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\anymalc_flat_smoke_s42_20260824-1042.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\anymal_c_flat\\2026-08-24_10-42-28_anymalc_flat_smoke_s42_20260824-1042",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\anymal_c_flat\\2026-08-24_10-42-28_anymalc_flat_smoke_s42_20260824-1042\\model_49.pt",
+    "checkpoint_sha256": "934a5b347aebfe736272ca846adef303593b4cd39ecc65fa0b96b232ffc4065a"
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true
+  },
+  "passed": true
+}

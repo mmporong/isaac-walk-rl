@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "run_name": "anymalc_flat_probe_s42_20260824-1040",
+  "task": "Isaac-Velocity-Flat-Anymal-C-v0",
+  "num_envs": 64,
+  "max_iterations": 1,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "--task",
+    "Isaac-Velocity-Flat-Anymal-C-v0",
+    "--num_envs",
+    64,
+    "--max_iterations",
+    1,
+    "--seed",
+    42,
+    "--run_name",
+    "anymalc_flat_probe_s42_20260824-1040",
+    "--headless"
+  ],
+  "started_at": "2026-08-24T10:40:26.2598761+09:00",
+  "ended_at": "2026-08-24T10:40:46.7691666+09:00",
+  "wall_time_seconds": 20.508,
+  "exit_code": 0,
+  "last_iteration": 0,
+  "iteration_target": 1,
+  "gpu": {
+    "baseline_used_mib": 0,
+    "peak_used_mib": 0.0,
+    "delta_used_mib": 0.0,
+    "sample_interval_seconds": 1,
+    "samples": [
+      {
+        "elapsed_seconds": 0.091,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 1.163,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 2.254,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 3.319,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 4.39,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 5.463,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 6.533,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 7.605,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 8.671,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 9.743,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 10.827,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 11.9,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 12.986,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 14.052,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 15.159,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 16.261,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 17.342,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 18.424,
+        "used_mib": 0
+      },
+      {
+        "elapsed_seconds": 19.497,
+        "used_mib": 0
+      }
+    ]
+  },
+  "performance": {
+    "steps_per_second_samples": [
+      553
+    ],
+    "mean_steps_per_second": 553.0,
+    "median_steps_per_second": 553,
+    "final_mean_reward": -0.65,
+    "final_mean_episode_length": 12.5
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\anymalc_flat_probe_s42_20260824-1040.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\anymalc_flat_probe_s42_20260824-1040.stderr.log",
+    "tensorboard_directory": null,
+    "checkpoint": null,
+    "checkpoint_sha256": null
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": false,
+    "tensorboard_exists": false,
+    "checkpoint_exists": false
+  },
+  "passed": false
+}

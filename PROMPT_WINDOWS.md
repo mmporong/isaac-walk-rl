@@ -16,7 +16,7 @@ Isaac Lab 원본은 프로젝트 저장소 밖에 두며 직접 수정하지 않
 
 ## 0단계 — 설치와 등록 검증
 
-PowerShell에서 실행한다.
+PowerShell 7.x(`pwsh`)에서 실행한다. 현재 검증 버전은 7.6.5이며, Windows PowerShell 5.1은 지원 검증 대상이 아니다.
 
 ```powershell
 git clone --branch v2.1.1 https://github.com/isaac-sim/IsaacLab.git "$HOME\IsaacLab"

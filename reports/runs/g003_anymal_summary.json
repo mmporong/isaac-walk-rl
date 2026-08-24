@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "goal": "G003",
+  "task": "Isaac-Velocity-Flat-Anymal-C-v0",
+  "num_envs": 64,
+  "seed": 42,
+  "gpu_baseline_used_mib": 889,
+  "metric_note": "mean/median steps_per_second는 전체 stdout sample, final scalar는 TensorBoard로 교차 검증",
+  "runs": [
+    {
+      "run_name": "anymalc_flat_probe_s42_20260824-1041",
+      "max_iterations": 1,
+      "exit_code": 0,
+      "wall_time_seconds": 19.327,
+      "peak_gpu_used_mib": 3970,
+      "gpu_delta_used_mib": 3081,
+      "gpu_recovered_to_baseline": true,
+      "mean_steps_per_second": 629.0,
+      "median_steps_per_second": 629.0,
+      "tensorboard_final_steps_per_second": 629.0,
+      "final_mean_reward": -0.6533299684524536,
+      "final_mean_episode_length": 12.5,
+      "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\anymal_c_flat\\2026-08-24_10-41-51_anymalc_flat_probe_s42_20260824-1041\\model_0.pt",
+      "checkpoint_sha256": "5d03e27feb33815034aa7cb0752a26e14575330517a98554b234451e7f00bda4"
+    },
+    {
+      "run_name": "anymalc_flat_smoke_s42_20260824-1042",
+      "max_iterations": 50,
+      "exit_code": 0,
+      "wall_time_seconds": 80.69,
+      "peak_gpu_used_mib": 3970,
+      "gpu_delta_used_mib": 3081,
+      "gpu_recovered_to_baseline": true,
+      "mean_steps_per_second": 1279.16,
+      "median_steps_per_second": 1290.5,
+      "tensorboard_final_steps_per_second": 1228.0,
+      "final_mean_reward": -1.4959743022918701,
+      "final_mean_episode_length": 21.280000686645508,
+      "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\anymal_c_flat\\2026-08-24_10-42-28_anymalc_flat_smoke_s42_20260824-1042\\model_49.pt",
+      "checkpoint_sha256": "934a5b347aebfe736272ca846adef303593b4cd39ecc65fa0b96b232ffc4065a"
+    },
+    {
+      "run_name": "anymalc_flat_baseline_s42_20260824-1043",
+      "max_iterations": 300,
+      "exit_code": 0,
+      "wall_time_seconds": 591.632,
+      "peak_gpu_used_mib": 3970,
+      "gpu_delta_used_mib": 3081,
+      "gpu_recovered_to_baseline": true,
+      "mean_steps_per_second": 892.99,
+      "median_steps_per_second": 839.5,
+      "tensorboard_final_steps_per_second": 873.0,
+      "final_mean_reward": -1.0668987035751343,
+      "final_mean_episode_length": 16.420000076293945,
+      "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\anymal_c_flat\\2026-08-24_10-44-06_anymalc_flat_baseline_s42_20260824-1043\\model_299.pt",
+      "checkpoint_sha256": "70cfe5ef45f74859aec1ef9182e8496fd32151860b861cab80bd50635022519f"
+    }
+  ]
+}
