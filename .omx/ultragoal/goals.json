@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-08-24T00:54:40.416Z",
-  "updatedAt": "2026-08-24T02:16:35.388Z",
+  "updatedAt": "2026-08-24T02:39:23.218Z",
   "briefPath": ".omx/ultragoal/brief.md",
   "goalsPath": ".omx/ultragoal/goals.json",
   "ledgerPath": ".omx/ultragoal/ledger.jsonl",
@@ -47,10 +47,13 @@
       "id": "G004-go2-flat",
       "title": "Go2 flat 자원 측정",
       "objective": "환경 수 사다리로 VRAM과 steps/s를 실측해 현재 RTX 3060 12GB의 안전한 최대치를 결정한다.",
-      "status": "pending",
-      "attempt": 0,
+      "status": "complete",
+      "attempt": 1,
       "createdAt": "2026-08-24T00:54:40.416Z",
-      "updatedAt": "2026-08-24T00:54:40.416Z"
+      "updatedAt": "2026-08-24T02:39:23.218Z",
+      "startedAt": "2026-08-24T02:17:13.288Z",
+      "completedAt": "2026-08-24T02:39:23.218Z",
+      "evidence": "commit f2affc3; Go2 flat seed42 10iter ladder 64/256/512/1024/2048/4096 all exit0; 4096 peak4822MiB median48852 steady50680 steps/s; 2048 gate below80pct VRAM; checkpoint SHA and summary stats verified; failure-path isolation PASS; validator PASS; independent verifier APPROVE; short-run only and MuJoCo 51k non-comparable warnings retained"
     },
     {
       "id": "G005-ablation",
