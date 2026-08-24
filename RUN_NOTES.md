@@ -68,3 +68,18 @@
 - `highest_operational=4096`, `highest_safe=4096`이다. 이는 10-iteration 상태 기반 headless 실행의 결과이며 장기 학습 안정성이나 최적 environment 수를 뜻하지 않는다.
 - 사용자 제공 MuJoCo 51k steps/s는 환경, 물리 설정, rollout 길이와 측정법이 통제된 동일 조건 벤치마크가 아니므로 직접 비교할 수 없다. summary의 비율은 참고 계산일 뿐 우열의 근거가 아니다.
 - 재현 명령: `cd "$HOME\isaac-walk-rl"` 후 `.\scripts\run_scale_ladder.ps1`. 상세 run JSON과 체크포인트 SHA256는 `reports/runs/g004_go2_scale_summary.json`에 있다.
+
+### G005 Go2 flat 보상 ablation
+
+- baseline과 `no_torque`, `no_action_rate`, `no_feet_air_time`을 4096 environments, 300 iterations, seeds 42/43/44로 실행했다. 한 variant에서 reward 하나만 0으로 바꿨다.
+- 학습 12/12와 고정 평가 12/12를 완료했으며 failed job은 0이다. 총 학습 wall time은 105.4분, 실행별 평균 처리량의 평균은 60,238.2 steps/s, 최대 peak VRAM은 4,822 MiB였다.
+- 모든 학습은 exit 0, 299/300 iteration, `model_299.pt`, TensorBoard event, GPU 측정·회복을 확인했다. 모든 평가는 exit 0, 정상 App close, fatal log 0, GPU·프로세스 회복을 확인했다.
+- checkpoint SHA256, TensorBoard 디렉터리, 학습·평가 명령은 `reports/runs/g005_reward_ablation_state.json`의 12개 job에 보존했다. strict summary는 `reports/runs/g005_reward_ablation_summary.json`이다.
+- strict 결합 해시는 canonical config `3e8455a9efba77f67b2ac436d5eef41421dfeac10f9e67ab9620c6775b6c2576`, config file `5f5cf8127424460c4b2555d28969e85d9664589337ba4edf71dd9ed72112cdde`, protocol `4ff2f271ed7e217966ed7e09a1f0de5bfacc056020721623af6211d264835d9c`, evaluation script `60b22beaf6189ae0f3bc0aeaa98f264a7ffe853f4de2c5b49e266a2716bd7965`다.
+- checkpoint SHA256(seeds 42/43/44): baseline `31a9ed90…c84bd` / `9aed9000…aad9` / `9bf1963d…ce45`, no_torque `4d792707…d745` / `7c87cb35…0871` / `561e87fe…5ec`, no_action_rate `5bc9581e…1c95` / `f2fbf79a…00ba` / `853bf64b…753`, no_feet_air_time `1bcc0c53…099` / `baa0ee9f…9ae0` / `ba84a2b5…7822`다. 전체 해시는 state JSON을 기준으로 한다.
+- 평가 계약은 seed 20260824, 26 commands × 10 environments, 20초다. training reward는 variant별 정의가 달라 직접 비교하지 않고, 고정 평가의 추종 RMSE·torque·power proxy·action 변화량·넘어짐률만 비교했다.
+- 핵심 paired 결과: no_torque는 torque `+11.92%`, power `+5.48%`, action-rate `+41.00%`; no_action_rate는 linear RMSE `+10.35%`, power `+12.15%`, action-rate `+123.36%`; no_feet_air_time은 yaw RMSE `-6.62%`, torque `-5.31%`, power `-9.53%`, first-contact count `+77.58%`, raw feet-air-time `-75.94%`였다.
+- no_torque 넘어짐 2건은 seed 43의 단일 측면 명령에서만 발생했다. 전체 780 trials 중 2건, 3-seed 평균 fall rate 0.2564%이며 절대 2% 임계값에는 미달했다.
+- 표본은 variant당 `n=3`이고 flat·20초 평가에 한정된다. power는 전기 에너지가 아닌 시뮬레이션 proxy이며, early fall 이후 상태를 제외하므로 연속 지표에 조건부 표본 편향이 있을 수 있다.
+- 전체 평균표, seed 방향 일관성, 실용 임계값과 한계는 `docs/G005_REWARD_ABLATION.md`에 기록했다.
+- G006 handoff: 세 보상을 유지한 baseline을 기준으로 rough terrain, domain randomization, 고정 push protocol의 회복률을 비교한다.

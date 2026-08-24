@@ -76,3 +76,23 @@ cd "$HOME\isaac-walk-rl"
 ```
 
 현재 호스트에서는 4096까지 짧은 10-iteration 실행이 통과해 `highest_operational=4096`, `highest_safe=4096`으로 측정됐습니다. 이는 장기 안정성 판정이 아닙니다. 전체 표, checkpoint hash와 TensorBoard 경로는 `reports/runs/g004_go2_scale_summary.json`과 `RUN_NOTES.md`에 있습니다. 사용자 제공 MuJoCo 51k steps/s는 동일 조건 벤치마크가 아니므로 직접 비교하지 않습니다.
+
+## Go2 flat 보상 ablation
+
+G005에서는 4096 environments × 300 iterations 조건에서 baseline과 `dof_torques_l2`, `action_rate_l2`, `feet_air_time` 단일 제거 variants를 seeds 42/43/44로 학습했습니다. 12/12 runs가 실패 없이 완료됐고, 총 학습 시간은 105.4분, 실행별 평균 처리량의 평균은 60,238.2 steps/s, 최대 peak VRAM은 4,822 MiB였습니다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+.\scripts\run_reward_ablation.ps1
+
+# 중단된 queue 재개
+.\scripts\run_reward_ablation.ps1 -Resume
+
+# 기존 증거를 엄격 검증하고 summary 재생성
+& "$HOME\IsaacLab\_isaac_sim\python.bat" .\scripts\summarize_reward_ablation.py `
+  --manifest .\configs\g005_reward_ablation.json `
+  --queue .\reports\runs\g005_reward_ablation_state.json `
+  --output .\reports\runs\g005_reward_ablation_summary.json
+```
+
+해석과 한계는 [`docs/G005_REWARD_ABLATION.md`](docs/G005_REWARD_ABLATION.md), 정량 summary는 [`reports/runs/g005_reward_ablation_summary.json`](reports/runs/g005_reward_ablation_summary.json), job별 checkpoint·TensorBoard·해시는 [`reports/runs/g005_reward_ablation_state.json`](reports/runs/g005_reward_ablation_state.json)에 있습니다. 학습 reward는 variant마다 정의가 달라 직접 비교하지 않습니다. Isaac Lab 본체는 계속 저장소 밖 `$HOME\IsaacLab`에 둡니다.

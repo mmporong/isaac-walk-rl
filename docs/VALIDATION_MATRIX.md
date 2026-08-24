@@ -12,7 +12,7 @@
 | ANYmal-C 50 iterations | 정상 종료와 checkpoint/log | 64 env, seed 42, exit 0, model_49.pt 확인으로 검증 완료 |
 | ANYmal-C flat 300 iterations | 정상 종료, TensorBoard scalar, checkpoint hash | 64 env, seed 42, exit 0, 299/300, model_299.pt 확인으로 검증 완료 |
 | Go2 flat scale ladder | 64→2048 순차 실행과 조건부 4096, 각 checkpoint·TensorBoard·GPU 회복 | seed 42, 각 10 iterations, 64/256/512/1024/2048/4096 모두 PASS; 장기 baseline은 별도 |
-| 보상 ablation | 동일 budget·3 seeds 이상 비교 | 실행 대기 |
+| 보상 ablation | 동일 budget·3 seeds 이상 비교 | PASS; Go2 flat 4096 env × 300 iterations, 4 variants × seeds 42/43/44, 12/12 complete·failed 0, 고정 26×10×20초 평가와 strict hash 검증 완료 |
 | rough·DR | flat baseline 대비 지표 | 실행 대기 |
 | 외란 회복 개선 | 고정 protocol과 Wilson 95% CI | 실행 대기 |
 | RBQ 2.1.1 backport | API 매핑과 smoke 또는 blocker | 조사 대기 |

@@ -1,0 +1,1370 @@
+{
+  "schema_version": 1,
+  "experiment_name": "g005_go2_flat_reward_ablation",
+  "protocol_sha256": "4ff2f271ed7e217966ed7e09a1f0de5bfacc056020721623af6211d264835d9c",
+  "job_completeness": {
+    "expected": 12,
+    "complete": 12,
+    "variants": 4,
+    "seeds_per_variant": 3
+  },
+  "practical_thresholds": {
+    "tracking_relative": 0.05,
+    "energy_relative": 0.05,
+    "fall_absolute": 0.02
+  },
+  "warnings": [
+    "n=3이므로 표본 표준편차와 paired delta는 탐색적 근거이며 통계적 검정력이 제한됩니다.",
+    "absolute_mechanical_power_w는 |applied_torque * joint_velocity| 합의 시뮬레이션 proxy이며 전기 에너지 측정값이 아닙니다."
+  ],
+  "results": {
+    "baseline": {
+      "effective_weights": {
+        "torque": -0.0002,
+        "action_rate": -0.01,
+        "feet_air_time": 0.25
+      },
+      "metrics": {
+        "sample_count": {
+          "values_by_seed": {
+            "42": 260000,
+            "43": 260000,
+            "44": 260000
+          },
+          "mean": 260000.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0
+        },
+        "lin_vel_rmse_mps": {
+          "values_by_seed": {
+            "42": 0.10427544741045536,
+            "43": 0.11669062878167803,
+            "44": 0.11663759290126957
+          },
+          "mean": 0.11253455636446764,
+          "sample_std": 0.007152647323672351,
+          "sample_variance": 5.116036373683724e-05
+        },
+        "yaw_rate_rmse_radps": {
+          "values_by_seed": {
+            "42": 0.15721290504711408,
+            "43": 0.1659164372128777,
+            "44": 0.15758589946559154
+          },
+          "mean": 0.16023841390852778,
+          "sample_std": 0.004920847761576193,
+          "sample_variance": 2.4214742692609424e-05
+        },
+        "torque_l2_mean": {
+          "values_by_seed": {
+            "42": 383.6231802396334,
+            "43": 409.8881694786659,
+            "44": 365.44716154972957
+          },
+          "mean": 386.3195037560096,
+          "sample_std": 22.342860533370995,
+          "sample_variance": 499.2034168136673
+        },
+        "absolute_mechanical_power_w": {
+          "values_by_seed": {
+            "42": 125.12601061072716,
+            "43": 122.67547517277644,
+            "44": 123.21355693359375
+          },
+          "mean": 123.67168090569912,
+          "sample_std": 1.2879010689980352,
+          "sample_variance": 1.6586891635262822
+        },
+        "action_rate_l2_mean": {
+          "values_by_seed": {
+            "42": 2.008505100778433,
+            "43": 2.2785962904710035,
+            "44": 2.4699378712580753
+          },
+          "mean": 2.252346420835837,
+          "sample_std": 0.2318336519145289,
+          "sample_variance": 0.053746842160026946
+        },
+        "feet_air_time_raw_mean": {
+          "values_by_seed": {
+            "42": -0.022705478219344065,
+            "43": -0.04708273660861529,
+            "44": -0.05295320841899285
+          },
+          "mean": -0.040913807748984066,
+          "sample_std": 0.016039733726408288,
+          "sample_variance": 0.0002572730580140795
+        },
+        "mean_air_time_at_first_contact_s": {
+          "values_by_seed": {
+            "42": 0.025281399999862564,
+            "43": 0.026889349000142025,
+            "44": 0.0230187396323203
+          },
+          "mean": 0.02506316287744163,
+          "sample_std": 0.0019445114555510469,
+          "sample_variance": 3.7811248007692506e-06
+        },
+        "fall_trial_rate": {
+          "values_by_seed": {
+            "42": 0.0,
+            "43": 0.0,
+            "44": 0.0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0
+        },
+        "survival_rate": {
+          "values_by_seed": {
+            "42": 1.0,
+            "43": 1.0,
+            "44": 1.0
+          },
+          "mean": 1.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0
+        },
+        "first_contact_count": {
+          "values_by_seed": {
+            "42": 12529,
+            "43": 25942,
+            "44": 28913
+          },
+          "mean": 22461.333333333332,
+          "sample_std": 8728.983006818911,
+          "sample_variance": 76195144.33333333
+        },
+        "fall_count": {
+          "values_by_seed": {
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0
+        },
+        "timeout_count": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0
+        },
+        "reset_count": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0
+        },
+        "fall_timeout_overlap_count": {
+          "values_by_seed": {
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0
+        },
+        "trials_started": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0
+        }
+      }
+    },
+    "no_torque": {
+      "effective_weights": {
+        "torque": 0.0,
+        "action_rate": -0.01,
+        "feet_air_time": 0.25
+      },
+      "metrics": {
+        "sample_count": {
+          "values_by_seed": {
+            "42": 260000,
+            "43": 258135,
+            "44": 260000
+          },
+          "mean": 259378.33333333334,
+          "sample_std": 1076.758252038652,
+          "sample_variance": 1159408.3333333333,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": -1865.0,
+              "44": 0.0
+            },
+            "mean_delta": -621.6666666666666,
+            "sample_std_delta": 1076.758252038652,
+            "sample_variance_delta": 1159408.3333333333,
+            "relative_mean_delta": -0.0023910256410256407,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "lin_vel_rmse_mps": {
+          "values_by_seed": {
+            "42": 0.11307480731680986,
+            "43": 0.11909296710334681,
+            "44": 0.10879527357388533
+          },
+          "mean": 0.11365434933134733,
+          "sample_std": 0.005173250884756978,
+          "sample_variance": 2.676252471663885e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.008799359906354498,
+              "43": 0.002402338321668779,
+              "44": -0.007842319327384245
+            },
+            "mean_delta": 0.0011197929668796773,
+            "sample_std_delta": 0.008394644951990594,
+            "sample_variance_delta": 7.047006386998116e-05,
+            "relative_mean_delta": 0.009950658740351578,
+            "practical_threshold_kind": "tracking_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": false
+          }
+        },
+        "yaw_rate_rmse_radps": {
+          "values_by_seed": {
+            "42": 0.1594848522662088,
+            "43": 0.1610087677388387,
+            "44": 0.15599806855525444
+          },
+          "mean": 0.15883056285343397,
+          "sample_std": 0.0025686275623073326,
+          "sample_variance": 6.59784755384491e-06,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.002271947219094711,
+              "43": -0.004907669474038978,
+              "44": -0.0015878309103370958
+            },
+            "mean_delta": -0.0014078510550937877,
+            "sample_std_delta": 0.003593190577509219,
+            "sample_variance_delta": 1.2911018526301033e-05,
+            "relative_mean_delta": -0.008785977224521584,
+            "practical_threshold_kind": "tracking_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": false
+          }
+        },
+        "torque_l2_mean": {
+          "values_by_seed": {
+            "42": 424.2096954852764,
+            "43": 434.9707267620988,
+            "44": 437.8769103064904
+          },
+          "mean": 432.3524441846219,
+          "sample_std": 7.19998215164053,
+          "sample_variance": 51.83974298394219,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 40.586515245643,
+              "43": 25.082557283432948,
+              "44": 72.42974875676083
+            },
+            "mean_delta": 46.03294042861226,
+            "sample_std_delta": 24.138906262675913,
+            "sample_variance_delta": 582.6867955582544,
+            "relative_mean_delta": 0.1191576919649534,
+            "practical_threshold_kind": "energy_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": true
+          }
+        },
+        "absolute_mechanical_power_w": {
+          "values_by_seed": {
+            "42": 129.3838438626803,
+            "43": 138.62335639690716,
+            "44": 123.32202001953125
+          },
+          "mean": 130.4430734263729,
+          "sample_std": 7.705465539787464,
+          "sample_variance": 59.37419918485211,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 4.25783325195313,
+              "43": 15.947881224130711,
+              "44": 0.10846308593750109
+            },
+            "mean_delta": 6.771392520673781,
+            "sample_std_delta": 8.2134205351461,
+            "sample_variance_delta": 67.46027688715964,
+            "relative_mean_delta": 0.054752975548517324,
+            "practical_threshold_kind": "energy_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": true
+          }
+        },
+        "action_rate_l2_mean": {
+          "values_by_seed": {
+            "42": 2.965464533644456,
+            "43": 3.5297660162482734,
+            "44": 3.0319107486431416
+          },
+          "mean": 3.175713766178623,
+          "sample_std": 0.30841290781426317,
+          "sample_variance": 0.0951185217064492,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.9569594328660229,
+              "43": 1.2511697257772698,
+              "44": 0.5619728773850663
+            },
+            "mean_delta": 0.9233673453427863,
+            "sample_std_delta": 0.34582422589599343,
+            "sample_variance_delta": 0.11959439521656308,
+            "relative_mean_delta": 0.40995796064094275,
+            "practical_threshold_kind": "energy_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": true
+          }
+        },
+        "feet_air_time_raw_mean": {
+          "values_by_seed": {
+            "42": -0.04458572214016548,
+            "43": -0.042542657612585896,
+            "44": -0.03756484338113895
+          },
+          "mean": -0.041564407711296776,
+          "sample_std": 0.003611220609332337,
+          "sample_variance": 1.3040914289266613e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": -0.021880243920821413,
+              "43": 0.004540078996029394,
+              "44": 0.015388365037853902
+            },
+            "mean_delta": -0.0006505999623127057,
+            "sample_std_delta": 0.01916884619545723,
+            "sample_variance_delta": 0.00036744466446509506,
+            "relative_mean_delta": -0.015901721157421746,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "mean_air_time_at_first_contact_s": {
+          "values_by_seed": {
+            "42": 0.019853180085385533,
+            "43": 0.02286021797582952,
+            "44": 0.029678043396895445
+          },
+          "mean": 0.02413048048603683,
+          "sample_std": 0.005034099711576243,
+          "sample_variance": 2.5342159906092012e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": -0.00542821991447703,
+              "43": -0.004029131024312505,
+              "44": 0.006659303764575145
+            },
+            "mean_delta": -0.0009326823914047969,
+            "sample_std_delta": 0.006611962853426263,
+            "sample_variance_delta": 4.371805277508877e-05,
+            "relative_mean_delta": -0.03721327575316792,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "fall_trial_rate": {
+          "values_by_seed": {
+            "42": 0.0,
+            "43": 0.007692307692307693,
+            "44": 0.0
+          },
+          "mean": 0.002564102564102564,
+          "sample_std": 0.004441155916843275,
+          "sample_variance": 1.9723865877712034e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.007692307692307693,
+              "44": 0.0
+            },
+            "mean_delta": 0.002564102564102564,
+            "sample_std_delta": 0.004441155916843275,
+            "sample_variance_delta": 1.9723865877712034e-05,
+            "relative_mean_delta": null,
+            "practical_threshold_kind": "fall_absolute",
+            "practical_threshold": 0.02,
+            "exceeds_practical_threshold": false
+          }
+        },
+        "survival_rate": {
+          "values_by_seed": {
+            "42": 1.0,
+            "43": 0.9923076923076923,
+            "44": 1.0
+          },
+          "mean": 0.9974358974358974,
+          "sample_std": 0.00444115591684326,
+          "sample_variance": 1.972386587771189e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": -0.007692307692307665,
+              "44": 0.0
+            },
+            "mean_delta": -0.002564102564102555,
+            "sample_std_delta": 0.00444115591684326,
+            "sample_variance_delta": 1.972386587771189e-05,
+            "relative_mean_delta": -0.002564102564102555,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "first_contact_count": {
+          "values_by_seed": {
+            "42": 24266,
+            "43": 23114,
+            "44": 20839
+          },
+          "mean": 22739.666666666668,
+          "sample_std": 1743.8968815080018,
+          "sample_variance": 3041176.3333333335,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 11737.0,
+              "43": -2828.0,
+              "44": -8074.0
+            },
+            "mean_delta": 278.3333333333333,
+            "sample_std_delta": 10264.302720269572,
+            "sample_variance_delta": 105355910.33333333,
+            "relative_mean_delta": 0.012391665677312121,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "fall_count": {
+          "values_by_seed": {
+            "42": 0,
+            "43": 2,
+            "44": 0
+          },
+          "mean": 0.6666666666666666,
+          "sample_std": 1.1547005383792515,
+          "sample_variance": 1.3333333333333333,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 2.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.6666666666666666,
+            "sample_std_delta": 1.1547005383792515,
+            "sample_variance_delta": 1.3333333333333333,
+            "relative_mean_delta": null,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "timeout_count": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 258,
+            "44": 260
+          },
+          "mean": 259.3333333333333,
+          "sample_std": 1.1547005383792515,
+          "sample_variance": 1.3333333333333333,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": -2.0,
+              "44": 0.0
+            },
+            "mean_delta": -0.6666666666666666,
+            "sample_std_delta": 1.1547005383792515,
+            "sample_variance_delta": 1.3333333333333333,
+            "relative_mean_delta": -0.002564102564102564,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "reset_count": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "fall_timeout_overlap_count": {
+          "values_by_seed": {
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": null,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "trials_started": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        }
+      }
+    },
+    "no_action_rate": {
+      "effective_weights": {
+        "torque": -0.0002,
+        "action_rate": 0.0,
+        "feet_air_time": 0.25
+      },
+      "metrics": {
+        "sample_count": {
+          "values_by_seed": {
+            "42": 260000,
+            "43": 260000,
+            "44": 260000
+          },
+          "mean": 260000.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "lin_vel_rmse_mps": {
+          "values_by_seed": {
+            "42": 0.1359369910624427,
+            "43": 0.11801123725642783,
+            "44": 0.11861402196256303
+          },
+          "mean": 0.12418741676047784,
+          "sample_std": 0.01017989241389771,
+          "sample_variance": 0.00010363020955853214,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.03166154365198734,
+              "43": 0.001320608474749796,
+              "44": 0.001976429061293458
+            },
+            "mean_delta": 0.011652860396010198,
+            "sample_std_delta": 0.017331130355200397,
+            "sample_variance_delta": 0.0003003680793889486,
+            "relative_mean_delta": 0.10354917433779073,
+            "practical_threshold_kind": "tracking_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": true
+          }
+        },
+        "yaw_rate_rmse_radps": {
+          "values_by_seed": {
+            "42": 0.1743099547290641,
+            "43": 0.16321985903652356,
+            "44": 0.16285690878820164
+          },
+          "mean": 0.16679557418459642,
+          "sample_std": 0.006510174302274473,
+          "sample_variance": 4.238236944599492e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.017097049681950027,
+              "43": -0.0026965781763541308,
+              "44": 0.0052710093226100985
+            },
+            "mean_delta": 0.006557160276068665,
+            "sample_std_delta": 0.009959295364360393,
+            "sample_variance_delta": 9.91875641545704e-05,
+            "relative_mean_delta": 0.04092127546776533,
+            "practical_threshold_kind": "tracking_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": false
+          }
+        },
+        "torque_l2_mean": {
+          "values_by_seed": {
+            "42": 381.58430095402645,
+            "43": 425.14557247596156,
+            "44": 403.9968207557091
+          },
+          "mean": 403.5755647285657,
+          "sample_std": 21.783690840448553,
+          "sample_variance": 474.5291866322422,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": -2.0388792856069813,
+              "43": 15.257402997295685,
+              "44": 38.54965920597954
+            },
+            "mean_delta": 17.25606097255608,
+            "sample_std_delta": 20.367948828915104,
+            "sample_variance_delta": 414.8533394973041,
+            "relative_mean_delta": 0.04466784825716334,
+            "practical_threshold_kind": "energy_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": false
+          }
+        },
+        "absolute_mechanical_power_w": {
+          "values_by_seed": {
+            "42": 136.16507463191107,
+            "43": 151.85368229417068,
+            "44": 128.07332375300481
+          },
+          "mean": 138.69736022636218,
+          "sample_std": 12.090728507228114,
+          "sample_variance": 146.1857158354986,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 11.039064021183904,
+              "43": 29.178207121394237,
+              "44": 4.859766819411064
+            },
+            "mean_delta": 15.025679320663068,
+            "sample_std_delta": 12.639875823749648,
+            "sample_variance_delta": 159.76646083981086,
+            "relative_mean_delta": 0.12149652378478058,
+            "practical_threshold_kind": "energy_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": true
+          }
+        },
+        "action_rate_l2_mean": {
+          "values_by_seed": {
+            "42": 4.84640771883451,
+            "43": 6.234167958420974,
+            "44": 4.011880885138878
+          },
+          "mean": 5.0308188541314545,
+          "sample_std": 1.1225620513518646,
+          "sample_variance": 1.2601455591353063,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 2.837902618056077,
+              "43": 3.9555716679499704,
+              "44": 1.541943013880803
+            },
+            "mean_delta": 2.778472433295617,
+            "sample_std_delta": 1.2079113295608381,
+            "sample_variance_delta": 1.459049780081432,
+            "relative_mean_delta": 1.2335901829277827,
+            "practical_threshold_kind": "energy_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": true
+          }
+        },
+        "feet_air_time_raw_mean": {
+          "values_by_seed": {
+            "42": -0.06674242742611812,
+            "43": -0.06784020731999324,
+            "44": -0.08889027227621812
+          },
+          "mean": -0.07449096900744316,
+          "sample_std": 0.012482236624237825,
+          "sample_variance": 0.0001558062311434641,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": -0.044036949206774055,
+              "43": -0.02075747071137795,
+              "44": -0.035937063857225275
+            },
+            "mean_delta": -0.03357716125845909,
+            "sample_std_delta": 0.01181779949741702,
+            "sample_variance_delta": 0.00013966038496114995,
+            "relative_mean_delta": -0.8206804280956432,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "mean_air_time_at_first_contact_s": {
+          "values_by_seed": {
+            "42": 0.0218579907232053,
+            "43": 0.019450047715480825,
+            "44": 0.027743450025648098
+          },
+          "mean": 0.02301716282144474,
+          "sample_std": 0.0042664845522484415,
+          "sample_variance": 1.8202890434574584e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": -0.0034234092766572653,
+              "43": -0.0074393012846612,
+              "44": 0.0047247103933277974
+            },
+            "mean_delta": -0.002046000055996889,
+            "sample_std_delta": 0.00619788166605602,
+            "sample_variance_delta": 3.8413737146433344e-05,
+            "relative_mean_delta": -0.08163375332960923,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "fall_trial_rate": {
+          "values_by_seed": {
+            "42": 0.0,
+            "43": 0.0,
+            "44": 0.0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": null,
+            "practical_threshold_kind": "fall_absolute",
+            "practical_threshold": 0.02,
+            "exceeds_practical_threshold": false
+          }
+        },
+        "survival_rate": {
+          "values_by_seed": {
+            "42": 1.0,
+            "43": 1.0,
+            "44": 1.0
+          },
+          "mean": 1.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "first_contact_count": {
+          "values_by_seed": {
+            "42": 36372,
+            "43": 36874,
+            "44": 49011
+          },
+          "mean": 40752.333333333336,
+          "sample_std": 7156.61807932583,
+          "sample_variance": 51217182.333333336,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 23843.0,
+              "43": 10932.0,
+              "44": 20098.0
+            },
+            "mean_delta": 18291.0,
+            "sample_std_delta": 6642.470699973015,
+            "sample_variance_delta": 44122417.0,
+            "relative_mean_delta": 0.8143327792947881,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "fall_count": {
+          "values_by_seed": {
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": null,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "timeout_count": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "reset_count": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "fall_timeout_overlap_count": {
+          "values_by_seed": {
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": null,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "trials_started": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        }
+      }
+    },
+    "no_feet_air_time": {
+      "effective_weights": {
+        "torque": -0.0002,
+        "action_rate": -0.01,
+        "feet_air_time": 0.0
+      },
+      "metrics": {
+        "sample_count": {
+          "values_by_seed": {
+            "42": 260000,
+            "43": 260000,
+            "44": 260000
+          },
+          "mean": 260000.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "lin_vel_rmse_mps": {
+          "values_by_seed": {
+            "42": 0.11391563568861882,
+            "43": 0.11325283565386508,
+            "44": 0.11507808565974491
+          },
+          "mean": 0.11408218566740962,
+          "sample_std": 0.0009239526868663156,
+          "sample_variance": 8.536885675674838e-07,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.009640188278163458,
+              "43": -0.003437793127812949,
+              "44": -0.001559507241524663
+            },
+            "mean_delta": 0.0015476293029419487,
+            "sample_std_delta": 0.0070710057660304665,
+            "sample_variance_delta": 4.9999122543236104e-05,
+            "relative_mean_delta": 0.013752480597423022,
+            "practical_threshold_kind": "tracking_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": false
+          }
+        },
+        "yaw_rate_rmse_radps": {
+          "values_by_seed": {
+            "42": 0.15434079440519305,
+            "43": 0.13999221127552156,
+            "44": 0.1545778371384982
+          },
+          "mean": 0.14963694760640425,
+          "sample_std": 0.008353427529076909,
+          "sample_variance": 6.977975148353994e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": -0.0028721106419210274,
+              "43": -0.025924225937356132,
+              "44": -0.0030080623270933304
+            },
+            "mean_delta": -0.010601466302123497,
+            "sample_std_delta": 0.013270073204188108,
+            "sample_variance_delta": 0.00017609484284451124,
+            "relative_mean_delta": -0.06616057937377832,
+            "practical_threshold_kind": "tracking_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": true
+          }
+        },
+        "torque_l2_mean": {
+          "values_by_seed": {
+            "42": 350.20973333082935,
+            "43": 375.5714003549429,
+            "44": 371.6122226938101
+          },
+          "mean": 365.7977854598608,
+          "sample_std": 13.644020625209947,
+          "sample_variance": 186.15929882115444,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": -33.413446908804076,
+              "43": -34.31676912372296,
+              "44": 6.165061144080539
+            },
+            "mean_delta": -20.521718296148833,
+            "sample_std_delta": 23.11584187142182,
+            "sample_variance_delta": 534.3421454245783,
+            "relative_mean_delta": -0.053121103378487126,
+            "practical_threshold_kind": "energy_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": true
+          }
+        },
+        "absolute_mechanical_power_w": {
+          "values_by_seed": {
+            "42": 110.46143919020433,
+            "43": 114.33074053485576,
+            "44": 110.87846717247596
+          },
+          "mean": 111.89021563251202,
+          "sample_std": 2.123817184627562,
+          "sample_variance": 4.510599433719343,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": -14.664571420522833,
+              "43": -8.34473463792068,
+              "44": -12.335089761117786
+            },
+            "mean_delta": -11.7814652731871,
+            "sample_std_delta": 3.1960849949446226,
+            "sample_variance_delta": 10.214959294910168,
+            "relative_mean_delta": -0.09526405064527735,
+            "practical_threshold_kind": "energy_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": true
+          }
+        },
+        "action_rate_l2_mean": {
+          "values_by_seed": {
+            "42": 2.08167133202186,
+            "43": 2.345877060053899,
+            "44": 2.126353197655311
+          },
+          "mean": 2.18463386324369,
+          "sample_std": 0.1414165607957685,
+          "sample_variance": 0.01999864366730329,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0731662312434267,
+              "43": 0.06728076958289542,
+              "44": -0.3435846736027641
+            },
+            "mean_delta": -0.06771255759214734,
+            "sample_std_delta": 0.23893038308024117,
+            "sample_variance_delta": 0.0570877279588708,
+            "relative_mean_delta": -0.030063118606337418,
+            "practical_threshold_kind": "energy_relative",
+            "practical_threshold": 0.05,
+            "exceeds_practical_threshold": false
+          }
+        },
+        "feet_air_time_raw_mean": {
+          "values_by_seed": {
+            "42": -0.07445841414745037,
+            "43": -0.06796842116942772,
+            "44": -0.07352073923991277
+          },
+          "mean": -0.07198252485226363,
+          "sample_std": 0.003507788454350399,
+          "sample_variance": 1.230457984047396e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": -0.05175293592810631,
+              "43": -0.020885684560812433,
+              "44": -0.020567530820919923
+            },
+            "mean_delta": -0.031068717103279558,
+            "sample_std_delta": 0.017913765286659864,
+            "sample_variance_delta": 0.00032090298674553996,
+            "relative_mean_delta": -0.7593699734303275,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "mean_air_time_at_first_contact_s": {
+          "values_by_seed": {
+            "42": 0.03315269898116926,
+            "43": 0.026474684814829983,
+            "44": 0.02776695859179459
+          },
+          "mean": 0.029131447462597947,
+          "sample_std": 0.0035419402465833145,
+          "sample_variance": 1.254534071036667e-05,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.007871298981306694,
+              "43": -0.0004146641853120421,
+              "44": 0.00474821895947429
+            },
+            "mean_delta": 0.004068284585156314,
+            "sample_std_delta": 0.00418461819819622,
+            "sample_variance_delta": 1.7511029464674982e-05,
+            "relative_mean_delta": 0.1623212762511318,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "fall_trial_rate": {
+          "values_by_seed": {
+            "42": 0.0,
+            "43": 0.0,
+            "44": 0.0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": null,
+            "practical_threshold_kind": "fall_absolute",
+            "practical_threshold": 0.02,
+            "exceeds_practical_threshold": false
+          }
+        },
+        "survival_rate": {
+          "values_by_seed": {
+            "42": 1.0,
+            "43": 1.0,
+            "44": 1.0
+          },
+          "mean": 1.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "first_contact_count": {
+          "values_by_seed": {
+            "42": 41535,
+            "43": 37564,
+            "44": 40560
+          },
+          "mean": 39886.333333333336,
+          "sample_std": 2069.4396181897487,
+          "sample_variance": 4282580.333333333,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 29006.0,
+              "43": 11622.0,
+              "44": 11647.0
+            },
+            "mean_delta": 17425.0,
+            "sample_std_delta": 10029.447990791916,
+            "sample_variance_delta": 100589827.0,
+            "relative_mean_delta": 0.7757776326724445,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "fall_count": {
+          "values_by_seed": {
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": null,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "timeout_count": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "reset_count": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "fall_timeout_overlap_count": {
+          "values_by_seed": {
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "mean": 0.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": null,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        },
+        "trials_started": {
+          "values_by_seed": {
+            "42": 260,
+            "43": 260,
+            "44": 260
+          },
+          "mean": 260.0,
+          "sample_std": 0.0,
+          "sample_variance": 0.0,
+          "paired_vs_baseline": {
+            "deltas_by_seed": {
+              "42": 0.0,
+              "43": 0.0,
+              "44": 0.0
+            },
+            "mean_delta": 0.0,
+            "sample_std_delta": 0.0,
+            "sample_variance_delta": 0.0,
+            "relative_mean_delta": 0.0,
+            "practical_threshold_kind": null,
+            "practical_threshold": null,
+            "exceeds_practical_threshold": null
+          }
+        }
+      }
+    }
+  }
+}
