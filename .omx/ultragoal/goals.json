@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-08-24T00:54:40.416Z",
-  "updatedAt": "2026-08-24T02:39:23.218Z",
+  "updatedAt": "2026-08-24T06:46:28.601Z",
   "briefPath": ".omx/ultragoal/brief.md",
   "goalsPath": ".omx/ultragoal/goals.json",
   "ledgerPath": ".omx/ultragoal/ledger.jsonl",
@@ -59,10 +59,13 @@
       "id": "G005-ablation",
       "title": "보상 ablation",
       "objective": "세 보상 축을 한 번에 하나씩 변경해 동일 budget과 seed 집합으로 추적·에너지·낙상 지표를 비교한다.",
-      "status": "pending",
-      "attempt": 0,
+      "status": "complete",
+      "attempt": 1,
       "createdAt": "2026-08-24T00:54:40.416Z",
-      "updatedAt": "2026-08-24T00:54:40.416Z"
+      "updatedAt": "2026-08-24T06:46:28.601Z",
+      "startedAt": "2026-08-24T02:39:40.906Z",
+      "completedAt": "2026-08-24T06:46:28.601Z",
+      "evidence": "commits b83cbad and f31f3ec; 4096env 300iter 4 variants x seeds42/43/44; production queue exit0 12/12 complete failed0; total training6323.821s mean60238.2steps/s peak4822MiB; 12 checkpoints SHA and TensorBoard verified; 12 eval protocol26x10 runtime finalized GPU/process recovered fatal0; strict summary SHA14ea2c0243c43d5b12a3788a69a3205497a81ee1084c364c22c2cc30d1dd58f4 deterministic; paired findings documented; Python24 and queue tests PASS; independent analyst recomputation and verifier APPROVE"
     },
     {
       "id": "G006-rough",
