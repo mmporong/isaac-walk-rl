@@ -1,0 +1,531 @@
+{
+  "schema_version": 1,
+  "run_name": "g006_scale_baseline_e4096_i10_s42",
+  "task": "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+  "num_envs": 4096,
+  "max_iterations": 10,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "--task",
+    "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+    "--num_envs",
+    4096,
+    "--max_iterations",
+    10,
+    "--seed",
+    42,
+    "--run_name",
+    "g006_scale_baseline_e4096_i10_s42",
+    "--headless"
+  ],
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708",
+    "repository_internal": true
+  },
+  "started_at": "2026-08-24T18:21:53.5069522+09:00",
+  "ended_at": "2026-08-24T18:24:32.1384455+09:00",
+  "wall_time_seconds": 158.63,
+  "exit_code": 0,
+  "last_iteration": 9,
+  "iteration_target": 10,
+  "gpu": {
+    "baseline_used_mib": 1002,
+    "peak_used_mib": 7240.0,
+    "delta_used_mib": 6238.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.06,
+        "used_mib": 1004
+      },
+      {
+        "elapsed_seconds": 2.125,
+        "used_mib": 1097
+      },
+      {
+        "elapsed_seconds": 4.194,
+        "used_mib": 1097
+      },
+      {
+        "elapsed_seconds": 6.263,
+        "used_mib": 1129
+      },
+      {
+        "elapsed_seconds": 8.331,
+        "used_mib": 1129
+      },
+      {
+        "elapsed_seconds": 10.4,
+        "used_mib": 1160
+      },
+      {
+        "elapsed_seconds": 12.47,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 14.556,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 16.637,
+        "used_mib": 4452
+      },
+      {
+        "elapsed_seconds": 18.707,
+        "used_mib": 6288
+      },
+      {
+        "elapsed_seconds": 20.796,
+        "used_mib": 6288
+      },
+      {
+        "elapsed_seconds": 22.878,
+        "used_mib": 6310
+      },
+      {
+        "elapsed_seconds": 24.966,
+        "used_mib": 6562
+      },
+      {
+        "elapsed_seconds": 27.049,
+        "used_mib": 6732
+      },
+      {
+        "elapsed_seconds": 29.131,
+        "used_mib": 6732
+      },
+      {
+        "elapsed_seconds": 31.232,
+        "used_mib": 6732
+      },
+      {
+        "elapsed_seconds": 33.326,
+        "used_mib": 6732
+      },
+      {
+        "elapsed_seconds": 35.405,
+        "used_mib": 6776
+      },
+      {
+        "elapsed_seconds": 37.51,
+        "used_mib": 6776
+      },
+      {
+        "elapsed_seconds": 39.588,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 41.694,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 43.771,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 45.879,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 47.957,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 50.022,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 52.11,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 54.194,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 56.26,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 58.335,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 60.402,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 62.468,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 64.587,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 66.671,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 68.753,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 70.843,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 72.927,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 75.011,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 77.099,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 79.185,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 81.265,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 83.351,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 85.452,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 87.559,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 89.659,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 91.737,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 93.826,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 95.923,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 98.007,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 100.092,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 102.176,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 104.279,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 106.367,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 108.45,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 110.533,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 112.614,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 114.703,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 116.784,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 118.888,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 120.979,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 123.058,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 125.181,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 127.28,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 129.36,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 131.467,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 133.562,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 135.669,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 137.751,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 139.832,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 141.934,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 144.034,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 146.116,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 148.257,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 150.36,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 152.453,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 154.538,
+        "used_mib": 3880
+      },
+      {
+        "elapsed_seconds": 156.62,
+        "used_mib": 1004
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.088,
+        "used_mib": 1002
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      6885,
+      8267,
+      8463,
+      8243,
+      8057,
+      7879,
+      7904,
+      7837,
+      7619,
+      7560
+    ],
+    "mean_steps_per_second": 7871.4,
+    "median_steps_per_second": 7891.5,
+    "final_mean_reward": -3.91,
+    "final_mean_episode_length": 230.98
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_scale_baseline_e4096_i10_s42.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_scale_baseline_e4096_i10_s42.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-22-03_g006_scale_baseline_e4096_i10_s42",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-22-03_g006_scale_baseline_e4096_i10_s42\\model_9.pt",
+    "checkpoint_sha256": "faa74d4957469e885f5efb1e330df052d9502f73bb2d364dfe6b7fec725c228c"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/track_lin_vel_xy_exp",
+      "Episode_Reward/track_ang_vel_z_exp",
+      "Episode_Reward/lin_vel_z_l2",
+      "Episode_Reward/ang_vel_xy_l2",
+      "Episode_Reward/dof_torques_l2",
+      "Episode_Reward/dof_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/feet_air_time",
+      "Episode_Reward/flat_orientation_l2",
+      "Episode_Reward/dof_pos_limits",
+      "Curriculum/terrain_levels",
+      "Curriculum/g006_state/mean_level",
+      "Curriculum/g006_state/p10_level",
+      "Curriculum/g006_state/p50_level",
+      "Curriculum/g006_state/p90_level",
+      "Curriculum/g006_state/low_fraction",
+      "Curriculum/g006_state/mid_fraction",
+      "Curriculum/g006_state/high_fraction",
+      "Curriculum/g006_state/stage",
+      "Curriculum/g006_state/events_stage_0",
+      "Curriculum/g006_state/magnitude_mean_stage_0",
+      "Curriculum/g006_state/magnitude_min_stage_0",
+      "Curriculum/g006_state/magnitude_max_stage_0",
+      "Curriculum/g006_state/events_stage_1",
+      "Curriculum/g006_state/magnitude_mean_stage_1",
+      "Curriculum/g006_state/magnitude_min_stage_1",
+      "Curriculum/g006_state/magnitude_max_stage_1",
+      "Curriculum/g006_state/events_stage_2",
+      "Curriculum/g006_state/magnitude_mean_stage_2",
+      "Curriculum/g006_state/magnitude_min_stage_2",
+      "Curriculum/g006_state/magnitude_max_stage_2",
+      "Metrics/base_velocity/error_vel_xy",
+      "Metrics/base_velocity/error_vel_yaw",
+      "Episode_Termination/time_out",
+      "Episode_Termination/base_contact",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/track_lin_vel_xy_exp": 0.07783868908882141,
+      "Episode_Reward/track_ang_vel_z_exp": 0.05183517560362816,
+      "Episode_Reward/lin_vel_z_l2": -0.046911515295505524,
+      "Episode_Reward/ang_vel_xy_l2": -0.13847225904464722,
+      "Episode_Reward/dof_torques_l2": -0.02697822079062462,
+      "Episode_Reward/dof_acc_l2": -0.05035211890935898,
+      "Episode_Reward/action_rate_l2": -0.050585806369781494,
+      "Episode_Reward/feet_air_time": -0.00042118909186683595,
+      "Episode_Reward/flat_orientation_l2": 0.0,
+      "Episode_Reward/dof_pos_limits": 0.0,
+      "Curriculum/terrain_levels": 3.2316997051239014,
+      "Curriculum/g006_state/mean_level": 3.2316997051239014,
+      "Curriculum/g006_state/p10_level": 1.0,
+      "Curriculum/g006_state/p50_level": 3.0,
+      "Curriculum/g006_state/p90_level": 6.0,
+      "Curriculum/g006_state/low_fraction": 0.3739725947380066,
+      "Curriculum/g006_state/mid_fraction": 0.6260274648666382,
+      "Curriculum/g006_state/high_fraction": 0.0,
+      "Curriculum/g006_state/stage": -1.0,
+      "Curriculum/g006_state/events_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_0": 0.0,
+      "Curriculum/g006_state/events_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_1": 0.0,
+      "Curriculum/g006_state/events_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_2": 0.0,
+      "Metrics/base_velocity/error_vel_xy": 0.3417889475822449,
+      "Metrics/base_velocity/error_vel_yaw": 0.39182350039482117,
+      "Episode_Termination/time_out": 3.3333334922790527,
+      "Episode_Termination/base_contact": 3.4166667461395264,
+      "Loss/value_function": 0.008752580732107162,
+      "Loss/surrogate": -0.006693520117551088,
+      "Loss/entropy": 15.75735092163086,
+      "Loss/learning_rate": 0.005062500014901161,
+      "Policy/mean_noise_std": 0.9032973051071167,
+      "Perf/total_fps": 7560.0,
+      "Perf/collection time": 12.499164581298828,
+      "Perf/learning_time": 0.5035967826843262,
+      "Train/mean_reward": -3.905601978302002,
+      "Train/mean_episode_length": 230.97999572753906,
+      "Train/mean_reward/time": -3.905601978302002,
+      "Train/mean_episode_length/time": 230.97999572753906
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true,
+  "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+  "training_source_bundle_files": [
+    {
+      "path": "scripts/bootstrap_train_g006.py",
+      "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708"
+    },
+    {
+      "path": "src/isaac_walk_g006/__init__.py",
+      "sha256": "5c490618b41628754d0e0262af78bd1689588484c3ba8c16760c7b4bd5476409"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/__init__.py",
+      "sha256": "abe2c16cab4f19061f51cee50ed5089fefeb1d482665d3f2ac42dd5fc2f8773c"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/curriculums.py",
+      "sha256": "902fb0340923fd3ec9f8ec169f92e1c83e81aee2143267918d9d812bc702f93f"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/events.py",
+      "sha256": "54720d071ee48c428286a43555b29bf2eb2f049926109d41d418a665df3162a3"
+    },
+    {
+      "path": "src/isaac_walk_g006/registry.py",
+      "sha256": "e521bc10cf8ef1fbead67507269976a3cf571c9d4c81b4f66f1367ff0125e17f"
+    },
+    {
+      "path": "src/isaac_walk_g006/rough_env_cfg.py",
+      "sha256": "0344a67f77c4dc5d0435469c2cd8ae069c768f48395de6a884f67c04667482df"
+    }
+  ],
+  "isaaclab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+  "agent_entry_point": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2RoughPPORunnerCfg",
+  "normalized_env_diff_allowlist": [
+    "events.push_robot"
+  ]
+}

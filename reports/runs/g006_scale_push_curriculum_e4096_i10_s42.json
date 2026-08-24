@@ -1,0 +1,623 @@
+{
+  "schema_version": 1,
+  "run_name": "g006_scale_push_curriculum_e4096_i10_s42",
+  "task": "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+  "num_envs": 4096,
+  "max_iterations": 10,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "--task",
+    "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+    "--num_envs",
+    4096,
+    "--max_iterations",
+    10,
+    "--seed",
+    42,
+    "--run_name",
+    "g006_scale_push_curriculum_e4096_i10_s42",
+    "--headless"
+  ],
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708",
+    "repository_internal": true
+  },
+  "started_at": "2026-08-24T18:24:36.1145115+09:00",
+  "ended_at": "2026-08-24T18:28:04.0701832+09:00",
+  "wall_time_seconds": 207.953,
+  "exit_code": 0,
+  "last_iteration": 9,
+  "iteration_target": 10,
+  "gpu": {
+    "baseline_used_mib": 1002,
+    "peak_used_mib": 7240.0,
+    "delta_used_mib": 6238.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.135,
+        "used_mib": 1004
+      },
+      {
+        "elapsed_seconds": 2.262,
+        "used_mib": 1004
+      },
+      {
+        "elapsed_seconds": 4.369,
+        "used_mib": 1004
+      },
+      {
+        "elapsed_seconds": 6.469,
+        "used_mib": 1097
+      },
+      {
+        "elapsed_seconds": 8.567,
+        "used_mib": 1097
+      },
+      {
+        "elapsed_seconds": 10.65,
+        "used_mib": 1097
+      },
+      {
+        "elapsed_seconds": 12.752,
+        "used_mib": 1129
+      },
+      {
+        "elapsed_seconds": 14.835,
+        "used_mib": 1129
+      },
+      {
+        "elapsed_seconds": 16.937,
+        "used_mib": 1147
+      },
+      {
+        "elapsed_seconds": 19.034,
+        "used_mib": 1186
+      },
+      {
+        "elapsed_seconds": 21.138,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 23.226,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 25.311,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 27.509,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 29.65,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 31.749,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 33.849,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 35.998,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 38.141,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 40.296,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 42.429,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 44.771,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 46.928,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 49.061,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 51.158,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 53.277,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 55.354,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 57.443,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 59.574,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 61.669,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 63.739,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 65.868,
+        "used_mib": 3238
+      },
+      {
+        "elapsed_seconds": 67.953,
+        "used_mib": 6058
+      },
+      {
+        "elapsed_seconds": 70.038,
+        "used_mib": 6288
+      },
+      {
+        "elapsed_seconds": 72.125,
+        "used_mib": 6288
+      },
+      {
+        "elapsed_seconds": 74.207,
+        "used_mib": 6310
+      },
+      {
+        "elapsed_seconds": 76.293,
+        "used_mib": 6562
+      },
+      {
+        "elapsed_seconds": 78.38,
+        "used_mib": 6732
+      },
+      {
+        "elapsed_seconds": 80.464,
+        "used_mib": 6732
+      },
+      {
+        "elapsed_seconds": 82.557,
+        "used_mib": 6732
+      },
+      {
+        "elapsed_seconds": 84.633,
+        "used_mib": 6776
+      },
+      {
+        "elapsed_seconds": 86.721,
+        "used_mib": 6776
+      },
+      {
+        "elapsed_seconds": 88.804,
+        "used_mib": 6776
+      },
+      {
+        "elapsed_seconds": 90.889,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 92.975,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 95.076,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 97.177,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 99.293,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 101.374,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 103.458,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 105.547,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 107.661,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 109.753,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 111.832,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 113.939,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 116.023,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 118.123,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 120.211,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 122.296,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 124.395,
+        "used_mib": 7238
+      },
+      {
+        "elapsed_seconds": 126.499,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 128.63,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 130.699,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 132.784,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 134.886,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 136.967,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 139.056,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 141.156,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 143.243,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 145.325,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 147.419,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 149.499,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 151.607,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 153.686,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 155.769,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 157.854,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 159.938,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 162.048,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 164.124,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 166.213,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 168.296,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 170.379,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 172.501,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 174.582,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 176.665,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 178.752,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 180.837,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 182.921,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 185.037,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 187.137,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 189.224,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 191.309,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 193.41,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 195.494,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 197.578,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 199.684,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 201.78,
+        "used_mib": 7240
+      },
+      {
+        "elapsed_seconds": 203.882,
+        "used_mib": 7222
+      },
+      {
+        "elapsed_seconds": 205.945,
+        "used_mib": 3186
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.047,
+        "used_mib": 1002
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      7317,
+      8340,
+      8184,
+      8107,
+      7986,
+      7868,
+      7887,
+      7811,
+      7698,
+      7563
+    ],
+    "mean_steps_per_second": 7876.1,
+    "median_steps_per_second": 7877.5,
+    "final_mean_reward": -3.78,
+    "final_mean_episode_length": 229.56
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_scale_push_curriculum_e4096_i10_s42.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_scale_push_curriculum_e4096_i10_s42.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-24-55_g006_scale_push_curriculum_e4096_i10_s42",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-24-55_g006_scale_push_curriculum_e4096_i10_s42\\model_9.pt",
+    "checkpoint_sha256": "be15a4c82034fe35744813590374d0b5fcaa8620479e4a8bcc228df1c2836a2d"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/track_lin_vel_xy_exp",
+      "Episode_Reward/track_ang_vel_z_exp",
+      "Episode_Reward/lin_vel_z_l2",
+      "Episode_Reward/ang_vel_xy_l2",
+      "Episode_Reward/dof_torques_l2",
+      "Episode_Reward/dof_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/feet_air_time",
+      "Episode_Reward/flat_orientation_l2",
+      "Episode_Reward/dof_pos_limits",
+      "Curriculum/terrain_levels",
+      "Curriculum/g006_state/mean_level",
+      "Curriculum/g006_state/p10_level",
+      "Curriculum/g006_state/p50_level",
+      "Curriculum/g006_state/p90_level",
+      "Curriculum/g006_state/low_fraction",
+      "Curriculum/g006_state/mid_fraction",
+      "Curriculum/g006_state/high_fraction",
+      "Curriculum/g006_state/stage",
+      "Curriculum/g006_state/events_stage_0",
+      "Curriculum/g006_state/magnitude_mean_stage_0",
+      "Curriculum/g006_state/magnitude_min_stage_0",
+      "Curriculum/g006_state/magnitude_max_stage_0",
+      "Curriculum/g006_state/events_stage_1",
+      "Curriculum/g006_state/magnitude_mean_stage_1",
+      "Curriculum/g006_state/magnitude_min_stage_1",
+      "Curriculum/g006_state/magnitude_max_stage_1",
+      "Curriculum/g006_state/events_stage_2",
+      "Curriculum/g006_state/magnitude_mean_stage_2",
+      "Curriculum/g006_state/magnitude_min_stage_2",
+      "Curriculum/g006_state/magnitude_max_stage_2",
+      "Metrics/base_velocity/error_vel_xy",
+      "Metrics/base_velocity/error_vel_yaw",
+      "Episode_Termination/time_out",
+      "Episode_Termination/base_contact",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/track_lin_vel_xy_exp": 0.06946459412574768,
+      "Episode_Reward/track_ang_vel_z_exp": 0.0500478595495224,
+      "Episode_Reward/lin_vel_z_l2": -0.042502813041210175,
+      "Episode_Reward/ang_vel_xy_l2": -0.13462719321250916,
+      "Episode_Reward/dof_torques_l2": -0.02736741304397583,
+      "Episode_Reward/dof_acc_l2": -0.04858902096748352,
+      "Episode_Reward/action_rate_l2": -0.05024827644228935,
+      "Episode_Reward/feet_air_time": -0.0004392536939121783,
+      "Episode_Reward/flat_orientation_l2": 0.0,
+      "Episode_Reward/dof_pos_limits": 0.0,
+      "Curriculum/terrain_levels": 3.2443034648895264,
+      "Curriculum/g006_state/mean_level": 3.2443034648895264,
+      "Curriculum/g006_state/p10_level": 1.0,
+      "Curriculum/g006_state/p50_level": 3.0,
+      "Curriculum/g006_state/p90_level": 6.0,
+      "Curriculum/g006_state/low_fraction": 0.3697916865348816,
+      "Curriculum/g006_state/mid_fraction": 0.6302083730697632,
+      "Curriculum/g006_state/high_fraction": 0.0,
+      "Curriculum/g006_state/stage": 0.0,
+      "Curriculum/g006_state/events_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_0": 0.0,
+      "Curriculum/g006_state/events_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_1": 0.0,
+      "Curriculum/g006_state/events_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_2": 0.0,
+      "Metrics/base_velocity/error_vel_xy": 0.3510354459285736,
+      "Metrics/base_velocity/error_vel_yaw": 0.39910340309143066,
+      "Episode_Termination/time_out": 3.9166667461395264,
+      "Episode_Termination/base_contact": 2.125,
+      "Loss/value_function": 0.009598053060472012,
+      "Loss/surrogate": -0.002023454522714019,
+      "Loss/entropy": 15.68163013458252,
+      "Loss/learning_rate": 0.005062500014901161,
+      "Policy/mean_noise_std": 0.8948008418083191,
+      "Perf/total_fps": 7563.0,
+      "Perf/collection time": 12.44262409210205,
+      "Perf/learning_time": 0.5552632808685303,
+      "Train/mean_reward": -3.7793338298797607,
+      "Train/mean_episode_length": 229.55999755859375,
+      "Train/mean_reward/time": -3.7793338298797607,
+      "Train/mean_episode_length/time": 229.55999755859375
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true,
+  "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+  "training_source_bundle_files": [
+    {
+      "path": "scripts/bootstrap_train_g006.py",
+      "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708"
+    },
+    {
+      "path": "src/isaac_walk_g006/__init__.py",
+      "sha256": "5c490618b41628754d0e0262af78bd1689588484c3ba8c16760c7b4bd5476409"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/__init__.py",
+      "sha256": "abe2c16cab4f19061f51cee50ed5089fefeb1d482665d3f2ac42dd5fc2f8773c"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/curriculums.py",
+      "sha256": "902fb0340923fd3ec9f8ec169f92e1c83e81aee2143267918d9d812bc702f93f"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/events.py",
+      "sha256": "54720d071ee48c428286a43555b29bf2eb2f049926109d41d418a665df3162a3"
+    },
+    {
+      "path": "src/isaac_walk_g006/registry.py",
+      "sha256": "e521bc10cf8ef1fbead67507269976a3cf571c9d4c81b4f66f1367ff0125e17f"
+    },
+    {
+      "path": "src/isaac_walk_g006/rough_env_cfg.py",
+      "sha256": "0344a67f77c4dc5d0435469c2cd8ae069c768f48395de6a884f67c04667482df"
+    }
+  ],
+  "isaaclab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+  "agent_entry_point": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2RoughPPORunnerCfg",
+  "normalized_env_diff_allowlist": [
+    "events.push_robot"
+  ]
+}

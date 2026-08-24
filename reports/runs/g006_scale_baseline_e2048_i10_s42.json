@@ -1,0 +1,391 @@
+{
+  "schema_version": 1,
+  "run_name": "g006_scale_baseline_e2048_i10_s42",
+  "task": "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+  "num_envs": 2048,
+  "max_iterations": 10,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "--task",
+    "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+    "--num_envs",
+    2048,
+    "--max_iterations",
+    10,
+    "--seed",
+    42,
+    "--run_name",
+    "g006_scale_baseline_e2048_i10_s42",
+    "--headless"
+  ],
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708",
+    "repository_internal": true
+  },
+  "started_at": "2026-08-24T18:19:02.8030659+09:00",
+  "ended_at": "2026-08-24T18:20:27.5301759+09:00",
+  "wall_time_seconds": 84.726,
+  "exit_code": 0,
+  "last_iteration": 9,
+  "iteration_target": 10,
+  "gpu": {
+    "baseline_used_mib": 1002,
+    "peak_used_mib": 6092.0,
+    "delta_used_mib": 5090.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.064,
+        "used_mib": 1004
+      },
+      {
+        "elapsed_seconds": 2.132,
+        "used_mib": 1097
+      },
+      {
+        "elapsed_seconds": 4.199,
+        "used_mib": 1097
+      },
+      {
+        "elapsed_seconds": 6.253,
+        "used_mib": 1129
+      },
+      {
+        "elapsed_seconds": 8.31,
+        "used_mib": 1174
+      },
+      {
+        "elapsed_seconds": 10.377,
+        "used_mib": 1160
+      },
+      {
+        "elapsed_seconds": 12.45,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 14.516,
+        "used_mib": 4418
+      },
+      {
+        "elapsed_seconds": 16.583,
+        "used_mib": 5514
+      },
+      {
+        "elapsed_seconds": 18.651,
+        "used_mib": 5656
+      },
+      {
+        "elapsed_seconds": 20.706,
+        "used_mib": 5656
+      },
+      {
+        "elapsed_seconds": 22.776,
+        "used_mib": 5812
+      },
+      {
+        "elapsed_seconds": 24.844,
+        "used_mib": 5812
+      },
+      {
+        "elapsed_seconds": 26.914,
+        "used_mib": 6090
+      },
+      {
+        "elapsed_seconds": 28.982,
+        "used_mib": 6090
+      },
+      {
+        "elapsed_seconds": 31.054,
+        "used_mib": 6090
+      },
+      {
+        "elapsed_seconds": 33.121,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 35.175,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 37.25,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 39.315,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 41.385,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 43.44,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 45.509,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 47.579,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 49.651,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 51.718,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 53.788,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 55.854,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 57.925,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 59.977,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 62.045,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 64.129,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 66.196,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 68.263,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 70.333,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 72.402,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 74.475,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 76.539,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 78.607,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 80.676,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 82.725,
+        "used_mib": 1002
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.047,
+        "used_mib": 1002
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      6931,
+      8344,
+      8251,
+      8215,
+      8023,
+      8158,
+      8119,
+      7857,
+      7976,
+      7890
+    ],
+    "mean_steps_per_second": 7976.4,
+    "median_steps_per_second": 8071.0,
+    "final_mean_reward": -3.75,
+    "final_mean_episode_length": 220.86
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_scale_baseline_e2048_i10_s42.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_scale_baseline_e2048_i10_s42.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-19-12_g006_scale_baseline_e2048_i10_s42",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-19-12_g006_scale_baseline_e2048_i10_s42\\model_9.pt",
+    "checkpoint_sha256": "efd4fa961e0a062305ae465c3688757e4659f7dead4e9c82b7a0f8f1ea34656f"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/track_lin_vel_xy_exp",
+      "Episode_Reward/track_ang_vel_z_exp",
+      "Episode_Reward/lin_vel_z_l2",
+      "Episode_Reward/ang_vel_xy_l2",
+      "Episode_Reward/dof_torques_l2",
+      "Episode_Reward/dof_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/feet_air_time",
+      "Episode_Reward/flat_orientation_l2",
+      "Episode_Reward/dof_pos_limits",
+      "Curriculum/terrain_levels",
+      "Curriculum/g006_state/mean_level",
+      "Curriculum/g006_state/p10_level",
+      "Curriculum/g006_state/p50_level",
+      "Curriculum/g006_state/p90_level",
+      "Curriculum/g006_state/low_fraction",
+      "Curriculum/g006_state/mid_fraction",
+      "Curriculum/g006_state/high_fraction",
+      "Curriculum/g006_state/stage",
+      "Curriculum/g006_state/events_stage_0",
+      "Curriculum/g006_state/magnitude_mean_stage_0",
+      "Curriculum/g006_state/magnitude_min_stage_0",
+      "Curriculum/g006_state/magnitude_max_stage_0",
+      "Curriculum/g006_state/events_stage_1",
+      "Curriculum/g006_state/magnitude_mean_stage_1",
+      "Curriculum/g006_state/magnitude_min_stage_1",
+      "Curriculum/g006_state/magnitude_max_stage_1",
+      "Curriculum/g006_state/events_stage_2",
+      "Curriculum/g006_state/magnitude_mean_stage_2",
+      "Curriculum/g006_state/magnitude_min_stage_2",
+      "Curriculum/g006_state/magnitude_max_stage_2",
+      "Metrics/base_velocity/error_vel_xy",
+      "Metrics/base_velocity/error_vel_yaw",
+      "Episode_Termination/time_out",
+      "Episode_Termination/base_contact",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/track_lin_vel_xy_exp": 0.05901931971311569,
+      "Episode_Reward/track_ang_vel_z_exp": 0.047561973333358765,
+      "Episode_Reward/lin_vel_z_l2": -0.043444812297821045,
+      "Episode_Reward/ang_vel_xy_l2": -0.1383228749036789,
+      "Episode_Reward/dof_torques_l2": -0.028484027832746506,
+      "Episode_Reward/dof_acc_l2": -0.04734788462519646,
+      "Episode_Reward/action_rate_l2": -0.050983112305402756,
+      "Episode_Reward/feet_air_time": -0.00044306484051048756,
+      "Episode_Reward/flat_orientation_l2": 0.0,
+      "Episode_Reward/dof_pos_limits": 0.0,
+      "Curriculum/terrain_levels": 3.2177329063415527,
+      "Curriculum/g006_state/mean_level": 3.2177329063415527,
+      "Curriculum/g006_state/p10_level": 1.0,
+      "Curriculum/g006_state/p50_level": 3.0,
+      "Curriculum/g006_state/p90_level": 6.0,
+      "Curriculum/g006_state/low_fraction": 0.3850911557674408,
+      "Curriculum/g006_state/mid_fraction": 0.6149088740348816,
+      "Curriculum/g006_state/high_fraction": 0.0,
+      "Curriculum/g006_state/stage": -1.0,
+      "Curriculum/g006_state/events_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_0": 0.0,
+      "Curriculum/g006_state/events_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_1": 0.0,
+      "Curriculum/g006_state/events_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_2": 0.0,
+      "Metrics/base_velocity/error_vel_xy": 0.3757963180541992,
+      "Metrics/base_velocity/error_vel_yaw": 0.4156244397163391,
+      "Episode_Termination/time_out": 2.1666667461395264,
+      "Episode_Termination/base_contact": 0.75,
+      "Loss/value_function": 0.009120183065533638,
+      "Loss/surrogate": -0.006581848952919245,
+      "Loss/entropy": 15.79736328125,
+      "Loss/learning_rate": 0.004378939047455788,
+      "Policy/mean_noise_std": 0.9012990593910217,
+      "Perf/total_fps": 7890.0,
+      "Perf/collection time": 6.009358882904053,
+      "Perf/learning_time": 0.2198500633239746,
+      "Train/mean_reward": -3.7487316131591797,
+      "Train/mean_episode_length": 220.86000061035156,
+      "Train/mean_reward/time": -3.7487316131591797,
+      "Train/mean_episode_length/time": 220.86000061035156
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true,
+  "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+  "training_source_bundle_files": [
+    {
+      "path": "scripts/bootstrap_train_g006.py",
+      "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708"
+    },
+    {
+      "path": "src/isaac_walk_g006/__init__.py",
+      "sha256": "5c490618b41628754d0e0262af78bd1689588484c3ba8c16760c7b4bd5476409"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/__init__.py",
+      "sha256": "abe2c16cab4f19061f51cee50ed5089fefeb1d482665d3f2ac42dd5fc2f8773c"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/curriculums.py",
+      "sha256": "902fb0340923fd3ec9f8ec169f92e1c83e81aee2143267918d9d812bc702f93f"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/events.py",
+      "sha256": "54720d071ee48c428286a43555b29bf2eb2f049926109d41d418a665df3162a3"
+    },
+    {
+      "path": "src/isaac_walk_g006/registry.py",
+      "sha256": "e521bc10cf8ef1fbead67507269976a3cf571c9d4c81b4f66f1367ff0125e17f"
+    },
+    {
+      "path": "src/isaac_walk_g006/rough_env_cfg.py",
+      "sha256": "0344a67f77c4dc5d0435469c2cd8ae069c768f48395de6a884f67c04667482df"
+    }
+  ],
+  "isaaclab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+  "agent_entry_point": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2RoughPPORunnerCfg",
+  "normalized_env_diff_allowlist": [
+    "events.push_robot"
+  ]
+}

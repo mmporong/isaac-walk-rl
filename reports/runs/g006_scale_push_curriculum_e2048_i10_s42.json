@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "run_name": "g006_scale_push_curriculum_e2048_i10_s42",
+  "task": "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+  "num_envs": 2048,
+  "max_iterations": 10,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "--task",
+    "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+    "--num_envs",
+    2048,
+    "--max_iterations",
+    10,
+    "--seed",
+    42,
+    "--run_name",
+    "g006_scale_push_curriculum_e2048_i10_s42",
+    "--headless"
+  ],
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708",
+    "repository_internal": true
+  },
+  "started_at": "2026-08-24T18:20:29.1118504+09:00",
+  "ended_at": "2026-08-24T18:21:51.8424537+09:00",
+  "wall_time_seconds": 82.729,
+  "exit_code": 0,
+  "last_iteration": 9,
+  "iteration_target": 10,
+  "gpu": {
+    "baseline_used_mib": 1002,
+    "peak_used_mib": 6092.0,
+    "delta_used_mib": 5090.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.059,
+        "used_mib": 1004
+      },
+      {
+        "elapsed_seconds": 2.12,
+        "used_mib": 1097
+      },
+      {
+        "elapsed_seconds": 4.187,
+        "used_mib": 1097
+      },
+      {
+        "elapsed_seconds": 6.242,
+        "used_mib": 1129
+      },
+      {
+        "elapsed_seconds": 8.313,
+        "used_mib": 1186
+      },
+      {
+        "elapsed_seconds": 10.381,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 12.501,
+        "used_mib": 1226
+      },
+      {
+        "elapsed_seconds": 14.566,
+        "used_mib": 5510
+      },
+      {
+        "elapsed_seconds": 16.635,
+        "used_mib": 5516
+      },
+      {
+        "elapsed_seconds": 18.704,
+        "used_mib": 5656
+      },
+      {
+        "elapsed_seconds": 20.775,
+        "used_mib": 5812
+      },
+      {
+        "elapsed_seconds": 22.843,
+        "used_mib": 5812
+      },
+      {
+        "elapsed_seconds": 24.898,
+        "used_mib": 6090
+      },
+      {
+        "elapsed_seconds": 26.966,
+        "used_mib": 6090
+      },
+      {
+        "elapsed_seconds": 29.021,
+        "used_mib": 6090
+      },
+      {
+        "elapsed_seconds": 31.091,
+        "used_mib": 6090
+      },
+      {
+        "elapsed_seconds": 33.147,
+        "used_mib": 6090
+      },
+      {
+        "elapsed_seconds": 35.214,
+        "used_mib": 6090
+      },
+      {
+        "elapsed_seconds": 37.283,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 39.352,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 41.421,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 43.493,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 45.56,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 47.63,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 49.685,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 51.758,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 53.823,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 55.877,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 57.932,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 60.001,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 62.068,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 64.158,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 66.242,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 68.326,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 70.395,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 72.462,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 74.531,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 76.587,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 78.654,
+        "used_mib": 6092
+      },
+      {
+        "elapsed_seconds": 80.724,
+        "used_mib": 6092
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.047,
+        "used_mib": 1002
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      7006,
+      8460,
+      8218,
+      8304,
+      8133,
+      8039,
+      7835,
+      7637,
+      7629,
+      7707
+    ],
+    "mean_steps_per_second": 7896.8,
+    "median_steps_per_second": 7937.0,
+    "final_mean_reward": -4.07,
+    "final_mean_episode_length": 223.0
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_scale_push_curriculum_e2048_i10_s42.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_scale_push_curriculum_e2048_i10_s42.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-20-38_g006_scale_push_curriculum_e2048_i10_s42",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-20-38_g006_scale_push_curriculum_e2048_i10_s42\\model_9.pt",
+    "checkpoint_sha256": "312ebb84c09f2d999e431662b56f624e7d2129de92c538795300985b86315bde"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/track_lin_vel_xy_exp",
+      "Episode_Reward/track_ang_vel_z_exp",
+      "Episode_Reward/lin_vel_z_l2",
+      "Episode_Reward/ang_vel_xy_l2",
+      "Episode_Reward/dof_torques_l2",
+      "Episode_Reward/dof_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/feet_air_time",
+      "Episode_Reward/flat_orientation_l2",
+      "Episode_Reward/dof_pos_limits",
+      "Curriculum/terrain_levels",
+      "Curriculum/g006_state/mean_level",
+      "Curriculum/g006_state/p10_level",
+      "Curriculum/g006_state/p50_level",
+      "Curriculum/g006_state/p90_level",
+      "Curriculum/g006_state/low_fraction",
+      "Curriculum/g006_state/mid_fraction",
+      "Curriculum/g006_state/high_fraction",
+      "Curriculum/g006_state/stage",
+      "Curriculum/g006_state/events_stage_0",
+      "Curriculum/g006_state/magnitude_mean_stage_0",
+      "Curriculum/g006_state/magnitude_min_stage_0",
+      "Curriculum/g006_state/magnitude_max_stage_0",
+      "Curriculum/g006_state/events_stage_1",
+      "Curriculum/g006_state/magnitude_mean_stage_1",
+      "Curriculum/g006_state/magnitude_min_stage_1",
+      "Curriculum/g006_state/magnitude_max_stage_1",
+      "Curriculum/g006_state/events_stage_2",
+      "Curriculum/g006_state/magnitude_mean_stage_2",
+      "Curriculum/g006_state/magnitude_min_stage_2",
+      "Curriculum/g006_state/magnitude_max_stage_2",
+      "Metrics/base_velocity/error_vel_xy",
+      "Metrics/base_velocity/error_vel_yaw",
+      "Episode_Termination/time_out",
+      "Episode_Termination/base_contact",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/track_lin_vel_xy_exp": 0.07206812500953674,
+      "Episode_Reward/track_ang_vel_z_exp": 0.04794507846236229,
+      "Episode_Reward/lin_vel_z_l2": -0.04703273996710777,
+      "Episode_Reward/ang_vel_xy_l2": -0.13624928891658783,
+      "Episode_Reward/dof_torques_l2": -0.027205906808376312,
+      "Episode_Reward/dof_acc_l2": -0.0509706512093544,
+      "Episode_Reward/action_rate_l2": -0.049733877182006836,
+      "Episode_Reward/feet_air_time": -0.0004231909697409719,
+      "Episode_Reward/flat_orientation_l2": 0.0,
+      "Episode_Reward/dof_pos_limits": 0.0,
+      "Curriculum/terrain_levels": 3.2292277812957764,
+      "Curriculum/g006_state/mean_level": 3.2292277812957764,
+      "Curriculum/g006_state/p10_level": 1.0,
+      "Curriculum/g006_state/p50_level": 3.0,
+      "Curriculum/g006_state/p90_level": 6.0,
+      "Curriculum/g006_state/low_fraction": 0.380859375,
+      "Curriculum/g006_state/mid_fraction": 0.619140625,
+      "Curriculum/g006_state/high_fraction": 0.0,
+      "Curriculum/g006_state/stage": 0.0,
+      "Curriculum/g006_state/events_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_0": 0.0,
+      "Curriculum/g006_state/events_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_1": 0.0,
+      "Curriculum/g006_state/events_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_2": 0.0,
+      "Metrics/base_velocity/error_vel_xy": 0.34906911849975586,
+      "Metrics/base_velocity/error_vel_yaw": 0.4072394371032715,
+      "Episode_Termination/time_out": 1.8333333730697632,
+      "Episode_Termination/base_contact": 1.5833333730697632,
+      "Loss/value_function": 0.010874370113015175,
+      "Loss/surrogate": -0.004956302233040333,
+      "Loss/entropy": 15.85513973236084,
+      "Loss/learning_rate": 0.0029192925430834293,
+      "Policy/mean_noise_std": 0.9025161862373352,
+      "Perf/total_fps": 7707.0,
+      "Perf/collection time": 6.143174171447754,
+      "Perf/learning_time": 0.23369717597961426,
+      "Train/mean_reward": -4.0728583335876465,
+      "Train/mean_episode_length": 223.0,
+      "Train/mean_reward/time": -4.0728583335876465,
+      "Train/mean_episode_length/time": 223.0
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true,
+  "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+  "training_source_bundle_files": [
+    {
+      "path": "scripts/bootstrap_train_g006.py",
+      "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708"
+    },
+    {
+      "path": "src/isaac_walk_g006/__init__.py",
+      "sha256": "5c490618b41628754d0e0262af78bd1689588484c3ba8c16760c7b4bd5476409"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/__init__.py",
+      "sha256": "abe2c16cab4f19061f51cee50ed5089fefeb1d482665d3f2ac42dd5fc2f8773c"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/curriculums.py",
+      "sha256": "902fb0340923fd3ec9f8ec169f92e1c83e81aee2143267918d9d812bc702f93f"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/events.py",
+      "sha256": "54720d071ee48c428286a43555b29bf2eb2f049926109d41d418a665df3162a3"
+    },
+    {
+      "path": "src/isaac_walk_g006/registry.py",
+      "sha256": "e521bc10cf8ef1fbead67507269976a3cf571c9d4c81b4f66f1367ff0125e17f"
+    },
+    {
+      "path": "src/isaac_walk_g006/rough_env_cfg.py",
+      "sha256": "0344a67f77c4dc5d0435469c2cd8ae069c768f48395de6a884f67c04667482df"
+    }
+  ],
+  "isaaclab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+  "agent_entry_point": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2RoughPPORunnerCfg",
+  "normalized_env_diff_allowlist": [
+    "events.push_robot"
+  ]
+}

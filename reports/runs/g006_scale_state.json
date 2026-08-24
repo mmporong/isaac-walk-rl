@@ -1,0 +1,253 @@
+{
+  "schema_version": 2,
+  "goal": "G006",
+  "mode": "scale",
+  "status": "complete",
+  "config_sha256": "dd5ddf3915478114af4a323d2e45d630ce5784826d41aafd02f557b7baed8246",
+  "protocol_sha256": "8fb22d72c8dd5dfbdffed0736de61bd0623d40f1762d685a1680f690aaa34787",
+  "training_entrypoint_sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708",
+  "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+  "evaluation_source_bundle_sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+  "source_bundles": {
+    "training": {
+      "sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+      "files": [
+        {
+          "path": "scripts/bootstrap_train_g006.py",
+          "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708"
+        },
+        {
+          "path": "src/isaac_walk_g006/__init__.py",
+          "sha256": "5c490618b41628754d0e0262af78bd1689588484c3ba8c16760c7b4bd5476409"
+        },
+        {
+          "path": "src/isaac_walk_g006/mdp/__init__.py",
+          "sha256": "abe2c16cab4f19061f51cee50ed5089fefeb1d482665d3f2ac42dd5fc2f8773c"
+        },
+        {
+          "path": "src/isaac_walk_g006/mdp/curriculums.py",
+          "sha256": "902fb0340923fd3ec9f8ec169f92e1c83e81aee2143267918d9d812bc702f93f"
+        },
+        {
+          "path": "src/isaac_walk_g006/mdp/events.py",
+          "sha256": "54720d071ee48c428286a43555b29bf2eb2f049926109d41d418a665df3162a3"
+        },
+        {
+          "path": "src/isaac_walk_g006/registry.py",
+          "sha256": "e521bc10cf8ef1fbead67507269976a3cf571c9d4c81b4f66f1367ff0125e17f"
+        },
+        {
+          "path": "src/isaac_walk_g006/rough_env_cfg.py",
+          "sha256": "0344a67f77c4dc5d0435469c2cd8ae069c768f48395de6a884f67c04667482df"
+        }
+      ]
+    },
+    "evaluation": {
+      "sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+      "files": [
+        {
+          "path": "scripts/evaluate_push_recovery.py",
+          "sha256": "ac48f22a05018eb8d4ff003117ef5385d02e79ab3066d12d4d7eb6a8e678b412"
+        },
+        {
+          "path": "src/isaac_walk_g006/evaluation/__init__.py",
+          "sha256": "3e580616dc1b1e95e0f55c8d802fccc8ef8b0713906a53ba92c3feaa18f50dc8"
+        },
+        {
+          "path": "src/isaac_walk_g006/evaluation/difficulty_rough.py",
+          "sha256": "cf4ff5e8bc9a452c4315fae7b0da43e7afbe1e3dcb9bdf7eef43a5aee0875a13"
+        },
+        {
+          "path": "src/isaac_walk_g006/evaluation/protocol.py",
+          "sha256": "3b455d90647fa00fec7f4445e3963e0b0e217e3b0e7ceffb9be54d7ba70ec153"
+        },
+        {
+          "path": "src/isaac_walk_g006/evaluation/terrain_cfg.py",
+          "sha256": "fd008a684f66a5238cd973df907228587228ae94d7c307b1a0fe9e9d4087654f"
+        },
+        {
+          "path": "src/isaac_walk_g006/evaluation/terrain_generator.py",
+          "sha256": "db7e4fbb1a6169b3a6e52c81c197313d5379669a9e00af6f8c8bde086ab34f40"
+        }
+      ]
+    }
+  },
+  "isaaclab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+  "agent_entry_point": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2RoughPPORunnerCfg",
+  "normalized_env_diff": {
+    "baseline": [],
+    "push_curriculum": [
+      "events.push_robot"
+    ]
+  },
+  "selected_num_envs": 4096.0,
+  "summary_path": null,
+  "summary_sha256": null,
+  "failures": [],
+  "created_at": "2026-08-24T18:16:58.7203762+09:00",
+  "updated_at": "2026-08-24T18:28:05.2593049+09:00",
+  "jobs": [
+    {
+      "id": "baseline-e1024-s42",
+      "variant": "baseline",
+      "task": "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+      "seed": 42,
+      "num_envs": 1024,
+      "max_iterations": 10,
+      "run_name": "g006_scale_baseline_e1024_i10_s42",
+      "status": "complete",
+      "report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_baseline_e1024_i10_s42.json",
+      "checkpoint_sha256": "9af30dcbdfa798a364e1cae606fea6a03190df7769fcf79c60f29250e974af62",
+      "training_report_sha256": "045b566aaa84901d24a626f063a5ab4c6c40af50d3809ae1bc1737c5824dee9f",
+      "push_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_baseline_e1024_i10_s42_push.json",
+      "push_report_sha256": null,
+      "push_command": [],
+      "push_command_sha256": null,
+      "push_script_sha256": null,
+      "guardrail_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_baseline_e1024_i10_s42_guardrail.json",
+      "guardrail_report_sha256": null,
+      "guardrail_command": [],
+      "guardrail_command_sha256": null,
+      "guardrail_script_sha256": null,
+      "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+      "evaluation_source_bundle_sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+      "attempts": [],
+      "hard_blocked": false
+    },
+    {
+      "id": "push_curriculum-e1024-s42",
+      "variant": "push_curriculum",
+      "task": "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+      "seed": 42,
+      "num_envs": 1024,
+      "max_iterations": 10,
+      "run_name": "g006_scale_push_curriculum_e1024_i10_s42",
+      "status": "complete",
+      "report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_push_curriculum_e1024_i10_s42.json",
+      "checkpoint_sha256": "e8631816a1e3f8c73a89845f4d734b0a6c55345ea02bd719345e2aef082197c1",
+      "training_report_sha256": "012c83e83688b1f38301247efcf4a9b1c8fd46333f7d406a1991f6d32be63c28",
+      "push_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_push_curriculum_e1024_i10_s42_push.json",
+      "push_report_sha256": null,
+      "push_command": [],
+      "push_command_sha256": null,
+      "push_script_sha256": null,
+      "guardrail_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_push_curriculum_e1024_i10_s42_guardrail.json",
+      "guardrail_report_sha256": null,
+      "guardrail_command": [],
+      "guardrail_command_sha256": null,
+      "guardrail_script_sha256": null,
+      "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+      "evaluation_source_bundle_sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+      "attempts": [],
+      "hard_blocked": false
+    },
+    {
+      "id": "baseline-e2048-s42",
+      "variant": "baseline",
+      "task": "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+      "seed": 42,
+      "num_envs": 2048,
+      "max_iterations": 10,
+      "run_name": "g006_scale_baseline_e2048_i10_s42",
+      "status": "complete",
+      "report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_baseline_e2048_i10_s42.json",
+      "checkpoint_sha256": "efd4fa961e0a062305ae465c3688757e4659f7dead4e9c82b7a0f8f1ea34656f",
+      "training_report_sha256": "263ef3ee1c9e2e369164e2645f485f10bbf7086230835c2d87c5bd033d226443",
+      "push_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_baseline_e2048_i10_s42_push.json",
+      "push_report_sha256": null,
+      "push_command": [],
+      "push_command_sha256": null,
+      "push_script_sha256": null,
+      "guardrail_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_baseline_e2048_i10_s42_guardrail.json",
+      "guardrail_report_sha256": null,
+      "guardrail_command": [],
+      "guardrail_command_sha256": null,
+      "guardrail_script_sha256": null,
+      "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+      "evaluation_source_bundle_sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+      "attempts": [],
+      "hard_blocked": false
+    },
+    {
+      "id": "push_curriculum-e2048-s42",
+      "variant": "push_curriculum",
+      "task": "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+      "seed": 42,
+      "num_envs": 2048,
+      "max_iterations": 10,
+      "run_name": "g006_scale_push_curriculum_e2048_i10_s42",
+      "status": "complete",
+      "report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_push_curriculum_e2048_i10_s42.json",
+      "checkpoint_sha256": "312ebb84c09f2d999e431662b56f624e7d2129de92c538795300985b86315bde",
+      "training_report_sha256": "3c5dea9686d3ba16ad9aeba73a076d018469b7548bf0300a6ffb64d29727ea8d",
+      "push_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_push_curriculum_e2048_i10_s42_push.json",
+      "push_report_sha256": null,
+      "push_command": [],
+      "push_command_sha256": null,
+      "push_script_sha256": null,
+      "guardrail_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_push_curriculum_e2048_i10_s42_guardrail.json",
+      "guardrail_report_sha256": null,
+      "guardrail_command": [],
+      "guardrail_command_sha256": null,
+      "guardrail_script_sha256": null,
+      "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+      "evaluation_source_bundle_sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+      "attempts": [],
+      "hard_blocked": false
+    },
+    {
+      "id": "baseline-e4096-s42",
+      "variant": "baseline",
+      "task": "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+      "seed": 42,
+      "num_envs": 4096,
+      "max_iterations": 10,
+      "run_name": "g006_scale_baseline_e4096_i10_s42",
+      "status": "complete",
+      "report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_baseline_e4096_i10_s42.json",
+      "checkpoint_sha256": "faa74d4957469e885f5efb1e330df052d9502f73bb2d364dfe6b7fec725c228c",
+      "training_report_sha256": "af3ab30475a97d8a91a8444940e639c82177556d71b76f38fc191ba63c714dab",
+      "push_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_baseline_e4096_i10_s42_push.json",
+      "push_report_sha256": null,
+      "push_command": [],
+      "push_command_sha256": null,
+      "push_script_sha256": null,
+      "guardrail_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_baseline_e4096_i10_s42_guardrail.json",
+      "guardrail_report_sha256": null,
+      "guardrail_command": [],
+      "guardrail_command_sha256": null,
+      "guardrail_script_sha256": null,
+      "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+      "evaluation_source_bundle_sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+      "attempts": [],
+      "hard_blocked": false
+    },
+    {
+      "id": "push_curriculum-e4096-s42",
+      "variant": "push_curriculum",
+      "task": "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+      "seed": 42,
+      "num_envs": 4096,
+      "max_iterations": 10,
+      "run_name": "g006_scale_push_curriculum_e4096_i10_s42",
+      "status": "complete",
+      "report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_push_curriculum_e4096_i10_s42.json",
+      "checkpoint_sha256": "be15a4c82034fe35744813590374d0b5fcaa8620479e4a8bcc228df1c2836a2d",
+      "training_report_sha256": "9d64b19c464cde568d3ba47cf4df117210b57a52d0bbc450ea423ff670fe1356",
+      "push_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_push_curriculum_e4096_i10_s42_push.json",
+      "push_report_sha256": null,
+      "push_command": [],
+      "push_command_sha256": null,
+      "push_script_sha256": null,
+      "guardrail_report_path": "%USERPROFILE%\\isaac-walk-rl\\reports\\runs\\g006_scale_push_curriculum_e4096_i10_s42_guardrail.json",
+      "guardrail_report_sha256": null,
+      "guardrail_command": [],
+      "guardrail_command_sha256": null,
+      "guardrail_script_sha256": null,
+      "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+      "evaluation_source_bundle_sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+      "attempts": [],
+      "hard_blocked": false
+    }
+  ]
+}
