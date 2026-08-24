@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Editors and operating system
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Isaac Lab and experiment outputs
+_isaac_sim/
+IsaacLab/
+logs/
+runs/
+outputs/
+artifacts/
+checkpoints/
+videos/
+tensorboard/
+events.out.tfevents.*
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.mp4
+
+# Generated simulator assets and caches
+.cache/
+.nv/
+kit/cache/
+generated_assets/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# OMX runtime state (durable ultragoal artifacts remain trackable)
+.omx/state/
+.omx/tmux-hook.json
+.omx/runtime/
+.omx/logs/
+.omx/cache/
+.omx/*.lock
+.omx/**/*.lock
