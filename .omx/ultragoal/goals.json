@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-08-24T00:54:40.416Z",
-  "updatedAt": "2026-08-24T00:54:46.975Z",
+  "updatedAt": "2026-08-24T01:03:07.529Z",
   "briefPath": ".omx/ultragoal/brief.md",
   "goalsPath": ".omx/ultragoal/goals.json",
   "ledgerPath": ".omx/ultragoal/ledger.jsonl",
@@ -11,11 +11,13 @@
       "id": "G001",
       "title": "저장소와 환경 계약",
       "objective": "저장소 구조, Git 경계, 버전 근거, 환경 manifest 수집기를 구현하고 정적 검증한다.",
-      "status": "in_progress",
+      "status": "complete",
       "attempt": 1,
       "createdAt": "2026-08-24T00:54:40.416Z",
-      "updatedAt": "2026-08-24T00:54:46.975Z",
-      "startedAt": "2026-08-24T00:54:46.975Z"
+      "updatedAt": "2026-08-24T01:03:07.529Z",
+      "startedAt": "2026-08-24T00:54:46.975Z",
+      "completedAt": "2026-08-24T01:03:07.529Z",
+      "evidence": "commit def7995; scripts/validate_repository.ps1 PASS; PowerShell parser PASS; environment manifest deterministic SHA256 E1BFDD30D79006638D91BA52775D39018BE4AF8D73A3C315F2671BAB584F8C55; independent verifier APPROVE"
     },
     {
       "id": "G002-isaac-lab",
@@ -72,6 +74,5 @@
       "updatedAt": "2026-08-24T00:54:40.416Z"
     }
   ],
-  "codexObjective": "Complete the durable ultragoal plan in .omx/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .omx/ultragoal/ledger.jsonl as the audit trail.",
-  "activeGoalId": "G001"
+  "codexObjective": "Complete the durable ultragoal plan in .omx/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .omx/ultragoal/ledger.jsonl as the audit trail."
 }
