@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "classification": "external_custom_compatibility_spike",
+  "expected_count": 8,
+  "source": {
+    "repository": "RainbowRobotics/RBQ",
+    "release_tag": "v1.20.0",
+    "tag_object_sha1": "741ce5733dcd7c0babec663bb7e1afbc02a776ca",
+    "source_commit_sha1": "68bc33b77719d357b4323fb88549efd905caf721",
+    "asset_root_prefix": "rbq_sdk/ros2/src/rbq_description/"
+  },
+  "pinned_blobs": [
+    {
+      "role": "robot_description",
+      "path": "rbq_sdk/ros2/src/rbq_description/urdf/rbq.urdf",
+      "size_bytes": 19249,
+      "git_type": "blob",
+      "git_blob_sha1": "a598350ba21dc521db7bb16cba199ef35507477e"
+    },
+    {
+      "role": "package_manifest",
+      "path": "rbq_sdk/ros2/src/rbq_description/package.xml",
+      "size_bytes": 909,
+      "git_type": "blob",
+      "git_blob_sha1": "c631a432aa1e0083e14b60417bf5b6453552338e"
+    },
+    {
+      "role": "mesh",
+      "path": "rbq_sdk/ros2/src/rbq_description/meshes/stl/calf.STL",
+      "size_bytes": 71284,
+      "git_type": "blob",
+      "git_blob_sha1": "253f2ee9e4bb67485223faa1951ad89f4442c183"
+    },
+    {
+      "role": "mesh",
+      "path": "rbq_sdk/ros2/src/rbq_description/meshes/stl/hip2.stl",
+      "size_bytes": 866584,
+      "git_type": "blob",
+      "git_blob_sha1": "0078f9689f7fc31389b64a97b4b01e55a41b6b18"
+    },
+    {
+      "role": "mesh",
+      "path": "rbq_sdk/ros2/src/rbq_description/meshes/stl/hip3.stl",
+      "size_bytes": 818784,
+      "git_type": "blob",
+      "git_blob_sha1": "8bc31dd3a7aed9926108477a03f200c52012339c"
+    },
+    {
+      "role": "mesh",
+      "path": "rbq_sdk/ros2/src/rbq_description/meshes/stl/mid-360.stl",
+      "size_bytes": 4193734,
+      "git_type": "blob",
+      "git_blob_sha1": "ae42618a7b09f274f651156a203bfcc203abc354"
+    },
+    {
+      "role": "mesh",
+      "path": "rbq_sdk/ros2/src/rbq_description/meshes/stl/thigh.stl",
+      "size_bytes": 25784,
+      "git_type": "blob",
+      "git_blob_sha1": "dbfa93ebe31302bb8fa7b383d4dda1b38c132fb6"
+    },
+    {
+      "role": "mesh",
+      "path": "rbq_sdk/ros2/src/rbq_description/meshes/stl/trunk.stl",
+      "size_bytes": 504284,
+      "git_type": "blob",
+      "git_blob_sha1": "ddc44a3c5f7f41f42a63eb1a6981dfd1d58cd339"
+    }
+  ],
+  "license_evidence": {
+    "github_repository_detected_spdx": null,
+    "github_repository_detection_interpretation": "no repository-wide license detected; not proof of no license",
+    "package_manifest": {
+      "path": "rbq_sdk/ros2/src/rbq_description/package.xml",
+      "declared_expression": "Apache-2.0",
+      "scope": "package_manifest_declaration",
+      "applies_to_asset_blobs": "unresolved"
+    },
+    "asset_adjacent_license_files": [],
+    "redistribution": "unknown",
+    "local_processing": "unknown",
+    "gate": "blocked",
+    "primary_blocker": "license_scope_unresolved"
+  },
+  "official_isaaclab_searches": [
+    {
+      "ref": "v2.1.1",
+      "commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+      "rbq_matches": []
+    },
+    {
+      "ref": "v2.3.2",
+      "commit": "37ddf626871758333d6ed89cf64ad702aef127d0",
+      "rbq_matches": []
+    },
+    {
+      "ref": "main",
+      "commit": "b0542fe2d45bf91c4e1d9ef6952b9c709c80b4e8",
+      "rbq_matches": []
+    }
+  ],
+  "topology": {
+    "status": "not_verified_without_asset_bytes",
+    "link_count": null,
+    "joint_count": null,
+    "mesh_count": null
+  },
+  "compatibility": {
+    "status": "blocked_before_conversion",
+    "converter_attempted": false,
+    "smoke_attempted": false
+  }
+}
