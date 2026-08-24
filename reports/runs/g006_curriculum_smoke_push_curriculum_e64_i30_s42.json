@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "run_name": "g006_curriculum_smoke_push_curriculum_e64_i30_s42",
+  "task": "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+  "num_envs": 64,
+  "max_iterations": 30,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "--task",
+    "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+    "--num_envs",
+    64,
+    "--max_iterations",
+    30,
+    "--seed",
+    42,
+    "--run_name",
+    "g006_curriculum_smoke_push_curriculum_e64_i30_s42",
+    "--headless"
+  ],
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708",
+    "repository_internal": true
+  },
+  "started_at": "2026-08-24T18:11:46.08662+09:00",
+  "ended_at": "2026-08-24T18:12:50.1482802+09:00",
+  "wall_time_seconds": 64.061,
+  "exit_code": 0,
+  "last_iteration": 29,
+  "iteration_target": 30,
+  "gpu": {
+    "baseline_used_mib": 1001,
+    "peak_used_mib": 4861.0,
+    "delta_used_mib": 3860.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.06,
+        "used_mib": 1004
+      },
+      {
+        "elapsed_seconds": 2.127,
+        "used_mib": 1096
+      },
+      {
+        "elapsed_seconds": 4.195,
+        "used_mib": 1096
+      },
+      {
+        "elapsed_seconds": 6.264,
+        "used_mib": 1128
+      },
+      {
+        "elapsed_seconds": 8.318,
+        "used_mib": 1185
+      },
+      {
+        "elapsed_seconds": 10.387,
+        "used_mib": 1225
+      },
+      {
+        "elapsed_seconds": 12.462,
+        "used_mib": 2131
+      },
+      {
+        "elapsed_seconds": 14.525,
+        "used_mib": 4837
+      },
+      {
+        "elapsed_seconds": 16.593,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 18.663,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 20.733,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 22.8,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 24.869,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 26.93,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 28.993,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 31.062,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 33.131,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 35.199,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 37.253,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 39.308,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 41.363,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 43.448,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 45.515,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 47.586,
+        "used_mib": 4859
+      },
+      {
+        "elapsed_seconds": 49.657,
+        "used_mib": 4861
+      },
+      {
+        "elapsed_seconds": 51.73,
+        "used_mib": 4861
+      },
+      {
+        "elapsed_seconds": 53.793,
+        "used_mib": 4861
+      },
+      {
+        "elapsed_seconds": 55.861,
+        "used_mib": 4861
+      },
+      {
+        "elapsed_seconds": 57.93,
+        "used_mib": 4861
+      },
+      {
+        "elapsed_seconds": 59.988,
+        "used_mib": 4861
+      },
+      {
+        "elapsed_seconds": 62.054,
+        "used_mib": 4861
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.048,
+        "used_mib": 1001
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      977,
+      880,
+      840,
+      954,
+      1097,
+      1106,
+      805,
+      1089,
+      1066,
+      1092,
+      1055,
+      1019,
+      1056,
+      1078,
+      1058,
+      1039,
+      1042,
+      1031,
+      982,
+      1053,
+      1010,
+      912,
+      1056,
+      1075,
+      1065,
+      1025,
+      949,
+      995,
+      1040,
+      943
+    ],
+    "mean_steps_per_second": 1012.97,
+    "median_steps_per_second": 1039.5,
+    "final_mean_reward": -6.47,
+    "final_mean_episode_length": 299.01
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_curriculum_smoke_push_curriculum_e64_i30_s42.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_curriculum_smoke_push_curriculum_e64_i30_s42.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-11-55_g006_curriculum_smoke_push_curriculum_e64_i30_s42",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-11-55_g006_curriculum_smoke_push_curriculum_e64_i30_s42\\model_29.pt",
+    "checkpoint_sha256": "dbe4486ad91c9d3231fa6fd1e79f4637db0379ef7b458dc833d23593124fe85e"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/track_lin_vel_xy_exp",
+      "Episode_Reward/track_ang_vel_z_exp",
+      "Episode_Reward/lin_vel_z_l2",
+      "Episode_Reward/ang_vel_xy_l2",
+      "Episode_Reward/dof_torques_l2",
+      "Episode_Reward/dof_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/feet_air_time",
+      "Episode_Reward/flat_orientation_l2",
+      "Episode_Reward/dof_pos_limits",
+      "Curriculum/terrain_levels",
+      "Curriculum/g006_state/mean_level",
+      "Curriculum/g006_state/p10_level",
+      "Curriculum/g006_state/p50_level",
+      "Curriculum/g006_state/p90_level",
+      "Curriculum/g006_state/low_fraction",
+      "Curriculum/g006_state/mid_fraction",
+      "Curriculum/g006_state/high_fraction",
+      "Curriculum/g006_state/stage",
+      "Curriculum/g006_state/events_stage_0",
+      "Curriculum/g006_state/magnitude_mean_stage_0",
+      "Curriculum/g006_state/magnitude_min_stage_0",
+      "Curriculum/g006_state/magnitude_max_stage_0",
+      "Curriculum/g006_state/events_stage_1",
+      "Curriculum/g006_state/magnitude_mean_stage_1",
+      "Curriculum/g006_state/magnitude_min_stage_1",
+      "Curriculum/g006_state/magnitude_max_stage_1",
+      "Curriculum/g006_state/events_stage_2",
+      "Curriculum/g006_state/magnitude_mean_stage_2",
+      "Curriculum/g006_state/magnitude_min_stage_2",
+      "Curriculum/g006_state/magnitude_max_stage_2",
+      "Metrics/base_velocity/error_vel_xy",
+      "Metrics/base_velocity/error_vel_yaw",
+      "Episode_Termination/time_out",
+      "Episode_Termination/base_contact",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/track_lin_vel_xy_exp": 0.14508453011512756,
+      "Episode_Reward/track_ang_vel_z_exp": 0.04672425985336304,
+      "Episode_Reward/lin_vel_z_l2": -0.052760593593120575,
+      "Episode_Reward/ang_vel_xy_l2": -0.1814080774784088,
+      "Episode_Reward/dof_torques_l2": -0.02846655808389187,
+      "Episode_Reward/dof_acc_l2": -0.06638912856578827,
+      "Episode_Reward/action_rate_l2": -0.06737923622131348,
+      "Episode_Reward/feet_air_time": -0.000467395264422521,
+      "Episode_Reward/flat_orientation_l2": 0.0,
+      "Episode_Reward/dof_pos_limits": 0.0,
+      "Curriculum/terrain_levels": 2.189453125,
+      "Curriculum/g006_state/mean_level": 2.189453125,
+      "Curriculum/g006_state/p10_level": 0.0,
+      "Curriculum/g006_state/p50_level": 2.0,
+      "Curriculum/g006_state/p90_level": 5.0,
+      "Curriculum/g006_state/low_fraction": 0.576171875,
+      "Curriculum/g006_state/mid_fraction": 0.423828125,
+      "Curriculum/g006_state/high_fraction": 0.0,
+      "Curriculum/g006_state/stage": 0.0,
+      "Curriculum/g006_state/events_stage_0": 7.0,
+      "Curriculum/g006_state/magnitude_mean_stage_0": 0.1707535833120346,
+      "Curriculum/g006_state/magnitude_min_stage_0": 0.12213504314422607,
+      "Curriculum/g006_state/magnitude_max_stage_0": 0.23802036046981812,
+      "Curriculum/g006_state/events_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_1": 0.0,
+      "Curriculum/g006_state/events_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_2": 0.0,
+      "Metrics/base_velocity/error_vel_xy": 0.28662535548210144,
+      "Metrics/base_velocity/error_vel_yaw": 0.5145323276519775,
+      "Episode_Termination/time_out": 0.0,
+      "Episode_Termination/base_contact": 1.0,
+      "Loss/value_function": 0.012216190807521343,
+      "Loss/surrogate": -0.022078964859247208,
+      "Loss/entropy": 16.919641494750977,
+      "Loss/learning_rate": 9.999999747378752E-06,
+      "Policy/mean_noise_std": 0.9908009767532349,
+      "Perf/total_fps": 943.0,
+      "Perf/collection time": 1.41660737991333,
+      "Perf/learning_time": 0.21187782287597656,
+      "Train/mean_reward": -6.46875,
+      "Train/mean_episode_length": 299.0101013183594,
+      "Train/mean_reward/time": -6.46875,
+      "Train/mean_episode_length/time": 299.0101013183594
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true,
+  "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+  "training_source_bundle_files": [
+    {
+      "path": "scripts/bootstrap_train_g006.py",
+      "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708"
+    },
+    {
+      "path": "src/isaac_walk_g006/__init__.py",
+      "sha256": "5c490618b41628754d0e0262af78bd1689588484c3ba8c16760c7b4bd5476409"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/__init__.py",
+      "sha256": "abe2c16cab4f19061f51cee50ed5089fefeb1d482665d3f2ac42dd5fc2f8773c"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/curriculums.py",
+      "sha256": "902fb0340923fd3ec9f8ec169f92e1c83e81aee2143267918d9d812bc702f93f"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/events.py",
+      "sha256": "54720d071ee48c428286a43555b29bf2eb2f049926109d41d418a665df3162a3"
+    },
+    {
+      "path": "src/isaac_walk_g006/registry.py",
+      "sha256": "e521bc10cf8ef1fbead67507269976a3cf571c9d4c81b4f66f1367ff0125e17f"
+    },
+    {
+      "path": "src/isaac_walk_g006/rough_env_cfg.py",
+      "sha256": "0344a67f77c4dc5d0435469c2cd8ae069c768f48395de6a884f67c04667482df"
+    }
+  ],
+  "isaaclab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+  "agent_entry_point": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2RoughPPORunnerCfg",
+  "normalized_env_diff_allowlist": [
+    "events.push_robot"
+  ]
+}

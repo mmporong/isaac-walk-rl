@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "run_name": "g006_smoke_baseline_e64_i1_s42",
+  "task": "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+  "num_envs": 64,
+  "max_iterations": 1,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "--task",
+    "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+    "--num_envs",
+    64,
+    "--max_iterations",
+    1,
+    "--seed",
+    42,
+    "--run_name",
+    "g006_smoke_baseline_e64_i1_s42",
+    "--headless"
+  ],
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g006.py",
+    "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708",
+    "repository_internal": true
+  },
+  "started_at": "2026-08-24T18:10:58.8780816+09:00",
+  "ended_at": "2026-08-24T18:11:17.5052714+09:00",
+  "wall_time_seconds": 18.626,
+  "exit_code": 0,
+  "last_iteration": 0,
+  "iteration_target": 1,
+  "gpu": {
+    "baseline_used_mib": 1001,
+    "peak_used_mib": 4837.0,
+    "delta_used_mib": 3836.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.061,
+        "used_mib": 1004
+      },
+      {
+        "elapsed_seconds": 2.122,
+        "used_mib": 1096
+      },
+      {
+        "elapsed_seconds": 4.191,
+        "used_mib": 1096
+      },
+      {
+        "elapsed_seconds": 6.259,
+        "used_mib": 1128
+      },
+      {
+        "elapsed_seconds": 8.328,
+        "used_mib": 1119
+      },
+      {
+        "elapsed_seconds": 10.398,
+        "used_mib": 1159
+      },
+      {
+        "elapsed_seconds": 12.467,
+        "used_mib": 1225
+      },
+      {
+        "elapsed_seconds": 14.535,
+        "used_mib": 4833
+      },
+      {
+        "elapsed_seconds": 16.619,
+        "used_mib": 4837
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.047,
+        "used_mib": 1001
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      806
+    ],
+    "mean_steps_per_second": 806.0,
+    "median_steps_per_second": 806,
+    "final_mean_reward": -0.49,
+    "final_mean_episode_length": 15.0
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_smoke_baseline_e64_i1_s42.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g006_smoke_baseline_e64_i1_s42.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-11-08_g006_smoke_baseline_e64_i1_s42",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-24_18-11-08_g006_smoke_baseline_e64_i1_s42\\model_0.pt",
+    "checkpoint_sha256": "5116d25aab108c06f57a369d3357bb3cf819a49c7ab92834991ae8e433789a7b"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/track_lin_vel_xy_exp",
+      "Episode_Reward/track_ang_vel_z_exp",
+      "Episode_Reward/lin_vel_z_l2",
+      "Episode_Reward/ang_vel_xy_l2",
+      "Episode_Reward/dof_torques_l2",
+      "Episode_Reward/dof_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/feet_air_time",
+      "Episode_Reward/flat_orientation_l2",
+      "Episode_Reward/dof_pos_limits",
+      "Curriculum/terrain_levels",
+      "Curriculum/g006_state/mean_level",
+      "Curriculum/g006_state/p10_level",
+      "Curriculum/g006_state/p50_level",
+      "Curriculum/g006_state/p90_level",
+      "Curriculum/g006_state/low_fraction",
+      "Curriculum/g006_state/mid_fraction",
+      "Curriculum/g006_state/high_fraction",
+      "Curriculum/g006_state/stage",
+      "Curriculum/g006_state/events_stage_0",
+      "Curriculum/g006_state/magnitude_mean_stage_0",
+      "Curriculum/g006_state/magnitude_min_stage_0",
+      "Curriculum/g006_state/magnitude_max_stage_0",
+      "Curriculum/g006_state/events_stage_1",
+      "Curriculum/g006_state/magnitude_mean_stage_1",
+      "Curriculum/g006_state/magnitude_min_stage_1",
+      "Curriculum/g006_state/magnitude_max_stage_1",
+      "Curriculum/g006_state/events_stage_2",
+      "Curriculum/g006_state/magnitude_mean_stage_2",
+      "Curriculum/g006_state/magnitude_min_stage_2",
+      "Curriculum/g006_state/magnitude_max_stage_2",
+      "Metrics/base_velocity/error_vel_xy",
+      "Metrics/base_velocity/error_vel_yaw",
+      "Episode_Termination/time_out",
+      "Episode_Termination/base_contact",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/track_lin_vel_xy_exp": 0.00037173982127569616,
+      "Episode_Reward/track_ang_vel_z_exp": 0.0020123086869716644,
+      "Episode_Reward/lin_vel_z_l2": -0.005676824599504471,
+      "Episode_Reward/ang_vel_xy_l2": -0.0024589102249592543,
+      "Episode_Reward/dof_torques_l2": -0.0007372880354523659,
+      "Episode_Reward/dof_acc_l2": -0.002154372865334153,
+      "Episode_Reward/action_rate_l2": -0.0015882117440924048,
+      "Episode_Reward/feet_air_time": -1.4125001143838745E-05,
+      "Episode_Reward/flat_orientation_l2": 0.0,
+      "Episode_Reward/dof_pos_limits": 0.0,
+      "Curriculum/terrain_levels": 3.4934897422790527,
+      "Curriculum/g006_state/mean_level": 3.4934897422790527,
+      "Curriculum/g006_state/p10_level": 1.0,
+      "Curriculum/g006_state/p50_level": 3.5,
+      "Curriculum/g006_state/p90_level": 6.0,
+      "Curriculum/g006_state/low_fraction": 0.328125,
+      "Curriculum/g006_state/mid_fraction": 0.671875,
+      "Curriculum/g006_state/high_fraction": 0.0,
+      "Curriculum/g006_state/stage": -1.0,
+      "Curriculum/g006_state/events_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_0": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_0": 0.0,
+      "Curriculum/g006_state/events_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_1": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_1": 0.0,
+      "Curriculum/g006_state/events_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_mean_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_min_stage_2": 0.0,
+      "Curriculum/g006_state/magnitude_max_stage_2": 0.0,
+      "Metrics/base_velocity/error_vel_xy": 0.01055414043366909,
+      "Metrics/base_velocity/error_vel_yaw": 0.005965241231024265,
+      "Episode_Termination/time_out": 0.4166666865348816,
+      "Episode_Termination/base_contact": 0.0,
+      "Loss/value_function": 0.0941920280456543,
+      "Loss/surrogate": 0.11402306705713272,
+      "Loss/entropy": 17.032081604003906,
+      "Loss/learning_rate": 9.999999747378752E-06,
+      "Policy/mean_noise_std": 1.0005013942718506,
+      "Perf/total_fps": 806.0,
+      "Perf/collection time": 1.6745154857635498,
+      "Perf/learning_time": 0.22979116439819336,
+      "Train/mean_reward": -0.49179285764694214,
+      "Train/mean_episode_length": 15.0,
+      "Train/mean_reward/time": -0.49179285764694214,
+      "Train/mean_episode_length/time": 15.0
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true,
+  "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+  "training_source_bundle_files": [
+    {
+      "path": "scripts/bootstrap_train_g006.py",
+      "sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708"
+    },
+    {
+      "path": "src/isaac_walk_g006/__init__.py",
+      "sha256": "5c490618b41628754d0e0262af78bd1689588484c3ba8c16760c7b4bd5476409"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/__init__.py",
+      "sha256": "abe2c16cab4f19061f51cee50ed5089fefeb1d482665d3f2ac42dd5fc2f8773c"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/curriculums.py",
+      "sha256": "902fb0340923fd3ec9f8ec169f92e1c83e81aee2143267918d9d812bc702f93f"
+    },
+    {
+      "path": "src/isaac_walk_g006/mdp/events.py",
+      "sha256": "54720d071ee48c428286a43555b29bf2eb2f049926109d41d418a665df3162a3"
+    },
+    {
+      "path": "src/isaac_walk_g006/registry.py",
+      "sha256": "e521bc10cf8ef1fbead67507269976a3cf571c9d4c81b4f66f1367ff0125e17f"
+    },
+    {
+      "path": "src/isaac_walk_g006/rough_env_cfg.py",
+      "sha256": "0344a67f77c4dc5d0435469c2cd8ae069c768f48395de6a884f67c04667482df"
+    }
+  ],
+  "isaaclab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+  "agent_entry_point": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2RoughPPORunnerCfg",
+  "normalized_env_diff_allowlist": [
+    "events.push_robot"
+  ]
+}

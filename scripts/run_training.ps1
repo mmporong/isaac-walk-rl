@@ -24,6 +24,8 @@ param(
 
     [string]$HydraOverridesBase64,
 
+    [string]$TrainingEntrypointPath,
+
     [ValidateRange(1, 60)]
     [int]$GpuSampleIntervalSeconds = 2
 )
@@ -129,6 +131,15 @@ $pythonBat = Join-Path $isaacLabFullPath '_isaac_sim\python.bat'
 $trainScript = Join-Path $isaacLabFullPath 'scripts\reinforcement_learning\rsl_rl\train.py'
 $rawLogRoot = Join-Path $isaacLabFullPath 'logs\harness'
 
+if (-not [string]::IsNullOrWhiteSpace($TrainingEntrypointPath)) {
+    $candidateEntrypoint = [System.IO.Path]::GetFullPath($TrainingEntrypointPath)
+    $repoBoundary = [System.IO.Path]::GetFullPath($repoRoot).TrimEnd('\') + '\'
+    if (-not $candidateEntrypoint.StartsWith($repoBoundary, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "TrainingEntrypointPath는 저장소 내부 파일이어야 합니다: $candidateEntrypoint"
+    }
+    $trainScript = $candidateEntrypoint
+}
+
 if (-not [string]::IsNullOrWhiteSpace($HydraOverridesBase64)) {
     if ($HydraOverrides.Count -gt 0) {
         throw 'HydraOverrides와 HydraOverridesBase64는 동시에 사용할 수 없습니다.'
@@ -158,6 +169,7 @@ if (-not (Test-Path -LiteralPath $pythonBat -PathType Leaf)) {
 if (-not (Test-Path -LiteralPath $trainScript -PathType Leaf)) {
     throw "RSL-RL train.py를 찾을 수 없습니다: $trainScript"
 }
+$trainingEntrypointHash = (Get-FileHash -LiteralPath $trainScript -Algorithm SHA256).Hash.ToLowerInvariant()
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $repoRoot "reports\runs\$RunName.json"
@@ -277,8 +289,16 @@ if ($actualLogDirectory -and (Test-Path -LiteralPath $actualLogDirectory -PathTy
 }
 $checkpointHash = if ($checkpoint) { (Get-FileHash -LiteralPath $checkpoint.FullName -Algorithm SHA256).Hash.ToLowerInvariant() } else { $null }
 $tensorboardExists = $false
+$tensorboardScalars = $null
 if ($actualLogDirectory -and (Test-Path -LiteralPath $actualLogDirectory -PathType Container)) {
     $tensorboardExists = $null -ne (Get-ChildItem -LiteralPath $actualLogDirectory -Filter 'events.out.tfevents.*' -File | Select-Object -First 1)
+    if ($tensorboardExists) {
+        $scalarCode = "import json,sys;from tensorboard.backend.event_processing.event_accumulator import EventAccumulator;e=EventAccumulator(sys.argv[1]);e.Reload();tags=e.Tags().get('scalars',[]);print(json.dumps({'tags':tags,'latest':{t:e.Scalars(t)[-1].value for t in tags if e.Scalars(t)}}))"
+        $scalarOutput = @(& $pythonBat -c $scalarCode $actualLogDirectory 2>$null)
+        if ($LASTEXITCODE -eq 0 -and $scalarOutput.Count -gt 0) {
+            try { $tensorboardScalars = $scalarOutput[-1] | ConvertFrom-Json } catch { $tensorboardScalars = $null }
+        }
+    }
 }
 
 $gpuValues = @($gpuSamples | ForEach-Object { $_.used_mib } | Where-Object { $null -ne $_ })
@@ -320,6 +340,11 @@ $report = [ordered]@{
         '--headless'
     ) + @($HydraOverrides)
     effective_hydra_overrides = @($HydraOverrides)
+    training_entrypoint = [ordered]@{
+        path = Convert-ToPortablePath $trainScript
+        sha256 = $trainingEntrypointHash
+        repository_internal = -not [string]::IsNullOrWhiteSpace($TrainingEntrypointPath)
+    }
     started_at = $startedAt.ToString('o')
     ended_at = $endedAt.ToString('o')
     wall_time_seconds = [math]::Round($stopwatch.Elapsed.TotalSeconds, 3)
@@ -352,6 +377,7 @@ $report = [ordered]@{
         checkpoint = if ($checkpoint) { Convert-ToPortablePath $checkpoint.FullName } else { $null }
         checkpoint_sha256 = $checkpointHash
     }
+    tensorboard = $tensorboardScalars
     fatal_patterns_found = $fatalMatches
     success_checks = $successChecks
     passed = $passed

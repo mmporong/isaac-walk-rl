@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "goal": "G006",
+  "isaaclab": {
+    "tag": "v2.1.1",
+    "commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+    "sim_version": "4.5.0"
+  },
+  "training": {
+    "scale_ladder": [1024, 2048, 4096],
+    "vram_limit_fraction": 0.8,
+    "max_iterations": 1500,
+    "seeds": [42, 43, 44],
+    "selected_num_envs_must_be_common": true,
+    "incomplete_training_restart": "full",
+    "automatic_checkpoint_resume": false,
+    "agent_learning_config": {
+      "entry_point": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2RoughPPORunnerCfg",
+      "num_steps_per_env": 24,
+      "max_iterations": 1500,
+      "actor_hidden_dims": [512, 256, 128],
+      "critic_hidden_dims": [512, 256, 128],
+      "algorithm": "PPO"
+    },
+    "agent_learning_config_sha256": "2c0265a998bb1ad111881276a2a0fa0148bd9a96bda759c26ee5db85901b293c"
+  },
+  "variants": [
+    {
+      "name": "baseline",
+      "task": "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+      "normalized_cfg_difference_from_baseline": []
+    },
+    {
+      "name": "push_curriculum",
+      "task": "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0",
+      "normalized_cfg_difference_from_baseline": ["events.push_robot"]
+    }
+  ],
+  "push_training": {
+    "interval_range_s": [10.0, 15.0],
+    "is_global_time": false,
+    "body_xy_direction_distribution": "angle_uniform_0_2pi",
+    "world_transform": "quat_apply_yaw(root_quat_w, body_delta_velocity)",
+    "stages": [
+      {"stage": 0, "common_steps": [0, 11999], "magnitude_mps": [0.10, 0.25]},
+      {"stage": 1, "common_steps": [12000, 23999], "magnitude_mps": [0.25, 0.50]},
+      {"stage": 2, "common_steps": [24000, null], "magnitude_mps": [0.50, 1.00]}
+    ]
+  },
+  "logger": {
+    "curriculum_term": "g006_state",
+    "terrain_keys": ["mean_level", "p10_level", "p50_level", "p90_level", "low_fraction", "mid_fraction", "high_fraction"],
+    "push_keys": [
+      "stage",
+      "events_stage_0", "events_stage_1", "events_stage_2",
+      "magnitude_mean_stage_0", "magnitude_mean_stage_1", "magnitude_mean_stage_2",
+      "magnitude_min_stage_0", "magnitude_min_stage_1", "magnitude_min_stage_2",
+      "magnitude_max_stage_0", "magnitude_max_stage_1", "magnitude_max_stage_2"
+    ]
+  },
+  "evaluation_protocol": {
+    "eval_seed": 20260824,
+    "terrain_seed": 20260824,
+    "terrain": {
+      "schema": "difficulty-aware-height-field-v1",
+      "size_m": [24.0, 24.0],
+      "num_rows": 10,
+      "num_cols": 10,
+      "heldout_rows": [1, 4, 8],
+      "heldout_cols": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "realization_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "noise_amplitude_m": [0.01, 0.06],
+      "evidence_gate": "30 raw hashes and 30 vertices+faces mesh hashes unique; per-realization RMS height or slope strictly row1<row4<row8"
+    },
+    "initial_states": [
+      {"id": 0, "root_relative_pos_m": [0.0, 0.0, 0.4]},
+      {"id": 1, "root_relative_pos_m": [0.05, 0.0, 0.4]},
+      {"id": 2, "root_relative_pos_m": [-0.05, 0.0, 0.4]},
+      {"id": 3, "root_relative_pos_m": [0.0, 0.05, 0.4]},
+      {"id": 4, "root_relative_pos_m": [0.0, -0.05, 0.4]},
+      {"id": 5, "root_relative_pos_m": [0.05, 0.05, 0.4]},
+      {"id": 6, "root_relative_pos_m": [-0.05, 0.05, 0.4]},
+      {"id": 7, "root_relative_pos_m": [0.05, -0.05, 0.4]},
+      {"id": 8, "root_relative_pos_m": [-0.05, -0.05, 0.4]},
+      {"id": 9, "root_relative_pos_m": [0.10, 0.0, 0.4]}
+    ],
+    "initial_state_common": {
+      "root_quaternion_wxyz": [1.0, 0.0, 0.0, 0.0],
+      "root_linear_velocity_mps": [0.0, 0.0, 0.0],
+      "root_angular_velocity_radps": [0.0, 0.0, 0.0],
+      "joint_position": "resolved_default_scale_1.0",
+      "joint_velocity_radps": 0.0,
+      "required_default_root_z_m": 0.4,
+      "runtime_vector_hash_required": true
+    },
+    "commands": [
+      {"id": "forward", "base_velocity": [0.75, 0.0, 0.0]},
+      {"id": "lateral", "base_velocity": [0.0, 0.50, 0.0]},
+      {"id": "turning", "base_velocity": [0.50, 0.0, 0.50]}
+    ],
+    "push_directions": [
+      {"id": "forward", "body_xy": [1.0, 0.0]},
+      {"id": "backward", "body_xy": [-1.0, 0.0]},
+      {"id": "left", "body_xy": [0.0, 1.0]},
+      {"id": "right", "body_xy": [0.0, -1.0]}
+    ],
+    "push_magnitudes_mps": [0.5, 1.0, 1.5],
+    "timing": {
+      "prepush_policy_fall_counts_as_failure": true,
+      "push_injection_completed_step": 200,
+      "recovery_window_completed_steps": [201, 450],
+      "horizon_completed_step": 600
+    },
+    "success_criteria": {
+      "lin_vel_error_mps_max": 0.30,
+      "yaw_rate_error_radps_max": 0.30,
+      "roll_abs_rad_max": 0.35,
+      "pitch_abs_rad_max": 0.35,
+      "consecutive_post_push_samples": 25,
+      "recovery_completed_step_start": 201,
+      "recovery_completed_step_end": 450,
+      "horizon_completed_step": 600,
+      "push_injection_completed_steps": 200,
+      "base_contact_allowed": false,
+      "survival_to_horizon_required": true
+    },
+    "push_trial_count": 1080,
+    "guardrail_trial_count": 90,
+    "bootstrap_resamples": 10000,
+    "observation_corruption": false,
+    "evaluation_domain_randomization": false,
+    "boundary_violation": "block"
+  },
+  "hash_contracts": {
+    "canonical_json": "sha256(utf8(json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False)))",
+    "protocol": "canonical evaluation_protocol",
+    "terrain": "canonical terrain evidence plus raw and mesh bytes",
+    "initial_state": "canonical literal state plus resolved runtime joint/root vectors",
+    "checkpoint": "sha256(file bytes)",
+    "pair_id": "{variant}-s{training_seed}",
+    "push_trial_id": "{pair_id}:push:r{row}:c{col}:cmd{command}:dir{direction}:mag{magnitude}",
+    "guardrail_trial_id": "{pair_id}:guardrail:r{row}:c{col}:cmd{command}"
+  }
+}
