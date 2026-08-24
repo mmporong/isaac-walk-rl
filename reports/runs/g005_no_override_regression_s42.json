@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "run_name": "g005_no_override_regression_s42",
+  "task": "Isaac-Velocity-Flat-Unitree-Go2-v0",
+  "num_envs": 64,
+  "max_iterations": 1,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "--task",
+    "Isaac-Velocity-Flat-Unitree-Go2-v0",
+    "--num_envs",
+    64,
+    "--max_iterations",
+    1,
+    "--seed",
+    42,
+    "--run_name",
+    "g005_no_override_regression_s42",
+    "--headless"
+  ],
+  "effective_hydra_overrides": [],
+  "started_at": "2026-08-24T12:17:07.2985317+09:00",
+  "ended_at": "2026-08-24T12:17:23.8343233+09:00",
+  "wall_time_seconds": 16.534,
+  "exit_code": 0,
+  "last_iteration": 0,
+  "iteration_target": 1,
+  "gpu": {
+    "baseline_used_mib": 908,
+    "peak_used_mib": 3322.0,
+    "delta_used_mib": 2414.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.074,
+        "used_mib": 910
+      },
+      {
+        "elapsed_seconds": 2.142,
+        "used_mib": 1003
+      },
+      {
+        "elapsed_seconds": 4.205,
+        "used_mib": 1003
+      },
+      {
+        "elapsed_seconds": 6.269,
+        "used_mib": 1035
+      },
+      {
+        "elapsed_seconds": 8.332,
+        "used_mib": 1035
+      },
+      {
+        "elapsed_seconds": 10.393,
+        "used_mib": 1066
+      },
+      {
+        "elapsed_seconds": 12.457,
+        "used_mib": 3322
+      },
+      {
+        "elapsed_seconds": 14.523,
+        "used_mib": 3316
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.047,
+        "used_mib": 889
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      963
+    ],
+    "mean_steps_per_second": 963.0,
+    "median_steps_per_second": 963,
+    "final_mean_reward": -0.68,
+    "final_mean_episode_length": 14.0
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g005_no_override_regression_s42.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g005_no_override_regression_s42.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_12-17-17_g005_no_override_regression_s42",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_flat\\2026-08-24_12-17-17_g005_no_override_regression_s42\\model_0.pt",
+    "checkpoint_sha256": "637805e61701d1c90f4a3991511a8f4f00c46bb58c2de3f1f219f22897b7d960"
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true
+}

@@ -19,6 +19,11 @@ param(
 
     [string]$ReportPath,
 
+    [ValidateNotNull()]
+    [string[]]$HydraOverrides = @(),
+
+    [string]$HydraOverridesBase64,
+
     [ValidateRange(1, 60)]
     [int]$GpuSampleIntervalSeconds = 2
 )
@@ -124,6 +129,29 @@ $pythonBat = Join-Path $isaacLabFullPath '_isaac_sim\python.bat'
 $trainScript = Join-Path $isaacLabFullPath 'scripts\reinforcement_learning\rsl_rl\train.py'
 $rawLogRoot = Join-Path $isaacLabFullPath 'logs\harness'
 
+if (-not [string]::IsNullOrWhiteSpace($HydraOverridesBase64)) {
+    if ($HydraOverrides.Count -gt 0) {
+        throw 'HydraOverrides와 HydraOverridesBase64는 동시에 사용할 수 없습니다.'
+    }
+    try {
+        $decodedOverrideJson = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($HydraOverridesBase64))
+        $HydraOverrides = @($decodedOverrideJson | ConvertFrom-Json)
+    }
+    catch {
+        throw "Hydra override Base64/JSON 해석 실패: $($_.Exception.Message)"
+    }
+}
+
+foreach ($override in $HydraOverrides) {
+    if ([string]::IsNullOrWhiteSpace($override) -or $override.Contains("`r") -or $override.Contains("`n")) {
+        throw 'Hydra override는 비어 있거나 줄바꿈을 포함할 수 없습니다.'
+    }
+    if ($override -notmatch '^[A-Za-z0-9_.:/+-]+=[A-Za-z0-9_.:/+-]+$' -or
+        $override.IndexOf('=') -ne $override.LastIndexOf('=')) {
+        throw "안전하지 않은 Hydra override 형식입니다: $override"
+    }
+}
+
 if (-not (Test-Path -LiteralPath $pythonBat -PathType Leaf)) {
     throw "Isaac Sim bundled python.bat을 찾을 수 없습니다: $pythonBat"
 }
@@ -152,6 +180,7 @@ $arguments = @(
     '--run_name', $RunName,
     '--headless'
 )
+$arguments += @($HydraOverrides)
 $argumentLine = ($arguments | ForEach-Object {
     Convert-ToWindowsCommandLineArgument ([string]$_)
 }) -join ' '
@@ -289,7 +318,8 @@ $report = [ordered]@{
         '--seed', $Seed,
         '--run_name', $RunName,
         '--headless'
-    )
+    ) + @($HydraOverrides)
+    effective_hydra_overrides = @($HydraOverrides)
     started_at = $startedAt.ToString('o')
     ended_at = $endedAt.ToString('o')
     wall_time_seconds = [math]::Round($stopwatch.Elapsed.TotalSeconds, 3)
@@ -327,7 +357,17 @@ $report = [ordered]@{
     passed = $passed
 }
 
-$report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $reportFullPath -Encoding utf8
+$reportJson = $report | ConvertTo-Json -Depth 8
+$reportTempPath = Join-Path $reportDirectory ('.' + [System.IO.Path]::GetFileName($reportFullPath) + '.' + [guid]::NewGuid().ToString('N') + '.tmp')
+try {
+    [System.IO.File]::WriteAllText($reportTempPath, $reportJson, [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::Move($reportTempPath, $reportFullPath, $true)
+}
+finally {
+    if (Test-Path -LiteralPath $reportTempPath -PathType Leaf) {
+        [System.IO.File]::Delete($reportTempPath)
+    }
+}
 Write-Host "Report: $(Convert-ToPortablePath $reportFullPath)"
 Write-Host "Result: passed=$passed exit=$($process.ExitCode) iteration=$lastIteration/$iterationTarget peak_vram_mib=$peakGpuMiB"
 

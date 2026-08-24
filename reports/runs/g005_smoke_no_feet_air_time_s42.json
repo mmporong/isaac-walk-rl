@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "run_name": "g005_smoke_no_feet_air_time_s42",
+  "task": "Isaac-Velocity-Flat-Unitree-Go2-v0",
+  "num_envs": 64,
+  "max_iterations": 1,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "--task",
+    "Isaac-Velocity-Flat-Unitree-Go2-v0",
+    "--num_envs",
+    64,
+    "--max_iterations",
+    1,
+    "--seed",
+    42,
+    "--run_name",
+    "g005_smoke_no_feet_air_time_s42",
+    "--headless",
+    "env.rewards.dof_torques_l2.weight=-0.0002",
+    "env.rewards.action_rate_l2.weight=-0.01",
+    "env.rewards.feet_air_time.weight=0.0",
+    "agent.experiment_name=g005_go2_flat_reward_ablation"
+  ],
+  "effective_hydra_overrides": [
+    "env.rewards.dof_torques_l2.weight=-0.0002",
+    "env.rewards.action_rate_l2.weight=-0.01",
+    "env.rewards.feet_air_time.weight=0.0",
+    "agent.experiment_name=g005_go2_flat_reward_ablation"
+  ],
+  "started_at": "2026-08-24T12:14:49.0716655+09:00",
+  "ended_at": "2026-08-24T12:15:03.5280380+09:00",
+  "wall_time_seconds": 14.455,
+  "exit_code": 0,
+  "last_iteration": 0,
+  "iteration_target": 1,
+  "gpu": {
+    "baseline_used_mib": 908,
+    "peak_used_mib": 3304.0,
+    "delta_used_mib": 2396.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.059,
+        "used_mib": 908
+      },
+      {
+        "elapsed_seconds": 2.132,
+        "used_mib": 1003
+      },
+      {
+        "elapsed_seconds": 4.195,
+        "used_mib": 1003
+      },
+      {
+        "elapsed_seconds": 6.257,
+        "used_mib": 1035
+      },
+      {
+        "elapsed_seconds": 8.32,
+        "used_mib": 1092
+      },
+      {
+        "elapsed_seconds": 10.383,
+        "used_mib": 3254
+      },
+      {
+        "elapsed_seconds": 12.447,
+        "used_mib": 3304
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.046,
+        "used_mib": 889
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      939
+    ],
+    "mean_steps_per_second": 939.0,
+    "median_steps_per_second": 939,
+    "final_mean_reward": -0.66,
+    "final_mean_episode_length": 14.0
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g005_smoke_no_feet_air_time_s42.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g005_smoke_no_feet_air_time_s42.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g005_go2_flat_reward_ablation\\2026-08-24_12-14-57_g005_smoke_no_feet_air_time_s42",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g005_go2_flat_reward_ablation\\2026-08-24_12-14-57_g005_smoke_no_feet_air_time_s42\\model_0.pt",
+    "checkpoint_sha256": "ed1c110b2134d254b42be3baab38cf473d48abdde2d941b40c77a63b99b35f4c"
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true
+}
