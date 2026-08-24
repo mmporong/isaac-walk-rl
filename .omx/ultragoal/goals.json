@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-08-24T00:54:40.416Z",
-  "updatedAt": "2026-08-24T01:03:07.529Z",
+  "updatedAt": "2026-08-24T01:37:12.894Z",
   "briefPath": ".omx/ultragoal/brief.md",
   "goalsPath": ".omx/ultragoal/goals.json",
   "ledgerPath": ".omx/ultragoal/ledger.jsonl",
@@ -23,10 +23,13 @@
       "id": "G002-isaac-lab",
       "title": "Isaac Lab 설치와 태스크 검증",
       "objective": "외부 경로에 v2.1.1 고정 commit을 설치하고 Sim binary 연결, 패키지 import, RSL-RL 2.3.3, CUDA, 대상 task ID를 실제 출력으로 검증한다.",
-      "status": "pending",
-      "attempt": 0,
+      "status": "complete",
+      "attempt": 1,
       "createdAt": "2026-08-24T00:54:40.416Z",
-      "updatedAt": "2026-08-24T00:54:40.416Z"
+      "updatedAt": "2026-08-24T01:37:12.894Z",
+      "startedAt": "2026-08-24T01:03:45.642Z",
+      "completedAt": "2026-08-24T01:37:12.894Z",
+      "evidence": "commit 3cd9325; IsaacLab HEAD 90b79bb v2.1.1 clean; junction target E:/IsaacSim/isaac-sim-4.5.0; verify_isaaclab PASS deterministic SHA256 ED8F709293332CA95BFFDD9347B6493C97EF99D490EE7D4DECF8B7E07794CC78; Python 3.10.15 torch 2.7.0+cu128 CUDA RTX3060 rsl-rl-lib 2.3.3; task registry 4/4; validator PASS; independent verifier APPROVE; isaaclab.bat -p exit1 and pip check metadata conflicts retained as nonblocking warnings"
     },
     {
       "id": "G003-anymal-c",
