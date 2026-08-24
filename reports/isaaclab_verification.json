@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "status": "pass",
+  "source": {
+    "path": "%USERPROFILE%\\IsaacLab",
+    "tag": "v2.1.1",
+    "commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba"
+  },
+  "simulator_link": {
+    "path": "%USERPROFILE%\\IsaacLab\\_isaac_sim",
+    "type": "Junction",
+    "configured_target": "E:\\IsaacSim\\isaac-sim-4.5.0",
+    "link_target": "E:\\IsaacSim\\isaac-sim-4.5.0",
+    "resolved_target": "E:\\IsaacSim\\isaac-sim-4.5.0"
+  },
+  "versions": {
+    "python": "3.10.15",
+    "torch": "2.7.0+cu128",
+    "cuda_available": true,
+    "cuda_device": "NVIDIA GeForce RTX 3060",
+    "rsl_rl": "2.3.3",
+    "isaaclab": "0.41.3",
+    "process_exit_code": 0
+  },
+  "runtime": {
+    "launcher": "isaac_sim_bundled_python_direct",
+    "process_exit_code": 0,
+    "probe": {
+      "app_initialized": true,
+      "imports": [
+        "isaaclab",
+        "isaaclab_assets",
+        "isaaclab_rl",
+        "isaaclab_tasks"
+      ],
+      "task_count": 4,
+      "tasks": [
+        {
+          "config": "isaaclab_tasks.manager_based.locomotion.velocity.config.anymal_c.flat_env_cfg:AnymalCFlatEnvCfg",
+          "entry_point": "isaaclab.envs:ManagerBasedRLEnv",
+          "id": "Isaac-Velocity-Flat-Anymal-C-v0",
+          "registered": true
+        },
+        {
+          "config": "isaaclab_tasks.manager_based.locomotion.velocity.config.anymal_c.rough_env_cfg:AnymalCRoughEnvCfg",
+          "entry_point": "isaaclab.envs:ManagerBasedRLEnv",
+          "id": "Isaac-Velocity-Rough-Anymal-C-v0",
+          "registered": true
+        },
+        {
+          "config": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.flat_env_cfg:UnitreeGo2FlatEnvCfg",
+          "entry_point": "isaaclab.envs:ManagerBasedRLEnv",
+          "id": "Isaac-Velocity-Flat-Unitree-Go2-v0",
+          "registered": true
+        },
+        {
+          "config": "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.rough_env_cfg:UnitreeGo2RoughEnvCfg",
+          "entry_point": "isaaclab.envs:ManagerBasedRLEnv",
+          "id": "Isaac-Velocity-Rough-Unitree-Go2-v0",
+          "registered": true
+        }
+      ]
+    },
+    "log_summary": [
+      "[INFO][AppLauncher]: Using device: cuda:0",
+      "[INFO][AppLauncher]: Loading experience file: %USERPROFILE%\\IsaacLab\\apps\\isaaclab.python.headless.kit"
+    ]
+  },
+  "warnings": [
+    "Isaac Lab v2.1.1 Windows isaaclab.bat -p는 nested batch를 call 없이 실행해 성공 후에도 exit 1을 전달할 수 있으므로 runtime 검증에는 bundled python.bat 직접 실행을 사용함",
+    "pip check 종료 코드 1: Isaac Sim extension별 pip_prebundle metadata와 Isaac Lab의 starlette==0.45.3 고정으로 알려진 불일치가 있으나 패키지는 수정하지 않음; 핵심 RL imports, AppLauncher, task registry는 runtime probe로 별도 판정함"
+  ],
+  "failures": []
+}

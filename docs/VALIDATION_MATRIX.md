@@ -4,8 +4,9 @@
 | --- | --- | --- |
 | Sim 4.5 ↔ Lab 2.1.1 호환 | v2.1.1 릴리스와 설치 문서 | 검증 완료 |
 | Python 3.10 | v2.1.1 설치 문서와 로컬 번들 Python | 검증 완료 |
-| RSL-RL 2.3.3 | v2.1.1 `isaaclab_rl/setup.py` | 검증 완료 |
-| 대상 task ID 4개 | v2.1.1 Gym 등록 소스 | 정적 검증 완료, 로컬 등록 확인 대기 |
+| RSL-RL 2.3.3 | v2.1.1 `isaaclab_rl/setup.py`와 로컬 package metadata | 설치·버전 검증 완료 |
+| 대상 task ID 4개 | headless AppLauncher 이후 Gym registry | 로컬 등록 검증 완료 |
+| headless 프로세스 정상 종료 | bundled `python.bat` 직접 실행, AppLauncher 종료 코드 0 | 검증 완료; `isaaclab.bat -p` exit 1은 wrapper false-negative 경고로 분리 |
 | RTX 3060 12GB에서 2048 envs | 현재 호스트 짧은 학습 | 실측 대기 |
 | RTX 3060 12GB에서 4096 envs | 20% VRAM 여유와 안정 실행 | 조건부 실측 대기 |
 | ANYmal-C 50 iterations | 정상 종료와 checkpoint/log | 실행 대기 |

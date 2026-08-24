@@ -43,10 +43,10 @@
   },
   "isaac_lab": {
     "path": "%USERPROFILE%\\IsaacLab",
-    "exists": false
+    "exists": true
   },
   "repository": {
-    "state": "unborn",
-    "commit": null
+    "state": "commit",
+    "commit": "3c7259c454f399bef5c3ae81c9947bd43fa0de02"
   }
 }

@@ -8,9 +8,9 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 | --- | --- | --- |
 | 운영체제 | Windows 11 네이티브 | 확정 |
 | Isaac Sim | 4.5.0 binary | 로컬 설치·Python smoke 확인 |
-| Isaac Lab | v2.1.1 / `90b79bb2d44feb8d833f260f2bf37da3487180ba` | 소스 설치 대기 |
+| Isaac Lab | v2.1.1 / `90b79bb2d44feb8d833f260f2bf37da3487180ba` | 소스 설치·태그 확인 |
 | Python | Isaac Sim 번들 3.10.x | 로컬 3.10.15 확인 |
-| RL | RSL-RL PPO / `rsl-rl-lib==2.3.3` | 설치 대기 |
+| RL | RSL-RL PPO / `rsl-rl-lib==2.3.3` | 설치·CUDA import 확인 |
 | 관측 | 상태 기반, headless | 확정 |
 
 이 프로젝트는 `Ubuntu 24.04/Jazzy` 기본 로보틱스 환경의 예외입니다. RL 학습 자체에는 ROS 2나 WSL2가 필요하지 않으므로 설치하지 않습니다.
@@ -47,7 +47,8 @@ PowerShell에서 다음 명령을 실행하면 사용자명이나 인증정보�
 ```powershell
 cd "$HOME\isaac-walk-rl"
 .\scripts\collect_environment.ps1
+.\scripts\verify_isaaclab.ps1
 .\scripts\validate_repository.ps1
 ```
 
-Isaac Lab을 다른 위치에 설치한 경우 `-IsaacLabPath` 인자로 경로를 지정합니다. 사용자 홈 아래 경로는 매니페스트에서 `%USERPROFILE%`로 치환됩니다.
+Isaac Lab을 다른 위치에 설치한 경우 `-IsaacLabPath` 인자로 경로를 지정합니다. 사용자 홈 아래 경로는 보고서에서 `%USERPROFILE%`로 치환됩니다. Isaac Lab v2.1.1의 Windows `isaaclab.bat -p`는 nested batch를 `call` 없이 실행해 성공 후에도 exit 1을 전달할 수 있으므로, runtime 검증은 동일한 공식 bundled `python.bat`를 직접 사용하고 wrapper 문제는 경고로 기록합니다.
