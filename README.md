@@ -21,7 +21,7 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 - Isaac Lab 2.2는 Sim 4.5에서 무조건 사용할 수 없는 버전이 아닙니다. 이 프로젝트는 재현성을 위해 2.1.1을 고정합니다.
 - RTX 3060 12GB에서 2048/4096 environments가 된다는 보장은 없습니다. 64부터 단계적으로 올리며 peak VRAM과 steps/s를 실측합니다.
 - Go2를 “가장 많이 쓰이는 모델”이라고 단정하지 않습니다. ANYmal-C 공식 baseline을 관문으로 삼고, Isaac Lab 내장 Go2 태스크를 심화 대상으로 사용합니다.
-- RBQ는 공개 URDF와 현행 Isaac Lab 구현이 있지만, 현행 코드는 Sim 5.1 / Lab 2.3.2용입니다. 마지막 단계는 4.5 / 2.1.1 backport 가능성 검증입니다.
+- RBQ v1.20.0에는 공개 URDF·STL 경로가 있습니다. 공식 Isaac Lab v2.1.1·v2.3.2·조사 시점 main에는 대상 구현이 없으므로, 마지막 단계는 외부 커스텀 자산의 라이선스와 호환성을 fail-closed로 판정합니다.
 
 ## 실행 순서
 
@@ -31,7 +31,7 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 4. 세 보상 항목의 one-factor ablation
 5. Go2 rough, terrain curriculum, domain randomization
 6. 고정 프로토콜 기반 외란 회복률 비교
-7. RBQ URDF 및 공식 2.3.2 구현의 2.1.1 backport spike
+7. RBQ 외부 자산 라이선스·호환성 사전조사
 
 구체적인 명령과 단계별 완료 조건은 `PROMPT_WINDOWS.md`, 측정 상태는 `docs/VALIDATION_MATRIX.md`, 모든 실행 기록은 `RUN_NOTES.md`에서 관리합니다.
 
@@ -96,3 +96,14 @@ cd "$HOME\isaac-walk-rl"
 ```
 
 해석과 한계는 [`docs/G005_REWARD_ABLATION.md`](docs/G005_REWARD_ABLATION.md), 정량 summary는 [`reports/runs/g005_reward_ablation_summary.json`](reports/runs/g005_reward_ablation_summary.json), job별 checkpoint·TensorBoard·해시는 [`reports/runs/g005_reward_ablation_state.json`](reports/runs/g005_reward_ablation_state.json)에 있습니다. 학습 reward는 variant마다 정의가 달라 직접 비교하지 않습니다. Isaac Lab 본체는 계속 저장소 밖 `$HOME\IsaacLab`에 둡니다.
+
+## RBQ 외부 자산 호환성 게이트
+
+G007은 RBQ v1.20.0의 8개 자산 경로와 Git 객체를 고정했습니다. `rbq_description/package.xml`의 Apache-2.0 선언이 URDF·STL blob에 적용되는 범위와 로컬 처리 권한은 확인되지 않아 `license_scope_unresolved`로 차단합니다. 자산 다운로드·변환·smoke는 실행하지 않았으며, 이 blocker는 G007의 재현 가능한 완료 경로이지 G006이나 전체 프로젝트의 중단 사유가 아닙니다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+python .\scripts\validate_rbq_assets.py --manifest .\configs\g007_rbq_asset_manifest.json --expect-blocked --report .\reports\g007_rbq_compatibility_spike.json
+```
+
+상세 판정, 공식 출처, 해시와 blocker 해제 조건은 [`docs/G007_RBQ_COMPATIBILITY_SPIKE.md`](docs/G007_RBQ_COMPATIBILITY_SPIKE.md)에 있습니다.

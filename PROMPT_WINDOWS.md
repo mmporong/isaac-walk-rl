@@ -85,11 +85,18 @@ baseline과 개선 정책에 같은 protocol을 적용한다.
 
 DoD: 회복 성공 분자/분모, 회복률, Wilson 95% 신뢰구간, 조건별 표와 실패 사례.
 
-## 6단계 — RBQ backport spike
+## 6단계 — RBQ 외부 자산 호환성 사전조사
 
-원본 자산 경로는 `rbq_sdk/ros2/src/rbq_description/urdf/rbq.urdf`이다. clone commit과 `rbq_description/package.xml`의 Apache-2.0 선언을 기록한다. 현행 `rbq_simulator/rbq_lab`은 Sim 5.1 / Lab 2.3.2용이므로 그대로 복사하지 않고 2.1.1 API 차이를 목록화한다.
+RBQ v1.20.0의 source commit과 `rbq_sdk/ros2/src/rbq_description/` 아래 8개 자산 blob을 manifest에 고정한다. 공식 Isaac Lab v2.1.1·v2.3.2·조사 시점 main에는 대상 구현이 없으므로 기존 구현의 이식을 전제하지 않는다.
 
-DoD: joint/actuator/contact/asset path/API 매핑표. 성공 시 최소 smoke 결과, 실패 시 재현 명령과 정확한 compatibility blocker.
+`rbq_description/package.xml`의 Apache-2.0 선언이 URDF·STL에 적용되는 범위와 로컬 처리 권한이 확인되지 않으면 자산을 다운로드·변환하지 않고 차단 보고서를 재현한다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+python .\scripts\validate_rbq_assets.py --manifest .\configs\g007_rbq_asset_manifest.json --expect-blocked --report .\reports\g007_rbq_compatibility_spike.json
+```
+
+DoD: source·blob inventory·라이선스 근거와 검증기 해시를 고정한다. 허가가 없으면 `license_scope_unresolved` blocker, 재현 명령, 해제에 필요한 권한 범위를 기록한다. 허가가 확인된 뒤에만 byte hash → URI/topology → converter → fixed-base smoke를 별도 수행한다.
 
 ## 실행 기록과 Git
 

@@ -25,8 +25,11 @@
 
 ## RBQ 호환성 메모
 
-- 공식 URDF: `rbq_sdk/ros2/src/rbq_description/urdf/rbq.urdf`
-- mesh: `rbq_sdk/ros2/src/rbq_description/meshes/stl/`
-- `rbq_description/package.xml`: Apache License 2.0 선언
-- 저장소 루트에는 전체 자산 범위를 명확히 하는 root LICENSE가 없으므로 재배포 범위를 확대 해석하지 않는다.
-- 현행 공식 Isaac Lab 예제는 Python 3.11 / Isaac Sim 5.1 / Isaac Lab 2.3.2 대상이다. 이 프로젝트에서는 참조 구현으로만 pin한다.
+- 2026-08-24 G007은 `external_custom_compatibility_spike`로 구현했고 targeted 46 tests가 PASS, 코드 검토가 APPROVE였다.
+- RBQ v1.20.0 tag object는 `741ce5733dcd7c0babec663bb7e1afbc02a776ca`, source commit은 `68bc33b77719d357b4323fb88549efd905caf721`이다.
+- 고정 대상은 `rbq_sdk/ros2/src/rbq_description/urdf/rbq.urdf`, `package.xml`, STL 6개로 모두 8개 blob이다.
+- GitHub repository API의 detected license `null`은 저장소 전체 라이선스를 감지하지 못했다는 뜻이며, 무허가 또는 금지의 증명이 아니다.
+- `package.xml`은 Apache-2.0을 선언하지만 asset blob 적용 범위와 로컬 처리·재배포 권한은 미확정이다.
+- 공식 Isaac Lab v2.1.1, v2.3.2, 조사 시점 main 고정 소스에는 대상 match가 없다. 따라서 상위 버전의 공식 구현 이식을 전제하지 않는다.
+- `license_scope_unresolved`가 해제되기 전에는 자산 다운로드·변환·topology 검증·smoke를 실행하지 않는다.
+- 상세 근거와 재현 명령은 `docs/G007_RBQ_COMPATIBILITY_SPIKE.md`에 있다. G006 production과 전체 ultragoal 완료 여부는 별도로 판정한다.

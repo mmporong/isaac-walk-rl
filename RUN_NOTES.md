@@ -83,3 +83,16 @@
 - 표본은 variant당 `n=3`이고 flat·20초 평가에 한정된다. power는 전기 에너지가 아닌 시뮬레이션 proxy이며, early fall 이후 상태를 제외하므로 연속 지표에 조건부 표본 편향이 있을 수 있다.
 - 전체 평균표, seed 방향 일관성, 실용 임계값과 한계는 `docs/G005_REWARD_ABLATION.md`에 기록했다.
 - G006 handoff: 세 보상을 유지한 baseline을 기준으로 rough terrain, domain randomization, 고정 push protocol의 회복률을 비교한다.
+
+### G007 RBQ 외부 자산 호환성 사전조사
+
+- 2026-08-24에 RBQ v1.20.0 tag object `741ce5733dcd7c0babec663bb7e1afbc02a776ca`와 source commit `68bc33b77719d357b4323fb88549efd905caf721`을 고정했다.
+- `rbq_sdk/ros2/src/rbq_description/` 아래 URDF 1개, `package.xml` 1개, STL 6개 등 8개 blob의 경로·크기·Git blob SHA-1 inventory를 manifest에 기록했다.
+- GitHub repository API의 detected license는 `null`이지만 이는 저장소 전체 라이선스 미감지를 뜻할 뿐 무허가 또는 이용 금지를 증명하지 않는다. `package.xml`의 Apache-2.0 선언이 asset blob에 적용되는 범위와 로컬 처리·재배포 권한은 확인되지 않았다.
+- 공식 Isaac Lab v2.1.1, v2.3.2, 조사 시점 main 고정 소스에서 대상 match가 없었다. G007을 공식 구현 이식이 아닌 `external_custom_compatibility_spike`로 보정했다.
+- 검증기는 `license_scope_unresolved` blocker를 fail-closed로 보고한다. `--expect-blocked`는 exit 0, `--require-ready`는 exit 3을 재현했다.
+- 자산 byte 다운로드·해시 검증·URI/topology 분석·converter·fixed-base smoke는 실행하지 않았다. topology의 link/joint/mesh count도 미확정이다.
+- `python -m pytest tests/test_g007_rbq_gate.py -q` 결과 46 tests PASS, 코드 검토 판정은 APPROVE였다.
+- 보고서 file SHA-256 `8cace17b61c944c1395bd42bff81c0cdbd8c39e8b041b0b2039f382983d8927d`, manifest canonical SHA-256 `93ec6cfa7f06d7f2c8b43ac5f057aa2e5b09767a11c515ef333b1dcac799edbf`, validator SHA-256 `28040254c014e6de99ab99dac578eee9a0ad55e94353cb6fad5d14fe75bfc36b`이다.
+- 이 blocker는 프로젝트 브리프가 허용한 G007 완료 경로다. G006 production과 전체 ultragoal 완료를 뜻하지 않는다.
+- 상세 판정과 해제 조건은 `docs/G007_RBQ_COMPATIBILITY_SPIKE.md`에 기록했다.

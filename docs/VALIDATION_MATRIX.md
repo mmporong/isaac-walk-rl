@@ -15,7 +15,7 @@
 | 보상 ablation | 동일 budget·3 seeds 이상 비교 | PASS; Go2 flat 4096 env × 300 iterations, 4 variants × seeds 42/43/44, 12/12 complete·failed 0, 고정 26×10×20초 평가와 strict hash 검증 완료 |
 | rough·DR | flat baseline 대비 지표 | 실행 대기 |
 | 외란 회복 개선 | 고정 protocol과 Wilson 95% CI | 실행 대기 |
-| RBQ 2.1.1 backport | API 매핑과 smoke 또는 blocker | 조사 대기 |
+| RBQ 외부 자산 호환성 사전조사 | source·8 blob·라이선스 근거 고정, fail-closed blocker 재현 | G007 gate 구현 완료; `license_scope_unresolved`, expect-blocked exit 0·require-ready exit 3, targeted 46 tests PASS·code review APPROVE. 자산·파생물 다운로드/변환/smoke 미실행 |
 
 ## 1차 근거
 
@@ -24,5 +24,7 @@
 - v2.1.1 ANYmal-C task registration: https://github.com/isaac-sim/IsaacLab/blob/90b79bb2d44feb8d833f260f2bf37da3487180ba/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/anymal_c/__init__.py
 - v2.1.1 Go2 task registration: https://github.com/isaac-sim/IsaacLab/blob/90b79bb2d44feb8d833f260f2bf37da3487180ba/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/go2/__init__.py
 - Isaac Sim 4.5 requirements: https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/requirements.html
-- RBQ URDF: https://github.com/RainbowRobotics/RBQ/blob/main/rbq_sdk/ros2/src/rbq_description/urdf/rbq.urdf
-- RBQ current simulator dependencies: https://github.com/RainbowRobotics/RBQ/blob/main/rbq_simulator/rbq_lab/dependencies.yaml
+- RBQ v1.20.0 tag object API: https://api.github.com/repos/RainbowRobotics/RBQ/git/tags/741ce5733dcd7c0babec663bb7e1afbc02a776ca
+- RBQ 고정 commit URDF: https://raw.githubusercontent.com/RainbowRobotics/RBQ/68bc33b77719d357b4323fb88549efd905caf721/rbq_sdk/ros2/src/rbq_description/urdf/rbq.urdf
+- RBQ 고정 commit package.xml: https://raw.githubusercontent.com/RainbowRobotics/RBQ/68bc33b77719d357b4323fb88549efd905caf721/rbq_sdk/ros2/src/rbq_description/package.xml
+- G007 상세 판정: [`G007_RBQ_COMPATIBILITY_SPIKE.md`](G007_RBQ_COMPATIBILITY_SPIKE.md)

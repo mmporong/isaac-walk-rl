@@ -11,6 +11,7 @@ function Add-Failure {
 }
 
 $requiredFiles = @(
+    '.gitattributes',
     '.gitignore',
     'AGENTS.md',
     'README.md',
@@ -19,9 +20,13 @@ $requiredFiles = @(
     'NOTES.md',
     'RUN_NOTES.md',
     'docs\VALIDATION_MATRIX.md',
+    'docs\G007_RBQ_COMPATIBILITY_SPIKE.md',
+    'configs\g007_rbq_asset_manifest.json',
     'scripts\collect_environment.ps1',
+    'scripts\validate_rbq_assets.py',
     'scripts\validate_repository.ps1',
     'reports\environment_manifest.json',
+    'reports\g007_rbq_compatibility_spike.json',
     '.omx\ultragoal\brief.md',
     '.omx\ultragoal\goals.json',
     '.omx\ultragoal\ledger.jsonl'
@@ -64,7 +69,8 @@ foreach ($directory in $forbiddenDependencyDirectories) {
 $forbiddenExtensions = @(
     '.ckpt', '.pt', '.pth', '.onnx',
     '.mp4', '.avi', '.mov',
-    '.usd', '.usda', '.usdc'
+    '.usd', '.usda', '.usdc',
+    '.urdf', '.stl', '.dae', '.obj'
 )
 $maxFileBytes = 10MB
 $repositoryFiles = Get-ChildItem -LiteralPath $repoRoot -Recurse -Force -File |
@@ -108,6 +114,79 @@ if (Test-Path -LiteralPath $gitIgnorePath -PathType Leaf) {
 foreach ($rule in $requiredIgnoreRules) {
     if ($gitIgnoreLines -notcontains $rule) {
         Add-Failure "필수 .gitignore 규칙 없음: $rule"
+    }
+}
+
+$requiredAttributeRules = @(
+    '/.gitattributes text eol=lf',
+    '/configs/g007_rbq_asset_manifest.json text eol=lf',
+    '/reports/g007_rbq_compatibility_spike.json text eol=lf',
+    '/scripts/validate_rbq_assets.py text eol=lf'
+)
+$gitAttributeLines = @()
+$gitAttributePath = Join-Path $repoRoot '.gitattributes'
+if (Test-Path -LiteralPath $gitAttributePath -PathType Leaf) {
+    $gitAttributeLines = Get-Content -LiteralPath $gitAttributePath
+    $gitAttributeBytes = [System.IO.File]::ReadAllBytes($gitAttributePath)
+    $expectedAttributeContent = ($requiredAttributeRules -join "`n") + "`n"
+    $expectedAttributeBytes = [System.Text.UTF8Encoding]::new($false).GetBytes($expectedAttributeContent)
+    if ($gitAttributeBytes -contains [byte]13) {
+        Add-Failure '.gitattributes에 CR 바이트가 있음'
+    }
+    if ([System.Convert]::ToBase64String($gitAttributeBytes) -ne
+        [System.Convert]::ToBase64String($expectedAttributeBytes)) {
+        Add-Failure '.gitattributes 내용이 필수 4개 규칙의 순서·UTF-8·최종 LF 계약과 다름'
+    }
+}
+foreach ($rule in $requiredAttributeRules) {
+    if ($gitAttributeLines -notcontains $rule) {
+        Add-Failure "필수 .gitattributes 규칙 없음: $rule"
+    }
+}
+$requiredAttributeRuleByPath = @{}
+foreach ($rule in $requiredAttributeRules) {
+    $requiredAttributeRuleByPath[($rule -split '\s+')[0]] = $rule
+}
+foreach ($line in $gitAttributeLines) {
+    $trimmedLine = $line.Trim()
+    if ($trimmedLine.Length -eq 0 -or $trimmedLine.StartsWith('#')) {
+        continue
+    }
+    $attributePath = ($trimmedLine -split '\s+')[0]
+    if ($requiredAttributeRuleByPath.ContainsKey($attributePath) -and
+        $trimmedLine -ne $requiredAttributeRuleByPath[$attributePath]) {
+        Add-Failure "허용되지 않은 .gitattributes 규칙: $trimmedLine"
+    }
+}
+
+$requiredAttributeTargets = @(
+    'configs/g007_rbq_asset_manifest.json',
+    'reports/g007_rbq_compatibility_spike.json',
+    'scripts/validate_rbq_assets.py'
+)
+foreach ($target in $requiredAttributeTargets) {
+    $attributeOutput = @(& git -C $repoRoot check-attr text eol -- $target 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        Add-Failure "git check-attr 실패: $target ($($attributeOutput -join ' '))"
+        continue
+    }
+    $attributes = @{}
+    $attributeOutputValid = $true
+    foreach ($outputLine in $attributeOutput) {
+        if ($outputLine -notmatch '^(?<path>.*): (?<attribute>[^:]+): (?<value>.*)$') {
+            $attributeOutputValid = $false
+            break
+        }
+        $outputPath = $Matches.path.Replace('\', '/')
+        if ($outputPath -ne $target -or $attributes.ContainsKey($Matches.attribute)) {
+            $attributeOutputValid = $false
+            break
+        }
+        $attributes[$Matches.attribute] = $Matches.value
+    }
+    if (-not $attributeOutputValid -or $attributes.Count -ne 2 -or
+        $attributes.text -ne 'set' -or $attributes.eol -ne 'lf') {
+        Add-Failure "G007 파일 Git 속성이 text=set/eol=lf가 아님: $target ($($attributeOutput -join ' '))"
     }
 }
 
