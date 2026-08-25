@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+from argparse import Namespace
 from pathlib import Path
 from types import ModuleType
 
@@ -259,9 +260,187 @@ def test_real_summarizer_accepts_pre_final_summarizing_queue(tmp_path: Path) -> 
     result = SUMMARY.summarize(manifest_path, queue_path)
 
     assert result["status"] == "complete"
+
+
+def test_summary_serializes_paths_portably(tmp_path: Path) -> None:
+    manifest_path, queue_path = complete_evidence_fixture(tmp_path, "summarizing")
+
+    result = SUMMARY.summarize(manifest_path, queue_path)
+    serialized = json.dumps(result)
+
+    assert str(Path.home()) not in serialized
+    assert result["manifest"]["path"] == "manifest.json"
+    assert result["queue_state"]["path"] == "queue.json"
+    assert all(
+        not Path(evidence["path"]).is_absolute()
+        for job in result["jobs"]
+        for evidence in job["evaluation"].values()
+    )
+    assert result["comparisons"]["recovery"]["baseline"]["raw_metrics"] == {
+        "tracking_error_sq_mean": 0.1,
+        "yaw_error_sq_mean": 0.1,
+        "torque_l2_mean": 1.0,
+        "absolute_mechanical_power_mean": 1.0,
+        "action_rate_l2_mean": 0.1,
+    }
     assert len(result["jobs"]) == 6
     assert result["comparisons"]["recovery"]["baseline"]["total"] == 3240
     assert result["comparisons"]["recovery"]["push_curriculum"]["successes"] == 3240
+
+
+def test_external_repo_and_isaaclab_tokens_round_trip_without_home_confusion(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake_home = tmp_path / "isolated-home"
+    repo_root = tmp_path / "external-repo"
+    isaaclab_root = tmp_path / "external-isaaclab"
+    queue_path = repo_root / "reports" / "queue.json"
+    training_path = repo_root / "reports" / "training.json"
+    checkpoint = isaaclab_root / "logs" / "model.pt"
+    for directory in (fake_home, queue_path.parent, checkpoint.parent):
+        directory.mkdir(parents=True, exist_ok=True)
+    checkpoint.write_bytes(b"portable-checkpoint")
+    checkpoint_hash = SUMMARY.file_sha256(checkpoint)
+    write_json(training_path, {
+        "passed": True,
+        "task": "portable-task",
+        "seed": 42,
+        "artifacts": {
+            "checkpoint": "%ISAACLAB_ROOT%\\logs\\model.pt",
+            "checkpoint_sha256": checkpoint_hash,
+        },
+    })
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: fake_home))
+    job = {
+        "id": "portable-s42",
+        "task": "portable-task",
+        "seed": 42,
+        "report_path": "%REPO_ROOT%\\reports\\training.json",
+        "checkpoint_sha256": checkpoint_hash,
+    }
+
+    report, resolved_checkpoint = SUMMARY._training_report(
+        job, queue_path, repo_root=repo_root, isaaclab_root=isaaclab_root,
+    )
+
+    assert report["passed"] is True
+    assert resolved_checkpoint == checkpoint.resolve()
+    assert SUMMARY.portable_path(
+        training_path, repo_root=repo_root, isaaclab_root=isaaclab_root,
+    ) == "reports/training.json"
+    assert SUMMARY.portable_path(
+        checkpoint, repo_root=repo_root, isaaclab_root=isaaclab_root,
+    ) == "%ISAACLAB_ROOT%\\logs\\model.pt"
+
+
+@pytest.mark.parametrize("value,code", [
+    ("%REPO_ROOT%evil", "portable_token_invalid"),
+    ("%USERPROFILE%evil", "portable_token_invalid"),
+    ("%UNKNOWN_ROOT%\\secret.pt", "portable_token_invalid"),
+    ("%REPO_ROOT%\\..\\external-isaaclab\\secret.pt", "portable_token_escape"),
+    ("%ISAACLAB_ROOT%\\..\\external-repo\\secret.pt", "portable_token_escape"),
+    ("%REPO_ROOT%\\reports\\..\\..\\secret.pt", "portable_token_escape"),
+    ("%USERPROFILE%\\..\\secret.pt", "portable_token_escape"),
+])
+def test_portable_token_confusion_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value: str, code: str,
+) -> None:
+    home = tmp_path / "home"
+    repo = tmp_path / "external-repo"
+    lab = tmp_path / "external-isaaclab"
+    for root in (home, repo, lab):
+        root.mkdir()
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
+
+    with pytest.raises(SUMMARY.ValidationError, match=f"^{code}$"):
+        SUMMARY.resolve_portable_path(value, repo, repo_root=repo, isaaclab_root=lab)
+
+
+def test_arbitrary_absolute_path_and_missing_explicit_isaac_root_are_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    home = tmp_path / "home"
+    repo = tmp_path / "repo"
+    lab = tmp_path / "lab"
+    unknown = tmp_path / "unknown" / "secret.pt"
+    for root in (home, repo, lab, unknown.parent):
+        root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
+
+    with pytest.raises(SUMMARY.ValidationError, match="^path_outside_allowed_roots$"):
+        SUMMARY.resolve_portable_path(str(unknown), repo, repo_root=repo, isaaclab_root=lab)
+    with pytest.raises(SUMMARY.ValidationError, match="^isaaclab_root_required$"):
+        SUMMARY.resolve_portable_path(
+            "%ISAACLAB_ROOT%\\logs\\model.pt", repo, repo_root=repo,
+        )
+
+
+@pytest.mark.parametrize("value", [
+    "../repo-secret.pt",
+    "../../isaaclab/secret.pt",
+    "nested/../../../home/secret.pt",
+])
+def test_relative_path_cannot_escape_into_sibling_allowed_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value: str,
+) -> None:
+    home = tmp_path / "home"
+    repo = tmp_path / "repo"
+    lab = tmp_path / "isaaclab"
+    queue_dir = repo / "reports"
+    for root in (home, queue_dir, lab):
+        root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
+
+    with pytest.raises(SUMMARY.ValidationError, match="^path_outside_allowed_roots$"):
+        SUMMARY.resolve_portable_path(
+            value, queue_dir, repo_root=repo, isaaclab_root=lab,
+        )
+
+
+def test_relative_path_stays_within_base_and_legacy_absolute_roots_remain_valid(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    home = tmp_path / "home"
+    repo = tmp_path / "repo"
+    lab = tmp_path / "isaaclab"
+    queue_dir = repo / "reports"
+    for root in (home, queue_dir, lab):
+        root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
+
+    assert SUMMARY.resolve_portable_path(
+        "training.json", queue_dir, repo_root=repo, isaaclab_root=lab,
+    ) == (queue_dir / "training.json").resolve()
+    for absolute in (home / "legacy.json", repo / "legacy.json", lab / "legacy.json"):
+        assert SUMMARY.resolve_portable_path(
+            str(absolute), queue_dir, repo_root=repo, isaaclab_root=lab,
+        ) == absolute.resolve()
+
+
+@pytest.mark.parametrize("error,expected", [
+    (OSError(r"C:\Users\Sensitive\secret.json"), "unexpected_error"),
+    (SUMMARY.ValidationError(r"C:\Users\Sensitive\secret.json"), "validation_failed"),
+])
+def test_failure_json_redacts_host_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, error: Exception, expected: str,
+) -> None:
+    output = tmp_path / "failure.json"
+    monkeypatch.setattr(SUMMARY, "parse_args", lambda: Namespace(
+        manifest=tmp_path / "manifest.json",
+        queue_state=tmp_path / "queue.json",
+        isaaclab_root=tmp_path / "lab",
+        output=output,
+    ))
+    monkeypatch.setattr(
+        SUMMARY, "summarize",
+        lambda *args, **kwargs: (_ for _ in ()).throw(error),
+    )
+
+    assert SUMMARY.main() == 1
+    persisted = output.read_text(encoding="utf-8")
+    assert "Sensitive" not in persisted
+    assert "C:\\Users" not in persisted
+    assert json.loads(persisted)["error"]["message"] == expected
 
 
 def test_real_summarizer_rejects_failed_queue_state(tmp_path: Path) -> None:

@@ -1,41 +1,355 @@
-[CmdletBinding()]param()
-$ErrorActionPreference='Stop';Set-StrictMode -Version Latest
-function Assert([bool]$c,[string]$m){if(-not$c){throw "ASSERT FAIL: $m"}}
-$root=Split-Path -Parent $PSScriptRoot;$queue=Join-Path $root 'scripts\run_g006_experiment.ps1';$config=Join-Path $root 'configs\g006_rough_push.json';$pwsh=(Get-Process -Id $PID).Path;$lab=Join-Path $HOME 'IsaacLab'
-$tmp=Join-Path ([IO.Path]::GetTempPath()) ('g006-queue-'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory $tmp|Out-Null
-try{
-  $mock=Join-Path $tmp 'mock.ps1';$source=@'
+[CmdletBinding()]
+param()
+
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+function Assert([bool]$Condition, [string]$Message) {
+  if (-not $Condition) {
+    throw "ASSERT FAIL: $Message"
+  }
+}
+
+$root = Split-Path -Parent $PSScriptRoot
+$queue = Join-Path $root 'scripts\run_g006_experiment.ps1'
+$config = Join-Path $root 'configs\g006_rough_push.json'
+$pwsh = (Get-Process -Id $PID).Path
+$lab = Join-Path $HOME 'IsaacLab'
+$tmp = Join-Path ([IO.Path]::GetTempPath()) ('g006-queue-' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory $tmp | Out-Null
+
+$tokens = $null
+$parseErrors = $null
+$queueAst = [System.Management.Automation.Language.Parser]::ParseFile(
+  $queue, [ref]$tokens, [ref]$parseErrors
+)
+Assert (@($parseErrors).Count -eq 0) 'queue script parses before path-function probe'
+$probeNames = @(
+  'Full', 'IsWithin', 'Portable', 'ResolvePortable', 'HashFile', 'HashText', 'EvalBinding'
+)
+$definitions = @(
+  $queueAst.FindAll(
+    { param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -in $probeNames },
+    $true
+  ) | Sort-Object { $_.Extent.StartOffset } | ForEach-Object { $_.Extent.Text }
+)
+Assert ($definitions.Count -eq $probeNames.Count) 'portable path probe functions found in queue AST'
+$pathProbe = [scriptblock]::Create(($definitions -join [Environment]::NewLine) + @'
+$repoRoot = 'D:\ExternalRepo'
+$script:labRoot = 'D:\ExternalIsaacLab'
+$script:evaluator = $queue.Replace('run_g006_experiment.ps1', 'evaluate_push_recovery.py')
+$script:config = $config
+$script:evaluationBundle = @{ sha256 = 'f' * 64 }
+$job = @{ variant = 'baseline'; seed = 42 }
+$training = @{ artifacts = @{ checkpoint = 'D:\ExternalIsaacLab\logs\model.pt' } }
+$binding = EvalBinding $job $training 'push' 'D:\ExternalRepo\reports\push.json'
+$unknownRejected = $false
+try { Portable 'E:\unknown\secret.pt' | Out-Null } catch { $unknownRejected = $true }
+$unknownResolveRejected = $false
+try { ResolvePortable 'E:\unknown\secret.pt' | Out-Null } catch { $unknownResolveRejected = $true }
+$relativePaths = @(
+  '..\ExternalIsaacLab\secret.pt',
+  'reports\..\..\ExternalIsaacLab\secret.pt'
+)
+$relativeRejections = @($relativePaths | ForEach-Object {
+  try { ResolvePortable $_ | Out-Null; $false } catch { $true }
+})
+$negativePaths = @(
+  '%REPO_ROOT%\..\ExternalIsaacLab',
+  '%ISAACLAB_ROOT%\..\ExternalRepo',
+  '%REPO_ROOT%evil',
+  '%USERPROFILE%evil',
+  '%UNKNOWN_ROOT%\secret.pt',
+  '%REPO_ROOT%\reports\..\..\secret.pt',
+  '%USERPROFILE%\..\secret.pt'
+)
+$negativeRejections = @($negativePaths | ForEach-Object {
+  try { ResolvePortable $_ | Out-Null; $false } catch { $true }
+})
+[pscustomobject]@{
+  encoded_lab = Portable 'D:\ExternalIsaacLab\logs\model.pt'
+  decoded_lab = ResolvePortable '%ISAACLAB_ROOT%\logs\model.pt'
+  encoded_repo = Portable 'D:\ExternalRepo\reports\push.json'
+  unknown_rejected = $unknownRejected
+  unknown_resolve_rejected = $unknownResolveRejected
+  relative_rejections = @($relativeRejections)
+  normal_relative = ResolvePortable 'reports\push.json'
+  legacy_absolute_repo = ResolvePortable 'D:\ExternalRepo\reports\push.json'
+  legacy_absolute_lab = ResolvePortable 'D:\ExternalIsaacLab\logs\model.pt'
+  legacy_absolute_home = ResolvePortable (Join-Path $HOME 'legacy.json')
+  negative_rejections = @($negativeRejections)
+  durable_checkpoint = $binding.durable_args[2]
+  execution_checkpoint = $binding.execution_args[2]
+}
+'@)
+$probe = & $pathProbe
+Assert (
+  $probe.encoded_lab -eq '%ISAACLAB_ROOT%\logs\model.pt' -and
+  $probe.decoded_lab -eq 'D:\ExternalIsaacLab\logs\model.pt' -and
+  $probe.encoded_repo -eq '%REPO_ROOT%\reports\push.json' -and
+  $probe.unknown_rejected -and $probe.unknown_resolve_rejected -and
+  @($probe.relative_rejections | Where-Object { $_ -ne $true }).Count -eq 0 -and
+  $probe.normal_relative -eq 'D:\ExternalRepo\reports\push.json' -and
+  $probe.legacy_absolute_repo -eq 'D:\ExternalRepo\reports\push.json' -and
+  $probe.legacy_absolute_lab -eq 'D:\ExternalIsaacLab\logs\model.pt' -and
+  $probe.legacy_absolute_home -eq (Join-Path $HOME 'legacy.json') -and
+  @($probe.negative_rejections | Where-Object { $_ -ne $true }).Count -eq 0 -and
+  $probe.durable_checkpoint -eq '%ISAACLAB_ROOT%\logs\model.pt' -and
+  $probe.execution_checkpoint -eq 'D:\ExternalIsaacLab\logs\model.pt'
+) 'portable root tokens, reverse resolution, rejection, and EvalBinding boundary'
+
+try {
+  $mock = Join-Path $tmp 'mock.ps1'
+  $source = @'
 param([string]$Task,[int]$NumEnvs,[int]$MaxIterations,[int]$Seed,[string]$RunName,[string]$IsaacLabPath,[string]$ReportPath,[string]$TrainingEntrypointPath)
 if($env:G006_FAIL -eq'1'){exit 19};if($env:G006_TRAIN_COUNT){$n=if(Test-Path $env:G006_TRAIN_COUNT){[int](Get-Content $env:G006_TRAIN_COUNT -Raw)}else{0};[IO.File]::WriteAllText($env:G006_TRAIN_COUNT,"$($n+1)")};$d=Join-Path (Split-Path $ReportPath) ('raw-'+$RunName);New-Item -ItemType Directory $d -Force|Out-Null;$cp=Join-Path $d 'model.pt';$out=Join-Path $d 'stdout.log';$err=Join-Path $d 'stderr.log';$tb=Join-Path $d 'tb';New-Item -ItemType Directory $tb -Force|Out-Null;[IO.File]::WriteAllText($cp,$RunName);[IO.File]::WriteAllText($out,'ok');[IO.File]::WriteAllText($err,'');$h=(Get-FileHash $cp).Hash.ToLowerInvariant();$eh=(Get-FileHash $TrainingEntrypointPath).Hash.ToLowerInvariant();$portable={param($p)'%USERPROFILE%'+([IO.Path]::GetFullPath($p).Substring([IO.Path]::GetFullPath($HOME).TrimEnd('\').Length))};$keys=@('mean_level','p10_level','p50_level','p90_level','low_fraction','mid_fraction','high_fraction','stage','events_stage_0','events_stage_1','events_stage_2','magnitude_mean_stage_0','magnitude_mean_stage_1','magnitude_mean_stage_2','magnitude_min_stage_0','magnitude_min_stage_1','magnitude_min_stage_2','magnitude_max_stage_0','magnitude_max_stage_1','magnitude_max_stage_2');$latest=[ordered]@{};foreach($k in $keys){$latest['Curriculum/g006_state/'+$k]=0};if($Task-like'*Baseline*'){$latest['Curriculum/g006_state/stage']=-1}else{$latest['Curriculum/g006_state/stage']=2;foreach($i in 0..2){$latest['Curriculum/g006_state/events_stage_'+$i]=10;$latest['Curriculum/g006_state/magnitude_min_stage_'+$i]=@(0.1,0.25,0.5)[$i];$latest['Curriculum/g006_state/magnitude_mean_stage_'+$i]=@(0.2,0.4,0.75)[$i];$latest['Curriculum/g006_state/magnitude_max_stage_'+$i]=@(0.25,0.5,1.0)[$i]}};$r=[ordered]@{passed=$true;task=$Task;num_envs=$NumEnvs;max_iterations=$MaxIterations;seed=$Seed;training_entrypoint=@{sha256=$eh};artifacts=@{checkpoint=&$portable $cp;checkpoint_sha256=$h;raw_stdout=&$portable $out;raw_stderr=&$portable $err;tensorboard_directory=&$portable $tb};gpu=@{peak_used_mib=1000;measurement_complete=$true;recovered_to_baseline=$true};success_checks=@{gpu_measurement_complete=$true;gpu_recovered_to_baseline=$true;tensorboard_exists=$true;checkpoint_exists=$true};fatal_patterns_found=@();tensorboard=@{tags=@($latest.Keys);latest=$latest}};[IO.File]::WriteAllText($ReportPath,($r|ConvertTo-Json -Depth 8))
-'@;[IO.File]::WriteAllText($mock,$source,[Text.UTF8Encoding]::new($false))
-  $reports=Join-Path $tmp 'success';$state=Join-Path $reports 'state.json';$queueOutput=@(& $pwsh -NoProfile -File $queue -Smoke -ConfigPath $config -StatePath $state -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab 2>&1);$queueExit=$LASTEXITCODE
-  $files=@(Get-ChildItem $tmp -Recurse -Force -ErrorAction SilentlyContinue|ForEach-Object FullName)
-  Assert -c ($queueExit -eq 0 -and (Test-Path $state)) -m ("smoke queue: exit=$queueExit files="+($files-join',')+' '+($queueOutput-join' '));$s=Get-Content $state -Raw|ConvertFrom-Json;Assert -c ($s.status -eq 'complete' -and @($s.jobs).Count -eq 2) -m 'two smoke jobs complete'
-  Assert -c ($s.schema_version -eq 2 -and $s.training_source_bundle_sha256 -match '^[0-9a-f]{64}$' -and $s.evaluation_source_bundle_sha256 -match '^[0-9a-f]{64}$' -and @($s.source_bundles.training.files).Count -eq 7) -m 'state source bundle schema'
-  $null=& $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab;Assert -c ($LASTEXITCODE -eq 0) -m 'complete hash resume skip'
-  $reuseCount=Join-Path $reports 'reuse.count';$env:G006_TRAIN_COUNT=$reuseCount;$reusableState=Get-Content $state -Raw|ConvertFrom-Json;$reusableState.status='failed';$reusableState.jobs[0].status='failed';[IO.File]::WriteAllText($state,($reusableState|ConvertTo-Json -Depth 30));$null=& $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab;Assert -c ($LASTEXITCODE -eq 0 -and -not(Test-Path $reuseCount)) -m 'valid failed-state training report resumes without retraining';Remove-Item Env:G006_TRAIN_COUNT
-  $restartCount=Join-Path $reports 'restart.count';$env:G006_TRAIN_COUNT=$restartCount;$firstTraining=Join-Path $reports 'g006_smoke_baseline_e64_i1_s42.json';$tampered=Get-Content $firstTraining -Raw|ConvertFrom-Json;$tampered.passed=$false;[IO.File]::WriteAllText($firstTraining,($tampered|ConvertTo-Json -Depth 20));$null=& $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab;Assert -c ($LASTEXITCODE -eq 0 -and [int](Get-Content $restartCount -Raw) -eq 1) -m 'tampered complete training restarts exactly one job from iteration zero';Remove-Item Env:G006_TRAIN_COUNT
-  $stateOriginal=[IO.File]::ReadAllText($state);$tamperedState=$stateOriginal|ConvertFrom-Json;$tamperedState.jobs[0].run_name='tampered';[IO.File]::WriteAllText($state,($tamperedState|ConvertTo-Json -Depth 30));$null=& $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab 2>$null;Assert -c ($LASTEXITCODE -ne 0) -m 'tampered job identity fail closed before execution';[IO.File]::WriteAllText($state,$stateOriginal)
-  $tamperedState=$stateOriginal|ConvertFrom-Json;$tamperedState.jobs[0].report_path='C:\outside.json';[IO.File]::WriteAllText($state,($tamperedState|ConvertTo-Json -Depth 30));$null=& $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab 2>$null;Assert -c ($LASTEXITCODE -ne 0) -m 'output outside canonical ReportRoot rejected';[IO.File]::WriteAllText($state,$stateOriginal)
-  $tamperedState=$stateOriginal|ConvertFrom-Json;$tamperedState.training_source_bundle_sha256='0'*64;[IO.File]::WriteAllText($state,($tamperedState|ConvertTo-Json -Depth 30));$null=& $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab 2>$null;Assert -c ($LASTEXITCODE -ne 0) -m 'tampered source bundle rejected';[IO.File]::WriteAllText($state,$stateOriginal)
-  $eval=Join-Path $tmp 'mock_eval.py';$evalSource=@'
+'@
+  [IO.File]::WriteAllText($mock, $source, [Text.UTF8Encoding]::new($false))
+
+  $reports = Join-Path $tmp 'success'
+  $state = Join-Path $reports 'state.json'
+  $queueOutput = @(
+    & $pwsh -NoProfile -File $queue -Smoke -ConfigPath $config -StatePath $state `
+      -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab 2>&1
+  )
+  $queueExit = $LASTEXITCODE
+  $files = @(Get-ChildItem $tmp -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object FullName)
+  Assert `
+    ($queueExit -eq 0 -and (Test-Path $state)) `
+    ("smoke queue: exit=$queueExit files=" + ($files -join ',') + ' ' + ($queueOutput -join ' '))
+  $stateJson = Get-Content $state -Raw | ConvertFrom-Json
+  Assert ($stateJson.status -eq 'complete' -and @($stateJson.jobs).Count -eq 2) 'two smoke jobs complete'
+  Assert (
+    $stateJson.schema_version -eq 2 -and
+    $stateJson.training_source_bundle_sha256 -match '^[0-9a-f]{64}$' -and
+    $stateJson.evaluation_source_bundle_sha256 -match '^[0-9a-f]{64}$' -and
+    @($stateJson.source_bundles.training.files).Count -eq 7
+  ) 'state source bundle schema'
+
+  & $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state `
+    -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab | Out-Null
+  Assert ($LASTEXITCODE -eq 0) 'complete hash resume skip'
+
+  $reuseCount = Join-Path $reports 'reuse.count'
+  $env:G006_TRAIN_COUNT = $reuseCount
+  $reusableState = Get-Content $state -Raw | ConvertFrom-Json
+  $reusableState.status = 'failed'
+  $reusableState.jobs[0].status = 'failed'
+  [IO.File]::WriteAllText($state, ($reusableState | ConvertTo-Json -Depth 30))
+
+  & $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state `
+    -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab | Out-Null
+  $reuseExit = $LASTEXITCODE
+
+  Assert (
+    $reuseExit -eq 0 -and -not (Test-Path $reuseCount)
+  ) 'valid failed-state training report resumes without retraining'
+  Remove-Item Env:G006_TRAIN_COUNT
+  $restartCount = Join-Path $reports 'restart.count'
+  $env:G006_TRAIN_COUNT = $restartCount
+  $firstTraining = Join-Path $reports 'g006_smoke_baseline_e64_i1_s42.json'
+  $tampered = Get-Content $firstTraining -Raw | ConvertFrom-Json
+  $tampered.passed = $false
+  [IO.File]::WriteAllText($firstTraining, ($tampered | ConvertTo-Json -Depth 20))
+  & $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state `
+    -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab | Out-Null
+  Assert (
+    $LASTEXITCODE -eq 0 -and [int](Get-Content $restartCount -Raw) -eq 1
+  ) 'tampered complete training restarts exactly one job from iteration zero'
+  Remove-Item Env:G006_TRAIN_COUNT
+
+  $stateOriginal = [IO.File]::ReadAllText($state)
+  $tamperedState = $stateOriginal | ConvertFrom-Json
+  $tamperedState.jobs[0].run_name = 'tampered'
+  [IO.File]::WriteAllText($state, ($tamperedState | ConvertTo-Json -Depth 30))
+  & $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state `
+    -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab 2>$null | Out-Null
+  Assert ($LASTEXITCODE -ne 0) 'tampered job identity fail closed before execution'
+  [IO.File]::WriteAllText($state, $stateOriginal)
+
+  $tamperedState = $stateOriginal | ConvertFrom-Json
+  $tamperedState.jobs[0].report_path = 'C:\outside.json'
+  [IO.File]::WriteAllText($state, ($tamperedState | ConvertTo-Json -Depth 30))
+  & $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state `
+    -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab 2>$null | Out-Null
+  Assert ($LASTEXITCODE -ne 0) 'output outside canonical ReportRoot rejected'
+  [IO.File]::WriteAllText($state, $stateOriginal)
+
+  $tamperedState = $stateOriginal | ConvertFrom-Json
+  $tamperedState.training_source_bundle_sha256 = '0' * 64
+  [IO.File]::WriteAllText($state, ($tamperedState | ConvertTo-Json -Depth 30))
+  & $pwsh -NoProfile -File $queue -Smoke -Resume -ConfigPath $config -StatePath $state `
+    -ReportRoot $reports -TrainingHarness $mock -IsaacLabPath $lab 2>$null | Out-Null
+  Assert ($LASTEXITCODE -ne 0) 'tampered source bundle rejected'
+  [IO.File]::WriteAllText($state, $stateOriginal)
+
+  $eval = Join-Path $tmp 'mock_eval.py'
+  $evalSource = @'
 import argparse,hashlib,json,os,pathlib
 p=argparse.ArgumentParser();p.add_argument('--checkpoint');p.add_argument('--variant');p.add_argument('--training-seed',type=int);p.add_argument('--mode');p.add_argument('--protocol');p.add_argument('--output');p.add_argument('--headless',action='store_true');a=p.parse_args();manifest=pathlib.Path(a.protocol).resolve();d=json.loads(manifest.read_text(encoding='utf-8'));c=lambda x:hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest();root=manifest.parents[1];paths=['scripts/evaluate_push_recovery.py']+[x.relative_to(root).as_posix() for x in (root/'src/isaac_walk_g006/evaluation').rglob('*.py')];files=[];bundle=hashlib.sha256()
 for rel in sorted(paths):
  b=(root/rel).read_bytes();files.append({'path':rel,'sha256':hashlib.sha256(b).hexdigest()});bundle.update(rel.encode());bundle.update(b'\0');bundle.update(b);bundle.update(b'\0')
 cp=pathlib.Path(a.checkpoint);h=hashlib.sha256(cp.read_bytes()).hexdigest();portable='%USERPROFILE%'+str(cp.resolve())[len(str(pathlib.Path.home())):];count=1080 if a.mode=='push' else 90;cell_count=108 if a.mode=='push' else 9;trials=[{'trial_id':f'{a.mode}-{i}'} for i in range(count)];cells=[{'trial_count':10} for _ in range(cell_count)];r={'schema_version':1,'goal':'G006','status':'complete','protocol_compliant':True,'experimental_use':'g006_production_evaluation','mode':a.mode,'variant':a.variant,'training_seed':a.training_seed,'protocol':{'path':a.protocol,'sha256':c(d['evaluation_protocol'])},'checkpoint':{'path':portable,'sha256':h},'evaluation_source_bundle_sha256':bundle.hexdigest(),'evaluation_source_bundle_files':files,'runtime':{'preliminary':True,'task':'sentinel-task','headless':True,'isaaclab_commit':'x','sim_version':'4.5.0','device':'cuda:0'},'terrain_evidence':{},'trials':trials,'cells':cells,'aggregate':{'trial_count':count,'boundary_violation_count':0,'auto_reset_excluded_count':0},'warnings':[]};o=pathlib.Path(a.output);t=o.with_suffix('.tmp');t.write_text(json.dumps(r));os.replace(t,o)
-'@;[IO.File]::WriteAllText($eval,$evalSource,[Text.UTF8Encoding]::new($false));$summary=Join-Path $tmp 'mock_summary.py';$summarySource=@'
+'@
+  [IO.File]::WriteAllText($eval, $evalSource, [Text.UTF8Encoding]::new($false))
+  $summary = Join-Path $tmp 'mock_summary.py'
+  $summarySource = @'
 import argparse,json,os,pathlib,sys
-p=argparse.ArgumentParser();p.add_argument('--manifest');p.add_argument('--queue-state');p.add_argument('--output');a=p.parse_args();q=json.load(open(a.queue_state));
+p=argparse.ArgumentParser();p.add_argument('--manifest');p.add_argument('--queue-state');p.add_argument('--isaaclab-root');p.add_argument('--output');a=p.parse_args();q=json.load(open(a.queue_state));
 if q.get('status')!='summarizing' or os.environ.get('G006_SUMMARY_FAIL')=='1': sys.exit(23)
 pathlib.Path(a.output).write_text(json.dumps({'schema_version':1,'goal':'G006','status':'complete'}))
-'@;[IO.File]::WriteAllText($summary,$summarySource,[Text.UTF8Encoding]::new($false))
-  $production=Join-Path $tmp 'production';$productionState=Join-Path $production 'state.json';$productionCount=Join-Path $production 'train.count';$env:G006_TRAIN_COUNT=$productionCount;$productionOutput=@(& $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -ConfigPath $config -StatePath $productionState -ReportRoot $production -TrainingHarness $mock -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab 2>&1);Assert -c ($LASTEXITCODE -eq 0) -m ('production mock: '+($productionOutput-join' '));Assert -c ([int](Get-Content $productionCount -Raw) -eq 6) -m 'production trained 2x3';$productionJson=Get-Content $productionState -Raw|ConvertFrom-Json;$summaryPath=Join-Path $production 'g006_summary.json';Assert -c ($productionJson.status -eq 'complete' -and $productionJson.summary_path -and $productionJson.summary_sha256 -eq (Get-FileHash -LiteralPath $summaryPath -Algorithm SHA256).Hash.ToLowerInvariant()) -m 'complete is written only with bound successful summary';$firstEvalPath=Join-Path $production 'g006_production_baseline_e64_i1500_s42_push.json';$firstEval=Get-Content $firstEvalPath -Raw|ConvertFrom-Json;Assert -c ($firstEval.runtime.task -eq 'sentinel-task' -and $firstEval.runtime.preliminary -eq $false -and $firstEval.runtime.finalized_after_process_exit -eq $true) -m 'runtime preliminary fields preserved while finalize merged'
-  $firstEval.protocol_compliant=$false;[IO.File]::WriteAllText($firstEvalPath,($firstEval|ConvertTo-Json -Depth 20));$restartOutput=@(& $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -Resume -ConfigPath $config -StatePath $productionState -ReportRoot $production -TrainingHarness $mock -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab 2>&1);$restartExit=$LASTEXITCODE;$restartCountValue=[int](Get-Content $productionCount -Raw);Assert -c ($restartExit -eq 0 -and $restartCountValue -eq 7) -m ("tampered complete evaluation restart exit=$restartExit count=$restartCountValue "+($restartOutput-join' '))
-  $env:G006_SUMMARY_FAIL='1';$null=& $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -Resume -ConfigPath $config -StatePath $productionState -ReportRoot $production -TrainingHarness $mock -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab 2>$null;$failedSummaryState=Get-Content $productionState -Raw|ConvertFrom-Json;Assert -c ($LASTEXITCODE -ne 0 -and $failedSummaryState.status -eq 'failed' -and -not$failedSummaryState.summary_path -and -not$failedSummaryState.summary_sha256 -and @($failedSummaryState.failures|Where-Object phase -eq 'summarizing').Count -gt0) -m 'summary failure leaves durable failed state without stale completion evidence';Remove-Item Env:G006_SUMMARY_FAIL;$null=& $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -Resume -ConfigPath $config -StatePath $productionState -ReportRoot $production -TrainingHarness $mock -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab;$recoveredSummaryState=Get-Content $productionState -Raw|ConvertFrom-Json;Assert -c ($LASTEXITCODE -eq 0 -and $recoveredSummaryState.status -eq 'complete' -and $recoveredSummaryState.summary_sha256 -eq (Get-FileHash -LiteralPath $summaryPath -Algorithm SHA256).Hash.ToLowerInvariant()) -m 'summary recovery completes only after strict summary success';Remove-Item Env:G006_TRAIN_COUNT
-  $scale=Join-Path $tmp 'scale';$scaleState=Join-Path $scale 'state.json';$null=& $pwsh -NoProfile -File $queue -ScaleLadderOnly -ConfigPath $config -StatePath $scaleState -ReportRoot $scale -TrainingHarness $mock -IsaacLabPath $lab;$scaleJson=Get-Content $scaleState -Raw|ConvertFrom-Json;Assert -c ($LASTEXITCODE -eq 0 -and $scaleJson.selected_num_envs -eq 4096 -and @($scaleJson.jobs).Count -eq 6 -and @($scaleJson.jobs|Where-Object status -ne 'complete').Count -eq 0) -m 'scale ladder selects only common two-variant safe rung'
-  $failure=Join-Path $tmp 'failure';$fs=Join-Path $failure 'state.json';$env:G006_FAIL='1';1..3|ForEach-Object{$null=& $pwsh -NoProfile -File $queue -Smoke -Resume:($_-gt1) -ConfigPath $config -StatePath $fs -ReportRoot $failure -TrainingHarness $mock -IsaacLabPath $lab 2>$null;Assert -c ($LASTEXITCODE -ne 0) -m "strike $_"};Remove-Item Env:G006_FAIL
-  $f=Get-Content $fs -Raw|ConvertFrom-Json;Assert -c ($f.jobs[0].hard_blocked -eq $true) -m 'same fingerprint three-strike block'
-  $outside=Join-Path $tmp 'outside.py';[IO.File]::WriteAllText($outside,'pass');$output=@(& $pwsh -NoProfile -File (Join-Path $root 'scripts\run_training.ps1') -Task x -NumEnvs 1 -MaxIterations 1 -RunName outside_entry -IsaacLabPath $lab -TrainingEntrypointPath $outside 2>&1);Assert -c ($LASTEXITCODE -ne 0 -and ($output-join' ') -match '저장소 내부') -m 'external entrypoint rejected'
+'@
+  [IO.File]::WriteAllText($summary, $summarySource, [Text.UTF8Encoding]::new($false))
+
+  $production = Join-Path $tmp 'production'
+  $productionState = Join-Path $production 'state.json'
+  $productionCount = Join-Path $production 'train.count'
+  $env:G006_TRAIN_COUNT = $productionCount
+  $productionOutput = @(
+    & $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -ConfigPath $config `
+      -StatePath $productionState -ReportRoot $production -TrainingHarness $mock `
+      -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab 2>&1
+  )
+  Assert ($LASTEXITCODE -eq 0) ('production mock: ' + ($productionOutput -join ' '))
+  Assert ([int](Get-Content $productionCount -Raw) -eq 6) 'production trained 2x3'
+  $productionJson = Get-Content $productionState -Raw | ConvertFrom-Json
+  $summaryPath = Join-Path $production 'g006_summary.json'
+  $expectedSummaryHash = (Get-FileHash -LiteralPath $summaryPath -Algorithm SHA256).Hash.ToLowerInvariant()
+  Assert (
+    $productionJson.status -eq 'complete' -and $productionJson.summary_path -and
+    $productionJson.summary_sha256 -eq $expectedSummaryHash
+  ) 'complete is written only with bound successful summary'
+  $durableCommands = @($productionJson.jobs.push_command) + @($productionJson.jobs.guardrail_command)
+  Assert (
+    @($durableCommands | Where-Object { [string]$_ -match '^[A-Za-z]:\\' }).Count -eq 0 -and
+    @($durableCommands | Where-Object { [string]$_ -like '%USERPROFILE%*' }).Count -gt 0
+  ) 'durable evaluator commands contain only portable path arguments'
+  $firstEvalPath = Join-Path $production 'g006_production_baseline_e64_i1500_s42_push.json'
+  $firstEval = Get-Content $firstEvalPath -Raw | ConvertFrom-Json
+  Assert (
+    $firstEval.runtime.task -eq 'sentinel-task' -and
+    $firstEval.runtime.preliminary -eq $false -and
+    $firstEval.runtime.finalized_after_process_exit -eq $true -and
+    [IO.Path]::IsPathFullyQualified([string]$firstEval.protocol.path)
+  ) 'runtime uses resolved execution arguments while durable commands stay portable'
+
+  # Legacy absolute commands migrate only after all complete-job hashes and artifacts validate.
+  $legacyState = Get-Content $productionState -Raw | ConvertFrom-Json
+  foreach ($field in @('push', 'guardrail')) {
+    $commandField = "${field}_command"
+    $hashField = "${field}_command_sha256"
+    $legacy = @($legacyState.jobs[0].$commandField | ForEach-Object {
+      $value = [string]$_
+      if ($value.StartsWith('%USERPROFILE%', [StringComparison]::OrdinalIgnoreCase)) {
+        [IO.Path]::GetFullPath($HOME + $value.Substring(13))
+      }
+      else { $value }
+    })
+    $legacyState.jobs[0].$commandField = $legacy
+    $legacyBytes = [Text.Encoding]::UTF8.GetBytes($legacy -join "`n")
+    $legacyState.jobs[0].$hashField = [Convert]::ToHexString(
+      [Security.Cryptography.SHA256]::HashData($legacyBytes)
+    ).ToLowerInvariant()
+  }
+  [IO.File]::WriteAllText($productionState, ($legacyState | ConvertTo-Json -Depth 30))
+  & $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -Resume -ConfigPath $config `
+    -StatePath $productionState -ReportRoot $production -TrainingHarness $mock `
+    -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab | Out-Null
+  $migratedState = Get-Content $productionState -Raw | ConvertFrom-Json
+  Assert (
+    $LASTEXITCODE -eq 0 -and [int](Get-Content $productionCount -Raw) -eq 6 -and
+    @($migratedState.jobs[0].push_command | Where-Object { [string]$_ -match '^[A-Za-z]:\\' }).Count -eq 0 -and
+    @($migratedState.jobs[0].guardrail_command | Where-Object { [string]$_ -match '^[A-Za-z]:\\' }).Count -eq 0
+  ) 'valid legacy absolute commands migrate without training or evaluation rerun'
+
+  $tamperedCommandState = Get-Content $productionState -Raw | ConvertFrom-Json
+  $tamperedCommandState.jobs[0].push_command_sha256 = '0' * 64
+  [IO.File]::WriteAllText($productionState, ($tamperedCommandState | ConvertTo-Json -Depth 30))
+  & $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -Resume -ConfigPath $config `
+    -StatePath $productionState -ReportRoot $production -TrainingHarness $mock `
+    -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab | Out-Null
+  Assert (
+    $LASTEXITCODE -eq 0 -and [int](Get-Content $productionCount -Raw) -eq 7
+  ) 'tampered complete command hash fails closed and restarts the affected job'
+
+  $firstEval = Get-Content $firstEvalPath -Raw | ConvertFrom-Json
+
+  $firstEval.protocol_compliant = $false
+  [IO.File]::WriteAllText($firstEvalPath, ($firstEval | ConvertTo-Json -Depth 20))
+  $restartOutput = @(
+    & $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -Resume -ConfigPath $config `
+      -StatePath $productionState -ReportRoot $production -TrainingHarness $mock `
+      -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab 2>&1
+  )
+  $restartExit = $LASTEXITCODE
+  $restartCountValue = [int](Get-Content $productionCount -Raw)
+  Assert (
+    $restartExit -eq 0 -and $restartCountValue -eq 8
+  ) ("tampered complete evaluation restart exit=$restartExit count=$restartCountValue " + ($restartOutput -join ' '))
+
+  $env:G006_SUMMARY_FAIL = '1'
+  & $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -Resume -ConfigPath $config `
+    -StatePath $productionState -ReportRoot $production -TrainingHarness $mock `
+    -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab 2>$null | Out-Null
+  $failedSummaryExit = $LASTEXITCODE
+  $failedSummaryState = Get-Content $productionState -Raw | ConvertFrom-Json
+  Assert (
+    $failedSummaryExit -ne 0 -and $failedSummaryState.status -eq 'failed' -and
+    -not $failedSummaryState.summary_path -and -not $failedSummaryState.summary_sha256 -and
+    @($failedSummaryState.failures | Where-Object phase -eq 'summarizing').Count -gt 0
+  ) 'summary failure leaves durable failed state without stale completion evidence'
+  Remove-Item Env:G006_SUMMARY_FAIL
+  & $pwsh -NoProfile -File $queue -SelectedNumEnvs 64 -Resume -ConfigPath $config `
+    -StatePath $productionState -ReportRoot $production -TrainingHarness $mock `
+    -EvaluationScript $eval -SummaryScript $summary -IsaacLabPath $lab | Out-Null
+  $recoveredSummaryState = Get-Content $productionState -Raw | ConvertFrom-Json
+  Assert (
+    $LASTEXITCODE -eq 0 -and $recoveredSummaryState.status -eq 'complete' -and
+    $recoveredSummaryState.summary_sha256 -eq (Get-FileHash $summaryPath -Algorithm SHA256).Hash.ToLowerInvariant()
+  ) 'summary recovery completes only after strict summary success'
+  Remove-Item Env:G006_TRAIN_COUNT
+
+  $scale = Join-Path $tmp 'scale'
+  $scaleState = Join-Path $scale 'state.json'
+  & $pwsh -NoProfile -File $queue -ScaleLadderOnly -ConfigPath $config `
+    -StatePath $scaleState -ReportRoot $scale -TrainingHarness $mock -IsaacLabPath $lab | Out-Null
+  $scaleJson = Get-Content $scaleState -Raw | ConvertFrom-Json
+  Assert (
+    $LASTEXITCODE -eq 0 -and $scaleJson.selected_num_envs -eq 4096 -and
+    @($scaleJson.jobs).Count -eq 6 -and
+    @($scaleJson.jobs | Where-Object status -ne 'complete').Count -eq 0
+  ) 'scale ladder selects only common two-variant safe rung'
+
+  $failure = Join-Path $tmp 'failure'
+  $failedState = Join-Path $failure 'state.json'
+  $env:G006_FAIL = '1'
+  1..3 | ForEach-Object {
+    & $pwsh -NoProfile -File $queue -Smoke -Resume:($_ -gt 1) -ConfigPath $config `
+      -StatePath $failedState -ReportRoot $failure -TrainingHarness $mock -IsaacLabPath $lab 2>$null | Out-Null
+    Assert ($LASTEXITCODE -ne 0) "strike $_"
+  }
+  Remove-Item Env:G006_FAIL
+  $failedJson = Get-Content $failedState -Raw | ConvertFrom-Json
+  Assert ($failedJson.jobs[0].hard_blocked -eq $true) 'same fingerprint three-strike block'
+
+  $outside = Join-Path $tmp 'outside.py'
+  [IO.File]::WriteAllText($outside, 'pass')
+  $output = @(
+    & $pwsh -NoProfile -File (Join-Path $root 'scripts\run_training.ps1') `
+      -Task x -NumEnvs 1 -MaxIterations 1 -RunName outside_entry `
+      -IsaacLabPath $lab -TrainingEntrypointPath $outside 2>&1
+  )
+  Assert (
+    $LASTEXITCODE -ne 0 -and ($output -join ' ') -match '저장소 내부'
+  ) 'external entrypoint rejected'
   Write-Host 'G006 queue assertions PASS'
-}finally{Remove-Item Env:G006_FAIL -ErrorAction SilentlyContinue;if($env:G006_KEEP_TEST_TEMP){Write-Host "KEPT_TEST_TEMP=$tmp"}elseif(Test-Path $tmp){Remove-Item $tmp -Recurse -Force}}
+}
+finally {
+  Remove-Item Env:G006_FAIL -ErrorAction SilentlyContinue
+  if ($env:G006_KEEP_TEST_TEMP) {
+    Write-Host "KEPT_TEST_TEMP=$tmp"
+  }
+  elseif (Test-Path $tmp) {
+    Remove-Item $tmp -Recurse -Force
+  }
+}

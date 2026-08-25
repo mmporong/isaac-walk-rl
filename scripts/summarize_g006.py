@@ -6,7 +6,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -28,6 +30,12 @@ class ValidationError(ValueError):
     """Raised when evidence does not satisfy the fixed G006 contract."""
 
 
+PORTABLE_TOKEN_RE = re.compile(
+    r"^(?P<token>%USERPROFILE%|%REPO_ROOT%|%ISAACLAB_ROOT%)(?P<suffix>(?:[\\/].*)?)$",
+    re.IGNORECASE,
+)
+
+
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise ValidationError(message)
@@ -46,22 +54,84 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def resolve_portable_path(value: str, relative_to: Path | None = None) -> Path:
-    if value.upper().startswith("%USERPROFILE%"):
-        value = str(Path.home()) + value[len("%USERPROFILE%") :]
-    value = os.path.expandvars(value)
+def _within(path: Path, root: Path) -> bool:
+    resolved, resolved_root = path.resolve(), root.resolve()
+    return resolved == resolved_root or resolved.is_relative_to(resolved_root)
+
+
+def resolve_portable_path(
+    value: str,
+    relative_to: Path | None = None,
+    *,
+    repo_root: Path = REPO_ROOT,
+    isaaclab_root: Path | None = None,
+) -> Path:
+    if "%" in value:
+        match = PORTABLE_TOKEN_RE.fullmatch(value)
+        if match is None:
+            raise ValidationError("portable_token_invalid")
+        token = match.group("token").upper()
+        roots = {
+            "%USERPROFILE%": Path.home(),
+            "%REPO_ROOT%": repo_root,
+            "%ISAACLAB_ROOT%": isaaclab_root,
+        }
+        selected_root = roots[token]
+        if selected_root is None:
+            raise ValidationError("isaaclab_root_required")
+        suffix = match.group("suffix").lstrip("\\/").replace("\\", os.sep)
+        resolved = (selected_root / suffix).resolve() if suffix else selected_root.resolve()
+        if not _within(resolved, selected_root):
+            raise ValidationError("portable_token_escape")
+        return resolved
+
     path = Path(value)
-    if not path.is_absolute() and relative_to is not None:
-        path = relative_to / path
-    return path.resolve()
+    if not path.is_absolute():
+        base = relative_to or repo_root
+        resolved = (base / path).resolve()
+        if _within(resolved, base):
+            return resolved
+        raise ValidationError("path_outside_allowed_roots")
+
+    resolved = path.resolve()
+    allowed_roots = [Path.home(), repo_root, isaaclab_root]
+    if any(root is not None and _within(resolved, root) for root in allowed_roots):
+        return resolved
+    raise ValidationError("path_outside_allowed_roots")
+
+
+def portable_path(
+    path: Path,
+    relative_to: Path | None = None,
+    *,
+    repo_root: Path = REPO_ROOT,
+    isaaclab_root: Path | None = None,
+) -> str:
+    """Serialize a resolved path without binding evidence to a local username."""
+
+    resolved = path.resolve()
+    repository = repo_root.resolve()
+    if _within(resolved, repository):
+        return resolved.relative_to(repository).as_posix() or "."
+    if relative_to is not None and _within(resolved, relative_to):
+        base = relative_to.resolve()
+        return resolved.relative_to(base).as_posix() or "."
+    home = Path.home().resolve()
+    if _within(resolved, home):
+        suffix = resolved.relative_to(home)
+        return "%USERPROFILE%" + ("\\" + str(suffix) if suffix.parts else "")
+    if isaaclab_root is not None and _within(resolved, isaaclab_root):
+        suffix = resolved.relative_to(isaaclab_root.resolve())
+        return "%ISAACLAB_ROOT%" + ("\\" + str(suffix) if suffix.parts else "")
+    raise ValidationError("path_outside_portable_roots")
 
 
 def read_json(path: Path) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        raise ValidationError(f"cannot read JSON {path}: {exc}") from exc
-    require(isinstance(value, dict), f"JSON root must be object: {path}")
+        raise ValidationError("json_read_failed") from exc
+    require(isinstance(value, dict), "json_root_not_object")
     return value
 
 
@@ -70,6 +140,19 @@ def write_json_atomic(path: Path, value: dict[str, Any]) -> None:
     temporary = path.with_suffix(path.suffix + f".{os.getpid()}.tmp")
     temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     os.replace(temporary, path)
+
+
+def safe_failure_message(exc: Exception) -> str:
+    if not isinstance(exc, ValidationError):
+        return "unexpected_error"
+    message = str(exc)
+    home = str(Path.home())
+    if (
+        (home and home.casefold() in message.casefold())
+        or re.search(r"(?i)(?:[a-z]:[\\/]|/(?:home|users)/)", message)
+    ):
+        return "validation_failed"
+    return message
 
 
 def compute_declared_source_bundle(files: list[dict[str, Any]]) -> dict[str, Any]:
@@ -198,12 +281,24 @@ def validate_eval_report(
     require(int(report["aggregate"].get("auto_reset_excluded_count", 0)) == 0, "auto-reset poison protocol-blocked")
 
 
-def _training_report(job: dict[str, Any], queue_path: Path) -> tuple[dict[str, Any], Path]:
-    path = resolve_portable_path(str(job["report_path"]), queue_path.parent)
+def _training_report(
+    job: dict[str, Any],
+    queue_path: Path,
+    *,
+    repo_root: Path = REPO_ROOT,
+    isaaclab_root: Path | None = None,
+) -> tuple[dict[str, Any], Path]:
+    path = resolve_portable_path(
+        str(job["report_path"]), queue_path.parent,
+        repo_root=repo_root, isaaclab_root=isaaclab_root,
+    )
     report = read_json(path)
     require(report.get("passed") is True, f"training report failed: {job.get('id')}")
     require(report.get("task") == job.get("task") and int(report.get("seed")) == int(job.get("seed")), "training report identity mismatch")
-    checkpoint = resolve_portable_path(str(report.get("artifacts", {}).get("checkpoint")))
+    checkpoint = resolve_portable_path(
+        str(report.get("artifacts", {}).get("checkpoint")), queue_path.parent,
+        repo_root=repo_root, isaaclab_root=isaaclab_root,
+    )
     checkpoint_hash = report.get("artifacts", {}).get("checkpoint_sha256")
     require(checkpoint.is_file() and file_sha256(checkpoint) == checkpoint_hash == job.get("checkpoint_sha256"), "checkpoint hash mismatch")
     return report, checkpoint
@@ -232,7 +327,12 @@ def build_paired_recovery_deltas(
     return paired
 
 
-def summarize(manifest_path: Path, queue_path: Path) -> dict[str, Any]:
+def summarize(
+    manifest_path: Path,
+    queue_path: Path,
+    *,
+    isaaclab_root: Path | None = None,
+) -> dict[str, Any]:
     manifest = read_json(manifest_path)
     queue = read_json(queue_path)
     seeds, protocol, protocol_hash = validate_manifest(manifest)
@@ -265,7 +365,9 @@ def summarize(manifest_path: Path, queue_path: Path) -> dict[str, Any]:
     reports: dict[tuple[str, int, str], dict[str, Any]] = {}
     for job in jobs:
         variant, seed = str(job["variant"]), int(job["seed"])
-        training, checkpoint = _training_report(job, queue_path)
+        training, checkpoint = _training_report(
+            job, queue_path, repo_root=REPO_ROOT, isaaclab_root=isaaclab_root,
+        )
         require(job.get("training_source_bundle_sha256") == current_training_bundle["sha256"], "job training source bundle mismatch")
         require(job.get("evaluation_source_bundle_sha256") == current_evaluation_bundle["sha256"], "job evaluation source bundle mismatch")
         require(training.get("training_source_bundle_sha256") == current_training_bundle["sha256"], "training report source bundle mismatch")
@@ -277,17 +379,29 @@ def summarize(manifest_path: Path, queue_path: Path) -> dict[str, Any]:
         require(job.get("task") == task_by_variant[variant], "job task/config variant mismatch")
         mode_evidence: dict[str, Any] = {}
         for mode, path_key in (("push", "push_report_path"), ("guardrail", "guardrail_report_path")):
-            path = resolve_portable_path(str(job[path_key]), queue_path.parent)
+            path = resolve_portable_path(
+                str(job[path_key]), queue_path.parent,
+                repo_root=REPO_ROOT, isaaclab_root=isaaclab_root,
+            )
             report = read_json(path)
             validate_eval_report(report, mode=mode, variant=variant, seed=seed, protocol_hash=protocol_hash, checkpoint_hash=checkpoint_hash)
             reports[(variant, seed, mode)] = report
-            mode_evidence[mode] = {"path": str(path), "sha256": file_sha256(path)}
+            mode_evidence[mode] = {
+                "path": portable_path(
+                    path, queue_path.parent,
+                    repo_root=REPO_ROOT, isaaclab_root=isaaclab_root,
+                ),
+                "sha256": file_sha256(path),
+            }
         evidence_jobs.append({
             "variant": variant,
             "training_seed": seed,
             "task": job["task"],
             "normalized_cfg_difference_from_baseline": next(item["normalized_cfg_difference_from_baseline"] for item in manifest["variants"] if item["name"] == variant),
-            "training_report_sha256": file_sha256(resolve_portable_path(str(job["report_path"]), queue_path.parent)),
+            "training_report_sha256": file_sha256(resolve_portable_path(
+                str(job["report_path"]), queue_path.parent,
+                repo_root=REPO_ROOT, isaaclab_root=isaaclab_root,
+            )),
             "checkpoint_sha256": checkpoint_hash,
             "evaluation": mode_evidence,
         })
@@ -337,7 +451,8 @@ def summarize(manifest_path: Path, queue_path: Path) -> dict[str, Any]:
             "boundary_violation_count": boundary_violations,
             "auto_reset_excluded_count": auto_reset_exclusions,
             "raw_metrics": {
-                key: (sum(values) / len(values) if values else None) for key, values in raw_values.items()
+                key: (math.fsum(values) / len(values) if values else None)
+                for key, values in raw_values.items()
             },
         }
         guardrail_by_variant[variant] = {
@@ -361,7 +476,20 @@ def summarize(manifest_path: Path, queue_path: Path) -> dict[str, Any]:
         "schema_version": 1,
         "goal": "G006",
         "status": "complete",
-        "manifest": {"path": str(manifest_path), "sha256": file_sha256(manifest_path), "protocol_sha256": protocol_hash},
+        "manifest": {
+            "path": portable_path(
+                manifest_path, queue_path.parent,
+                repo_root=REPO_ROOT, isaaclab_root=isaaclab_root,
+            ),
+            "sha256": file_sha256(manifest_path),
+            "protocol_sha256": protocol_hash,
+        },
+        "queue_state": {
+            "path": portable_path(
+                queue_path, queue_path.parent,
+                repo_root=REPO_ROOT, isaaclab_root=isaaclab_root,
+            ),
+        },
         "jobs": evidence_jobs,
         "comparisons": {
             "recovery": recovery_by_variant,
@@ -388,6 +516,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--queue-state", required=True, type=Path)
+    parser.add_argument("--isaaclab-root", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     return parser.parse_args()
 
@@ -395,7 +524,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     try:
-        result = summarize(args.manifest.resolve(), args.queue_state.resolve())
+        result = summarize(
+            args.manifest.resolve(), args.queue_state.resolve(),
+            isaaclab_root=args.isaaclab_root.resolve(),
+        )
         write_json_atomic(args.output.resolve(), result)
         print(json.dumps({"status": "complete", "output": str(args.output.resolve())}), flush=True)
         return 0
@@ -404,7 +536,10 @@ def main() -> int:
             "schema_version": 1,
             "goal": "G006",
             "status": "failed",
-            "error": {"type": type(exc).__name__, "message": str(exc)},
+            "error": {
+                "type": type(exc).__name__,
+                "message": safe_failure_message(exc),
+            },
             "jobs": [],
             "comparisons": {},
             "wilson_intervals": {},

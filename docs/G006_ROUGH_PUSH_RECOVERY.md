@@ -66,4 +66,4 @@ seed 44 push-curriculum 학습은 exit `0`, `1499/1500`, fatal pattern 0건, 최
 - 최종 seed 44 push 보고서: [`../reports/runs/g006_production_push_curriculum_e4096_i1500_s44_push.json`](../reports/runs/g006_production_push_curriculum_e4096_i1500_s44_push.json)
 - 최종 seed 44 guardrail 보고서: [`../reports/runs/g006_production_push_curriculum_e4096_i1500_s44_guardrail.json`](../reports/runs/g006_production_push_curriculum_e4096_i1500_s44_guardrail.json)
 
-queue state는 6/6 jobs `complete`, top-level failures 0건이며 strict summary SHA-256은 `09e08d496e428418e9c36f294ef6cf4efddadd84ea901685a584dff4d126347c`다.
+queue state는 6/6 jobs `complete`, top-level failures 0건이며 strict summary SHA-256은 `c0ef40715ce09915d3789249168228090049d7edc5a2cea82231c4ebddbfe76a`다. 기존 절대경로 command 기록은 모든 training·evaluation artifact와 저장 해시를 재검증한 뒤 portable command/hash로만 마이그레이션했으며, production 학습·평가는 다시 실행하지 않았다. raw metric 평균은 `math.fsum`으로 누적해 시스템 Python과 Isaac Lab 번들 Python에서도 같은 summary bytes를 만든다.

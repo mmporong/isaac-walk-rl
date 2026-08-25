@@ -11,7 +11,7 @@ G007은 `external_custom_compatibility_spike`로 분류한다. Rainbow Robotics 
 ### 확인한 사실
 
 - RBQ release tag `v1.20.0`은 annotated tag object `741ce5733dcd7c0babec663bb7e1afbc02a776ca`에서 source commit `68bc33b77719d357b4323fb88549efd905caf721`을 가리킨다.
-- source commit에서 `rbq_sdk/ros2/src/rbq_description/` 아래 URDF 1개, `package.xml` 1개, STL 6개 등 정확히 8개 blob의 경로·크기·Git blob SHA-1을 고정했다.
+- source commit의 `rbq_sdk/ros2/src/rbq_description/` tree에는 다른 blob도 있으며, 그중 URDF 1개, `package.xml` 1개, STL 6개로 구성된 핵심 8개 blob을 선정해 경로·크기·Git blob SHA-1을 고정했다.
 - GitHub repository API의 `license` 값은 `null`이다. 이는 GitHub가 저장소 전체에 적용되는 라이선스를 감지하지 못했다는 뜻일 뿐, 무허가 또는 이용 금지를 증명하지 않는다.
 - `rbq_description/package.xml`은 `Apache-2.0`을 선언한다. 이는 package manifest의 선언이며 URDF·STL blob에 적용되는 범위는 현재 근거만으로 확정할 수 없다.
 - 공식 Isaac Lab 공개 소스의 v2.1.1, v2.3.2, 조사 시점 `main` commit에서 대상 경로·심볼 일치 항목이 없었다.

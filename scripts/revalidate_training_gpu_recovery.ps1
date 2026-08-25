@@ -95,7 +95,8 @@ foreach ($artifact in @($checkpoint, $stdout, $stderr)) {
 if (-not (Test-Path -LiteralPath $tensorboard -PathType Container)) {
     throw "tensorboard_missing:$tensorboard"
 }
-if ((Get-FileHash -LiteralPath $checkpoint -Algorithm SHA256).Hash.ToLowerInvariant() -ne [string]$report.artifacts.checkpoint_sha256) {
+$checkpointHash = (Get-FileHash -LiteralPath $checkpoint -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($checkpointHash -ne [string]$report.artifacts.checkpoint_sha256) {
     throw 'checkpoint_hash_mismatch'
 }
 
@@ -107,7 +108,9 @@ $fatalPatterns = @(
     'Fatal Python error',
     'Segmentation fault'
 )
-$combined = [string](Get-Content -LiteralPath $stdout -Raw) + [Environment]::NewLine + [string](Get-Content -LiteralPath $stderr -Raw)
+$stdoutText = [string](Get-Content -LiteralPath $stdout -Raw)
+$stderrText = [string](Get-Content -LiteralPath $stderr -Raw)
+$combined = $stdoutText + [Environment]::NewLine + $stderrText
 $fatalMatches = @($fatalPatterns | Where-Object { $combined.Contains($_) })
 if ($fatalMatches.Count -ne 0) {
     throw "fatal_training_log:$($fatalMatches -join ',')"
@@ -196,4 +199,7 @@ finally {
     }
 }
 
-Write-Host "Training GPU recovery revalidation PASS: run=$($report.run_name) min_mib=$minimumUsedMiB max_mib=$maximumUsedMiB"
+Write-Host (
+    "Training GPU recovery revalidation PASS: " +
+    "run=$($report.run_name) min_mib=$minimumUsedMiB max_mib=$maximumUsedMiB"
+)

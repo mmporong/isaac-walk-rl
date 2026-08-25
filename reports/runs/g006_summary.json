@@ -3,9 +3,12 @@
   "goal": "G006",
   "status": "complete",
   "manifest": {
-    "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\configs\\g006_rough_push.json",
+    "path": "configs/g006_rough_push.json",
     "sha256": "8756660e270863f0a906e75b7e293744995b7acf773342582dd5a3009351c4d8",
     "protocol_sha256": "8fb22d72c8dd5dfbdffed0736de61bd0623d40f1762d685a1680f690aaa34787"
+  },
+  "queue_state": {
+    "path": "reports/runs/g006_queue_state.json"
   },
   "jobs": [
     {
@@ -17,11 +20,11 @@
       "checkpoint_sha256": "4ad0d9889b6e1163a81322ccc0afe0095824aac297af7cea4304eb05f59edcfd",
       "evaluation": {
         "push": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_baseline_e4096_i1500_s42_push.json",
+          "path": "reports/runs/g006_production_baseline_e4096_i1500_s42_push.json",
           "sha256": "565d74e813840797ca358cfc25967f1f09a470846ea3d19c9c6cd0473c57f362"
         },
         "guardrail": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_baseline_e4096_i1500_s42_guardrail.json",
+          "path": "reports/runs/g006_production_baseline_e4096_i1500_s42_guardrail.json",
           "sha256": "d73c039ac6cc61ec6b3d343ac97307045f086b7ee904c4ee268e28d1ee54a77d"
         }
       }
@@ -35,11 +38,11 @@
       "checkpoint_sha256": "0294c8e46697530fed5d837aac39ef3bc530c9a3c582d773206836b69b754a7b",
       "evaluation": {
         "push": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_baseline_e4096_i1500_s43_push.json",
+          "path": "reports/runs/g006_production_baseline_e4096_i1500_s43_push.json",
           "sha256": "197f3b1f436cab3e8df39b21be482d6c725c491570735b8fe80d5aea84df746a"
         },
         "guardrail": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_baseline_e4096_i1500_s43_guardrail.json",
+          "path": "reports/runs/g006_production_baseline_e4096_i1500_s43_guardrail.json",
           "sha256": "a426910776423f1e86435662b06300f2d67f35c9c23e63b4382dbcc0543944fb"
         }
       }
@@ -53,11 +56,11 @@
       "checkpoint_sha256": "181bd9dfa27b50cff73b66bb8cb5d13cca18f3b03cb6fb53614a0ccd4fba5d2a",
       "evaluation": {
         "push": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_baseline_e4096_i1500_s44_push.json",
+          "path": "reports/runs/g006_production_baseline_e4096_i1500_s44_push.json",
           "sha256": "ef6acaa15960fa48379f4824d775d672e3a1c506ac74b4f938d4d98f5cced92d"
         },
         "guardrail": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_baseline_e4096_i1500_s44_guardrail.json",
+          "path": "reports/runs/g006_production_baseline_e4096_i1500_s44_guardrail.json",
           "sha256": "177643897d9ef61eaa7e7651b4c09b9a33e0790ab5ccb69bd8b2aaff1d7f7aaa"
         }
       }
@@ -73,11 +76,11 @@
       "checkpoint_sha256": "e91fc238d531f18e173c45d24d7ab77d111e2c279ea095cd39ffe058027b858c",
       "evaluation": {
         "push": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_push_curriculum_e4096_i1500_s42_push.json",
+          "path": "reports/runs/g006_production_push_curriculum_e4096_i1500_s42_push.json",
           "sha256": "8f0005d8ac806001e884270427c0243412b67fdbee4ffe7ede5fc2952e4f5662"
         },
         "guardrail": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_push_curriculum_e4096_i1500_s42_guardrail.json",
+          "path": "reports/runs/g006_production_push_curriculum_e4096_i1500_s42_guardrail.json",
           "sha256": "27d7ea4f64569d0c52e3af1c99fa049f93bfc6dcbdbafd3f8e2720ca9ab2e416"
         }
       }
@@ -93,11 +96,11 @@
       "checkpoint_sha256": "1512c7e784d736478741a0e9b2f97aee77624536e7cd4a3a1f4a6e0addf15f41",
       "evaluation": {
         "push": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_push_curriculum_e4096_i1500_s43_push.json",
+          "path": "reports/runs/g006_production_push_curriculum_e4096_i1500_s43_push.json",
           "sha256": "e0f87774c528c9760608d734eb0ec00700a185fba53ac6053a613a8ff32c04f0"
         },
         "guardrail": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_push_curriculum_e4096_i1500_s43_guardrail.json",
+          "path": "reports/runs/g006_production_push_curriculum_e4096_i1500_s43_guardrail.json",
           "sha256": "7ee32f222bc195dfb381f59b4df73b15f4f47df6129d3230d42df50f21f54b6a"
         }
       }
@@ -113,11 +116,11 @@
       "checkpoint_sha256": "cc799d6c1972ccd417e1631916337aaec2b97b62282f5f3f511f0e5396e31440",
       "evaluation": {
         "push": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_push_curriculum_e4096_i1500_s44_push.json",
+          "path": "reports/runs/g006_production_push_curriculum_e4096_i1500_s44_push.json",
           "sha256": "32a2506d709971666d083f04a9e33bae22f8685ec1462ffdd9ff728002cf9411"
         },
         "guardrail": {
-          "path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g006_production_push_curriculum_e4096_i1500_s44_guardrail.json",
+          "path": "reports/runs/g006_production_push_curriculum_e4096_i1500_s44_guardrail.json",
           "sha256": "a09bd0785348f11dfc2035ebdf8c926c88e6db91b7d22d5e2e4bb3dcbb2ce024"
         }
       }
@@ -144,11 +147,11 @@
         "boundary_violation_count": 0,
         "auto_reset_excluded_count": 0,
         "raw_metrics": {
-          "tracking_error_sq_mean": 0.0299940635518433,
-          "yaw_error_sq_mean": 0.014110722504197294,
-          "torque_l2_mean": 200.28906478574777,
-          "absolute_mechanical_power_mean": 35.58314868751705,
-          "action_rate_l2_mean": 1.0367155448905032
+          "tracking_error_sq_mean": 0.029994063551843343,
+          "yaw_error_sq_mean": 0.014110722504197286,
+          "torque_l2_mean": 200.2890647857475,
+          "absolute_mechanical_power_mean": 35.583148687517166,
+          "action_rate_l2_mean": 1.0367155448905025
         }
       },
       "push_curriculum": {
@@ -170,11 +173,11 @@
         "boundary_violation_count": 0,
         "auto_reset_excluded_count": 0,
         "raw_metrics": {
-          "tracking_error_sq_mean": 0.027255902930297612,
-          "yaw_error_sq_mean": 0.012736531324687791,
-          "torque_l2_mean": 209.1840419901655,
-          "absolute_mechanical_power_mean": 36.86846007458635,
-          "action_rate_l2_mean": 1.0272708024528514
+          "tracking_error_sq_mean": 0.02725590293029759,
+          "yaw_error_sq_mean": 0.012736531324687808,
+          "torque_l2_mean": 209.18404199016553,
+          "absolute_mechanical_power_mean": 36.86846007458638,
+          "action_rate_l2_mean": 1.0272708024528519
         }
       }
     },
@@ -227,11 +230,11 @@
         "boundary_violation_count": 0,
         "auto_reset_excluded_count": 0,
         "raw_metrics": {
-          "tracking_error_sq_mean": 0.0299940635518433,
-          "yaw_error_sq_mean": 0.014110722504197294,
-          "torque_l2_mean": 200.28906478574777,
-          "absolute_mechanical_power_mean": 35.58314868751705,
-          "action_rate_l2_mean": 1.0367155448905032
+          "tracking_error_sq_mean": 0.029994063551843343,
+          "yaw_error_sq_mean": 0.014110722504197286,
+          "torque_l2_mean": 200.2890647857475,
+          "absolute_mechanical_power_mean": 35.583148687517166,
+          "action_rate_l2_mean": 1.0367155448905025
         }
       },
       "push_curriculum": {
@@ -253,11 +256,11 @@
         "boundary_violation_count": 0,
         "auto_reset_excluded_count": 0,
         "raw_metrics": {
-          "tracking_error_sq_mean": 0.027255902930297612,
-          "yaw_error_sq_mean": 0.012736531324687791,
-          "torque_l2_mean": 209.1840419901655,
-          "absolute_mechanical_power_mean": 36.86846007458635,
-          "action_rate_l2_mean": 1.0272708024528514
+          "tracking_error_sq_mean": 0.02725590293029759,
+          "yaw_error_sq_mean": 0.012736531324687808,
+          "torque_l2_mean": 209.18404199016553,
+          "absolute_mechanical_power_mean": 36.86846007458638,
+          "action_rate_l2_mean": 1.0272708024528519
         }
       }
     },

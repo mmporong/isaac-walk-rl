@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-08-24T00:54:40.416Z",
-  "updatedAt": "2026-08-25T16:45:37.990Z",
+  "updatedAt": "2026-08-25T21:04:48.948Z",
   "briefPath": ".omx/ultragoal/brief.md",
   "goalsPath": ".omx/ultragoal/goals.json",
   "ledgerPath": ".omx/ultragoal/ledger.jsonl",
@@ -83,13 +83,144 @@
       "id": "G007-rbq-backport",
       "title": "RBQ 외부 자산 호환성 사전조사와 최종 승인",
       "objective": "RBQ v1.20.0의 source commit과 8개 자산 blob inventory를 고정하고, 공식 Isaac Lab v2.1.1·v2.3.2·조사 시점 main에 대상 구현이 없음을 기록한다. 자산 라이선스 범위와 로컬 처리 권한이 불명확하면 다운로드·변환·smoke 전에 fail-closed blocker와 해제 조건을 재현하고, 전체 저장소 최종 품질 게이트를 통과한다.",
-      "status": "pending",
-      "attempt": 0,
+      "status": "complete",
+      "attempt": 1,
       "createdAt": "2026-08-24T00:54:40.416Z",
-      "updatedAt": "2026-08-25T07:30:24.727Z",
-      "steeringEvidence": "PROJECT_BRIEF.md, docs/G007_RBQ_COMPATIBILITY_SPIKE.md, configs/g007_rbq_asset_manifest.json, reports/g007_rbq_compatibility_spike.json; 공식 세 source point에서 RBQ 구현 match 0건, asset license scope unresolved.",
-      "steeringRationale": "거짓으로 판명된 공식 상위 구현 backport 전제를 교정하면서 원 brief의 증거 기반 호환성 판정과 재현 가능한 blocker 완료 경로를 보존한다."
+      "updatedAt": "2026-08-25T21:04:15.106Z",
+      "steeringEvidence": "G007 original result remains license_scope_unresolved with asset download/conversion/smoke 0/3 and SHA 8cace17b...; G008-G010 corrected portable evidence and relative containment; installed OMX cannot cascade a nested G007-G008-G009 resolver chain, so a supported replacement audit story is required.",
+      "steeringRationale": "Preserve all historical review evidence while flattening only the outer G007 workflow blocker; keep the direct G008-to-G009 resolver relationship for the final quality-gated checkpoint.",
+      "startedAt": "2026-08-25T16:46:48.535Z",
+      "reviewBlockedAt": "2026-08-25T17:50:37.404Z",
+      "evidence": "architect BLOCK: reports/runs/g006_queue_state.json push_command 및 reports/runs/g006_summary.json manifest/evaluation paths가 host-specific absolute path를 저장해 README의 portable JSON 계약과 저장소 불변식을 위반함; scripts/run_g006_experiment.ps1 및 scripts/summarize_g006.py 원인 확인",
+      "reviewBlockerResolution": {
+        "resolverGoalId": "G008-g006-portable-json",
+        "status": "complete",
+        "resolvedAt": "2026-08-25T21:04:15.106Z",
+        "evidence": "Final clean gate applied to reciprocal resolver G008 after G009 resolved its own review blocker; resolves G007 outer review blocker while preserving G007 fail-closed evidence and supersede audit history."
+      },
+      "steeringStatus": "superseded",
+      "supersededBy": [
+        "G011-g007"
+      ],
+      "completedAt": "2026-08-25T21:04:15.106Z"
+    },
+    {
+      "id": "G011-g007",
+      "title": "G007 최종 증거 대체 승인",
+      "objective": "G007의 라이선스 미확정 fail-closed 결과와 G008-G010 portable evidence 수정을 함께 재검증하고, 중첩 review-blocker 상태를 지원되는 단일 최종 resolver 구조로 평탄화해 독립 품질 게이트가 원래 승인 경계를 보존함을 증명한다.",
+      "status": "complete",
+      "attempt": 1,
+      "createdAt": "2026-08-25T20:32:02.861Z",
+      "updatedAt": "2026-08-25T20:39:53.081Z",
+      "evidence": "G011 VERIFIED for its replacement scope: G007 report SHA 8cace17b61c944c1395bd42bff81c0cdbd8c39e8b041b0b2039f382983d8927d, license_scope_unresolved, asset/converter/smoke 0/3, selected 8 blobs match and 46 tests pass; portable exact 3-token plus relative containment, G006 queue and 24 tests pass, durable absolute/PII 0, summary c0ef40715ce09915d3789249168228090049d7edc5a2cea82231c4ebddbfe76a; G007 supersede relation is reciprocal. G008 was separately steered to final active replacement G012 because installed OMX requires an in-progress final candidate for aggregate receipt.",
+      "supersedes": [
+        "G007-rbq-backport"
+      ],
+      "startedAt": "2026-08-25T20:32:28.780Z",
+      "completedAt": "2026-08-25T20:39:53.081Z"
+    },
+    {
+      "id": "G008-g006-portable-json",
+      "title": "G006 portable JSON 경계 복구",
+      "objective": "G006 durable queue command와 summary의 사용자별 절대경로를 portable 경로로 직렬화하고 실행 인자와 저장 인자를 분리한 뒤 queue hash, summary, 문서 evidence, 전체 검증과 독립 리뷰를 재통과한다.",
+      "status": "complete",
+      "attempt": 1,
+      "createdAt": "2026-08-25T17:50:37.404Z",
+      "updatedAt": "2026-08-25T21:04:15.106Z",
+      "evidence": "Final clean gate applied to reciprocal resolver G008 after G009 resolved its own review blocker; resolves G007 outer review blocker while preserving G007 fail-closed evidence and supersede audit history.",
+      "resolvesReviewBlockedGoalId": "G007-rbq-backport",
+      "startedAt": "2026-08-25T17:50:45.061Z",
+      "reviewBlockedAt": "2026-08-25T19:05:25.849Z",
+      "reviewBlockerResolution": {
+        "resolverGoalId": "G009-portable-token",
+        "status": "complete",
+        "resolvedAt": "2026-08-25T21:04:14.735Z",
+        "evidence": "Final clean gate reapplied to reciprocal resolver G009 after G012 completion; resolves G008 portable evidence blocker with all product tests, hashes, APPROVE and CLEAR unchanged."
+      },
+      "steeringStatus": "superseded",
+      "supersededBy": [
+        "G012-portable-aggregate"
+      ],
+      "steeringEvidence": "Independent verifier proved G011 plus G009 can resolve G008 and artifactComplete, but aggregate receipt remains null because already-complete G009 cannot be the active in-progress final candidate; installed OMX requires an active replacement child for the normal final aggregate receipt.",
+      "steeringRationale": "Use the supported mark_blocked_superseded transition for G008 so the new active replacement becomes the single final candidate; preserve G008/G009/G010 audit history and avoid unsupported state edits or fabricated quality gates.",
+      "completedAt": "2026-08-25T21:04:15.106Z"
+    },
+    {
+      "id": "G012-portable-aggregate",
+      "title": "최종 portable 증거 및 aggregate 승인",
+      "objective": "G008-G010에서 수정된 portable JSON, exact token grammar, 상대경로 containment, production hash 불변과 G007 fail-closed 결과를 재검증하고, G007/G008 supersede 평탄화 위에서 독립 APPROVE·CLEAR 품질 게이트와 aggregate completion receipt를 기록한다.",
+      "status": "complete",
+      "attempt": 1,
+      "createdAt": "2026-08-25T20:39:33.340Z",
+      "updatedAt": "2026-08-25T21:03:40.658Z",
+      "evidence": "Final evidence: ai-slop PASSED; system 114+18, Isaac 5, queues/recovery, c0ef summary, G007 0/3 and 8cace, validator/portable/PII/diff PASS; code-review APPROVE; architect CLEAR I1-I7; terminal sequence verified.",
+      "supersedes": [
+        "G008-g006-portable-json"
+      ],
+      "startedAt": "2026-08-25T20:40:01.133Z",
+      "completedAt": "2026-08-25T21:03:40.658Z"
+    },
+    {
+      "id": "G009-portable-token",
+      "title": "Portable token 해석 경계 완결",
+      "objective": "PowerShell과 Python에서 USERPROFILE·REPO_ROOT·ISAACLAB_ROOT token grammar와 token별 containment를 일치시키고, HOME 밖 repo/IsaacLab의 queue-to-summary round trip, unknown token·suffix·parent escape·PII 없는 failure를 회귀 테스트한 뒤 전체 최종 품질 게이트를 재통과한다.",
+      "status": "complete",
+      "attempt": 1,
+      "createdAt": "2026-08-25T19:05:25.849Z",
+      "updatedAt": "2026-08-25T21:04:14.735Z",
+      "evidence": "Final clean gate reapplied to reciprocal resolver G009 after G012 completion; resolves G008 portable evidence blocker with all product tests, hashes, APPROVE and CLEAR unchanged.",
+      "resolvesReviewBlockedGoalId": "G008-g006-portable-json",
+      "startedAt": "2026-08-25T19:05:34.712Z",
+      "completedAt": "2026-08-25T21:04:14.735Z"
+    },
+    {
+      "id": "G010-containment",
+      "title": "상대경로 기준 루트 containment 완결",
+      "objective": "PowerShell의 비-token 상대경로는 repoRoot, Python의 비-token 상대경로는 relative_to 기준 루트 안에만 남도록 강제하고, sibling allowed root와 다단계 parent escape를 양쪽 회귀 테스트로 차단한 뒤 전체 정리·검증·독립 리뷰를 재통과한다.",
+      "status": "complete",
+      "attempt": 1,
+      "createdAt": "2026-08-25T20:02:25.487Z",
+      "updatedAt": "2026-08-25T20:32:20.892Z",
+      "evidence": "G010 implemented base-specific containment for non-token relative paths in PowerShell and Python while preserving exact 3-token and legacy absolute contracts; sibling and multi-level parent escape regression tests added; ai-slop-cleaner PASSED; system 114 passed plus 18 subtests, Isaac 5, G005/G006 queues, GPU recovery, G007 0/3, cross-runtime summary SHA c0ef40715ce09915d3789249168228090049d7edc5a2cea82231c4ebddbfe76a, validator/PII/diff PASS; independent code-review APPROVE.",
+      "startedAt": "2026-08-25T20:02:32.375Z",
+      "completedAt": "2026-08-25T20:32:20.892Z"
+    },
+    {
+      "id": "G013-aggregate",
+      "title": "최종 aggregate 완료 영수증",
+      "objective": "reviewBlocked 0과 artifactComplete true 상태에서 기존 APPROVE·CLEAR 품질 게이트와 complete Codex snapshot을 사용해 aggregate completion receipt를 기록하고, aggregateComplete와 artifactComplete가 모두 true이며 active goal이 없음을 검증한다.",
+      "status": "complete",
+      "attempt": 1,
+      "createdAt": "2026-08-25T21:04:30.377Z",
+      "updatedAt": "2026-08-25T21:04:48.948Z",
+      "evidence": "Terminal receipt recorded after verified clean product state, G009-G008 reciprocal resolution chain, reviewBlocked 0 and artifactComplete true; reuses the persisted independent APPROVE, architect CLEAR, ai-slop PASSED and seven-invariant quality gate.",
+      "startedAt": "2026-08-25T21:04:30.720Z",
+      "completedAt": "2026-08-25T21:04:48.948Z"
     }
   ],
-  "codexObjective": "Complete the durable ultragoal plan in .omx/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .omx/ultragoal/ledger.jsonl as the audit trail."
+  "codexObjective": "Complete the durable ultragoal plan in .omx/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .omx/ultragoal/ledger.jsonl as the audit trail.",
+  "aggregateCompletion": {
+    "status": "complete",
+    "completedAt": "2026-08-25T21:04:48.948Z",
+    "evidence": "Terminal receipt recorded after verified clean product state, G009-G008 reciprocal resolution chain, reviewBlocked 0 and artifactComplete true; reuses the persisted independent APPROVE, architect CLEAR, ai-slop PASSED and seven-invariant quality gate.",
+    "codexGoal": {
+      "available": true,
+      "objective": "Complete the durable ultragoal plan in .omx/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .omx/ultragoal/ledger.jsonl as the audit trail.",
+      "status": "complete",
+      "remainingTokens": null,
+      "raw": {
+        "goal": {
+          "createdAt": 1787657820,
+          "objective": "Complete the durable ultragoal plan in .omx/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .omx/ultragoal/ledger.jsonl as the audit trail.",
+          "tokensUsed": 1731522,
+          "updatedAt": 1787691713,
+          "threadId": "01a038af-c881-7893-88a3-ac0f49371404",
+          "timeUsedSeconds": 33893,
+          "status": "complete"
+        },
+        "completionBudgetReport": null,
+        "remainingTokens": null
+      }
+    }
+  }
 }
