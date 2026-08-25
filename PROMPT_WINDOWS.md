@@ -65,11 +65,11 @@ baseline을 유지한 채 다음 항목을 한 번에 하나씩 변경한다.
 
 DoD: 설정 diff, 명령, seed별 결과, 평균·분산, TensorBoard 근거, 해석 가능한 비교표.
 
-## 4단계 — rough와 randomization
+## 4단계 — official rough baseline 고정
 
-`Isaac-Velocity-Rough-Unitree-Go2-v0`를 사용해 terrain curriculum과 domain randomization을 분리 적용한다. 기본 환경에 이미 존재하는 terrain curriculum과 push event를 먼저 분석하고, 중복 구현하지 않는다.
+`Isaac-Velocity-Rough-Unitree-Go2-v0`의 official `UnitreeGo2RoughEnvCfg`를 baseline으로 사용한다. baseline과 이후 변형은 동일한 rough terrain curriculum과 official domain randomization을 공통으로 유지한다. 기본 환경에 이미 존재하는 terrain curriculum과 event를 먼저 분석하고 중복 구현하지 않는다.
 
-DoD: flat baseline 대비 추적·낙상·에너지 지표, 적용한 randomization 범위, curriculum 진행 증거.
+DoD: official rough baseline의 고정 설정, 적용된 공통 randomization 범위, terrain curriculum 진행 증거, official rough baseline 대비 추적 오차·낙상률·에너지 proxy의 기술통계 비교. flat→rough 또는 domain randomization 단독 인과효과를 주장하지 않는다.
 
 ## 5단계 — 외란 회복
 
@@ -81,7 +81,7 @@ DoD: flat baseline 대비 추적·낙상·에너지 지표, 적용한 randomizat
 - 회복 뒤 무낙상 유지 시간 `H`
 - seed와 episode 수
 
-baseline과 개선 정책에 같은 protocol을 적용한다.
+official rough baseline과 동일 rough·공통 official DR 조건에서 `events.push_robot`만 변경한 push curriculum 변형에 같은 protocol을 적용한다. G006의 비교 축은 이 한 가지이며, flat 결과는 맥락 자료로만 사용한다.
 
 DoD: 회복 성공 분자/분모, 회복률, Wilson 95% 신뢰구간, 조건별 표와 실패 사례.
 
