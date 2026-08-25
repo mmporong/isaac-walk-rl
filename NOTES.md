@@ -12,7 +12,7 @@
 - ANYmal-C flat override:
   - `dof_torques_l2`: `-2.5e-5`
   - `feet_air_time`: `0.5`
-- 공통 velocity 환경에는 10~15초 간격의 x/y velocity push event와 rough terrain curriculum이 이미 있다.
+- 공통 velocity 환경에는 10~15초 간격의 x/y velocity push event가 있고 rough 환경에는 terrain curriculum이 이미 있다. G006은 기존 구성을 먼저 확인한 뒤 `events.push_robot`만 비교 축으로 정규화한다.
 
 위 값은 Isaac Lab v2.1.1 소스의 기준값이다. Go2에서 실제로 상속·override되는 최종값은 설치된 고정 commit에서 다시 추출해 기록한다.
 
@@ -22,6 +22,14 @@
 - “자연스러움” 같은 주관 평가만 사용하지 않는다. 추적 오차, 에너지 proxy, 넘어짐률, 회복률을 함께 본다.
 - 환경 수와 처리량은 다른 GPU 벤치마크에서 추정하지 않고 현재 RTX 3060 12GB에서 측정한다.
 - 영상은 보조 증거다. 정책 checkpoint, 설정 diff, seed, 지표가 주 증거다.
+
+## G006 rough 비교 해석 원칙
+
+- official `UnitreeGo2RoughEnvCfg`를 rough baseline으로 사용한다. baseline과 push curriculum은 같은 terrain curriculum과 official domain randomization을 공통으로 유지하며, normalized config diff는 `events.push_robot`뿐이다.
+- flat 결과는 맥락 자료로만 사용한다. flat→rough 또는 domain randomization 단독 인과효과를 주장하지 않는다.
+- baseline 회복률이 높은 ceiling에 가까우면 작은 절대 차이는 기술통계로만 해석하며 정책 우월성으로 주장하지 않는다.
+- 정책별 training seed는 `n=3`이므로 결과는 descriptive-only이며 통계적 유의성을 주장하지 않는다.
+- mechanical power는 `sum(abs(torque * joint_velocity))`로 계산한 시뮬레이션 proxy이며 전기 에너지 소비량이 아니다.
 
 ## RBQ 호환성 메모
 
