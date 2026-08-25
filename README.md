@@ -37,8 +37,8 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 
 ## 저장소 경계
 
-- 이 저장소: 커스텀 코드, 설정, 재현 스크립트, 문서, 정량 결과표
-- 저장소 밖: `%USERPROFILE%\IsaacLab`, `E:\IsaacSim\isaac-sim-4.5.0`, 학습 로그, 체크포인트, 영상, 생성 자산
+- 이 저장소: 커스텀 코드, 설정, 재현 스크립트, 문서, 정량 결과표, 검증용 소형 GIF·스크린샷
+- 저장소 밖: `%USERPROFILE%\IsaacLab`, `E:\IsaacSim\isaac-sim-4.5.0`, 학습 로그, 체크포인트, 원본 영상, 중간 생성 자산
 
 ## 환경 매니페스트와 저장소 검증
 
@@ -102,6 +102,8 @@ cd "$HOME\isaac-walk-rl"
 G006은 4096 env × 1500 iterations × seeds 42/43/44로 baseline과 push curriculum을 비교했습니다. pooled 회복률은 `99.5370%` 대 `99.5988%`로 push curriculum이 `+0.0617%p`였지만, paired bootstrap 95% CI가 `-0.7716%p ~ +0.9568%p`이므로 유의한 개선을 주장하지 않습니다. 두 variant의 guardrail 생존률은 모두 `100%`였습니다.
 
 해석·seed별 결과·추적 및 에너지 proxy는 [`docs/G006_ROUGH_PUSH_RECOVERY.md`](docs/G006_ROUGH_PUSH_RECOVERY.md), 정량 summary는 [`reports/runs/g006_summary.json`](reports/runs/g006_summary.json), job별 checkpoint·평가 보고서 해시는 [`reports/runs/g006_queue_state.json`](reports/runs/g006_queue_state.json)에 있습니다. 이 durable JSON의 경로와 평가 command는 저장소 상대경로 또는 `%USERPROFILE%`, `%REPO_ROOT%`, `%ISAACLAB_ROOT%` 표현으로만 기록하며, 실제 evaluator 실행 시점에만 허용된 root 안의 절대경로로 resolve합니다.
+
+seed 42의 실제 정책 재생 비교 GIF와 스크린샷, 로컬 전용 원본 영상의 무결성 정보는 [`docs/G006_VISUAL_EVIDENCE.md`](docs/G006_VISUAL_EVIDENCE.md)에 있습니다. 시각 자료는 정성 작동 증거이며 정량 평가를 대체하지 않습니다.
 
 ```powershell
 cd "$HOME\isaac-walk-rl"
