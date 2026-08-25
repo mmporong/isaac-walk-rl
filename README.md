@@ -97,6 +97,12 @@ cd "$HOME\isaac-walk-rl"
 
 해석과 한계는 [`docs/G005_REWARD_ABLATION.md`](docs/G005_REWARD_ABLATION.md), 정량 summary는 [`reports/runs/g005_reward_ablation_summary.json`](reports/runs/g005_reward_ablation_summary.json), job별 checkpoint·TensorBoard·해시는 [`reports/runs/g005_reward_ablation_state.json`](reports/runs/g005_reward_ablation_state.json)에 있습니다. 학습 reward는 variant마다 정의가 달라 직접 비교하지 않습니다. Isaac Lab 본체는 계속 저장소 밖 `$HOME\IsaacLab`에 둡니다.
 
+## Rough·DR·외란 회복 결과
+
+G006은 4096 env × 1500 iterations × seeds 42/43/44로 baseline과 push curriculum을 비교했습니다. pooled 회복률은 `99.5370%` 대 `99.5988%`로 push curriculum이 `+0.0617%p`였지만, paired bootstrap 95% CI가 `-0.7716%p ~ +0.9568%p`이므로 유의한 개선을 주장하지 않습니다. 두 variant의 guardrail 생존률은 모두 `100%`였습니다.
+
+해석·seed별 결과·추적 및 에너지 proxy는 [`docs/G006_ROUGH_PUSH_RECOVERY.md`](docs/G006_ROUGH_PUSH_RECOVERY.md), 정량 summary는 [`reports/runs/g006_summary.json`](reports/runs/g006_summary.json), job별 checkpoint·평가 보고서 해시는 [`reports/runs/g006_queue_state.json`](reports/runs/g006_queue_state.json)에 있습니다.
+
 ## RBQ 외부 자산 호환성 게이트
 
 G007은 RBQ v1.20.0의 8개 자산 경로와 Git 객체를 고정했습니다. `rbq_description/package.xml`의 Apache-2.0 선언이 URDF·STL blob에 적용되는 범위와 로컬 처리 권한은 확인되지 않아 `license_scope_unresolved`로 차단합니다. 자산 다운로드·변환·smoke는 실행하지 않았으며, 이 blocker는 G007의 재현 가능한 완료 경로이지 G006이나 전체 프로젝트의 중단 사유가 아닙니다.

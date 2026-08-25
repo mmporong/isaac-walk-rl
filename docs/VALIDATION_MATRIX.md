@@ -13,8 +13,8 @@
 | ANYmal-C flat 300 iterations | 정상 종료, TensorBoard scalar, checkpoint hash | 64 env, seed 42, exit 0, 299/300, model_299.pt 확인으로 검증 완료 |
 | Go2 flat scale ladder | 64→2048 순차 실행과 조건부 4096, 각 checkpoint·TensorBoard·GPU 회복 | seed 42, 각 10 iterations, 64/256/512/1024/2048/4096 모두 PASS; 장기 baseline은 별도 |
 | 보상 ablation | 동일 budget·3 seeds 이상 비교 | PASS; Go2 flat 4096 env × 300 iterations, 4 variants × seeds 42/43/44, 12/12 complete·failed 0, 고정 26×10×20초 평가와 strict hash 검증 완료 |
-| rough·DR | official `UnitreeGo2RoughEnvCfg` baseline과 공통 terrain curriculum·official DR 고정, normalized diff는 `events.push_robot`만 허용, official rough baseline 대비 추적 오차·낙상률·에너지 proxy 기술통계 비교. flat→rough 또는 DR 단독 인과효과는 주장하지 않음 | production 진행 중, final strict summary pending |
-| 외란 회복 비교 | 동일 rough·공통 official DR 조건의 고정 protocol과 Wilson 95% CI | production 진행 중, final strict summary pending |
+| rough·DR | official `UnitreeGo2RoughEnvCfg` baseline과 공통 terrain curriculum·official DR 고정, normalized diff는 `events.push_robot`만 허용, official rough baseline 대비 추적 오차·낙상률·에너지 proxy 기술통계 비교. flat→rough 또는 DR 단독 인과효과는 주장하지 않음 | PASS; 4096 env × 1500 iterations × seeds 42/43/44, 6/6 jobs complete. push curriculum은 tracking error sq `-9.1290%`, yaw error sq `-9.7386%`, torque L2 `+4.4411%`, mechanical power proxy `+3.6121%` |
+| 외란 회복 비교 | 동일 rough·공통 official DR 조건의 고정 protocol과 Wilson 95% CI | PASS; 6480 push trials와 540 guardrail trials. 회복률 `99.5370%`→`99.5988%` (`+0.0617%p`), paired bootstrap 95% CI `-0.7716%p ~ +0.9568%p`; guardrail 양쪽 `100%`, 유의한 개선 주장 없음 |
 | RBQ 외부 자산 호환성 사전조사 | source·8 blob·라이선스 근거 고정, fail-closed blocker 재현 | G007 gate 구현 완료; `license_scope_unresolved`, expect-blocked exit 0·require-ready exit 3, targeted 46 tests PASS·code review APPROVE. 자산·파생물 다운로드/변환/smoke 미실행 |
 
 ## 1차 근거
@@ -27,4 +27,5 @@
 - RBQ v1.20.0 tag object API: https://api.github.com/repos/RainbowRobotics/RBQ/git/tags/741ce5733dcd7c0babec663bb7e1afbc02a776ca
 - RBQ 고정 commit URDF: https://raw.githubusercontent.com/RainbowRobotics/RBQ/68bc33b77719d357b4323fb88549efd905caf721/rbq_sdk/ros2/src/rbq_description/urdf/rbq.urdf
 - RBQ 고정 commit package.xml: https://raw.githubusercontent.com/RainbowRobotics/RBQ/68bc33b77719d357b4323fb88549efd905caf721/rbq_sdk/ros2/src/rbq_description/package.xml
+- G006 정량 판정: [`G006_ROUGH_PUSH_RECOVERY.md`](G006_ROUGH_PUSH_RECOVERY.md)
 - G007 상세 판정: [`G007_RBQ_COMPATIBILITY_SPIKE.md`](G007_RBQ_COMPATIBILITY_SPIKE.md)

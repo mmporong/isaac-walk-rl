@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-08-24T00:54:40.416Z",
-  "updatedAt": "2026-08-25T07:30:24.727Z",
+  "updatedAt": "2026-08-25T16:45:37.990Z",
   "briefPath": ".omx/ultragoal/brief.md",
   "goalsPath": ".omx/ultragoal/goals.json",
   "ledgerPath": ".omx/ultragoal/ledger.jsonl",
@@ -71,11 +71,13 @@
       "id": "G006-rough",
       "title": "rough와 외란 회복",
       "objective": "terrain curriculum과 domain randomization을 적용하고 고정 push protocol로 baseline 대비 회복률과 신뢰구간을 평가한다.",
-      "status": "in_progress",
+      "status": "complete",
       "attempt": 1,
       "createdAt": "2026-08-24T00:54:40.416Z",
-      "updatedAt": "2026-08-24T06:46:47.123Z",
-      "startedAt": "2026-08-24T06:46:47.123Z"
+      "updatedAt": "2026-08-25T16:45:37.990Z",
+      "startedAt": "2026-08-24T06:46:47.123Z",
+      "completedAt": "2026-08-25T16:45:37.990Z",
+      "evidence": "G006 production complete: 4096 env x 1500 iterations x seeds 42/43/44, queue 6/6 complete, strict summary SHA256 09e08d496e428418e9c36f294ef6cf4efddadd84ea901685a584dff4d126347c; 6480 push trials and 540 guardrail trials with fixed denominators, boundary/auto-reset violations 0; recovery 99.5370% vs 99.5988%, paired bootstrap 95% CI -0.7716pp..+0.9568pp, no significance claim; G006 Python 33 passed, queue assertions PASS, repository validator PASS, strict summary byte-identical."
     },
     {
       "id": "G007-rbq-backport",
@@ -89,6 +91,5 @@
       "steeringRationale": "거짓으로 판명된 공식 상위 구현 backport 전제를 교정하면서 원 brief의 증거 기반 호환성 판정과 재현 가능한 blocker 완료 경로를 보존한다."
     }
   ],
-  "codexObjective": "Complete the durable ultragoal plan in .omx/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .omx/ultragoal/ledger.jsonl as the audit trail.",
-  "activeGoalId": "G006-rough"
+  "codexObjective": "Complete the durable ultragoal plan in .omx/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .omx/ultragoal/ledger.jsonl as the audit trail."
 }
