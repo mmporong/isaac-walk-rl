@@ -29,8 +29,8 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 2. ANYmal-C flat 50-iteration smoke와 300-iteration baseline
 3. Go2 flat 환경 수별 VRAM·steps/s 측정
 4. 세 보상 항목의 one-factor ablation
-5. Go2 rough, terrain curriculum, domain randomization
-6. 고정 프로토콜 기반 외란 회복률 비교
+5. official Go2 rough baseline에서 terrain curriculum과 official domain randomization 공통 조건 고정
+6. 동일 rough·공통 official DR 조건에서 `events.push_robot`만 변경한 push curriculum의 고정 프로토콜 비교
 7. RBQ 외부 자산 라이선스·호환성 사전조사
 
 구체적인 명령과 단계별 완료 조건은 `PROMPT_WINDOWS.md`, 측정 상태는 `docs/VALIDATION_MATRIX.md`, 모든 실행 기록은 `RUN_NOTES.md`에서 관리합니다.

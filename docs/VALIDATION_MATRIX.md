@@ -13,8 +13,8 @@
 | ANYmal-C flat 300 iterations | 정상 종료, TensorBoard scalar, checkpoint hash | 64 env, seed 42, exit 0, 299/300, model_299.pt 확인으로 검증 완료 |
 | Go2 flat scale ladder | 64→2048 순차 실행과 조건부 4096, 각 checkpoint·TensorBoard·GPU 회복 | seed 42, 각 10 iterations, 64/256/512/1024/2048/4096 모두 PASS; 장기 baseline은 별도 |
 | 보상 ablation | 동일 budget·3 seeds 이상 비교 | PASS; Go2 flat 4096 env × 300 iterations, 4 variants × seeds 42/43/44, 12/12 complete·failed 0, 고정 26×10×20초 평가와 strict hash 검증 완료 |
-| rough·DR | flat baseline 대비 지표 | 실행 대기 |
-| 외란 회복 개선 | 고정 protocol과 Wilson 95% CI | 실행 대기 |
+| rough·DR | official `UnitreeGo2RoughEnvCfg` baseline과 공통 terrain curriculum·official DR 고정, normalized diff는 `events.push_robot`만 허용, official rough baseline 대비 추적 오차·낙상률·에너지 proxy 기술통계 비교. flat→rough 또는 DR 단독 인과효과는 주장하지 않음 | production 진행 중, final strict summary pending |
+| 외란 회복 비교 | 동일 rough·공통 official DR 조건의 고정 protocol과 Wilson 95% CI | production 진행 중, final strict summary pending |
 | RBQ 외부 자산 호환성 사전조사 | source·8 blob·라이선스 근거 고정, fail-closed blocker 재현 | G007 gate 구현 완료; `license_scope_unresolved`, expect-blocked exit 0·require-ready exit 3, targeted 46 tests PASS·code review APPROVE. 자산·파생물 다운로드/변환/smoke 미실행 |
 
 ## 1차 근거
