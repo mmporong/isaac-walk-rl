@@ -126,7 +126,7 @@ S1 runtime probe에서는 발바닥 static/dynamic friction이 `0.7226~0.8770`/`
 
 leg-mass S1도 같은 budget으로 별도 학습했지만 randomized·nominal 평면 모두 우회전 yaw gate에 실패했습니다. 평균 yaw rate가 command checkpoint의 `-0.4533 rad/s`에서 약 `-0.235 rad/s`로 줄고 yaw RMSE가 약 `0.295 rad/s`로 커졌습니다. nominal guardrail도 실패했으므로 leg-mass S2는 중단합니다.
 
-승인된 command checkpoint의 전진·후진·좌우 회전 GIF와 접촉시트, 로컬 전용 원본 MP4의 경로·해시는 [`docs/G008_VISUAL_EVIDENCE.md`](docs/G008_VISUAL_EVIDENCE.md)에 있습니다. Git에는 GIF와 PNG만 포함하며 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008`에 보관합니다.
+command, friction S1, leg-mass S1 checkpoint를 같은 평면·seed·명령 시퀀스로 재생한 동기화 GIF와 접촉시트, 로컬 전용 원본 MP4의 경로·해시는 [`docs/G008_VISUAL_EVIDENCE.md`](docs/G008_VISUAL_EVIDENCE.md)에 있습니다. Git에는 GIF와 PNG만 포함하며 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008`에 보관합니다.
 
 PPO batch·epoch, 235차원 observation, 50 Hz 제어, 마찰원뿔, yaw moment, 링크별 질량과 inertia 재계산, 논문 수치의 채택·배제 근거, sim-to-real 측정 항목은 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md)에 정리했습니다. 실행 계약은 [`configs/g008_locomotion_dynamics.json`](configs/g008_locomotion_dynamics.json), runtime 증거는 `reports/runs/g008_*.json`을 기준으로 봅니다.
 

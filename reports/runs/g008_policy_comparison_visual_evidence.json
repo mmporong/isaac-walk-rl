@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "purpose": "public comparison of command, friction S1, and leg-mass S1 policies",
+  "capture_report": {
+    "files": [
+      {
+        "path": "reports/runs/g008_policy_command_capture.json",
+        "sha256": "fe711c598a728f26087bf997bf777a05421d4d8a255ab13126b0d2e7612f2e10"
+      },
+      {
+        "path": "reports/runs/g008_policy_friction_s1_capture.json",
+        "sha256": "3aa142088ffc22b3ba400e56fe7a55966eed49e22aea5a3475c418f0dc571420"
+      },
+      {
+        "path": "reports/runs/g008_policy_leg_mass_s1_capture.json",
+        "sha256": "ffb8474875ac48ef2ae6445fddead64a16a30f6dc6cc0ff085d0ad53361d019c"
+      }
+    ]
+  },
+  "profile_order": [
+    "command",
+    "friction_s1",
+    "leg_mass_s1"
+  ],
+  "composition": {
+    "terrain_mode": "plane",
+    "seed": 42,
+    "matched_command_sequence": true,
+    "synchronized_panels": true,
+    "interpretation": "visual playback; quantitative gate decisions remain in evaluation JSON"
+  },
+  "tool": "ffmpeg version 8.1-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "local_composite": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_policy_comparison_s42.mp4",
+    "sha256": "1a82ffb29a9d94bebe621e6ca55f6066651a8917d63918d70ad6cd624db904ee",
+    "bytes": 3818585,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 380,
+    "frame_rate": "50/1",
+    "frames": 899,
+    "duration_s": 17.98
+  },
+  "public_derivatives": {
+    "gif": {
+      "path": "docs/media/g008/g008_policy_comparison.gif",
+      "sha256": "92693bb35f06d15c5e488e5c11eed4036f6485f1f9642431d67a1f3e63492237",
+      "bytes": 5941014,
+      "git_policy": "git_public",
+      "codec": "gif",
+      "width": 720,
+      "height": 214,
+      "frame_rate": "5/1",
+      "frames": 90,
+      "duration_s": 18.0
+    },
+    "contact_sheet": {
+      "path": "docs/media/g008/g008_policy_comparison_contact_sheet.png",
+      "sha256": "71db844c202cf1e617d99500c343f5c250efa598beedf09201331ebbb6ccc49d",
+      "bytes": 589277,
+      "git_policy": "git_public",
+      "codec": "png",
+      "width": 1280,
+      "height": 380,
+      "frame_rate": "25/1",
+      "frames": null,
+      "duration_s": null,
+      "frame_times_seconds": [
+        3.0,
+        7.5,
+        12.0,
+        16.5
+      ],
+      "layout_order": [
+        "forward",
+        "backward",
+        "left_turn",
+        "right_turn"
+      ]
+    }
+  },
+  "record_source_sha256": "0bada7257289f97de47a4fb67cd9c530dde9a5ad13c2b9891d5dd0dec556716a",
+  "builder_source_sha256": "21025b7b411c98b720a3edde1a385801b5355605262af957ae800c5afa5095de"
+}

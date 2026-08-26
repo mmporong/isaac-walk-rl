@@ -11,6 +11,7 @@ G008은 서로 다른 원인을 한 번에 섞지 않는다. 먼저 전진·후�
 - 처음부터 학습한 command run은 실행 자체는 통과했지만 300 iterations 뒤 평면에서 정지에 가까운 지역해로 수렴했다.
 - G006 `model_1499.pt`에서 300 iterations를 이어 학습한 `model_1798.pt`는 평면 네 방향 gate를 모두 통과했다. 64개 환경이 5초 동안 모두 생존했고, 네 방향 모두 목표와 같은 속도 부호를 냈다.
 - 같은 checkpoint를 rough terrain에서 평가하면 좌·우 회전은 통과하지만 전진과 후진의 순간 자세가 기준을 넘는다. 방향 명령 기능과 거친 지형 자세 강건성을 구분해 기록한 이유다.
+- command, friction S1, leg-mass S1 checkpoint를 평면·seed 42·같은 명령 시퀀스로 다시 재생해 동기화 비교 영상을 만들었다. friction 패널에는 실제 표본 `μ_s=0.8152`, `μ_d=0.5799`가 들어갔고, leg-mass 패널의 16개 다리 body scale은 `0.9575~1.0452`였다.
 
 friction S1은 장기 학습과 randomized-domain/nominal-domain 평면 평가를 통과했다. leg-mass S1은 학습 실행은 완료했지만 두 평면 평가에서 우회전 yaw gate를 잃었다. 두 축의 rough guardrail도 승인되지 않았다. S2·S3는 구현돼 있어도 이 상태에서는 열지 않는다.
 
@@ -50,7 +51,7 @@ friction S1은 장기 학습과 randomized-domain/nominal-domain 평면 평가�
 | 학습 표시 | `--headless` |
 | 학습 장치 | `cuda:0`, RTX 3060 12 GB |
 
-headless는 물리 시뮬레이션을 생략한다는 뜻이 아니다. PhysX 접촉 계산, 센서 갱신, 정책 추론과 PPO update는 그대로 수행하고 화면 창과 실시간 카메라 렌더링만 띄우지 않는다. 학습 증거는 checkpoint, TensorBoard, stdout, GPU 사용량으로 남긴다. 영상은 별도의 viewer 실행에서 만들며 정량 평가를 대신하지 않는다.
+headless는 물리 시뮬레이션을 생략한다는 뜻이 아니다. PhysX 접촉 계산, 센서 갱신, 정책 추론과 PPO update는 그대로 수행하고 화면 창과 실시간 카메라 렌더링만 띄우지 않는다. 학습 증거는 checkpoint, TensorBoard, stdout, GPU 사용량으로 남긴다. 영상은 카메라를 켠 별도 headless rendering 실행에서 만들며 정량 평가를 대신하지 않는다.
 
 ## PPO에서 실제로 한 번의 iteration이 뜻하는 것
 
@@ -422,6 +423,7 @@ py -m pytest .\tests\test_g008_contracts.py .\tests\test_g008_direction_evaluati
 - 네 방향 평가기: `scripts/evaluate_g008_directions.py`
 - runtime 물성 probe: `scripts/probe_g008_dynamics.py`
 - 네 방향 로컬 영상 recorder: `scripts/record_g008_directions.py`
+- 세 정책 격리 촬영기와 FFmpeg 합성기: `scripts/record_g008_policy_comparison.py`, `scripts/build_g008_comparison_media.py`
 - resume 검증기와 회귀 테스트: `scripts/revalidate_g008_resume_report.ps1`, `tests/test_g008_resume_revalidation.py`
 - 스모크 실행 보고서: `reports/runs/g008_*_smoke_e64_i1_s42.json`
 - G006 checkpoint 방향 평가: `reports/runs/g008_directional_qualification_g006_s42.json`
@@ -434,6 +436,8 @@ py -m pytest .\tests\test_g008_contracts.py .\tests\test_g008_direction_evaluati
 - leg-mass S1 학습: `reports/runs/g008_leg_mass_s1_finetune_command_s42_e1024_i300.json`
 - leg-mass S1 randomized·nominal 평가: `reports/runs/g008_directional_qualification_leg_mass_s1_s42_randomized_plane.json`, `reports/runs/g008_directional_qualification_leg_mass_s1_s42_nominal_plane.json`
 - 공개 GIF·접촉시트와 로컬 원본 영상 해시: `docs/G008_VISUAL_EVIDENCE.md`, `reports/runs/g008_direction_visual_evidence.json`
+- 세 정책 비교 촬영 보고서: `reports/runs/g008_policy_command_capture.json`, `reports/runs/g008_policy_friction_s1_capture.json`, `reports/runs/g008_policy_leg_mass_s1_capture.json`
+- 비교 MP4와 공개 파생물 해시: `reports/runs/g008_policy_comparison_visual_evidence.json`
 
 저장소의 JSON에는 `%USERPROFILE%` 치환 경로와 SHA-256을 기록한다. 원시 checkpoint와 TensorBoard는 저장소 밖 `$HOME\IsaacLab\logs`에 둔다.
 

@@ -1,27 +1,30 @@
-# G008 전진·후진·좌우 회전 시각 증거
+# G008 방향·마찰·링크 질량 시각 증거
 
 ## 공개 범위
 
-Git에는 GIF와 접촉시트만 넣는다. 원본 MP4는 로컬 Isaac Lab 로그 아래에 보관하고, 이 문서에는 경로와 SHA-256만 기록한다. 공개 파생물은 동작을 빠르게 확인하는 자료이며 64환경 고정 평가 JSON을 대신하지 않는다.
+Git에는 GIF와 접촉시트만 넣는다. 정책별 원본 세 개와 비교 MP4 한 개는 로컬 Isaac Lab 로그에 보관한다. 공개 파생물은 동작을 확인하는 자료이며 64환경 고정 평가 JSON을 대신하지 않는다.
 
-![전진·후진·좌회전·우회전 GIF](media/g008/g008_direction_commands.gif)
+![세 정책 동기화 비교 GIF](media/g008/g008_policy_comparison.gif)
 
-![네 방향 접촉시트](media/g008/g008_direction_contact_sheet.png)
+![세 정책 네 방향 접촉시트](media/g008/g008_policy_comparison_contact_sheet.png)
 
-접촉시트는 왼쪽 위부터 전진, 후진, 좌회전, 우회전 순서다. 원본 영상의 3.0초, 7.5초, 12.0초, 16.5초 프레임을 중앙 확대해 배치했다.
+비교 화면은 왼쪽부터 command 정책, friction S1 정책, leg-mass S1 정책이다. 세 화면에는 같은 시점에 같은 `[v_x, v_y, ω_z]` 명령이 들어간다. 접촉시트의 네 구역은 왼쪽 위부터 전진, 후진, 좌회전, 우회전 순서다.
 
-## 어떤 정책을 촬영했는가
+## 무엇을 비교했는가
 
-촬영에 사용한 정책은 G006 baseline `model_1499.pt`에서 command distribution으로 300 iterations를 이어 학습한 G008 `model_1798.pt`다.
+세 정책을 평면, seed 42, 50 Hz 제어 조건에서 각각 실행했다. 카메라와 명령 시퀀스는 같고, 각 정책이 학습한 물성 축만 남겼다. 마찰과 링크 질량을 한 환경에 동시에 넣지 않았다.
 
-- checkpoint: `%USERPROFILE%\IsaacLab\logs\rsl_rl\unitree_go2_rough\2026-08-26_11-11-12_g008_command_finetune_g006_s42_e1024_i300\model_1798.pt`
-- checkpoint SHA-256: `53cc09043088bcd53618d2ae1f90c7f2e91d01eab7090cc63922486942b2ed47`
-- task: `Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0`
-- seed: `42`
-- control step: `0.02 s`, 50 Hz
-- 촬영 환경: nominal friction `0.8/0.6`, base·leg mass randomization 비활성화
+| 패널 | checkpoint | 촬영 시 물성 |
+| --- | --- | --- |
+| Command baseline | `model_1798.pt`, SHA-256 `53cc09043088bcd53618d2ae1f90c7f2e91d01eab7090cc63922486942b2ed47` | `μ_s=0.8`, `μ_d=0.6`, 링크 질량 nominal |
+| Friction S1 | `model_2097.pt`, SHA-256 `40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0` | seed 42에서 뽑힌 발바닥 평균 `μ_s=0.8152`, `μ_d=0.5799`, 링크 질량 nominal |
+| Leg mass S1 | `model_2097.pt`, SHA-256 `8976cfff6eee6d1a998c7aa554b23d98b01d3d64da02b43ac3133a9186ae97fa` | 16개 다리 body의 질량 scale `0.9575~1.0452`, 평균 `1.0109`; 발바닥 `0.8/0.6` |
 
-영상은 다음 순서로 900 control step을 실행한다.
+friction S1의 표본값은 S1 전체 범위가 아니라 영상 속 환경 하나에 배정된 값이다. leg-mass S1도 같은 원칙으로 실제 runtime tensor에서 읽었다. 촬영 시 총 다리 질량은 command와 friction이 `8.0960 kg`, leg-mass가 `8.2033 kg`이었다.
+
+## 명령 시퀀스
+
+각 정책은 900 control step을 실행한다. 시뮬레이션 step은 900회였지만 Gymnasium recorder가 쓴 프레임은 정책당 899개다.
 
 | 구간 | steps | 시간 | 명령 `[v_x, v_y, ω_z]` |
 | --- | ---: | ---: | --- |
@@ -34,20 +37,79 @@ Git에는 GIF와 접촉시트만 넣는다. 원본 MP4는 로컬 Isaac Lab 로�
 | 정지 | 50 | `1.0 s` | `[0, 0, 0]` |
 | 우회전 | 175 | `3.5 s` | `[0, 0, -0.5]` |
 
+## headless 촬영 방식
+
+촬영 명령에는 `--headless`가 들어간다. 여기서 headless는 학습 때처럼 조작용 창을 띄우지 않는다는 뜻이다. 영상이 필요하므로 `enable_cameras=True`와 `isaaclab.python.headless.rendering.kit`을 사용하고, Windows에서는 D3D12로 off-screen frame을 렌더링한다.
+
+촬영 중 PPO를 다시 학습하지 않는다. RSL-RL `OnPolicyRunner`가 checkpoint를 읽고, `get_inference_policy()`와 `torch.inference_mode()`로 action만 계산한다. 세 정책은 Isaac Sim 프로세스를 따로 열어 녹화했다. 한 프로세스에서 환경을 닫고 다음 환경을 만들면 이전 viewport tracking callback이 남는 Isaac Lab 2.1.1 동작을 피하기 위한 분리다.
+
 ## 원본과 파생물 무결성
 
-원본은 H.264, 1280×720, 50 fps, 899 frames, 17.98초다. 시뮬레이션 step은 900회였지만 recorder가 저장한 프레임은 899개다. 이 차이를 숨기지 않고 ffprobe 결과로 남긴다.
+정책별 원본은 H.264, 1280×720, 50 fps, 899 frames, 17.98초다. 이 원본들을 중앙 확대하고 가로로 맞춰 1280×380 비교 MP4를 만들었다.
 
 | 파일 | 공개 여부 | 크기 | SHA-256 |
 | --- | --- | ---: | --- |
-| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_directions_s42.mp4` | 로컬 전용 | `1,822,108 bytes` | `c388648da898b48a6a00d2415c5a9d7e2342b605c8d07fd559b7400525a716ec` |
-| `docs/media/g008/g008_direction_commands.gif` | Git 공개 | `6,648,559 bytes` | `91d213654bf2912b8f04a3142391675d7708d6748b3b3ca30508133f1bf06810` |
-| `docs/media/g008/g008_direction_contact_sheet.png` | Git 공개 | `604,557 bytes` | `d80e5bb8bc77a2dd9cfa60b04f290c7ccd3e5d09a056361313e7e6a0172899f7` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_policy_command_s42.mp4` | 로컬 전용 | `3,043,204 bytes` | `0116df7b972fad9748f27c742da1f40be07900700c0f7bbfe9e229cf08e3804a` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_policy_friction_s1_s42.mp4` | 로컬 전용 | `3,012,797 bytes` | `c5985f6a1e4a60aa62375434d5478e8e3690345c7f03f9ec974f43b255598a74` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_policy_leg_mass_s1_s42.mp4` | 로컬 전용 | `3,114,651 bytes` | `f877a1373f88f9616f402f00af8a9b4700f8d4a7017012cb7a0ebe4e41cc2fd8` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_policy_comparison_s42.mp4` | 로컬 전용 | `3,818,585 bytes` | `1a82ffb29a9d94bebe621e6ca55f6066651a8917d63918d70ad6cd624db904ee` |
+| `docs/media/g008/g008_policy_comparison.gif` | Git 공개 | `5,941,014 bytes` | `92693bb35f06d15c5e488e5c11eed4036f6485f1f9642431d67a1f3e63492237` |
+| `docs/media/g008/g008_policy_comparison_contact_sheet.png` | Git 공개 | `589,277 bytes` | `71db844c202cf1e617d99500c343f5c250efa598beedf09201331ebbb6ccc49d` |
 
-GIF와 접촉시트는 FFmpeg `8.1-full_build-www.gyan.dev`로 만들었다. GIF는 중앙 720×540 영역을 잘라 420×315, 6 fps, 96색으로 줄였다. 원본 MP4는 변환 뒤에도 수정하지 않았다.
+합성과 파생물 생성에는 FFmpeg `8.1-full_build-www.gyan.dev`를 사용했다. 공개 GIF는 720×214, 5 fps, 64색, 90 frames다. 원본과 비교 MP4는 저장소에 넣지 않는다.
+
+## 재현 명령
+
+다음 세 명령은 각각 별도 Isaac Sim 프로세스로 실행한다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+
+& "$HOME\IsaacLab\_isaac_sim\python.bat" .\scripts\record_g008_policy_comparison.py `
+  --profile command `
+  --checkpoint "$HOME\IsaacLab\logs\rsl_rl\unitree_go2_rough\2026-08-26_11-11-12_g008_command_finetune_g006_s42_e1024_i300\model_1798.pt" `
+  --output-dir "$HOME\IsaacLab\logs\visual_evidence\g008" `
+  --report .\reports\runs\g008_policy_command_capture.json --seed 42 --headless
+
+& "$HOME\IsaacLab\_isaac_sim\python.bat" .\scripts\record_g008_policy_comparison.py `
+  --profile friction_s1 `
+  --checkpoint "$HOME\IsaacLab\logs\rsl_rl\unitree_go2_rough\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\model_2097.pt" `
+  --output-dir "$HOME\IsaacLab\logs\visual_evidence\g008" `
+  --report .\reports\runs\g008_policy_friction_s1_capture.json --seed 42 --headless
+
+& "$HOME\IsaacLab\_isaac_sim\python.bat" .\scripts\record_g008_policy_comparison.py `
+  --profile leg_mass_s1 `
+  --checkpoint "$HOME\IsaacLab\logs\rsl_rl\unitree_go2_rough\2026-08-26_12-06-51_g008_leg_mass_s1_finetune_command_s42_e1024_i300\model_2097.pt" `
+  --output-dir "$HOME\IsaacLab\logs\visual_evidence\g008" `
+  --report .\reports\runs\g008_policy_leg_mass_s1_capture.json --seed 42 --headless
+```
+
+세 원본이 준비되면 FFmpeg 빌더를 실행한다.
+
+```powershell
+py .\scripts\build_g008_comparison_media.py `
+  --capture-reports `
+    .\reports\runs\g008_policy_command_capture.json `
+    .\reports\runs\g008_policy_friction_s1_capture.json `
+    .\reports\runs\g008_policy_leg_mass_s1_capture.json `
+  --local-composite "$HOME\IsaacLab\logs\visual_evidence\g008\g008_policy_comparison_s42.mp4" `
+  --public-gif .\docs\media\g008\g008_policy_comparison.gif `
+  --public-contact-sheet .\docs\media\g008\g008_policy_comparison_contact_sheet.png `
+  --output-report .\reports\runs\g008_policy_comparison_visual_evidence.json
+```
 
 ## 정량 결과와의 관계
 
-같은 checkpoint의 평면 고정 평가에서는 방향당 16개, 총 64개 환경이 모두 생존했고 네 방향 gate를 통과했다. rough terrain에서는 좌우 회전은 통과했지만 전진과 후진의 순간 자세가 `0.35 rad` 기준을 넘었다. 따라서 이 영상은 네 command가 실제 policy action으로 이어지는 모습을 보여주지만, rough terrain 강건성이나 실물 Go2 성능을 입증하지 않는다.
+비교 영상은 한 환경의 추론 재생이다. command와 friction S1은 64환경 평면 평가에서 네 방향 gate를 통과했다. leg-mass S1은 전진·후진·좌회전을 통과했지만 우회전 yaw RMSE가 randomized `0.2956 rad/s`, nominal `0.2947 rad/s`로 기준 `0.25 rad/s`를 넘었다. 영상 한 번에서 차이가 작게 보이더라도 이 판정을 바꾸지 않는다.
 
-기계적 수치는 `reports/runs/g008_directional_qualification_finetune_g006_s42_plane.json`과 `reports/runs/g008_directional_qualification_finetune_g006_s42_rough.json`, 파일 메타데이터는 `reports/runs/g008_direction_visual_evidence.json`을 기준으로 한다.
+정량 판정은 `reports/runs/g008_directional_qualification_*.json`, 촬영 물성과 파일 해시는 `reports/runs/g008_policy_*_capture.json`과 `reports/runs/g008_policy_comparison_visual_evidence.json`을 기준으로 한다.
+
+## 방향 정책 단독 자료
+
+첫 촬영 자료도 그대로 보존한다. 이 영상은 command 정책 하나만 rough task에서 실행한 기록이다.
+
+![전진·후진·좌회전·우회전 단독 GIF](media/g008/g008_direction_commands.gif)
+
+![네 방향 단독 접촉시트](media/g008/g008_direction_contact_sheet.png)
+
+단독 원본은 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_directions_s42.mp4`에 있다. H.264, 1280×720, 50 fps, 899 frames, 17.98초이며 SHA-256은 `c388648da898b48a6a00d2415c5a9d7e2342b605c8d07fd559b7400525a716ec`이다. 기존 공개 GIF와 접촉시트의 메타데이터는 `reports/runs/g008_direction_visual_evidence.json`에 남겼다.

@@ -103,6 +103,7 @@
 - command checkpoint에서 갈라진 leg-mass S1도 `1,024 env × 300 iterations × seed 42`로 완료했다. `model_2097.pt`, SHA-256 `8976cfff6eee6d1a998c7aa554b23d98b01d3d64da02b43ac3133a9186ae97fa`, wall time `1,373.046 s`, 평균 `5,668.77 steps/s`, final mean reward `35.25`, peak VRAM `5,908 MiB`였다.
 - leg-mass S1은 randomized·nominal 평면에서 전진·후진·좌회전은 통과했지만 우회전 yaw RMSE가 `0.2956/0.2947 rad/s`로 기준 0.25를 넘었다. 평균 yaw rate는 `-0.2348/-0.2353 rad/s`로 command checkpoint의 `-0.4533 rad/s`보다 느렸다. nominal guardrail이 실패해 leg-mass S2를 열지 않는다.
 - leg-mass 학습의 terrain level mean도 약 3.43에서 2.29로 내려갔다. friction과 mass S1 모두 rough 난이도가 후퇴했으므로 평면 gate만으로 rough 개선을 주장하지 않는다.
+- command, friction S1, leg-mass S1 정책을 평면·seed 42·같은 900-step 명령으로 별도 Isaac Sim 프로세스에서 촬영했다. friction 단일 환경의 발바닥 평균은 static/dynamic `0.8152/0.5799`, leg-mass의 16개 body scale은 `0.9575~1.0452`였다. 정책별 H.264 원본과 1280×380 비교 MP4는 로컬에만 두고, 720×214 GIF와 네 방향 접촉시트만 Git에 넣는다. 해시와 ffprobe 결과는 `reports/runs/g008_policy_*_capture.json`, `reports/runs/g008_policy_comparison_visual_evidence.json`에 기록했다.
 - 상세 역학, PPO batch/epoch, 문헌 채택 범위와 sim-to-real 한계는 `docs/G008_COMMAND_FRICTION_LINK_MASS.md`에 기록했다.
 
 ### G007 RBQ 외부 자산 호환성 사전조사

@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "purpose": "one isolated process capture for the matched three-policy comparison",
+  "seed": 42,
+  "headless": true,
+  "terrain_mode": "plane",
+  "step_dt_s": 0.02,
+  "total_steps_per_profile": 900,
+  "sequence": [
+    {
+      "name": "stand",
+      "steps": 50,
+      "command": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "forward",
+      "steps": 175,
+      "command": [
+        0.6,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "stand",
+      "steps": 50,
+      "command": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "backward",
+      "steps": 175,
+      "command": [
+        -0.4,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "stand",
+      "steps": 50,
+      "command": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "left_turn",
+      "steps": 175,
+      "command": [
+        0.0,
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "name": "stand",
+      "steps": 50,
+      "command": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "right_turn",
+      "steps": 175,
+      "command": [
+        0.0,
+        0.0,
+        -0.5
+      ]
+    }
+  ],
+  "profile": {
+    "profile_id": "friction_s1",
+    "label": "Friction S1",
+    "task": "Isaac-G008-Velocity-Rough-Go2-Friction-S1-v0",
+    "domain_mode": "randomized",
+    "checkpoint": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\\model_2097.pt",
+      "sha256": "40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0"
+    },
+    "runtime_domain": {
+      "leg_body_names": [
+        "FL_hip",
+        "FR_hip",
+        "RL_hip",
+        "RR_hip",
+        "FL_thigh",
+        "FR_thigh",
+        "RL_thigh",
+        "RR_thigh",
+        "FL_calf",
+        "FR_calf",
+        "RL_calf",
+        "RR_calf",
+        "FL_foot",
+        "FR_foot",
+        "RL_foot",
+        "RR_foot"
+      ],
+      "foot_body_names": [
+        "FL_foot",
+        "FR_foot",
+        "RL_foot",
+        "RR_foot"
+      ],
+      "leg_mass_scale": {
+        "count": 16,
+        "min": 1.0,
+        "mean": 1.0,
+        "max": 1.0
+      },
+      "sampled_total_leg_mass_kg": {
+        "count": 1,
+        "min": 8.095998764038086,
+        "mean": 8.095998764038086,
+        "max": 8.095998764038086
+      },
+      "foot_static_friction": {
+        "count": 4,
+        "min": 0.7453535199165344,
+        "mean": 0.8151900172233582,
+        "max": 0.85438472032547
+      },
+      "foot_dynamic_friction": {
+        "count": 4,
+        "min": 0.5321282744407654,
+        "mean": 0.5799418687820435,
+        "max": 0.6646370887756348
+      },
+      "foot_restitution": {
+        "count": 4,
+        "min": 0.0,
+        "mean": 0.0,
+        "max": 0.0
+      }
+    },
+    "local_video": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_policy_friction_s1_s42.mp4",
+      "sha256": "c5985f6a1e4a60aa62375434d5478e8e3690345c7f03f9ec974f43b255598a74",
+      "bytes": 3012797,
+      "git_policy": "local_only"
+    }
+  },
+  "record_source_sha256": "0bada7257289f97de47a4fb67cd9c530dde9a5ad13c2b9891d5dd0dec556716a"
+}
