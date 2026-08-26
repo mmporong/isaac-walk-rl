@@ -101,7 +101,7 @@ cd "$HOME\isaac-walk-rl"
 
 G006은 4096 env × 1500 iterations × seeds 42/43/44로 baseline과 push curriculum을 비교했습니다. pooled 회복률은 `99.5370%` 대 `99.5988%`로 push curriculum이 `+0.0617%p`였지만, paired bootstrap 95% CI가 `-0.7716%p ~ +0.9568%p`이므로 유의한 개선을 주장하지 않습니다. 두 variant의 guardrail 생존률은 모두 `100%`였습니다.
 
-해석·seed별 결과·추적 및 에너지 proxy는 [`docs/G006_ROUGH_PUSH_RECOVERY.md`](docs/G006_ROUGH_PUSH_RECOVERY.md), 정량 summary는 [`reports/runs/g006_summary.json`](reports/runs/g006_summary.json), job별 checkpoint·평가 보고서 해시는 [`reports/runs/g006_queue_state.json`](reports/runs/g006_queue_state.json)에 있습니다. 이 durable JSON의 경로와 평가 command는 저장소 상대경로 또는 `%USERPROFILE%`, `%REPO_ROOT%`, `%ISAACLAB_ROOT%` 표현으로만 기록하며, 실제 evaluator 실행 시점에만 허용된 root 안의 절대경로로 resolve합니다.
+학습 도구, headless 실행 구조, 관측·보상, PPO batch·epoch, 네트워크, 실행 시간과 평가 설계는 포트폴리오 형식의 [`docs/G006_PORTFOLIO.md`](docs/G006_PORTFOLIO.md)에 정리했습니다. 해석·seed별 결과·추적 및 에너지 proxy는 [`docs/G006_ROUGH_PUSH_RECOVERY.md`](docs/G006_ROUGH_PUSH_RECOVERY.md), 정량 summary는 [`reports/runs/g006_summary.json`](reports/runs/g006_summary.json), job별 checkpoint·평가 보고서 해시는 [`reports/runs/g006_queue_state.json`](reports/runs/g006_queue_state.json)에 있습니다. 이 durable JSON의 경로와 평가 command는 저장소 상대경로 또는 `%USERPROFILE%`, `%REPO_ROOT%`, `%ISAACLAB_ROOT%` 표현으로만 기록하며, 실제 evaluator 실행 시점에만 허용된 root 안의 절대경로로 resolve합니다.
 
 seed 42의 실제 정책 재생 비교 GIF와 스크린샷, 로컬 전용 원본 영상의 무결성 정보는 [`docs/G006_VISUAL_EVIDENCE.md`](docs/G006_VISUAL_EVIDENCE.md)에 있습니다. 시각 자료는 정성 작동 증거이며 정량 평가를 대체하지 않습니다.
 
