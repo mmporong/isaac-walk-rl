@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "stage": "road_reward_curriculum",
+  "purpose": "visual comparison of the G0 inherited policy and the turn-aware reward checkpoint",
+  "capture_reports": [
+    {
+      "path": "reports/runs/g008_road_g0_inherited_capture.json",
+      "sha256": "b103750683dc6cb19aa25f2d89d22ca211a8b6f066d1da6fbcff353bf2be3ef5"
+    },
+    {
+      "path": "reports/runs/g008_road_g0_turn_air_i2100_capture.json",
+      "sha256": "b297bcfc714e2cfca1eeb275c203a447ddeb1ce95d6fc6ecbbb91f8c55df12e5"
+    }
+  ],
+  "profile_order": [
+    "road_g0_inherited",
+    "road_g0_turn_air_i2100"
+  ],
+  "composition": {
+    "seed": 20260826,
+    "matched_command_sequence": true,
+    "synchronized_panels": true,
+    "interpretation": "visual playback only; linked multi-environment reports decide PASS/FAIL"
+  },
+  "tool": "ffmpeg version 8.1-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "local_composite": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_road_g0_vs_turn_air_s20260826.mp4",
+    "sha256": "eb39ced93f00a2fb741879bce1224ae95831c20f8566a23d5b278f4cd4daf1c0",
+    "bytes": 1896641,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 780,
+    "frame_rate": "50/1",
+    "frames": 899,
+    "duration_s": 17.98
+  },
+  "public_derivatives": {
+    "gif": {
+      "path": "docs/media/g008/g008_road_g0_vs_turn_air.gif",
+      "sha256": "6e1160614195cf4665abfaa6878b98fba27bc2c75c9f3cdd90cf1d8b8b142f3e",
+      "bytes": 3141682,
+      "git_policy": "git_public",
+      "codec": "gif",
+      "width": 720,
+      "height": 438,
+      "frame_rate": "4/1",
+      "frames": 72,
+      "duration_s": 18.0
+    },
+    "contact_sheet": {
+      "path": "docs/media/g008/g008_road_g0_vs_turn_air_contact_sheet.png",
+      "sha256": "55a9dbe9b4ec61dc2ed1957f8100ab094597f03eb0e18211788371ea09f8b720",
+      "bytes": 247734,
+      "git_policy": "git_public",
+      "codec": "png",
+      "width": 1280,
+      "height": 780,
+      "frame_rate": "25/1",
+      "frames": null,
+      "duration_s": null,
+      "frame_times_seconds": [
+        3.0,
+        7.5,
+        12.0,
+        16.5
+      ],
+      "layout_order": [
+        "forward",
+        "backward",
+        "left_turn",
+        "right_turn"
+      ]
+    }
+  },
+  "record_source_sha256": "3f95666d1dda9f91c1e71c7ae129f3002c542eb33d037fe9292f5e00ce9f1d1f",
+  "builder_source_sha256": "5edf30124082565ad71455ff2ef6a3d51829725a2158fced01485e87c61b5a20"
+}

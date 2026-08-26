@@ -84,6 +84,41 @@ Go2 rough runner 설정은 환경당 24 control step을 모은 뒤 PPO를 한 �
 
 정책 observation은 235차원이다. base 선속도 3, base 각속도 3, projected gravity 3, 명령 3, 관절 위치 12, 관절 속도 12, 직전 action 12, height scan 187을 사용한다. actor와 critic은 각각 `512 → 256 → 128` ELU MLP이며 actor 출력은 12개 관절 action이다. 관절 위치 목표 scale은 `0.25`, Go2 actuator의 stiffness는 `25.0`, damping은 `0.5`다.
 
+## 실제로 사용한 보상함수
+
+보상은 문서에 적은 의도만으로 정하지 않았다. Isaac Lab 런타임에서 각 태스크의 최종 설정을 다시 읽고, 함수 원본과 가중치, 매개변수, PPO 설정의 SHA-256까지 `reports/runs/g008_reward_contract_s20260826.json`에 고정했다. command, 불규칙 도로 G0, 혼합 마찰 도로 S1은 아래 보상 계약이 서로 같다.
+
+control step (t)에서 RewardManager가 더하는 값은 다음과 같다.
+
+\[
+r_t = \Delta t \sum_i w_i\,\rho_i(t), \qquad \Delta t = 0.02\;\mathrm{s}
+\]
+
+가중치에 `0.02s`가 곱해지므로, 아래 표의 숫자는 step마다 그대로 더하는 상수가 아니다. 물리는 `0.005s`마다 계산하고 action은 네 번의 물리 step마다 갱신한다.
+
+| 이름 | 가중치 (w_i) | 원시 항 (\rho_i) | 역할 |
+| --- | ---: | --- | --- |
+| `track_lin_vel_xy_exp` | `+1.5` | `exp(-||v_cmd,xy-v_base,xy||² / 0.5²)` | 전·후·측방 선속도 추종 |
+| `track_ang_vel_z_exp` | `+0.75` | `exp(-(ω_cmd,z-ω_base,z)² / 0.5²)` | 좌·우 yaw-rate 추종 |
+| `lin_vel_z_l2` | `-2.0` | `v_base,z²` | 불필요한 수직 속도 억제 |
+| `ang_vel_xy_l2` | `-0.05` | `ω_base,x² + ω_base,y²` | roll·pitch 각속도 억제 |
+| `dof_torques_l2` | `-0.0002` | `Στ_j²` | 큰 관절 토크 억제 |
+| `dof_acc_l2` | `-2.5e-7` | `Σq̈_j²` | 급한 관절 가속 억제 |
+| `action_rate_l2` | `-0.01` | `Σ(a_t,j-a_t-1,j)²` | action 진동 억제 |
+| `feet_air_time` | `+0.01` | `Σ((last_air_time-0.5s)·first_contact)·I(||v_cmd,xy||>0.1m/s)` | 움직일 때 발을 들어 다음 접촉까지 유지 |
+| `flat_orientation_l2` | `0.0` | projected gravity의 body x/y 성분 제곱합 | 설정에는 있지만 비활성 |
+| `dof_pos_limits` | `0.0` | soft joint limit 밖 거리의 합 | 설정에는 있지만 비활성 |
+
+`undesired_contacts`도 Go2 설정에서 `None`이라 계산하지 않는다. 종료 조건은 20초 timeout과 base 접촉 force `>1N`이다. base 접촉은 episode를 끝내지만 별도의 scalar termination penalty는 없다. 따라서 현재 목적함수는 평가에서 사용하는 `|roll|`, `|pitch|`, 접촉 중 발 미끄럼을 직접 벌점으로 주지 않는다. `ang_vel_xy_l2`가 자세 변화 속도를 간접 억제할 뿐, 기울어진 채 정지한 자세 자체를 직접 벌점으로 계산하지는 않는다.
+
+여기서 회전과 맞지 않는 지점이 하나 확인됐다. 제자리 좌·우회전 명령은 `[0, 0, ±0.5]`라서 `||v_cmd,xy||=0`이다. 기존 `feet_air_time`은 yaw 명령을 보지 않으므로 이 두 명령에서 항상 꺼진다. 반면 제자리 회전도 네 발이 몸체 중심 둘레에서 접선 속도를 만들어야 한다. G0 후속 실험은 다른 가중치와 지형, PPO 설정을 그대로 두고 활성 조건만 다음처럼 바꾼다.
+
+\[
+I\left(\lVert v_{cmd,xy}\rVert>0.1\;\mathrm{m/s}\;\lor\;|\omega_{cmd,z}|>0.1\;\mathrm{rad/s}\right)
+\]
+
+이 변형은 `feet_air_time` 가중치를 키운 실험이 아니다. 순수 회전에서 기존 항이 0이던 문제만 고친 단일 축 ablation이다. `tests/test_g008_config_diff.py`는 태스크 설정 차이가 이 함수와 yaw threshold뿐인지 확인하고, 순수 yaw 명령에서는 보상이 켜지며 정지 명령에서는 0인지 수치로 검사한다.
+
 ## Part 2: 방향 명령 설계
 
 ### 좌표계와 부호

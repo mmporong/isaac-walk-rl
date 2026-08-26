@@ -1,0 +1,297 @@
+{
+  "schema_version": 2,
+  "goal": "G008",
+  "status": "complete",
+  "purpose": "runtime-resolved reward, termination, and PPO contract",
+  "tasks": [
+    "Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0",
+    "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+    "Isaac-G008-Velocity-IrregularRoad-Go2-S1-v0"
+  ],
+  "all_task_contracts_identical": true,
+  "versions": {
+    "isaac_lab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+    "isaaclab_package": "0.41.3",
+    "rsl_rl": "2.3.3"
+  },
+  "contract": {
+    "physics_dt_s": 0.005,
+    "decimation": 4,
+    "step_dt_s": 0.02,
+    "episode_length_s": 20.0,
+    "episode_length_control_steps": 1000,
+    "reward_aggregation": "sum_i(step_dt * weight_i * raw_term_i)",
+    "reward_terms": [
+      {
+        "name": "track_lin_vel_xy_exp",
+        "active": true,
+        "weight": 1.5,
+        "function": "isaaclab.envs.mdp.rewards.track_lin_vel_xy_exp",
+        "params": {
+          "command_name": "base_velocity",
+          "std": 0.5
+        },
+        "raw_formula": "exp(-||v_cmd_xy - v_base_xy||^2 / std^2), std=0.5 m/s",
+        "weighted_step_formula": "step_dt * (1.5) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\envs\\mdp\\rewards.py",
+          "sha256": "2327cc1f82993ea4a58c4667127c8b4e3930b53e928bdd2204ba75ba53559000"
+        }
+      },
+      {
+        "name": "track_ang_vel_z_exp",
+        "active": true,
+        "weight": 0.75,
+        "function": "isaaclab.envs.mdp.rewards.track_ang_vel_z_exp",
+        "params": {
+          "command_name": "base_velocity",
+          "std": 0.5
+        },
+        "raw_formula": "exp(-(w_cmd_z - w_base_z)^2 / std^2), std=0.5 rad/s",
+        "weighted_step_formula": "step_dt * (0.75) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\envs\\mdp\\rewards.py",
+          "sha256": "2327cc1f82993ea4a58c4667127c8b4e3930b53e928bdd2204ba75ba53559000"
+        }
+      },
+      {
+        "name": "lin_vel_z_l2",
+        "active": true,
+        "weight": -2.0,
+        "function": "isaaclab.envs.mdp.rewards.lin_vel_z_l2",
+        "params": {},
+        "raw_formula": "v_base_z^2",
+        "weighted_step_formula": "step_dt * (-2.0) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\envs\\mdp\\rewards.py",
+          "sha256": "2327cc1f82993ea4a58c4667127c8b4e3930b53e928bdd2204ba75ba53559000"
+        }
+      },
+      {
+        "name": "ang_vel_xy_l2",
+        "active": true,
+        "weight": -0.05,
+        "function": "isaaclab.envs.mdp.rewards.ang_vel_xy_l2",
+        "params": {},
+        "raw_formula": "w_base_x^2 + w_base_y^2",
+        "weighted_step_formula": "step_dt * (-0.05) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\envs\\mdp\\rewards.py",
+          "sha256": "2327cc1f82993ea4a58c4667127c8b4e3930b53e928bdd2204ba75ba53559000"
+        }
+      },
+      {
+        "name": "dof_torques_l2",
+        "active": true,
+        "weight": -0.0002,
+        "function": "isaaclab.envs.mdp.rewards.joint_torques_l2",
+        "params": {},
+        "raw_formula": "sum_j(tau_j^2)",
+        "weighted_step_formula": "step_dt * (-0.0002) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\envs\\mdp\\rewards.py",
+          "sha256": "2327cc1f82993ea4a58c4667127c8b4e3930b53e928bdd2204ba75ba53559000"
+        }
+      },
+      {
+        "name": "dof_acc_l2",
+        "active": true,
+        "weight": -2.5e-07,
+        "function": "isaaclab.envs.mdp.rewards.joint_acc_l2",
+        "params": {},
+        "raw_formula": "sum_j(qddot_j^2)",
+        "weighted_step_formula": "step_dt * (-2.5e-07) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\envs\\mdp\\rewards.py",
+          "sha256": "2327cc1f82993ea4a58c4667127c8b4e3930b53e928bdd2204ba75ba53559000"
+        }
+      },
+      {
+        "name": "action_rate_l2",
+        "active": true,
+        "weight": -0.01,
+        "function": "isaaclab.envs.mdp.rewards.action_rate_l2",
+        "params": {},
+        "raw_formula": "sum_j((a_t_j - a_(t-1)_j)^2)",
+        "weighted_step_formula": "step_dt * (-0.01) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\envs\\mdp\\rewards.py",
+          "sha256": "2327cc1f82993ea4a58c4667127c8b4e3930b53e928bdd2204ba75ba53559000"
+        }
+      },
+      {
+        "name": "feet_air_time",
+        "active": true,
+        "weight": 0.01,
+        "function": "isaaclab_tasks.manager_based.locomotion.velocity.mdp.rewards.feet_air_time",
+        "params": {
+          "sensor_cfg": {
+            "name": "contact_forces",
+            "joint_names": null,
+            "body_names": ".*_foot",
+            "preserve_order": false
+          },
+          "command_name": "base_velocity",
+          "threshold": 0.5
+        },
+        "raw_formula": "sum_feet((last_air_time - 0.5 s) * first_contact) * I(||v_cmd_xy|| > 0.1 m/s)",
+        "weighted_step_formula": "step_dt * (0.01) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab_tasks\\isaaclab_tasks\\manager_based\\locomotion\\velocity\\mdp\\rewards.py",
+          "sha256": "559ce10326582afa4a73f797978dbd0a7dba012b43361a1db80bc527555f5643"
+        }
+      },
+      {
+        "name": "flat_orientation_l2",
+        "active": false,
+        "weight": 0.0,
+        "function": "isaaclab.envs.mdp.rewards.flat_orientation_l2",
+        "params": {},
+        "raw_formula": "projected_gravity_body_x^2 + projected_gravity_body_y^2",
+        "weighted_step_formula": "step_dt * (0.0) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\envs\\mdp\\rewards.py",
+          "sha256": "2327cc1f82993ea4a58c4667127c8b4e3930b53e928bdd2204ba75ba53559000"
+        }
+      },
+      {
+        "name": "dof_pos_limits",
+        "active": false,
+        "weight": 0.0,
+        "function": "isaaclab.envs.mdp.rewards.joint_pos_limits",
+        "params": {},
+        "raw_formula": "sum_j(distance outside soft joint position limits)",
+        "weighted_step_formula": "step_dt * (0.0) * raw_term",
+        "function_source": {
+          "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\envs\\mdp\\rewards.py",
+          "sha256": "2327cc1f82993ea4a58c4667127c8b4e3930b53e928bdd2204ba75ba53559000"
+        }
+      }
+    ],
+    "disabled_reward_terms": [
+      "flat_orientation_l2",
+      "dof_pos_limits",
+      "undesired_contacts"
+    ],
+    "terminations": [
+      {
+        "name": "time_out",
+        "function": "isaaclab.envs.mdp.terminations.time_out",
+        "time_out": true,
+        "params": {}
+      },
+      {
+        "name": "base_contact",
+        "function": "isaaclab.envs.mdp.terminations.illegal_contact",
+        "time_out": false,
+        "params": {
+          "sensor_cfg": {
+            "name": "contact_forces",
+            "joint_names": null,
+            "body_names": "base",
+            "preserve_order": false
+          },
+          "threshold": 1.0
+        }
+      }
+    ],
+    "ppo": {
+      "num_steps_per_env": 24,
+      "actor_hidden_dims": [
+        512,
+        256,
+        128
+      ],
+      "critic_hidden_dims": [
+        512,
+        256,
+        128
+      ],
+      "activation": "elu",
+      "init_noise_std": 1.0,
+      "value_loss_coef": 1.0,
+      "use_clipped_value_loss": true,
+      "clip_param": 0.2,
+      "entropy_coef": 0.01,
+      "num_learning_epochs": 5,
+      "num_mini_batches": 4,
+      "initial_learning_rate": 0.001,
+      "schedule": "adaptive",
+      "gamma": 0.99,
+      "lam": 0.95,
+      "desired_kl": 0.01,
+      "max_grad_norm": 1.0,
+      "empirical_normalization": false
+    },
+    "turn_specific_readback": {
+      "pure_yaw_command": [
+        0.0,
+        0.0,
+        0.5
+      ],
+      "feet_air_time_active_for_pure_yaw": false,
+      "reason": "Isaac Lab baseline gates on ||v_cmd_xy|| > 0.1 m/s and ignores yaw command magnitude",
+      "explicit_roll_pitch_angle_penalty_active": false,
+      "explicit_contact_conditioned_foot_slip_penalty_active": false
+    }
+  },
+  "reward_variants": [
+    {
+      "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+      "changed_term": {
+        "name": "feet_air_time",
+        "active": true,
+        "weight": 0.01,
+        "function": "isaac_walk_g008.rewards.feet_air_time_turn_aware",
+        "params": {
+          "sensor_cfg": {
+            "name": "contact_forces",
+            "joint_names": null,
+            "body_names": ".*_foot",
+            "preserve_order": false
+          },
+          "command_name": "base_velocity",
+          "threshold": 0.5,
+          "yaw_command_threshold": 0.1
+        },
+        "raw_formula": "sum_feet((last_air_time - 0.5 s) * first_contact) * I(||v_cmd_xy|| > 0.1 m/s OR |w_cmd_z| > 0.1 rad/s)",
+        "weighted_step_formula": "step_dt * (0.01) * raw_term",
+        "function_source": {
+          "path": "%REPO_ROOT%\\src\\isaac_walk_g008\\rewards.py",
+          "sha256": "f5e76b1c8d9984ea96bbd583744a4b36534a7e033426c76d6ecd9182cbd62d23"
+        }
+      },
+      "turn_specific_readback": {
+        "pure_yaw_command": [
+          0.0,
+          0.0,
+          0.5
+        ],
+        "feet_air_time_active_for_pure_yaw": true,
+        "reason": "project variant gates on ||v_cmd_xy|| > 0.1 m/s OR |w_cmd_z| > 0.1 rad/s",
+        "explicit_roll_pitch_angle_penalty_active": false,
+        "explicit_contact_conditioned_foot_slip_penalty_active": false
+      },
+      "all_non_reward_contract_fields_identical": true
+    }
+  ],
+  "source_files": {
+    "reward_manager": {
+      "path": "%ISAACLAB_ROOT%\\source\\isaaclab\\isaaclab\\managers\\reward_manager.py",
+      "sha256": "f16d868c1afcbd1e4f04f63464b182fd92f96e18bc82505876df09a1ad696b05"
+    },
+    "report_script": {
+      "path": "%REPO_ROOT%\\scripts\\report_g008_reward_contract.py",
+      "sha256": "da7fef21616a72416955a05dbc3d920a5cecd1712e34fc3860a361c132f4f895"
+    },
+    "project_reward_variant": {
+      "path": "%REPO_ROOT%\\src\\isaac_walk_g008\\rewards.py",
+      "sha256": "f5e76b1c8d9984ea96bbd583744a4b36534a7e033426c76d6ecd9182cbd62d23"
+    }
+  },
+  "interpretation_limits": [
+    "This report fixes the objective actually configured for the listed tasks; it does not claim that the reward is optimal.",
+    "A zero-weight configured term is reported as disabled because RewardManager skips its computation.",
+    "Base contact ends an episode but has no separate scalar termination penalty in this task."
+  ]
+}

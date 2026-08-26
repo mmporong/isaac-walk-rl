@@ -4,6 +4,9 @@ param(
     [ValidateSet('command', 'friction', 'irregular_road', 'leg_mass')]
     [string]$Part,
 
+    [ValidateSet('baseline', 'turn_air_time')]
+    [string]$RewardVariant = 'baseline',
+
     [ValidateRange(0, 3)]
     [int]$Stage = 0,
 
@@ -35,10 +38,20 @@ if ($Part -eq 'command') {
     $task = 'Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0'
 }
 elseif ($Part -eq 'irregular_road') {
-    if ($Stage -ne 1) {
-        throw 'irregular_road 파트는 Stage 1만 사용합니다.'
+    if ($Stage -eq 0) {
+        if ($RewardVariant -eq 'turn_air_time') {
+            $task = 'Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0'
+        }
+        else {
+            $task = 'Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0'
+        }
     }
-    $task = 'Isaac-G008-Velocity-IrregularRoad-Go2-S1-v0'
+    elseif ($Stage -eq 1) {
+        $task = 'Isaac-G008-Velocity-IrregularRoad-Go2-S1-v0'
+    }
+    else {
+        throw 'irregular_road 파트는 Stage 0~1을 사용합니다.'
+    }
 }
 else {
     if ($Stage -lt 1) {
@@ -46,6 +59,10 @@ else {
     }
     $suffix = if ($Part -eq 'friction') { 'Friction' } else { 'LegMass' }
     $task = "Isaac-G008-Velocity-Rough-Go2-$suffix-S$Stage-v0"
+}
+
+if ($RewardVariant -ne 'baseline' -and -not ($Part -eq 'irregular_road' -and $Stage -eq 0)) {
+    throw 'RewardVariant는 irregular_road Stage 0에서만 사용합니다.'
 }
 
 $trainingEntrypoint = Join-Path $PSScriptRoot 'bootstrap_train_g008.py'

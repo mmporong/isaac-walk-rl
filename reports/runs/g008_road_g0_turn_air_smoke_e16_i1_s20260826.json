@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "run_name": "g008_road_g0_turn_air_smoke_e16_i1_s20260826",
+  "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+  "num_envs": 16,
+  "max_iterations": 1,
+  "seed": 20260826,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g008.py",
+    "--task",
+    "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+    "--num_envs",
+    16,
+    "--max_iterations",
+    1,
+    "--seed",
+    20260826,
+    "--run_name",
+    "g008_road_g0_turn_air_smoke_e16_i1_s20260826",
+    "--headless"
+  ],
+  "resume": {
+    "enabled": false,
+    "load_run": null,
+    "checkpoint": null
+  },
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g008.py",
+    "sha256": "8dd9913fd64df25c01d81e9234cca5109d7b5ab8e960e25b3ea775b1f7a11cd5",
+    "repository_internal": true
+  },
+  "started_at": "2026-08-26T23:25:41.1138308+09:00",
+  "ended_at": "2026-08-26T23:26:12.1214525+09:00",
+  "wall_time_seconds": 31.006,
+  "exit_code": 0,
+  "last_iteration": 0,
+  "iteration_target": 1,
+  "gpu": {
+    "baseline_used_mib": 1527,
+    "peak_used_mib": 5135.0,
+    "delta_used_mib": 3608.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.102,
+        "used_mib": 1529
+      },
+      {
+        "elapsed_seconds": 2.169,
+        "used_mib": 1529
+      },
+      {
+        "elapsed_seconds": 4.226,
+        "used_mib": 1529
+      },
+      {
+        "elapsed_seconds": 6.287,
+        "used_mib": 1622
+      },
+      {
+        "elapsed_seconds": 8.353,
+        "used_mib": 1622
+      },
+      {
+        "elapsed_seconds": 10.42,
+        "used_mib": 1654
+      },
+      {
+        "elapsed_seconds": 12.489,
+        "used_mib": 1655
+      },
+      {
+        "elapsed_seconds": 14.552,
+        "used_mib": 1662
+      },
+      {
+        "elapsed_seconds": 16.614,
+        "used_mib": 1654
+      },
+      {
+        "elapsed_seconds": 18.676,
+        "used_mib": 1711
+      },
+      {
+        "elapsed_seconds": 20.739,
+        "used_mib": 1711
+      },
+      {
+        "elapsed_seconds": 22.8,
+        "used_mib": 1751
+      },
+      {
+        "elapsed_seconds": 24.865,
+        "used_mib": 2657
+      },
+      {
+        "elapsed_seconds": 26.927,
+        "used_mib": 5119
+      },
+      {
+        "elapsed_seconds": 28.988,
+        "used_mib": 5135
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.054,
+        "used_mib": 1553
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      174
+    ],
+    "mean_steps_per_second": 174.0,
+    "median_steps_per_second": 174,
+    "final_mean_reward": -0.35,
+    "final_mean_episode_length": 22.0
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g008_road_g0_turn_air_smoke_e16_i1_s20260826.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g008_road_g0_turn_air_smoke_e16_i1_s20260826.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-26-02_g008_road_g0_turn_air_smoke_e16_i1_s20260826",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-26-02_g008_road_g0_turn_air_smoke_e16_i1_s20260826\\model_0.pt",
+    "checkpoint_sha256": "77c06fa46f0a2dae652082f9d4e1ae3051329848b65df5931a76b8fd1956206e"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/track_lin_vel_xy_exp",
+      "Episode_Reward/track_ang_vel_z_exp",
+      "Episode_Reward/lin_vel_z_l2",
+      "Episode_Reward/ang_vel_xy_l2",
+      "Episode_Reward/dof_torques_l2",
+      "Episode_Reward/dof_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/feet_air_time",
+      "Episode_Reward/flat_orientation_l2",
+      "Episode_Reward/dof_pos_limits",
+      "Metrics/base_velocity/error_vel_xy",
+      "Metrics/base_velocity/error_vel_yaw",
+      "Episode_Termination/time_out",
+      "Episode_Termination/base_contact",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/track_lin_vel_xy_exp": 0.003201110986992717,
+      "Episode_Reward/track_ang_vel_z_exp": 0.0011473249178379774,
+      "Episode_Reward/lin_vel_z_l2": -0.00237589655444026,
+      "Episode_Reward/ang_vel_xy_l2": -0.0015537909930571914,
+      "Episode_Reward/dof_torques_l2": -0.0004109948349650949,
+      "Episode_Reward/dof_acc_l2": -0.0014672651886940002,
+      "Episode_Reward/action_rate_l2": -0.0007050027488730848,
+      "Episode_Reward/feet_air_time": -5.462499757413752E-06,
+      "Episode_Reward/flat_orientation_l2": 0.0,
+      "Episode_Reward/dof_pos_limits": 0.0,
+      "Metrics/base_velocity/error_vel_xy": 0.0020884282421320677,
+      "Metrics/base_velocity/error_vel_yaw": 0.0035230698995292187,
+      "Episode_Termination/time_out": 0.125,
+      "Episode_Termination/base_contact": 0.0,
+      "Loss/value_function": 0.10128045082092285,
+      "Loss/surrogate": 0.06298627704381943,
+      "Loss/entropy": 17.037635803222656,
+      "Loss/learning_rate": 9.999999747378752E-06,
+      "Policy/mean_noise_std": 1.0010346174240112,
+      "Perf/total_fps": 174.0,
+      "Perf/collection time": 1.8411149978637695,
+      "Perf/learning_time": 0.3558681011199951,
+      "Train/mean_reward": -0.3471963703632355,
+      "Train/mean_episode_length": 22.0,
+      "Train/mean_reward/time": -0.3471963703632355,
+      "Train/mean_episode_length/time": 22.0
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true
+}

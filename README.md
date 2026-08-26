@@ -130,6 +130,8 @@ leg-mass S1도 같은 budget으로 별도 학습했지만 randomized·nominal �
 
 주기적인 띠보다 실제 도로에 가까운 다음 단계로, 56m × 56m 비주기 2D 마찰 mosaic에 crown·긴 파장 굴곡·표면 요철·얕은 함몰을 합친 전용 태스크를 만들었습니다. 네 발이 같은 마찰에 놓이는 frame과 네 발이 모두 다른 frame을 runtime에서 함께 확인했습니다. friction S1 정책은 32환경·10초 평가에서 낙상 없이 3/4 방향을 통과했고, 불규칙 도로에서 64환경 × 300 iterations를 추가 학습한 checkpoint는 회전 중 5회 넘어져 채택하지 않았습니다. 구현, 실제 PPO batch·epoch, 네 발 접촉 분포, 역학 해석과 단계별 후속 curriculum은 [`docs/G008_IRREGULAR_ROAD.md`](docs/G008_IRREGULAR_ROAD.md)에 기록했습니다.
 
+후속 G0에서는 같은 높이 형상에 균일 `0.8/0.6` 마찰만 두어 기하와 저마찰을 분리했습니다. 기존 friction S1 정책은 세 terrain seed 중 `2/3`, 방향 조건 `11/12`를 통과했습니다. G0와 순수 회전에서도 `feet_air_time`을 켠 T1을 각각 `128 env × 300 iterations = 921,600 transitions`로 실제 추가 학습했지만, 두 최선 후보 모두 세 지형의 우회전 gate를 통과하지 못했습니다. 그래서 두 구간 저마찰 F1은 보류했습니다. 런타임에서 추출한 정확한 보상 수식·가중치, PPO 설정, checkpoint 선별, 비교 영상과 다음 실험은 [`docs/G008_REWARD_AND_ROAD_CURRICULUM.md`](docs/G008_REWARD_AND_ROAD_CURRICULUM.md), 정량 집계는 [`reports/runs/g008_road_curriculum_summary_s20260826.json`](reports/runs/g008_road_curriculum_summary_s20260826.json)에 있습니다.
+
 혼합 `0.8/0.6 ↔ 0.2/0.1` 마찰 띠와 hip·thigh·calf·foot `1.2배` 질량 화면도 별도로 촬영했습니다. 원본 MP4는 로컬에만 두고 단계별 GIF·네 방향 스크린샷·물리 readback JSON을 Git에 넣었습니다. 이후 실행 동작에 영향을 주는 stage, checkpoint, randomization 범위 또는 평가 지형이 바뀌면 같은 촬영 세트를 다시 만듭니다.
 
 command, friction S1, leg-mass S1 checkpoint를 같은 평면·seed·명령 시퀀스로 재생한 동기화 GIF와 접촉시트, 로컬 전용 원본 MP4의 경로·해시는 [`docs/G008_VISUAL_EVIDENCE.md`](docs/G008_VISUAL_EVIDENCE.md)에 있습니다. Git에는 GIF와 PNG만 포함하며 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008`에 보관합니다.

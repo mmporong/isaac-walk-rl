@@ -207,3 +207,23 @@ cd "$HOME\isaac-walk-rl"
 | `docs/media/g008/g008_irregular_road_baseline_vs_trained_contact_sheet.png` | Git 공개 | `934,030 bytes` | `6191c9bf6a8aee28ace69f6d15df1bb559b63271f5520390b413c7be0f9d282b` |
 
 원본과 비교 MP4는 H.264, 50fps, 899 frames, 17.98초다. 공개 GIF는 720×438, 4fps, 72 frames이며 Git 제한 10MiB 아래다. 촬영 조건·checkpoint·지형 readback·파생물 해시는 `reports/runs/g008_irregular_road_*_capture.json`과 `reports/runs/g008_irregular_road_visual_evidence.json`에 있다. 정량 해석은 [G008 불규칙 도로·공간 마찰 강화학습](G008_IRREGULAR_ROAD.md)을 따른다.
+
+## G0 형상 분리와 회전 보상 T1
+
+![G0 기존 정책과 회전 보상 변형 비교](media/g008/g008_road_g0_vs_turn_air.gif)
+
+![G0와 T1 네 방향 접촉시트](media/g008/g008_road_g0_vs_turn_air_contact_sheet.png)
+
+왼쪽은 높이 형상을 유지하고 바닥 전체를 static/dynamic `0.8/0.6`으로 고정한 G0에서 기존 friction S1 `model_2097.pt`를 재생한 화면이다. 오른쪽은 같은 G0에서 순수 yaw 명령에도 `feet_air_time`을 활성화해 학습한 T1의 `model_2100.pt`다. 두 패널은 terrain seed `20260826`, 같은 900-step 명령 시퀀스와 카메라를 사용한다.
+
+T1 영상이 정책 개선을 뜻하지는 않는다. 32환경·500-step·terrain seed 3개 정식 평가에서 기존 정책은 방향 조건 `11/12`, T1은 `9/12`를 통과했다. T1은 세 지형의 우회전 yaw gate를 모두 잃어 기각했다.
+
+| 파일 | 공개 여부 | 크기 | SHA-256 |
+| --- | --- | ---: | --- |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_road_g0_inherited_s20260826.mp4` | 로컬 전용 | `1,043,721 bytes` | `751d0716ec5102de09501f056c4674fea7b7d5a65425d6cc38bd7a3452733275` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_road_g0_turn_air_i2100_s20260826.mp4` | 로컬 전용 | `1,098,071 bytes` | `7a1d74c6d28dbb028bd5bcb1f0ef94e6cdd22b6b574fde602085eadff1dd2ad0` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_road_g0_vs_turn_air_s20260826.mp4` | 로컬 전용 | `1,896,641 bytes` | `eb39ced93f00a2fb741879bce1224ae95831c20f8566a23d5b278f4cd4daf1c0` |
+| `docs/media/g008/g008_road_g0_vs_turn_air.gif` | Git 공개 | `3,141,682 bytes` | `6e1160614195cf4665abfaa6878b98fba27bc2c75c9f3cdd90cf1d8b8b142f3e` |
+| `docs/media/g008/g008_road_g0_vs_turn_air_contact_sheet.png` | Git 공개 | `247,734 bytes` | `55a9dbe9b4ec61dc2ed1957f8100ab094597f03eb0e18211788371ea09f8b720` |
+
+원본과 비교 MP4는 H.264, 1280×720 또는 1280×780, 50fps, 약 18초다. 공개 GIF는 720×438, 4fps, 72 frames다. 촬영 조건·checkpoint·G0 field readback·보상 계약과 파일 해시는 `reports/runs/g008_road_g0_*_capture.json`과 `reports/runs/g008_road_curriculum_visual_evidence.json`에 있다. 정량 해석은 [G008 보상함수와 불규칙 도로 curriculum](G008_REWARD_AND_ROAD_CURRICULUM.md)을 따른다.

@@ -15,6 +15,8 @@ TASK_ENTRY_POINTS = {
     "Isaac-G008-Velocity-Rough-Go2-Friction-S1-v0": "isaac_walk_g008.env_cfg:G008FrictionStage1EnvCfg",
     "Isaac-G008-Velocity-Rough-Go2-Friction-S2-v0": "isaac_walk_g008.env_cfg:G008FrictionStage2EnvCfg",
     "Isaac-G008-Velocity-Rough-Go2-Friction-S3-v0": "isaac_walk_g008.env_cfg:G008FrictionStage3EnvCfg",
+    "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0": "isaac_walk_g008.env_cfg:G008IrregularRoadGeometryEnvCfg",
+    "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0": "isaac_walk_g008.env_cfg:G008IrregularRoadTurnAirTimeEnvCfg",
     "Isaac-G008-Velocity-IrregularRoad-Go2-S1-v0": "isaac_walk_g008.env_cfg:G008IrregularRoadStage1EnvCfg",
     "Isaac-G008-Velocity-Rough-Go2-LegMass-S1-v0": "isaac_walk_g008.env_cfg:G008LegMassStage1EnvCfg",
     "Isaac-G008-Velocity-Rough-Go2-LegMass-S2-v0": "isaac_walk_g008.env_cfg:G008LegMassStage2EnvCfg",

@@ -1,0 +1,550 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "protocol": "road_geometry_reward_curriculum_v1",
+  "reward_contract": {
+    "path": "reports/runs/g008_reward_contract_s20260826.json",
+    "sha256": "b4ba7ea82095a761c6c0ac0caf334127d1720d584336e847f26124705b13c099"
+  },
+  "training_runs": [
+    {
+      "run_name": "g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826",
+      "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+      "report": {
+        "path": "reports/runs/g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826.json",
+        "sha256": "e7a8ef6d211705db83be77dd1e347885038e23d95daddb1d65e4294e8afc07dc"
+      },
+      "headless": true,
+      "num_envs": 128,
+      "iterations": 300,
+      "total_transitions": 921600,
+      "optimizer_mini_batch_updates": 6000,
+      "wall_time_seconds": 537.494,
+      "mean_steps_per_second": 2021.73,
+      "peak_vram_mib": 5463.0,
+      "final_mean_reward": 33.64,
+      "final_mean_episode_length": 1000.0,
+      "final_checkpoint": {
+        "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2396.pt",
+        "sha256": "85a5e3d440cd19ff6d93a483bebd1153c0a98b55f14f68bef2c343cb20885106"
+      }
+    },
+    {
+      "run_name": "g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826",
+      "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+      "report": {
+        "path": "reports/runs/g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826.json",
+        "sha256": "03cd696d0dfef318612852ed35cabd45597ef2b76415d86de75b379d764a00be"
+      },
+      "headless": true,
+      "num_envs": 128,
+      "iterations": 300,
+      "total_transitions": 921600,
+      "optimizer_mini_batch_updates": 6000,
+      "wall_time_seconds": 586.972,
+      "mean_steps_per_second": 1847.79,
+      "peak_vram_mib": 5271.0,
+      "final_mean_reward": 24.06,
+      "final_mean_episode_length": 993.69,
+      "final_checkpoint": {
+        "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-27-17_g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826\\model_2396.pt",
+        "sha256": "841c79c2612213e2bfefec28443faa7bc30607c29635218ff608ffd733043333"
+      }
+    }
+  ],
+  "screening": {
+    "num_envs": 16,
+    "horizon_steps": 300,
+    "terrain_seed": 20260828,
+    "reports": [
+      {
+        "policy_id": "road_g0_turn_air_i2100",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-27-17_g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826\\model_2100.pt",
+          "sha256": "ff66fc36b5e5f652adfae33505d85bb7f3a5fa769967f06c034684b75a841a47"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": true,
+        "failed_directions": [],
+        "report": {
+          "path": "reports/runs/g008_road_g0_turn_air_screen_i2100_t20260828_e16_h300.json",
+          "sha256": "b53cb95885ba85707b5cbeffdee8dba132ff21dcc0894d826c231f9bcae21328"
+        }
+      },
+      {
+        "policy_id": "road_g0_turn_air_i2150",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-27-17_g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826\\model_2150.pt",
+          "sha256": "edfed62e067f1f80c54552ce7945ee2b02325653f1fc27d6d28dea11a65203aa"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "left_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_g0_turn_air_screen_i2150_t20260828_e16_h300.json",
+          "sha256": "733fdf4c439c4e70d553f08f9201765fce28a5cfd2f025689bdc978a0f9d47b7"
+        }
+      },
+      {
+        "policy_id": "road_g0_turn_air_i2200",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-27-17_g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826\\model_2200.pt",
+          "sha256": "2799b4561f04d9a31e49a8d3b5c1608a5276cd4e1d5e32477fa161331bc85927"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "left_turn",
+          "right_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_g0_turn_air_screen_i2200_t20260828_e16_h300.json",
+          "sha256": "391fd0e6d78f01667859b65184e3614e05d4c98746544accfdd1a12cd6195f80"
+        }
+      },
+      {
+        "policy_id": "road_g0_turn_air_i2250",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-27-17_g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826\\model_2250.pt",
+          "sha256": "0740b65d639dbbef5304987986200f9461085197c9c5c9da6f274a086e4ef25f"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "right_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_g0_turn_air_screen_i2250_t20260828_e16_h300.json",
+          "sha256": "eb4f0202e0cf14f044667479a3078131b6d23436164ca7df455faec7501b4fe3"
+        }
+      },
+      {
+        "policy_id": "road_g0_turn_air_i2300",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-27-17_g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826\\model_2300.pt",
+          "sha256": "5a0d5e38390854f99f105783984975eb899a868714a15a92ca02a4d86c44c21d"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "right_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_g0_turn_air_screen_i2300_t20260828_e16_h300.json",
+          "sha256": "17cdd01a16cc4edb80512e077076611b1d4c333db1e5ea0157c23a487051b6ee"
+        }
+      },
+      {
+        "policy_id": "road_g0_turn_air_i2350",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-27-17_g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826\\model_2350.pt",
+          "sha256": "4da2babee15f27d8b659132ce20681ea5d0c72c7b0dcfb6a3087f7e0859bf301"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "left_turn",
+          "right_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_g0_turn_air_screen_i2350_t20260828_e16_h300.json",
+          "sha256": "628b040b03a43d5d767b67396f62c99a762ac2b121270f087ef17ca5d3d64c6a"
+        }
+      },
+      {
+        "policy_id": "road_g0_turn_air_i2396",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-27-17_g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826\\model_2396.pt",
+          "sha256": "841c79c2612213e2bfefec28443faa7bc30607c29635218ff608ffd733043333"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "backward",
+          "left_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_g0_turn_air_screen_i2396_t20260828_e16_h300.json",
+          "sha256": "d30cdb3489c628a8c753d9319de0bf13d11e21516d6c63a3777c815341f7b3b0"
+        }
+      },
+      {
+        "policy_id": "road_g0_i2100",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2100.pt",
+          "sha256": "de342b599389e1c43a2b62ec2d94215f677a9f806b2aabf6e778441d8db7bc5b"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": true,
+        "failed_directions": [],
+        "report": {
+          "path": "reports/runs/g008_road_geometry_g0_screen_i2100_t20260828_e16_h300.json",
+          "sha256": "4bb0c2043412349c85a4675f00bd97508491e4c10545c4d8bf200a4c082fd5a1"
+        }
+      },
+      {
+        "policy_id": "road_g0_i2150",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2150.pt",
+          "sha256": "2efc2f23ed61ac0b7651be96765ca669888190648ea1515dd9dedc38c9435cfa"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "left_turn",
+          "right_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_geometry_g0_screen_i2150_t20260828_e16_h300.json",
+          "sha256": "f939fe0abdcb3f2a40a35efcb5d38ee7e8496aa4ada8ddb974a1e1def9b2a53a"
+        }
+      },
+      {
+        "policy_id": "road_g0_i2200",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2200.pt",
+          "sha256": "74e955fd68b57c40df8ff7fee00a2fca747c79bf522f10ab7d58ff9eeb4ad73d"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "left_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_geometry_g0_screen_i2200_t20260828_e16_h300.json",
+          "sha256": "13ead73c4d7fd0fcef58f6df370841623feb5e1692462721e1be71936f7b6e11"
+        }
+      },
+      {
+        "policy_id": "road_g0_i2250",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2250.pt",
+          "sha256": "fd6aefbdd124b34f2825240ed9ceaedecb8deb97eb6d239465929d4fed6e5681"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": true,
+        "failed_directions": [],
+        "report": {
+          "path": "reports/runs/g008_road_geometry_g0_screen_i2250_t20260828_e16_h300.json",
+          "sha256": "c1cde97f7d7a68707fb3b1515a41dbc8037dd66150f0b7034b64afe642963ee1"
+        }
+      },
+      {
+        "policy_id": "road_g0_i2300",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2300.pt",
+          "sha256": "8c8d1970a4f2ac1f94cad5eef26aea10cc6138f65dab226fd07403b2b83d2d1d"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "backward"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_geometry_g0_screen_i2300_t20260828_e16_h300.json",
+          "sha256": "2d18d2edaf240e59856e4c64e471431583be1083be3e006659b4a428655ee5e3"
+        }
+      },
+      {
+        "policy_id": "road_g0_i2350",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2350.pt",
+          "sha256": "9220b038e30e1eee32e944f8473bcda02860bce8a37295d85ba101ee3c0c2755"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "left_turn",
+          "right_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_geometry_g0_screen_i2350_t20260828_e16_h300.json",
+          "sha256": "49b34b7959e7903310273ca709b73f4cb999e3f0d06916dcd761b9d36766f97a"
+        }
+      },
+      {
+        "policy_id": "road_g0_i2396",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2396.pt",
+          "sha256": "85a5e3d440cd19ff6d93a483bebd1153c0a98b55f14f68bef2c343cb20885106"
+        },
+        "terrain_seed": 20260828,
+        "all_directions_gate_pass": false,
+        "failed_directions": [
+          "left_turn"
+        ],
+        "report": {
+          "path": "reports/runs/g008_road_geometry_g0_screen_i2396_t20260828_e16_h300.json",
+          "sha256": "3c817654208360d9c4f3878cde742b963e91577bee09ab826390c90192aa2a14"
+        }
+      }
+    ],
+    "acceptance_limit": "선별 PASS만으로 채택하지 않고 32환경·500-step·3 terrain seed를 다시 평가한다."
+  },
+  "full_evaluation": {
+    "num_envs": 32,
+    "horizon_steps": 500,
+    "warmup_steps": 50,
+    "terrain_seeds": [
+      20260826,
+      20260827,
+      20260828
+    ],
+    "candidates": [
+      {
+        "policy_id": "friction_s1_g0",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\\model_2097.pt",
+          "sha256": "40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0"
+        },
+        "terrain_seeds": [
+          20260826,
+          20260827,
+          20260828
+        ],
+        "terrain_seed_pass_count": 2,
+        "direction_pass_count": 11,
+        "direction_total": 12,
+        "fall_count": 1,
+        "worst_gate_ratio": 0.8744273866925921,
+        "qualified_for_next_friction_stage": false,
+        "reports": [
+          {
+            "terrain_seed": 20260826,
+            "all_directions_gate_pass": true,
+            "failed_directions": [],
+            "fall_count": 0,
+            "report": {
+              "path": "reports/runs/g008_road_geometry_g0_friction_s1_t20260826_e32_h500.json",
+              "sha256": "04d8c9d50901ca6d19a26eb57fa9565bdb4a01613cf5a586d8ec5cf471a50eb1"
+            }
+          },
+          {
+            "terrain_seed": 20260827,
+            "all_directions_gate_pass": true,
+            "failed_directions": [],
+            "fall_count": 0,
+            "report": {
+              "path": "reports/runs/g008_road_geometry_g0_friction_s1_t20260827_e32_h500.json",
+              "sha256": "228addfbada3aa1c5614625f9500bbfcc84082ccc10fabcd9e2ae9b543dc091e"
+            }
+          },
+          {
+            "terrain_seed": 20260828,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "right_turn"
+            ],
+            "fall_count": 1,
+            "report": {
+              "path": "reports/runs/g008_road_geometry_g0_friction_s1_t20260828_e32_h500.json",
+              "sha256": "f045054ec0d18b73cb43f49b22bc934e6a6a994a4e929667e343cd22a049f8a7"
+            }
+          }
+        ]
+      },
+      {
+        "policy_id": "road_g0_i2100",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2100.pt",
+          "sha256": "de342b599389e1c43a2b62ec2d94215f677a9f806b2aabf6e778441d8db7bc5b"
+        },
+        "terrain_seeds": [
+          20260826,
+          20260827,
+          20260828
+        ],
+        "terrain_seed_pass_count": 0,
+        "direction_pass_count": 9,
+        "direction_total": 12,
+        "fall_count": 0,
+        "worst_gate_ratio": 1.100153070109023,
+        "qualified_for_next_friction_stage": false,
+        "reports": [
+          {
+            "terrain_seed": 20260826,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "right_turn"
+            ],
+            "fall_count": 0,
+            "report": {
+              "path": "reports/runs/g008_road_geometry_g0_i2100_t20260826_e32_h500.json",
+              "sha256": "bf4f6e9910a9225f72a4725dd9261f4d3bf430d23f0cd647820e9d7721418db1"
+            }
+          },
+          {
+            "terrain_seed": 20260827,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "right_turn"
+            ],
+            "fall_count": 0,
+            "report": {
+              "path": "reports/runs/g008_road_geometry_g0_i2100_t20260827_e32_h500.json",
+              "sha256": "a15062cfb2a20c127912e111441b7d1c35fb8b5ae843231f4c4e7f297c9adf64"
+            }
+          },
+          {
+            "terrain_seed": 20260828,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "right_turn"
+            ],
+            "fall_count": 0,
+            "report": {
+              "path": "reports/runs/g008_road_geometry_g0_i2100_t20260828_e32_h500.json",
+              "sha256": "fafed5b53630d1e1206ccb1479f72a3e11a95cfcf91a912594a813de26759882"
+            }
+          }
+        ]
+      },
+      {
+        "policy_id": "road_g0_turn_air_i2100",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-TurnAir-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-27-17_g008_road_g0_turn_air_finetune_friction_s1_e128_i300_s20260826\\model_2100.pt",
+          "sha256": "ff66fc36b5e5f652adfae33505d85bb7f3a5fa769967f06c034684b75a841a47"
+        },
+        "terrain_seeds": [
+          20260826,
+          20260827,
+          20260828
+        ],
+        "terrain_seed_pass_count": 0,
+        "direction_pass_count": 9,
+        "direction_total": 12,
+        "fall_count": 0,
+        "worst_gate_ratio": 1.231735348701477,
+        "qualified_for_next_friction_stage": false,
+        "reports": [
+          {
+            "terrain_seed": 20260826,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "right_turn"
+            ],
+            "fall_count": 0,
+            "report": {
+              "path": "reports/runs/g008_road_g0_turn_air_i2100_t20260826_e32_h500.json",
+              "sha256": "dc739d4e3fd1dc0c8d1efc194da245876d23a2bfb92526c1a1ea1f0a3bb0ec87"
+            }
+          },
+          {
+            "terrain_seed": 20260827,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "right_turn"
+            ],
+            "fall_count": 0,
+            "report": {
+              "path": "reports/runs/g008_road_g0_turn_air_i2100_t20260827_e32_h500.json",
+              "sha256": "c8d80e38a0c95f8d1171af765e5a33619820b5332503cb9cb7bc09cfe098f0a5"
+            }
+          },
+          {
+            "terrain_seed": 20260828,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "right_turn"
+            ],
+            "fall_count": 0,
+            "report": {
+              "path": "reports/runs/g008_road_g0_turn_air_i2100_t20260828_e32_h500.json",
+              "sha256": "8ba99d9ad7c2094309d20fbee77f0f5b7ad986e83f2c1b229ad74983c379699e"
+            }
+          }
+        ]
+      },
+      {
+        "policy_id": "road_g0_i2250",
+        "task": "Isaac-G008-Velocity-IrregularRoad-Go2-G0-v0",
+        "checkpoint": {
+          "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_23-01-16_g008_road_geometry_g0_finetune_friction_s1_e128_i300_s20260826\\model_2250.pt",
+          "sha256": "fd6aefbdd124b34f2825240ed9ceaedecb8deb97eb6d239465929d4fed6e5681"
+        },
+        "terrain_seeds": [
+          20260826,
+          20260827,
+          20260828
+        ],
+        "terrain_seed_pass_count": 0,
+        "direction_pass_count": 8,
+        "direction_total": 12,
+        "fall_count": 4,
+        "worst_gate_ratio": 1.7493506840297155,
+        "qualified_for_next_friction_stage": false,
+        "reports": [
+          {
+            "terrain_seed": 20260826,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "right_turn"
+            ],
+            "fall_count": 0,
+            "report": {
+              "path": "reports/runs/g008_road_geometry_g0_i2250_t20260826_e32_h500.json",
+              "sha256": "d2fa25b118e34edec489aa08b5b0a2cb373a25bc9b86be57e8e40810d7229e78"
+            }
+          },
+          {
+            "terrain_seed": 20260827,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "left_turn",
+              "right_turn"
+            ],
+            "fall_count": 2,
+            "report": {
+              "path": "reports/runs/g008_road_geometry_g0_i2250_t20260827_e32_h500.json",
+              "sha256": "f1ae7ffebf94401fe401b134c5f96e69b6c5f500a3a7d977c95c5e8d0bca921f"
+            }
+          },
+          {
+            "terrain_seed": 20260828,
+            "all_directions_gate_pass": false,
+            "failed_directions": [
+              "right_turn"
+            ],
+            "fall_count": 2,
+            "report": {
+              "path": "reports/runs/g008_road_geometry_g0_i2250_t20260828_e32_h500.json",
+              "sha256": "30477c4cfc33334cadb4cbf92ca22e5bef124a2c7a2854a8e5dcc0c68384bfdb"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "selection": {
+    "policy_id": "friction_s1_g0",
+    "checkpoint": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\\model_2097.pt",
+      "sha256": "40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0"
+    },
+    "selection_rule": "통과한 terrain seed 수, 전체 방향 PASS 수를 차례로 최대화한 뒤 낙상 수와 최악 normalized gate ratio를 최소화한다.",
+    "qualified_policy_count": 0,
+    "proceed_to_friction_f1": false,
+    "next_action": "G0가 3개 terrain seed를 통과하지 못했으므로 F1은 열지 않고 회전 보상과 평가 정렬을 더 검증한다."
+  },
+  "aggregate_source_sha256": "44f6da2ec0afd724f1ccbdb1cfe5191063d5603c32f8d0ae98833be39dfc85a7"
+}

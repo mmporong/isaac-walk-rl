@@ -6,6 +6,20 @@
 - 강화학습: RSL-RL 2.3.3 PPO
 - 최종 상태: 환경·학습·평가·시각 증거 생성 완료, 전용 300-iteration checkpoint는 기각
 
+## 2026-08-27 후속 결과
+
+아래에서 계획했던 도로 형상 전용 G0를 실제로 구현하고 다시 학습했다. 높이 형상은 그대로 두고 바닥 전체를 static/dynamic `0.8/0.6`으로 고정했다. 기존 friction S1 정책은 terrain seed 세 개 중 두 개, 전체 12개 방향 조건 중 11개를 통과했다. seed `20260828` 우회전에서 8환경 중 1개가 넘어져 G0 승인 조건은 충족하지 못했다.
+
+G0에서 `128환경 × 300 iterations`, `921,600 transitions`를 추가 학습했지만 최선 checkpoint도 세 지형 모두 우회전에 실패했다. 순수 회전에서 기존 `feet_air_time` 보상이 꺼지는 문제를 확인해 yaw 명령에서도 이 항을 활성화한 T1을 같은 예산으로 학습했으나, 최선 checkpoint의 우회전 yaw RMSE가 세 지형 모두 `0.25rad/s`를 넘었다.
+
+| 후보 | 통과 terrain seed | 방향 PASS | 낙상 | 판정 |
+| --- | ---: | ---: | ---: | --- |
+| 기존 friction S1을 G0에서 재생 | `2/3` | `11/12` | `1` | 유지 |
+| G0 추가 PPO 최선 후보 | `0/3` | `9/12` | `0` | 기각 |
+| 회전 air-time T1 최선 후보 | `0/3` | `9/12` | `0` | 기각 |
+
+F1 저마찰 두 구간 단계는 열지 않았다. 보상 수식, 두 번의 실제 학습량, 세 지형 평가, 영상과 다음 고도화 순서는 [G008 보상함수와 불규칙 도로 curriculum](G008_REWARD_AND_ROAD_CURRICULUM.md)에 정리했다. 기계 판독 결과는 `reports/runs/g008_road_curriculum_summary_s20260826.json`을 기준으로 본다.
+
 ## 먼저 결론
 
 이번 단계는 움직임을 스크립트로 재생한 것이 아니다. 기존 friction S1 PPO checkpoint에서 시작해 새 불규칙 도로 태스크로 300 iterations를 실제 추가 학습했다. 학습 중에는 64개 환경에서 iteration마다 환경당 24 step을 모았고, 총 `460,800` transitions로 PPO update를 수행했다.
@@ -227,6 +241,8 @@ Go2 rough runner의 기존 PPO 설정을 유지했다.
 
 ## 다음 단계: 난이도를 다시 나눠서 진행한다
 
+아래 A 단계는 2026-08-27에 실행됐고 3개 terrain seed gate를 통과하지 못했다. B의 F1은 보류 상태다. 현재 실행 순서는 보상 항의 방향별 분해와 air-time threshold 단일축 검증이며, 최신 계획은 `G008_REWARD_AND_ROAD_CURRICULUM.md`에 있다.
+
 이번에는 높이와 네 마찰 구간을 한 번에 넣었고, 전용 학습이 회전 gait를 잃었다. 다음 실행은 한 번에 한 축만 바꾼다.
 
 ### A. 도로 형상만 학습
@@ -249,7 +265,7 @@ Go2 rough runner의 기존 PPO 설정을 유지했다.
 ### C. 방향 성능을 학습 중에 지킨다
 
 - exact 전진·후진·좌회전·우회전 표본 수를 batch 안에서 확인한다.
-- 25 iterations마다 32환경·500-step 방향 평가를 실행한다.
+- 50 iterations마다 32환경·500-step 방향 평가를 실행한다.
 - 평균 reward가 아니라 네 방향 중 최저 성능을 checkpoint 선택 기준에 넣는다.
 - 좌·우 회전의 yaw RMSE와 roll/pitch가 연속 두 평가에서 나빠지면 early stop한다.
 

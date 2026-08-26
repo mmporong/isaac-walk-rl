@@ -23,6 +23,7 @@ from .irregular_road import (
     IRREGULAR_ROAD_PRIM,
     spawn_irregular_road_field,
 )
+from .rewards import feet_air_time_turn_aware
 
 
 @configclass
@@ -138,6 +139,28 @@ class G008IrregularRoadStage1EnvCfg(G008CommandEnvCfg):
             "y": (-0.25, 0.25),
             "yaw": (-3.14, 3.14),
         }
+
+
+@configclass
+class G008IrregularRoadGeometryEnvCfg(G008IrregularRoadStage1EnvCfg):
+    """Road-height isolation stage with one nominal ground material."""
+
+    def __post_init__(self):
+        super().__post_init__()
+        road_cfg = self.scene.irregular_road_field.spawn
+        road_cfg.static_friction = (0.8,)
+        road_cfg.dynamic_friction = (0.6,)
+        road_cfg.colors_rgb = ((0.45, 0.43, 0.40),)
+
+
+@configclass
+class G008IrregularRoadTurnAirTimeEnvCfg(G008IrregularRoadGeometryEnvCfg):
+    """G0 road with one isolated pure-yaw air-time reward correction."""
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.rewards.feet_air_time.func = feet_air_time_turn_aware
+        self.rewards.feet_air_time.params["yaw_command_threshold"] = 0.1
 
 
 class _G008LegMassMixin:
