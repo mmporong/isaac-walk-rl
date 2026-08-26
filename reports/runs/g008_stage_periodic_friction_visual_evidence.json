@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "stage": "periodic_friction",
+  "purpose": "visual evidence for a dynamics stage change",
+  "capture_reports": [
+    {
+      "path": "reports/runs/g008_stage_periodic_friction_capture.json",
+      "sha256": "b2882b86b2545aeda2201e6610157e751eb3e7be9206ddefed8dfe0cc11cfbd3"
+    }
+  ],
+  "profile_order": [
+    "periodic_friction_s1_mu020_010"
+  ],
+  "composition": {
+    "seed": 20260826,
+    "matched_command_sequence": true,
+    "synchronized_panels": false,
+    "interpretation": "visual playback only; quantitative gates remain in the linked evaluation report"
+  },
+  "quantitative_report": {
+    "path": "reports/runs/g008_periodic_friction_sweep_command_vs_friction_s1_e32_h500_s20260826.json",
+    "sha256": "9f6688aef0855aadb1c2e32fd9e3fc343cc8cc945ded3842614981ded12dde5e"
+  },
+  "tool": "ffmpeg version 8.1-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "local_composite": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_stage_periodic_friction_s1_mu020_010_annotated_s20260826.mp4",
+    "sha256": "3269ac7f69e898aa37aaec93995018e6d43bc185240228404d53584232e727e2",
+    "bytes": 1784056,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 780,
+    "frame_rate": "50/1",
+    "frames": 899,
+    "duration_s": 17.98
+  },
+  "public_derivatives": {
+    "gif": {
+      "path": "docs/media/g008/g008_stage_periodic_friction.gif",
+      "sha256": "4f0681d7039afefd5bba8c5011239e2eac12d46b8bfb8132cd8df5606ff6c6ef",
+      "bytes": 5181131,
+      "git_policy": "git_public",
+      "codec": "gif",
+      "width": 720,
+      "height": 438,
+      "frame_rate": "4/1",
+      "frames": 72,
+      "duration_s": 18.0
+    },
+    "contact_sheet": {
+      "path": "docs/media/g008/g008_stage_periodic_friction_contact_sheet.png",
+      "sha256": "92c0375d863cea9a1e12f25c6bf736a2837eb0d6b16e809e3aaa73a0ed1d8307",
+      "bytes": 511783,
+      "git_policy": "git_public",
+      "codec": "png",
+      "width": 1280,
+      "height": 780,
+      "frame_rate": "25/1",
+      "frames": null,
+      "duration_s": null,
+      "frame_times_seconds": [
+        3.0,
+        7.5,
+        12.0,
+        16.5
+      ],
+      "layout_order": [
+        "forward",
+        "backward",
+        "left_turn",
+        "right_turn"
+      ]
+    }
+  },
+  "record_source_sha256": "09b485e0955767103dce93120314096ed05e7c244c76a414a49e0ee55c5cf801",
+  "builder_source_sha256": "41a39294dbacbbab05874d9f461b44638f34000200c4ff5660facc66068569e8"
+}

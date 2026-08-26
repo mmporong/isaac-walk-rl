@@ -10,6 +10,16 @@ friction S1 정책은 기준 바닥 `μ_s/μ_d=0.8/0.6`에서 전진·후진·�
 
 leg-mass S1은 16개 다리 body의 질량을 환경마다 `0.95~1.05`배 바꾸고 inertia tensor도 같은 비율로 다시 계산하며 학습했다. 300-iteration 학습은 완료됐지만 기준 질량의 우회전부터 gate를 통과하지 못했다. hip·thigh·calf·foot를 한 그룹씩 `0.8~1.2`배 바꾼 후속 시험에서도 두 정책의 전진·후진은 25개 조건을 모두 통과했으나, leg-mass S1은 회전 성능을 회복하지 못했다. 그래서 leg-mass S2는 열지 않았다.
 
+## 단계별 동작 영상
+
+혼합 마찰과 링크 그룹 질량 단계는 정량 평가 뒤 같은 checkpoint와 물리 조건으로 다시 촬영했다. MP4는 로컬에만 보관하고 GIF와 네 방향 스크린샷만 Git에 넣었다.
+
+![혼합 마찰 바닥 네 방향 재생](media/g008/g008_stage_periodic_friction.gif)
+
+![링크 그룹별 1.2배 질량 비교](media/g008/g008_stage_link_mass_groups.gif)
+
+혼합 마찰 영상의 파란 띠는 `0.2/0.1`, 갈색 띠는 `0.8/0.6`이다. 링크 질량 영상은 hip·thigh·calf·foot를 각각 `1.2배`로 바꾼 네 실행을 동기화했다. 원본 경로, 실제 mass readback, 해시와 스크린샷은 `docs/G008_VISUAL_EVIDENCE.md`에 있다. 영상 한 번의 동작으로 아래 다중 환경 gate 결과를 바꾸지는 않는다.
+
 ## 학습 스택과 PPO 규모
 
 실행 환경은 Windows 11, RTX 3060 12GB, Isaac Sim 4.5, Isaac Lab 2.1.1, RSL-RL 2.3.3, PyTorch 2.7.0+cu128이다. 학습과 평가는 모두 GUI가 없는 headless 모드로 돌렸다. 정책 입력은 235차원, action은 Go2 관절 12개이며 actor MLP는 `512-256-128` 은닉층을 쓴다.
@@ -117,7 +127,7 @@ command 정책은 nominal에서 좌회전 yaw RMSE가 `0.262rad/s`로 gate `0.25
 
 ### 마찰은 실제로 영향을 줬나
 
-영향은 있었다. 다만 “계수가 낮아질수록 매 단계가 일정하게 나빠진다”는 모양은 아니었다. 접촉 재질이 바뀌면 보행 위상, 띠 경계를 넘는 순간, 지지발 조합이 함께 달라진다. 우회전은 `0.7/0.5`에서 실패한 뒤 `0.6/0.4`에서 다시 통과했고, 이후 더 낮은 값에서는 다시 실패했다. 4반복의 최대 자세 gate는 이런 위상 차이에 민감하다.
+영향은 있었다. 다만 "계수가 낮아질수록 매 단계가 일정하게 나빠진다"는 모양은 아니었다. 접촉 재질이 바뀌면 보행 위상, 띠 경계를 넘는 순간, 지지발 조합이 함께 달라진다. 우회전은 `0.7/0.5`에서 실패한 뒤 `0.6/0.4`에서 다시 통과했고, 이후 더 낮은 값에서는 다시 실패했다. 4반복의 최대 자세 gate는 이런 위상 차이에 민감하다.
 
 그래서 다음 세 값을 섞지 않았다.
 
@@ -131,7 +141,7 @@ command 정책은 nominal에서 좌회전 yaw RMSE가 `0.262rad/s`로 gate `0.25
 
 최저 case는 네 번 실행했다. 처음 두 번은 `completed_steps=200`, kinematic fall 판정을 넣은 뒤의 두 실행은 `completed_steps=100`에서 Kit native process가 종료됐다. 네 실행 모두 shell에는 exit code 0처럼 보였지만 atomic JSON이 없었다. 실행 harness는 보고서 존재 여부를 별도로 확인해 이를 실패로 처리했다.
 
-이 현상은 정책 낙상과 구분한다. 재현 가능한 것은 “Isaac Sim 4.5가 이 multi-material 조건을 끝까지 처리하지 못했다”는 사실뿐이다. CPU PhysX 재현, 더 작은 env batch, 다른 material discretization 또는 Isaac Sim 업그레이드로 원인을 분리하기 전에는 `0.1/0.05` 성능을 주장하지 않는다.
+이 현상은 정책 낙상과 구분한다. 재현 가능한 것은 "Isaac Sim 4.5가 이 multi-material 조건을 끝까지 처리하지 못했다"는 사실뿐이다. CPU PhysX 재현, 더 작은 env batch, 다른 material discretization 또는 Isaac Sim 업그레이드로 원인을 분리하기 전에는 `0.1/0.05` 성능을 주장하지 않는다.
 
 ## Part B. 다리 링크 그룹 질량 변화
 
@@ -198,6 +208,9 @@ cd "$HOME\isaac-walk-rl"
 - 완료 원본 7개: `reports/runs/g008_periodic_friction_case_*_e32_h500_s20260826.json`
 - `0.1/0.05` 실패 기록: `reports/runs/g008_periodic_friction_case_mixed_010_005_e32_h500_s20260826_failure.json`
 - 링크 질량 민감도: `reports/runs/g008_link_mass_sensitivity_command_vs_leg_mass_s1_e800_h300_s20260826.json`
+- 혼합 마찰 촬영·파생물: `reports/runs/g008_stage_periodic_friction_capture.json`, `reports/runs/g008_stage_periodic_friction_visual_evidence.json`
+- 링크 질량 촬영·파생물: `reports/runs/g008_stage_link_mass_*_capture.json`, `reports/runs/g008_stage_link_mass_visual_evidence.json`
+- 공개 GIF·스크린샷과 로컬 MP4 해시: `docs/G008_VISUAL_EVIDENCE.md`
 - 평가기: `scripts/evaluate_g008_periodic_friction.py`, `scripts/aggregate_g008_periodic_friction.py`, `scripts/evaluate_g008_link_mass_sensitivity.py`
 - 회귀 검증: `tests/test_g008_dynamics_stress_reports.py`
 

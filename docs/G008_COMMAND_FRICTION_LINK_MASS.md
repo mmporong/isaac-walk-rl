@@ -441,6 +441,8 @@ py -m pytest .\tests\test_g008_contracts.py .\tests\test_g008_direction_evaluati
 - 공간 혼합 마찰·링크 그룹 질량 후속 해석: `docs/G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md`
 - 공간 혼합 마찰 스윕: `reports/runs/g008_periodic_friction_sweep_command_vs_friction_s1_e32_h500_s20260826.json`
 - 링크 그룹 질량 민감도: `reports/runs/g008_link_mass_sensitivity_command_vs_leg_mass_s1_e800_h300_s20260826.json`
+- 공간 혼합 마찰 단계 촬영: `reports/runs/g008_stage_periodic_friction_capture.json`, `reports/runs/g008_stage_periodic_friction_visual_evidence.json`
+- 링크 그룹 질량 단계 촬영: `reports/runs/g008_stage_link_mass_*_capture.json`, `reports/runs/g008_stage_link_mass_visual_evidence.json`
 
 저장소의 JSON에는 `%USERPROFILE%` 치환 경로와 SHA-256을 기록한다. 원시 checkpoint와 TensorBoard는 저장소 밖 `$HOME\IsaacLab\logs`에 둔다.
 

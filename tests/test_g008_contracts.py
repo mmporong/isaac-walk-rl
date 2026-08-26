@@ -86,6 +86,14 @@ def test_manifest_matches_import_light_contracts():
     }
     assert periodic["result"]["friction_s1_all_direction_contiguous_pass_floor"] is None
     assert periodic["result"]["mixed_010_005_status"] == "unresolved_after_four_native_terminations"
+    assert periodic["visual_evidence"]["local_mp4_only"] is True
+    assert periodic["visual_evidence"]["capture_profile"] == "periodic_friction_s1_mu020_010"
     mass_screen = manifest["part_5_link_group_mass_sensitivity"]
     assert mass_screen["groups"] == ["hip", "thigh", "calf", "foot"]
     assert mass_screen["result"]["leg_mass_s1_stage_2_approved"] is False
+    assert mass_screen["visual_evidence"]["capture_profiles"] == [
+        "link_mass_hip_120",
+        "link_mass_thigh_120",
+        "link_mass_calf_120",
+        "link_mass_foot_120",
+    ]

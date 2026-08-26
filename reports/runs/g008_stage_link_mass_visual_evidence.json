@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "stage": "link_mass",
+  "purpose": "visual evidence for a dynamics stage change",
+  "capture_reports": [
+    {
+      "path": "reports/runs/g008_stage_link_mass_hip_capture.json",
+      "sha256": "275b5befebd66145fde3a58482c8f4e9dfce90fd22033d9ef670f3c31ad48192"
+    },
+    {
+      "path": "reports/runs/g008_stage_link_mass_thigh_capture.json",
+      "sha256": "e7df61e96a8f69ff69d5bccad28d1365814ec2f355fea88329e9ca3d8b2a5b98"
+    },
+    {
+      "path": "reports/runs/g008_stage_link_mass_calf_capture.json",
+      "sha256": "3be2d97c4436243764411f06ec8c101e03dccb7be749e6e6802412d501ce7d3e"
+    },
+    {
+      "path": "reports/runs/g008_stage_link_mass_foot_capture.json",
+      "sha256": "ea6edcaa94ddbd183e8786cd7efc3d8c0208dbcc762271ecf0878ba4bf4e863c"
+    }
+  ],
+  "profile_order": [
+    "link_mass_hip_120",
+    "link_mass_thigh_120",
+    "link_mass_calf_120",
+    "link_mass_foot_120"
+  ],
+  "composition": {
+    "seed": 20260826,
+    "matched_command_sequence": true,
+    "synchronized_panels": true,
+    "interpretation": "visual playback only; quantitative gates remain in the linked evaluation report"
+  },
+  "quantitative_report": {
+    "path": "reports/runs/g008_link_mass_sensitivity_command_vs_leg_mass_s1_e800_h300_s20260826.json",
+    "sha256": "148f517a9339fdd93ec47692604836de8e79d8ed94b3a8068cb7dc17c32b1bf2"
+  },
+  "tool": "ffmpeg version 8.1-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "local_composite": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_stage_link_mass_groups_120_comparison_s20260826.mp4",
+    "sha256": "456eded4c086dd2529b788c592e5a6d0a2c0c3ab00372499ebd9fd512731d517",
+    "bytes": 7698786,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 780,
+    "frame_rate": "50/1",
+    "frames": 899,
+    "duration_s": 17.98
+  },
+  "public_derivatives": {
+    "gif": {
+      "path": "docs/media/g008/g008_stage_link_mass_groups.gif",
+      "sha256": "19424be094d131efda701891f0e95f6f3709e81e6afb5759467a82b506d4a26d",
+      "bytes": 9045987,
+      "git_policy": "git_public",
+      "codec": "gif",
+      "width": 720,
+      "height": 438,
+      "frame_rate": "4/1",
+      "frames": 72,
+      "duration_s": 18.0
+    },
+    "contact_sheet": {
+      "path": "docs/media/g008/g008_stage_link_mass_groups_contact_sheet.png",
+      "sha256": "849bc36280da646808567af6408691e27b49145ae635fbf4a349e5cb6627aaf3",
+      "bytes": 1146477,
+      "git_policy": "git_public",
+      "codec": "png",
+      "width": 1280,
+      "height": 780,
+      "frame_rate": "25/1",
+      "frames": null,
+      "duration_s": null,
+      "frame_times_seconds": [
+        3.0,
+        7.5,
+        12.0,
+        16.5
+      ],
+      "layout_order": [
+        "forward",
+        "backward",
+        "left_turn",
+        "right_turn"
+      ]
+    }
+  },
+  "record_source_sha256": "09b485e0955767103dce93120314096ed05e7c244c76a414a49e0ee55c5cf801",
+  "builder_source_sha256": "41a39294dbacbbab05874d9f461b44638f34000200c4ff5660facc66068569e8"
+}

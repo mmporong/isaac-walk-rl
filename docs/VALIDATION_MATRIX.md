@@ -22,6 +22,7 @@
 | G008 공간 혼합 마찰 스트레스 시험 | 폭 `0.5 m`의 face별 고·저마찰을 단일 triangle mesh에 배치, ground collider 없음, 완료 case당 32환경·500 step, command/friction S1 동시 배치, 띠 노출·전환·방향 gate·독립 kinematic fall | friction S1 전진·후진·좌회전은 완료 최저 `0.2/0.1`까지 연속 PASS. 우회전은 `0.7/0.5` 첫 FAIL 뒤 `0.6/0.4` 개별 PASS라 전 방향 하한 미확정. `0.1/0.05`는 4회 native 종료로 평가 미확정. contact force 누락으로 slip은 `null`, 완료 case에서 friction S1 우회전 kinematic fall 1건 |
 | G008 링크 그룹 질량 민감도 | hip·thigh·calf·foot 중 한 그룹씩 `0.8~1.2`배, inertia 동비율 재계산, 25조건×2정책×4방향×4반복, 총 800환경·300 step | 두 정책 모두 전진·후진 25/25 조건 PASS, 전체 0 falls. command nominal 네 방향 PASS, leg-mass S1 nominal 우회전 yaw RMSE `0.44 rad/s`로 FAIL. leg-mass S2 미승인 유지 |
 | G008 세 정책 시각 비교 | command·friction S1·leg-mass S1을 평면·seed 42·같은 900-step 명령으로 별도 프로세스에서 추론하고 runtime 물성과 checkpoint hash를 촬영 보고서에 고정 | 3/3 촬영 exit 0, 정책당 H.264 899 frames. 1280×380 로컬 비교 MP4와 720×214 공개 GIF, 네 방향 접촉시트의 SHA-256·ffprobe·10 MiB 제한 검증 PASS |
+| G008 단계 변경 시각 증거 | 혼합 `0.8/0.6 ↔ 0.2/0.1` 마찰 한 편과 hip·thigh·calf·foot `1.2배` 질량 네 편을 seed 20260826·같은 900-step 명령으로 촬영, 원본 MP4 로컬 전용, GIF·PNG·물리 readback JSON 공개 | 5/5 원본 H.264 1280×720·50fps·899 frames·17.98초. 자막 MP4 2개는 로컬에 보관하고 공개 GIF `5.18/9.05 MB`, 네 방향 PNG `0.51/1.15 MB`의 파일 해시·checkpoint·friction/mass/inertia readback 검증 PASS |
 | RBQ 외부 자산 호환성 사전조사 | source·8 blob·라이선스 근거 고정, fail-closed blocker 재현 | G007 gate 구현 완료; `license_scope_unresolved`, expect-blocked exit 0·require-ready exit 3, targeted 46 tests PASS·code review APPROVE. 자산·파생물 다운로드/변환/smoke 미실행 |
 
 ## 1차 근거

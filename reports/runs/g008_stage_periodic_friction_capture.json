@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "purpose": "stage-change visual evidence; quantitative gates remain in evaluation reports",
+  "profile": {
+    "profile_id": "periodic_friction_s1_mu020_010",
+    "label": "Friction S1 | mixed 0.8/0.6 and 0.2/0.1",
+    "stage": "periodic_friction",
+    "task": "Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0",
+    "seed": 20260826,
+    "headless": true,
+    "step_dt_s": 0.02,
+    "total_steps": 900,
+    "sequence": [
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "forward",
+        "steps": 175,
+        "command": [
+          0.6,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "backward",
+        "steps": 175,
+        "command": [
+          -0.4,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "left_turn",
+        "steps": 175,
+        "command": [
+          0.0,
+          0.0,
+          0.5
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "right_turn",
+        "steps": 175,
+        "command": [
+          0.0,
+          0.0,
+          -0.5
+        ]
+      }
+    ],
+    "checkpoint": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\\model_2097.pt",
+      "sha256": "40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0"
+    },
+    "stage_physics": {
+      "case": {
+        "id": "mixed_020_010",
+        "low_static": 0.2,
+        "low_dynamic": 0.1,
+        "mixed": true
+      },
+      "underlay": {
+        "default_ground_collision_prim": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "default_ground_collision_exists": false,
+        "height_scan_prim": "/World/periodic_friction_field/height_scan_surface",
+        "height_scan_has_collision_api": false
+      },
+      "field_phase": {
+        "environment_origin_cell_integral_error_max": 0.0,
+        "all_environment_origins_on_even_period_cells": true
+      },
+      "visual_overlay": {
+        "prim_path": "/World/periodic_friction_capture_overlay",
+        "collision_api_applied": false,
+        "stripe_count": 48,
+        "stripe_width_m": 0.5,
+        "low_color_rgb": [
+          0.18000000715255737,
+          0.41999998688697815,
+          0.75
+        ],
+        "high_color_rgb": [
+          0.7200000286102295,
+          0.5799999833106995,
+          0.30000001192092896
+        ],
+        "physics_unchanged": true,
+        "low_friction": [
+          0.2,
+          0.1
+        ],
+        "high_friction": [
+          0.8,
+          0.6
+        ]
+      }
+    },
+    "local_video": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_stage_periodic_friction_s1_mu020_010_s20260826.mp4",
+      "sha256": "5337a53a878df3b229707781c5b7a04419358882a2dab0e85b77637d8e011f3d",
+      "bytes": 1211646,
+      "git_policy": "local_only"
+    }
+  },
+  "record_source_sha256": "09b485e0955767103dce93120314096ed05e7c244c76a414a49e0ee55c5cf801",
+  "periodic_evaluator_source_sha256": "c332de15bde4cbcf6c8ee4dd45a0202633b049a9ba4a6c4d4f711bc0ec7dabe4",
+  "mass_evaluator_source_sha256": "3654e5b495495058cac9d6b90be221521a84645855ef267d9b5e57b17c8ebfac"
+}

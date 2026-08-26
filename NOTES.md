@@ -52,3 +52,4 @@
 - 상세 수치와 문헌 근거는 `docs/G008_COMMAND_FRICTION_LINK_MASS.md`에 있다.
 - 공간 혼합 마찰 결과는 직선 보행 한계와 전 방향 회전 gate를 따로 읽는다. 단일 seed에서 중간 계수 실패 뒤 더 낮은 계수가 다시 통과하면 연속 통과 하한만 보수적 한계로 사용한다.
 - 그룹별 질량 screen에서 scale이 같아도 thigh와 foot의 총질량 변화는 다르다. scale 기준 민감도와 동일 kg 추가 질량 민감도를 같은 결과로 취급하지 않는다.
+- 실행 동작이 바뀌는 stage는 정량 JSON만 남기지 않는다. 로컬 MP4, 공개 GIF, 네 방향 PNG, checkpoint·물리 readback·파일 해시 JSON을 같은 단계의 완료 증거로 묶는다.

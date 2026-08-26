@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "purpose": "stage-change visual evidence; quantitative gates remain in evaluation reports",
+  "profile": {
+    "profile_id": "link_mass_foot_120",
+    "label": "Leg-mass S1 | foot x1.20",
+    "stage": "link_mass",
+    "task": "Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0",
+    "seed": 20260826,
+    "headless": true,
+    "step_dt_s": 0.02,
+    "total_steps": 900,
+    "sequence": [
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "forward",
+        "steps": 175,
+        "command": [
+          0.6,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "backward",
+        "steps": 175,
+        "command": [
+          -0.4,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "left_turn",
+        "steps": 175,
+        "command": [
+          0.0,
+          0.0,
+          0.5
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "right_turn",
+        "steps": 175,
+        "command": [
+          0.0,
+          0.0,
+          -0.5
+        ]
+      }
+    ],
+    "checkpoint": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_12-06-51_g008_leg_mass_s1_finetune_command_s42_e1024_i300\\model_2097.pt",
+      "sha256": "8976cfff6eee6d1a998c7aa554b23d98b01d3d64da02b43ac3133a9186ae97fa"
+    },
+    "stage_physics": {
+      "group": "foot",
+      "factor": 1.2,
+      "body_names": [
+        "FL_foot",
+        "FR_foot",
+        "RL_foot",
+        "RR_foot"
+      ],
+      "mass_ratio": {
+        "count": 4,
+        "min": 1.1999999284744263,
+        "mean": 1.1999999284744263,
+        "max": 1.1999999284744263
+      },
+      "selected_group_mass_kg": {
+        "count": 1,
+        "min": 0.19199998676776886,
+        "mean": 0.19199998676776886,
+        "max": 0.19199998676776886
+      },
+      "total_leg_mass_kg": {
+        "count": 1,
+        "min": 8.127999305725098,
+        "mean": 8.127999305725098,
+        "max": 8.127999305725098
+      },
+      "inertia_scale_absolute_error_max": 0.0,
+      "center_of_mass_changed": false
+    },
+    "local_video": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_stage_link_mass_foot_120_s20260826.mp4",
+      "sha256": "d14f545373acbdc53bb4e4f6be4c472c2ddde4fb6cdda99b88f854eaa4eb74a3",
+      "bytes": 3228144,
+      "git_policy": "local_only"
+    }
+  },
+  "record_source_sha256": "09b485e0955767103dce93120314096ed05e7c244c76a414a49e0ee55c5cf801",
+  "periodic_evaluator_source_sha256": "c332de15bde4cbcf6c8ee4dd45a0202633b049a9ba4a6c4d4f711bc0ec7dabe4",
+  "mass_evaluator_source_sha256": "3654e5b495495058cac9d6b90be221521a84645855ef267d9b5e57b17c8ebfac"
+}

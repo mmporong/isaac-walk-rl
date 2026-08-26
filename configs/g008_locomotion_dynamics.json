@@ -162,6 +162,13 @@
     "horizon_steps": 500,
     "warmup_steps": 50,
     "evaluation_seed": 20260826,
+    "visual_evidence": {
+      "capture_profile": "periodic_friction_s1_mu020_010",
+      "local_mp4_only": true,
+      "public_gif": "docs/media/g008/g008_stage_periodic_friction.gif",
+      "public_screenshot": "docs/media/g008/g008_stage_periodic_friction_contact_sheet.png",
+      "report": "reports/runs/g008_stage_periodic_friction_visual_evidence.json"
+    },
     "result": {
       "lowest_completed_case": {"static": 0.2, "dynamic": 0.1},
       "friction_s1_forward_backward_left_turn_contiguous_pass_floor": {
@@ -195,6 +202,18 @@
     "horizon_steps": 300,
     "warmup_steps": 50,
     "evaluation_seed": 20260826,
+    "visual_evidence": {
+      "capture_profiles": [
+        "link_mass_hip_120",
+        "link_mass_thigh_120",
+        "link_mass_calf_120",
+        "link_mass_foot_120"
+      ],
+      "local_mp4_only": true,
+      "public_gif": "docs/media/g008/g008_stage_link_mass_groups.gif",
+      "public_screenshot": "docs/media/g008/g008_stage_link_mass_groups_contact_sheet.png",
+      "report": "reports/runs/g008_stage_link_mass_visual_evidence.json"
+    },
     "result": {
       "command_nominal_all_directions_pass": true,
       "leg_mass_s1_nominal_all_directions_pass": false,

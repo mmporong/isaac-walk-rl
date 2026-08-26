@@ -98,6 +98,80 @@ py .\scripts\build_g008_comparison_media.py `
   --output-report .\reports\runs\g008_policy_comparison_visual_evidence.json
 ```
 
+## 단계가 바뀔 때 남기는 촬영 세트
+
+2026-08-26부터 실행 동작에 영향을 주는 stage 변경은 촬영 없이 완료 처리하지 않는다. 학습 stage, checkpoint, 물리 randomization 범위, 평가 지형이 바뀌면 다음 네 파일을 함께 만든다.
+
+1. 로컬 전용 H.264 MP4
+2. Git 공개 GIF
+3. 전진·후진·좌회전·우회전 대표 프레임을 묶은 PNG
+4. checkpoint, runtime 물성, 원본·파생물 SHA-256을 기록한 JSON
+
+영상은 한 환경의 추론 재생이고 성능 판정은 아니다. 각 시각 증거 JSON은 같은 단계의 다중 환경 평가 JSON 경로와 해시를 따로 가진다.
+
+### 공간 혼합 마찰 단계
+
+![공간 혼합 마찰 단계 GIF](media/g008/g008_stage_periodic_friction.gif)
+
+![공간 혼합 마찰 네 방향 스크린샷](media/g008/g008_stage_periodic_friction_contact_sheet.png)
+
+friction S1 checkpoint를 고마찰 `0.8/0.6`과 저마찰 `0.2/0.1`이 `0.5m`마다 반복되는 바닥에서 재생했다. 파란 띠가 저마찰, 갈색 띠가 고마찰이다. 색은 collision API가 없는 별도 표시 mesh에만 넣었다. 접촉 계산은 평가 때 쓴 multi-material collision mesh가 담당한다.
+
+원본과 자막 MP4는 1280×720 또는 1280×780, 50fps, 899 frames, 17.98초다. 공개 GIF는 720×438, 4fps, 72 frames다.
+
+| 파일 | 공개 여부 | 크기 | SHA-256 |
+| --- | --- | ---: | --- |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_stage_periodic_friction_s1_mu020_010_s20260826.mp4` | 로컬 전용 | `1,211,646 bytes` | `5337a53a878df3b229707781c5b7a04419358882a2dab0e85b77637d8e011f3d` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_stage_periodic_friction_s1_mu020_010_annotated_s20260826.mp4` | 로컬 전용 | `1,784,056 bytes` | `3269ac7f69e898aa37aaec93995018e6d43bc185240228404d53584232e727e2` |
+| `docs/media/g008/g008_stage_periodic_friction.gif` | Git 공개 | `5,181,131 bytes` | `4f0681d7039afefd5bba8c5011239e2eac12d46b8bfb8132cd8df5606ff6c6ef` |
+| `docs/media/g008/g008_stage_periodic_friction_contact_sheet.png` | Git 공개 | `511,783 bytes` | `92c0375d863cea9a1e12f25c6bf736a2837eb0d6b16e809e3aaa73a0ed1d8307` |
+
+정량 판정은 `reports/runs/g008_periodic_friction_sweep_command_vs_friction_s1_e32_h500_s20260826.json`, 촬영 조건과 파생물 해시는 `reports/runs/g008_stage_periodic_friction_capture.json`, `reports/runs/g008_stage_periodic_friction_visual_evidence.json`에 있다.
+
+### 링크 그룹 질량 단계
+
+![링크 그룹 질량 단계 GIF](media/g008/g008_stage_link_mass_groups.gif)
+
+![링크 그룹 질량 네 방향 스크린샷](media/g008/g008_stage_link_mass_groups_contact_sheet.png)
+
+leg-mass S1 checkpoint에 hip·thigh·calf·foot 중 한 그룹만 `1.2배`로 바꾼 네 환경을 별도 Isaac Sim 프로세스로 촬영했다. 질량과 inertia tensor는 같은 비율로 바꿨고 COM은 옮기지 않았다. 2×2 영상은 네 원본의 같은 시점을 맞췄다.
+
+| 패널 | 실제 mass ratio 평균 | 실제 총 다리 질량 | inertia 최대 오차 |
+| --- | ---: | ---: | ---: |
+| hip `1.2배` | `1.20000005` | `8.638399kg` | `1.16e-10` |
+| thigh `1.2배` | `1.20000005` | `9.017599kg` | `4.66e-10` |
+| calf `1.2배` | `1.20000005` | `8.219200kg` | `1.16e-10` |
+| foot `1.2배` | `1.20000005` | `8.127999kg` | `0` |
+
+| 파일 | 공개 여부 | 크기 | SHA-256 |
+| --- | --- | ---: | --- |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_stage_link_mass_hip_120_s20260826.mp4` | 로컬 전용 | `3,080,431 bytes` | `5016767f84d1bbb7e2a3e8c8642b6330aecbbb0ba99a834f986a45c7e04fb3ce` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_stage_link_mass_thigh_120_s20260826.mp4` | 로컬 전용 | `3,253,695 bytes` | `ea7111f2664b8604303b78b62520cec76e55af98a6e80eeb50ba76bb627fddb3` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_stage_link_mass_calf_120_s20260826.mp4` | 로컬 전용 | `3,227,495 bytes` | `874dfeca6d253a368cc474ec9a8916ea3b78199825bfc4d60bde84e51e93caf8` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_stage_link_mass_foot_120_s20260826.mp4` | 로컬 전용 | `3,228,144 bytes` | `d14f545373acbdc53bb4e4f6be4c472c2ddde4fb6cdda99b88f854eaa4eb74a3` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_stage_link_mass_groups_120_comparison_s20260826.mp4` | 로컬 전용 | `7,698,786 bytes` | `456eded4c086dd2529b788c592e5a6d0a2c0c3ab00372499ebd9fd512731d517` |
+| `docs/media/g008/g008_stage_link_mass_groups.gif` | Git 공개 | `9,045,987 bytes` | `19424be094d131efda701891f0e95f6f3709e81e6afb5759467a82b506d4a26d` |
+| `docs/media/g008/g008_stage_link_mass_groups_contact_sheet.png` | Git 공개 | `1,146,477 bytes` | `849bc36280da646808567af6408691e27b49145ae635fbf4a349e5cb6627aaf3` |
+
+정량 판정은 `reports/runs/g008_link_mass_sensitivity_command_vs_leg_mass_s1_e800_h300_s20260826.json`을 따른다. 네 촬영 보고서와 최종 파생물 보고서는 `reports/runs/g008_stage_link_mass_*_capture.json`, `reports/runs/g008_stage_link_mass_visual_evidence.json`이다.
+
+### 단계 촬영 재현 명령
+
+혼합 마찰 원본은 다음 명령으로 다시 만든다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+
+& "$HOME\IsaacLab\_isaac_sim\python.bat" .\scripts\record_g008_stage_evidence.py `
+  --profile periodic_friction_s1_mu020_010 `
+  --checkpoint "$HOME\IsaacLab\logs\rsl_rl\unitree_go2_rough\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\model_2097.pt" `
+  --output-dir "$HOME\IsaacLab\logs\visual_evidence\g008" `
+  --report .\reports\runs\g008_stage_periodic_friction_capture.json `
+  --seed 20260826 --headless
+```
+
+링크 질량은 profile만 `link_mass_hip_120`, `link_mass_thigh_120`, `link_mass_calf_120`, `link_mass_foot_120`으로 바꿔 각각 실행한다. checkpoint는 leg-mass S1 `model_2097.pt`를 쓴다. 원본이 준비되면 `scripts/build_g008_stage_media.py`가 로컬 자막 MP4와 공개 GIF·PNG를 만든다.
+
 ## 정량 결과와의 관계
 
 비교 영상은 한 환경의 추론 재생이다. command와 friction S1은 64환경 평면 평가에서 네 방향 gate를 통과했다. leg-mass S1은 전진·후진·좌회전을 통과했지만 우회전 yaw RMSE가 randomized `0.2956 rad/s`, nominal `0.2947 rad/s`로 기준 `0.25 rad/s`를 넘었다. 영상 한 번에서 차이가 작게 보이더라도 이 판정을 바꾸지 않는다.
