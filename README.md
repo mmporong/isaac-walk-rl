@@ -105,6 +105,8 @@ G006은 4096 env × 1500 iterations × seeds 42/43/44로 baseline과 push curric
 
 seed 42의 실제 정책 재생 비교 GIF와 스크린샷, 로컬 전용 원본 영상의 무결성 정보는 [`docs/G006_VISUAL_EVIDENCE.md`](docs/G006_VISUAL_EVIDENCE.md)에 있습니다. 시각 자료는 정성 작동 증거이며 정량 평가를 대체하지 않습니다.
 
+G008 단일축 물성 gate와 후속 held-out dynamics, cross-simulator, RMA식 적응 모듈의 적용 우선순위는 [`docs/PORTFOLIO_SIM_TO_REAL_20260826.md`](docs/PORTFOLIO_SIM_TO_REAL_20260826.md)에 정리했습니다. 실물 Go2 결과가 생기기 전까지 이 단계는 `sim-to-real readiness`로 표시합니다.
+
 ```powershell
 cd "$HOME\isaac-walk-rl"
 python .\scripts\summarize_g006.py `
