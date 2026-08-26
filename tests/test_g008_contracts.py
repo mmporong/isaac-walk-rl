@@ -76,3 +76,16 @@ def test_manifest_matches_import_light_contracts():
     assert [tuple(item["scale"]) for item in manifest["part_3_leg_link_mass"]["stages"]] == [
         item.scale_range for item in LEG_MASS_STAGES
     ]
+    periodic = manifest["part_4_periodic_friction_stress_evaluation"]
+    assert periodic["stripe_width_m"] == 0.5
+    assert periodic["num_envs_per_case"] == 32
+    assert periodic["collision_underlay"] is False
+    assert periodic["result"]["lowest_completed_case"] == {
+        "static": 0.2,
+        "dynamic": 0.1,
+    }
+    assert periodic["result"]["friction_s1_all_direction_contiguous_pass_floor"] is None
+    assert periodic["result"]["mixed_010_005_status"] == "unresolved_after_four_native_terminations"
+    mass_screen = manifest["part_5_link_group_mass_sensitivity"]
+    assert mass_screen["groups"] == ["hip", "thigh", "calf", "foot"]
+    assert mass_screen["result"]["leg_mass_s1_stage_2_approved"] is False

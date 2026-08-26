@@ -1,0 +1,2629 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "protocol": "spatial_periodic_friction_stripes_sweep_v1",
+  "task": "Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0",
+  "terrain_mode": "periodic_static_mesh_without_collision_underlay",
+  "contact_model": {
+    "field_axis": "environment_local_x",
+    "stripe_width_m": 0.5,
+    "period_m": 1.0,
+    "minimum_local_stripe_count": 48,
+    "minimum_local_field_length_m": 24.0,
+    "stripe_width_y_m": 4.0,
+    "stripe_surface_height_m": 0.002,
+    "environment_spacing_m": 16.0,
+    "global_stripe_count": 240,
+    "global_field_x_bounds_m": [
+      -60.0,
+      60.0
+    ],
+    "global_field_half_width_y_m": 34.0,
+    "robot_material": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "combine_mode": "multiply",
+    "high_material": [
+      0.8,
+      0.6,
+      0.0
+    ],
+    "low_material": "varies_by_case",
+    "geometry": "one pre-spawned static triangle mesh with alternating coplanar face-material subsets and MeshCollisionAPI approximation none",
+    "field_phase": {
+      "environment_origin_cell_integral_error_max": 0.0,
+      "all_environment_origins_on_even_period_cells": true
+    },
+    "underlay": {
+      "default_ground_collision_prim": "/World/ground/terrain/GroundPlane/CollisionPlane",
+      "default_ground_collision_exists": false,
+      "height_scan_prim": "/World/periodic_friction_field/height_scan_surface",
+      "height_scan_has_collision_api": false
+    }
+  },
+  "headless": true,
+  "device": "cuda:0",
+  "evaluation_seed": 20260826,
+  "num_envs_per_case": 32,
+  "environments_per_policy": 16,
+  "environments_per_policy_direction": 4,
+  "horizon_steps": 500,
+  "warmup_steps": 50,
+  "step_dt_s": 0.02,
+  "observation_corruption": false,
+  "gate": {
+    "survival_rate_min": 1.0,
+    "roll_abs_rad_max": 0.35,
+    "pitch_abs_rad_max": 0.35,
+    "linear_tracking_rmse_mps_max": 0.25,
+    "yaw_tracking_rmse_radps_max": 0.25
+  },
+  "fall_detection": {
+    "contact_termination_term": "base_contact",
+    "kinematic_base_height_min_m": 0.18,
+    "kinematic_body_up_world_z_min": 0.5,
+    "combined_rule": "contact termination OR base height below threshold OR body up-axis z below threshold"
+  },
+  "sweep": [
+    {
+      "id": "uniform_nominal",
+      "low_static": 0.8,
+      "low_dynamic": 0.6,
+      "mixed": false
+    },
+    {
+      "id": "mixed_070_050",
+      "low_static": 0.7,
+      "low_dynamic": 0.5,
+      "mixed": true
+    },
+    {
+      "id": "mixed_060_040",
+      "low_static": 0.6,
+      "low_dynamic": 0.4,
+      "mixed": true
+    },
+    {
+      "id": "mixed_050_030",
+      "low_static": 0.5,
+      "low_dynamic": 0.3,
+      "mixed": true
+    },
+    {
+      "id": "mixed_040_025",
+      "low_static": 0.4,
+      "low_dynamic": 0.25,
+      "mixed": true
+    },
+    {
+      "id": "mixed_030_020",
+      "low_static": 0.3,
+      "low_dynamic": 0.2,
+      "mixed": true
+    },
+    {
+      "id": "mixed_020_010",
+      "low_static": 0.2,
+      "low_dynamic": 0.1,
+      "mixed": true
+    },
+    {
+      "id": "mixed_010_005",
+      "low_static": 0.1,
+      "low_dynamic": 0.05,
+      "mixed": true
+    }
+  ],
+  "policies": [
+    {
+      "policy_id": "command",
+      "checkpoint": {
+        "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_11-11-12_g008_command_finetune_g006_s42_e1024_i300\\model_1798.pt",
+        "sha256": "53cc09043088bcd53618d2ae1f90c7f2e91d01eab7090cc63922486942b2ed47"
+      },
+      "threshold_summary": {
+        "baseline_gate_pass": false,
+        "baseline_failure": {
+          "case_id": "uniform_nominal",
+          "failed_directions": [
+            "left_turn"
+          ]
+        },
+        "contiguous_pass_floor": null,
+        "first_failure": null,
+        "lowest_tested_passing": null,
+        "isolated_mixed_passes": [
+          "mixed_070_050",
+          "mixed_050_030",
+          "mixed_040_025"
+        ],
+        "monotonic_gate_sequence": false
+      },
+      "direction_thresholds": {
+        "forward": {
+          "baseline_gate_pass": true,
+          "baseline_failure": null,
+          "contiguous_pass_floor": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "first_failure": null,
+          "lowest_tested_passing": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "monotonic_gate_sequence": true
+        },
+        "backward": {
+          "baseline_gate_pass": true,
+          "baseline_failure": null,
+          "contiguous_pass_floor": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "first_failure": null,
+          "lowest_tested_passing": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "monotonic_gate_sequence": true
+        },
+        "left_turn": {
+          "baseline_gate_pass": false,
+          "baseline_failure": {
+            "case_id": "uniform_nominal",
+            "failed_directions": [
+              "left_turn"
+            ]
+          },
+          "contiguous_pass_floor": null,
+          "first_failure": null,
+          "lowest_tested_passing": null,
+          "isolated_mixed_passes": [
+            "mixed_070_050",
+            "mixed_050_030",
+            "mixed_040_025",
+            "mixed_030_020",
+            "mixed_020_010"
+          ],
+          "monotonic_gate_sequence": false
+        },
+        "right_turn": {
+          "baseline_gate_pass": true,
+          "baseline_failure": null,
+          "contiguous_pass_floor": {
+            "case_id": "mixed_070_050",
+            "low_static": 0.7,
+            "low_dynamic": 0.5
+          },
+          "first_failure": {
+            "case_id": "mixed_060_040",
+            "low_static": 0.6,
+            "low_dynamic": 0.4,
+            "failed_directions": [
+              "right_turn"
+            ]
+          },
+          "lowest_tested_passing": {
+            "case_id": "mixed_040_025",
+            "low_static": 0.4,
+            "low_dynamic": 0.25
+          },
+          "monotonic_gate_sequence": false
+        }
+      },
+      "cases": [
+        {
+          "case_id": "uniform_nominal",
+          "mixed": false,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.8,
+          "low_dynamic": 0.6,
+          "all_directions_gate_pass": false,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.037085901466599715,
+              "yaw_tracking_rmse_radps": 0.025380138755128016,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6175615592797598,
+                "lin_vel_y_mps": 0.003116348773441536,
+                "ang_vel_z_radps": -0.019713714291962486
+              },
+              "torque_l2_norm_mean_nm": 11.851727009879218,
+              "absolute_mechanical_power_mean_w": 23.938186497158476,
+              "roll_abs_rad_max": 0.02375876158475876,
+              "pitch_abs_rad_max": 0.04696917533874512,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.0,
+              "stripe_transition_count": 0,
+              "local_foot_abs_x_max_m": 6.292064666748047,
+              "local_foot_abs_y_max_m": 0.7124557495117188,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.10357306173499475,
+              "yaw_tracking_rmse_radps": 0.038068765872296795,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.30724967930052016,
+                "lin_vel_y_mps": -0.022359224222083057,
+                "ang_vel_z_radps": -0.0012409596111521953
+              },
+              "torque_l2_norm_mean_nm": 12.369091046651205,
+              "absolute_mechanical_power_mean_w": 21.49184615665012,
+              "roll_abs_rad_max": 0.06249462068080902,
+              "pitch_abs_rad_max": 0.07870008051395416,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.0,
+              "stripe_transition_count": 0,
+              "local_foot_abs_x_max_m": 3.2575016021728516,
+              "local_foot_abs_y_max_m": 0.3678092956542969,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.050291360709928755,
+              "yaw_tracking_rmse_radps": 0.2616670309157903,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.008031463332267272,
+                "lin_vel_y_mps": 0.001047530420538452,
+                "ang_vel_z_radps": 0.3271795831579301
+              },
+              "torque_l2_norm_mean_nm": 13.633781212700738,
+              "absolute_mechanical_power_mean_w": 9.102846680747138,
+              "roll_abs_rad_max": 0.19227057695388794,
+              "pitch_abs_rad_max": 0.2405792623758316,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.0,
+              "stripe_transition_count": 0,
+              "local_foot_abs_x_max_m": 0.4551544189453125,
+              "local_foot_abs_y_max_m": 0.3599838614463806,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.07584081375265461,
+              "yaw_tracking_rmse_radps": 0.23255320360246437,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.0008117430923610098,
+                "lin_vel_y_mps": 0.00019925466971471907,
+                "ang_vel_z_radps": -0.37144339634312523
+              },
+              "torque_l2_norm_mean_nm": 13.563869762420655,
+              "absolute_mechanical_power_mean_w": 12.297871251636082,
+              "roll_abs_rad_max": 0.24774444103240967,
+              "pitch_abs_rad_max": 0.3362138867378235,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.0,
+              "stripe_transition_count": 0,
+              "local_foot_abs_x_max_m": 0.41798365116119385,
+              "local_foot_abs_y_max_m": 0.40166664123535156,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_070_050",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.7,
+          "low_dynamic": 0.5,
+          "all_directions_gate_pass": true,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.03701724510739023,
+              "yaw_tracking_rmse_radps": 0.024967992528599013,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6175945418410831,
+                "lin_vel_y_mps": 0.003234817585067099,
+                "ang_vel_z_radps": -0.01948390045436099
+              },
+              "torque_l2_norm_mean_nm": 11.843985764185588,
+              "absolute_mechanical_power_mean_w": 23.798250608444214,
+              "roll_abs_rad_max": 0.024158675223588943,
+              "pitch_abs_rad_max": 0.046909067779779434,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.47458333333333336,
+              "stripe_transition_count": 180,
+              "local_foot_abs_x_max_m": 6.274788856506348,
+              "local_foot_abs_y_max_m": 0.6978673934936523,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.106201582212374,
+              "yaw_tracking_rmse_radps": 0.04070203844631515,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.30437372429503334,
+                "lin_vel_y_mps": -0.021244422113522888,
+                "ang_vel_z_radps": 0.0027153976670362882
+              },
+              "torque_l2_norm_mean_nm": 12.665293398963081,
+              "absolute_mechanical_power_mean_w": 22.231413567860923,
+              "roll_abs_rad_max": 0.07769917696714401,
+              "pitch_abs_rad_max": 0.0936226025223732,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.48833333333333334,
+              "stripe_transition_count": 88,
+              "local_foot_abs_x_max_m": 3.2579879760742188,
+              "local_foot_abs_y_max_m": 0.43062591552734375,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.04980168255188603,
+              "yaw_tracking_rmse_radps": 0.2295350930056135,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.011529804440732632,
+                "lin_vel_y_mps": 0.00015352677424541777,
+                "ang_vel_z_radps": 0.35123417429005105
+              },
+              "torque_l2_norm_mean_nm": 13.237132434844971,
+              "absolute_mechanical_power_mean_w": 9.71076436334186,
+              "roll_abs_rad_max": 0.17520739138126373,
+              "pitch_abs_rad_max": 0.20252253115177155,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5565277777777777,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.46539878845214844,
+              "local_foot_abs_y_max_m": 0.35833168029785156,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.06702274875067024,
+              "yaw_tracking_rmse_radps": 0.19892042850424987,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.007293295817604909,
+                "lin_vel_y_mps": 0.0031061209903823005,
+                "ang_vel_z_radps": -0.4008759643965297
+              },
+              "torque_l2_norm_mean_nm": 13.97781213760376,
+              "absolute_mechanical_power_mean_w": 12.934668481614855,
+              "roll_abs_rad_max": 0.2740269601345062,
+              "pitch_abs_rad_max": 0.2910780906677246,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5154166666666666,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.4070472717285156,
+              "local_foot_abs_y_max_m": 0.4282979965209961,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_060_040",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.6,
+          "low_dynamic": 0.4,
+          "all_directions_gate_pass": false,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.036933031880002166,
+              "yaw_tracking_rmse_radps": 0.02454034255402628,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6180566000938416,
+                "lin_vel_y_mps": 0.0030897353087493682,
+                "ang_vel_z_radps": -0.019496510846656746
+              },
+              "torque_l2_norm_mean_nm": 11.821295863257514,
+              "absolute_mechanical_power_mean_w": 23.441998761494954,
+              "roll_abs_rad_max": 0.02433149516582489,
+              "pitch_abs_rad_max": 0.04722917079925537,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.47333333333333333,
+              "stripe_transition_count": 176,
+              "local_foot_abs_x_max_m": 6.275643825531006,
+              "local_foot_abs_y_max_m": 0.70751953125,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.0989531809423352,
+              "yaw_tracking_rmse_radps": 0.03872601942602774,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.31080323510699803,
+                "lin_vel_y_mps": -0.021465655302551265,
+                "ang_vel_z_radps": 0.0003961079318024632
+              },
+              "torque_l2_norm_mean_nm": 12.544760214487711,
+              "absolute_mechanical_power_mean_w": 21.26389051861233,
+              "roll_abs_rad_max": 0.0738508403301239,
+              "pitch_abs_rad_max": 0.10140611976385117,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5048611111111111,
+              "stripe_transition_count": 88,
+              "local_foot_abs_x_max_m": 3.3301541805267334,
+              "local_foot_abs_y_max_m": 0.34879493713378906,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.04578255323997523,
+              "yaw_tracking_rmse_radps": 0.25533478408456656,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.008859713749132223,
+                "lin_vel_y_mps": -0.007456353368599795,
+                "ang_vel_z_radps": 0.3290916304331687
+              },
+              "torque_l2_norm_mean_nm": 12.273775895436605,
+              "absolute_mechanical_power_mean_w": 7.6838956594467165,
+              "roll_abs_rad_max": 0.11994686722755432,
+              "pitch_abs_rad_max": 0.18278908729553223,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5930555555555556,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.39528465270996094,
+              "local_foot_abs_y_max_m": 0.3505210876464844,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.017828649865836196,
+              "yaw_tracking_rmse_radps": 0.45875811033436176,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.002275695204524608,
+                "lin_vel_y_mps": 0.002022635855240272,
+                "ang_vel_z_radps": -0.06904475052108561
+              },
+              "torque_l2_norm_mean_nm": 15.573642599317763,
+              "absolute_mechanical_power_mean_w": 3.475460039774577,
+              "roll_abs_rad_max": 0.13399192690849304,
+              "pitch_abs_rad_max": 0.1565907597541809,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5,
+              "stripe_transition_count": 0,
+              "local_foot_abs_x_max_m": 0.2890281677246094,
+              "local_foot_abs_y_max_m": 0.26692771911621094,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_050_030",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.5,
+          "low_dynamic": 0.3,
+          "all_directions_gate_pass": true,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.0373050092516538,
+              "yaw_tracking_rmse_radps": 0.024994142893545953,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6189862056573232,
+                "lin_vel_y_mps": 0.002301198956039217,
+                "ang_vel_z_radps": -0.019997381394787225
+              },
+              "torque_l2_norm_mean_nm": 11.736559465196397,
+              "absolute_mechanical_power_mean_w": 23.198435446421307,
+              "roll_abs_rad_max": 0.0235378909856081,
+              "pitch_abs_rad_max": 0.04876067861914635,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.47888888888888886,
+              "stripe_transition_count": 176,
+              "local_foot_abs_x_max_m": 6.265916347503662,
+              "local_foot_abs_y_max_m": 0.7322807312011719,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.09849197991343152,
+              "yaw_tracking_rmse_radps": 0.03611167848714695,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.31220179597536724,
+                "lin_vel_y_mps": -0.023534250071841397,
+                "ang_vel_z_radps": -0.0007758995662960741
+              },
+              "torque_l2_norm_mean_nm": 12.291876220703125,
+              "absolute_mechanical_power_mean_w": 20.142822714911567,
+              "roll_abs_rad_max": 0.0706382691860199,
+              "pitch_abs_rad_max": 0.07717049866914749,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4797222222222222,
+              "stripe_transition_count": 89,
+              "local_foot_abs_x_max_m": 3.3560752868652344,
+              "local_foot_abs_y_max_m": 0.3507652282714844,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.04735506919260788,
+              "yaw_tracking_rmse_radps": 0.18334357860347933,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.010897284882764022,
+                "lin_vel_y_mps": -0.005480857885235713,
+                "ang_vel_z_radps": 0.3754444066517883
+              },
+              "torque_l2_norm_mean_nm": 11.937684122721354,
+              "absolute_mechanical_power_mean_w": 8.249266562461854,
+              "roll_abs_rad_max": 0.11891745030879974,
+              "pitch_abs_rad_max": 0.18520179390907288,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.44805555555555554,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.36336326599121094,
+              "local_foot_abs_y_max_m": 0.32730475068092346,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.053885415869906875,
+              "yaw_tracking_rmse_radps": 0.14523545073225821,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.006290303043141547,
+                "lin_vel_y_mps": 0.004817342850631879,
+                "ang_vel_z_radps": -0.4617551848789056
+              },
+              "torque_l2_norm_mean_nm": 13.665330908033583,
+              "absolute_mechanical_power_mean_w": 11.919130733278063,
+              "roll_abs_rad_max": 0.2333858758211136,
+              "pitch_abs_rad_max": 0.19186586141586304,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.46152777777777776,
+              "stripe_transition_count": 22,
+              "local_foot_abs_x_max_m": 0.34124755859375,
+              "local_foot_abs_y_max_m": 0.37550926208496094,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_040_025",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.4,
+          "low_dynamic": 0.25,
+          "all_directions_gate_pass": true,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.037064631205085366,
+              "yaw_tracking_rmse_radps": 0.02521885651382674,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6186385904418098,
+                "lin_vel_y_mps": 0.00254014961806307,
+                "ang_vel_z_radps": -0.020515649694457856
+              },
+              "torque_l2_norm_mean_nm": 11.662379348542956,
+              "absolute_mechanical_power_mean_w": 22.92812387890286,
+              "roll_abs_rad_max": 0.024502642452716827,
+              "pitch_abs_rad_max": 0.04931056126952171,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4909722222222222,
+              "stripe_transition_count": 176,
+              "local_foot_abs_x_max_m": 6.240726470947266,
+              "local_foot_abs_y_max_m": 0.7494049072265625,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.09818985287971786,
+              "yaw_tracking_rmse_radps": 0.04234625971623732,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.3128120245867305,
+                "lin_vel_y_mps": -0.023383188864423168,
+                "ang_vel_z_radps": -0.001734530093639882
+              },
+              "torque_l2_norm_mean_nm": 12.374717727237277,
+              "absolute_mechanical_power_mean_w": 20.573224315643312,
+              "roll_abs_rad_max": 0.07340583950281143,
+              "pitch_abs_rad_max": 0.09527650475502014,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4727777777777778,
+              "stripe_transition_count": 89,
+              "local_foot_abs_x_max_m": 3.3733596801757812,
+              "local_foot_abs_y_max_m": 0.3297767639160156,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.0460256893747016,
+              "yaw_tracking_rmse_radps": 0.2017427117952092,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.01236065996448613,
+                "lin_vel_y_mps": -0.007183972609539827,
+                "ang_vel_z_radps": 0.35768677091432943
+              },
+              "torque_l2_norm_mean_nm": 12.093169379764133,
+              "absolute_mechanical_power_mean_w": 8.193236746788024,
+              "roll_abs_rad_max": 0.11672256141901016,
+              "pitch_abs_rad_max": 0.18201841413974762,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4618055555555556,
+              "stripe_transition_count": 18,
+              "local_foot_abs_x_max_m": 0.3399372100830078,
+              "local_foot_abs_y_max_m": 0.3360252380371094,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.05749809093445697,
+              "yaw_tracking_rmse_radps": 0.12129264791313389,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.008374885769767894,
+                "lin_vel_y_mps": -0.0023334304600333175,
+                "ang_vel_z_radps": -0.46957770784695946
+              },
+              "torque_l2_norm_mean_nm": 13.44892640431722,
+              "absolute_mechanical_power_mean_w": 11.755142696168688,
+              "roll_abs_rad_max": 0.25303053855895996,
+              "pitch_abs_rad_max": 0.20841172337532043,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.43333333333333335,
+              "stripe_transition_count": 22,
+              "local_foot_abs_x_max_m": 0.3239593505859375,
+              "local_foot_abs_y_max_m": 0.2762432098388672,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_030_020",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.3,
+          "low_dynamic": 0.2,
+          "all_directions_gate_pass": false,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.03673253096045307,
+              "yaw_tracking_rmse_radps": 0.025196015557414412,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6186933502886031,
+                "lin_vel_y_mps": 0.002115283372113481,
+                "ang_vel_z_radps": -0.020993100674046826
+              },
+              "torque_l2_norm_mean_nm": 11.588382976320055,
+              "absolute_mechanical_power_mean_w": 22.41020407570733,
+              "roll_abs_rad_max": 0.02355702966451645,
+              "pitch_abs_rad_max": 0.0487343892455101,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.48944444444444446,
+              "stripe_transition_count": 182,
+              "local_foot_abs_x_max_m": 6.236908435821533,
+              "local_foot_abs_y_max_m": 0.7275009155273438,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.09480507219113884,
+              "yaw_tracking_rmse_radps": 0.04070932697446693,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.3159618153174718,
+                "lin_vel_y_mps": -0.023531153892658443,
+                "ang_vel_z_radps": -0.005813891098368913
+              },
+              "torque_l2_norm_mean_nm": 12.34609722773234,
+              "absolute_mechanical_power_mean_w": 20.76627701441447,
+              "roll_abs_rad_max": 0.06600970029830933,
+              "pitch_abs_rad_max": 0.09274740517139435,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4702777777777778,
+              "stripe_transition_count": 89,
+              "local_foot_abs_x_max_m": 3.404306411743164,
+              "local_foot_abs_y_max_m": 0.3099689483642578,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.04259056782437773,
+              "yaw_tracking_rmse_radps": 0.16897934578175935,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.0047043942075429696,
+                "lin_vel_y_mps": -0.0012536107365869814,
+                "ang_vel_z_radps": 0.38113036998444133
+              },
+              "torque_l2_norm_mean_nm": 11.630349765353733,
+              "absolute_mechanical_power_mean_w": 8.663483160336812,
+              "roll_abs_rad_max": 0.11623447388410568,
+              "pitch_abs_rad_max": 0.1670822650194168,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4419444444444444,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.3450838625431061,
+              "local_foot_abs_y_max_m": 0.31330108642578125,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.08789362837853602,
+              "yaw_tracking_rmse_radps": 0.1557271299524982,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.0011726276286774212,
+                "lin_vel_y_mps": 0.0006014932303999861,
+                "ang_vel_z_radps": -0.4560495720638169
+              },
+              "torque_l2_norm_mean_nm": 14.143046894073485,
+              "absolute_mechanical_power_mean_w": 16.932148196962146,
+              "roll_abs_rad_max": 0.248023122549057,
+              "pitch_abs_rad_max": 0.499357670545578,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.45708333333333334,
+              "stripe_transition_count": 33,
+              "local_foot_abs_x_max_m": 0.39469337463378906,
+              "local_foot_abs_y_max_m": 0.44046592712402344,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_020_010",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.2,
+          "low_dynamic": 0.1,
+          "all_directions_gate_pass": false,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.037399177316771455,
+              "yaw_tracking_rmse_radps": 0.02809569571413874,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6183571463161045,
+                "lin_vel_y_mps": 4.51619623021947e-05,
+                "ang_vel_z_radps": -0.02257938836597734
+              },
+              "torque_l2_norm_mean_nm": 11.516193033854167,
+              "absolute_mechanical_power_mean_w": 21.669863991207546,
+              "roll_abs_rad_max": 0.0605437308549881,
+              "pitch_abs_rad_max": 0.101380854845047,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.49194444444444446,
+              "stripe_transition_count": 185,
+              "local_foot_abs_x_max_m": 6.149137496948242,
+              "local_foot_abs_y_max_m": 0.7441997528076172,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.0924412772781473,
+              "yaw_tracking_rmse_radps": 0.04714588784722299,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.3203374405039681,
+                "lin_vel_y_mps": -0.01949782442016941,
+                "ang_vel_z_radps": -0.008471463832150524
+              },
+              "torque_l2_norm_mean_nm": 12.795340292188856,
+              "absolute_mechanical_power_mean_w": 28.096988671620686,
+              "roll_abs_rad_max": 0.0976162850856781,
+              "pitch_abs_rad_max": 0.16425783932209015,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.46819444444444447,
+              "stripe_transition_count": 110,
+              "local_foot_abs_x_max_m": 3.4046707153320312,
+              "local_foot_abs_y_max_m": 0.24588775634765625,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.05909298909524594,
+              "yaw_tracking_rmse_radps": 0.1397186534559055,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.008465769792286058,
+                "lin_vel_y_mps": 0.011354066366847191,
+                "ang_vel_z_radps": 0.4207856692539321
+              },
+              "torque_l2_norm_mean_nm": 12.058800538380941,
+              "absolute_mechanical_power_mean_w": 12.406088700824313,
+              "roll_abs_rad_max": 0.16696734726428986,
+              "pitch_abs_rad_max": 0.16832157969474792,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.37430555555555556,
+              "stripe_transition_count": 19,
+              "local_foot_abs_x_max_m": 0.3205242156982422,
+              "local_foot_abs_y_max_m": 0.41222667694091797,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.07735972344911254,
+              "yaw_tracking_rmse_radps": 0.18301736965795884,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.015625843724830904,
+                "lin_vel_y_mps": 0.018511259582333475,
+                "ang_vel_z_radps": -0.44230409012900457
+              },
+              "torque_l2_norm_mean_nm": 14.049527977837457,
+              "absolute_mechanical_power_mean_w": 21.4145428276062,
+              "roll_abs_rad_max": 0.44834935665130615,
+              "pitch_abs_rad_max": 0.40797823667526245,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5245833333333333,
+              "stripe_transition_count": 51,
+              "local_foot_abs_x_max_m": 0.5610835552215576,
+              "local_foot_abs_y_max_m": 0.5538558959960938,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "policy_id": "friction_s1",
+      "checkpoint": {
+        "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\\model_2097.pt",
+        "sha256": "40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0"
+      },
+      "threshold_summary": {
+        "baseline_gate_pass": true,
+        "baseline_failure": null,
+        "contiguous_pass_floor": null,
+        "first_failure": {
+          "case_id": "mixed_070_050",
+          "low_static": 0.7,
+          "low_dynamic": 0.5,
+          "failed_directions": [
+            "right_turn"
+          ]
+        },
+        "lowest_tested_passing": {
+          "case_id": "mixed_060_040",
+          "low_static": 0.6,
+          "low_dynamic": 0.4
+        },
+        "monotonic_gate_sequence": false
+      },
+      "direction_thresholds": {
+        "forward": {
+          "baseline_gate_pass": true,
+          "baseline_failure": null,
+          "contiguous_pass_floor": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "first_failure": null,
+          "lowest_tested_passing": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "monotonic_gate_sequence": true
+        },
+        "backward": {
+          "baseline_gate_pass": true,
+          "baseline_failure": null,
+          "contiguous_pass_floor": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "first_failure": null,
+          "lowest_tested_passing": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "monotonic_gate_sequence": true
+        },
+        "left_turn": {
+          "baseline_gate_pass": true,
+          "baseline_failure": null,
+          "contiguous_pass_floor": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "first_failure": null,
+          "lowest_tested_passing": {
+            "case_id": "mixed_020_010",
+            "low_static": 0.2,
+            "low_dynamic": 0.1
+          },
+          "monotonic_gate_sequence": true
+        },
+        "right_turn": {
+          "baseline_gate_pass": true,
+          "baseline_failure": null,
+          "contiguous_pass_floor": null,
+          "first_failure": {
+            "case_id": "mixed_070_050",
+            "low_static": 0.7,
+            "low_dynamic": 0.5,
+            "failed_directions": [
+              "right_turn"
+            ]
+          },
+          "lowest_tested_passing": {
+            "case_id": "mixed_060_040",
+            "low_static": 0.6,
+            "low_dynamic": 0.4
+          },
+          "monotonic_gate_sequence": false
+        }
+      },
+      "cases": [
+        {
+          "case_id": "uniform_nominal",
+          "mixed": false,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.8,
+          "low_dynamic": 0.6,
+          "all_directions_gate_pass": true,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.03870570884238729,
+              "yaw_tracking_rmse_radps": 0.04561190308136347,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6011394449075063,
+                "lin_vel_y_mps": -0.023558764697841576,
+                "ang_vel_z_radps": -0.03420799205008532
+              },
+              "torque_l2_norm_mean_nm": 10.95468601014879,
+              "absolute_mechanical_power_mean_w": 22.428201107449002,
+              "roll_abs_rad_max": 0.027833925560116768,
+              "pitch_abs_rad_max": 0.021995795890688896,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.0,
+              "stripe_transition_count": 0,
+              "local_foot_abs_x_max_m": 5.9564361572265625,
+              "local_foot_abs_y_max_m": 1.3037300109863281,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.06122607453854537,
+              "yaw_tracking_rmse_radps": 0.044231325545610926,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.3476273378398683,
+                "lin_vel_y_mps": 3.726390462058286e-05,
+                "ang_vel_z_radps": -0.03852705024544977
+              },
+              "torque_l2_norm_mean_nm": 11.5260206773546,
+              "absolute_mechanical_power_mean_w": 20.46141276465522,
+              "roll_abs_rad_max": 0.05632638931274414,
+              "pitch_abs_rad_max": 0.033179257065057755,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.0,
+              "stripe_transition_count": 0,
+              "local_foot_abs_x_max_m": 3.5867042541503906,
+              "local_foot_abs_y_max_m": 0.7083854675292969,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.056719892766704146,
+              "yaw_tracking_rmse_radps": 0.13380878657796785,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.035876035049764644,
+                "lin_vel_y_mps": -0.017175268344063726,
+                "ang_vel_z_radps": 0.3955378512541453
+              },
+              "torque_l2_norm_mean_nm": 11.900403419070773,
+              "absolute_mechanical_power_mean_w": 7.595866213374667,
+              "roll_abs_rad_max": 0.08463072776794434,
+              "pitch_abs_rad_max": 0.12579956650733948,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.0,
+              "stripe_transition_count": 0,
+              "local_foot_abs_x_max_m": 0.3944282531738281,
+              "local_foot_abs_y_max_m": 0.40771484375,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.07452303503877795,
+              "yaw_tracking_rmse_radps": 0.14183349672665543,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.0052255251016079755,
+                "lin_vel_y_mps": 0.008014063344776837,
+                "ang_vel_z_radps": -0.425656933983167
+              },
+              "torque_l2_norm_mean_nm": 14.617738810645209,
+              "absolute_mechanical_power_mean_w": 14.999419595930311,
+              "roll_abs_rad_max": 0.301097571849823,
+              "pitch_abs_rad_max": 0.24506211280822754,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.0,
+              "stripe_transition_count": 0,
+              "local_foot_abs_x_max_m": 0.37848877906799316,
+              "local_foot_abs_y_max_m": 0.3209114074707031,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_070_050",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.7,
+          "low_dynamic": 0.5,
+          "all_directions_gate_pass": false,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.03798337289368596,
+              "yaw_tracking_rmse_radps": 0.045640018328892064,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6007649103800455,
+                "lin_vel_y_mps": -0.02268261510374335,
+                "ang_vel_z_radps": -0.03471904103081518
+              },
+              "torque_l2_norm_mean_nm": 10.885250754886203,
+              "absolute_mechanical_power_mean_w": 21.742645087771944,
+              "roll_abs_rad_max": 0.028540439903736115,
+              "pitch_abs_rad_max": 0.022229960188269615,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4811111111111111,
+              "stripe_transition_count": 173,
+              "local_foot_abs_x_max_m": 5.952192306518555,
+              "local_foot_abs_y_max_m": 1.3298416137695312,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.06139930849835257,
+              "yaw_tracking_rmse_radps": 0.043547186957185534,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.347450962000423,
+                "lin_vel_y_mps": -9.475469330532684e-05,
+                "ang_vel_z_radps": -0.0374826053972356
+              },
+              "torque_l2_norm_mean_nm": 11.422939951154921,
+              "absolute_mechanical_power_mean_w": 19.67332998275757,
+              "roll_abs_rad_max": 0.055185168981552124,
+              "pitch_abs_rad_max": 0.028191063553094864,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5169444444444444,
+              "stripe_transition_count": 96,
+              "local_foot_abs_x_max_m": 3.5883026123046875,
+              "local_foot_abs_y_max_m": 0.7116174697875977,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.054714837717956474,
+              "yaw_tracking_rmse_radps": 0.11822445845060858,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.03482188209270438,
+                "lin_vel_y_mps": -0.014504825066412902,
+                "ang_vel_z_radps": 0.4104920309782028
+              },
+              "torque_l2_norm_mean_nm": 11.227306024763319,
+              "absolute_mechanical_power_mean_w": 7.259829179975721,
+              "roll_abs_rad_max": 0.06894686818122864,
+              "pitch_abs_rad_max": 0.14541324973106384,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.6875,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.4263286590576172,
+              "local_foot_abs_y_max_m": 0.39757341146469116,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.08470985236489859,
+              "yaw_tracking_rmse_radps": 0.15943280101612414,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.0015904729338621513,
+                "lin_vel_y_mps": 0.015967968140483006,
+                "ang_vel_z_radps": -0.4049978469643328
+              },
+              "torque_l2_norm_mean_nm": 14.76064256032308,
+              "absolute_mechanical_power_mean_w": 15.047883805698818,
+              "roll_abs_rad_max": 0.4212370216846466,
+              "pitch_abs_rad_max": 0.24710789322853088,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5086111111111111,
+              "stripe_transition_count": 17,
+              "local_foot_abs_x_max_m": 0.364022433757782,
+              "local_foot_abs_y_max_m": 0.5334587097167969,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_060_040",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.6,
+          "low_dynamic": 0.4,
+          "all_directions_gate_pass": true,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.037731621025561025,
+              "yaw_tracking_rmse_radps": 0.046325156238165646,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6005269086360931,
+                "lin_vel_y_mps": -0.022322646936970867,
+                "ang_vel_z_radps": -0.03517947133294203
+              },
+              "torque_l2_norm_mean_nm": 10.898382477230497,
+              "absolute_mechanical_power_mean_w": 21.572880613538953,
+              "roll_abs_rad_max": 0.028849570080637932,
+              "pitch_abs_rad_max": 0.022724317386746407,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.48,
+              "stripe_transition_count": 180,
+              "local_foot_abs_x_max_m": 5.930217742919922,
+              "local_foot_abs_y_max_m": 1.3251571655273438,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.05943005378672895,
+              "yaw_tracking_rmse_radps": 0.043382674507292406,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.34892877214484747,
+                "lin_vel_y_mps": 0.0015842726417920655,
+                "ang_vel_z_radps": -0.03754462148114625
+              },
+              "torque_l2_norm_mean_nm": 11.346195691426596,
+              "absolute_mechanical_power_mean_w": 18.889234844843546,
+              "roll_abs_rad_max": 0.0612371452152729,
+              "pitch_abs_rad_max": 0.03315272927284241,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.48347222222222225,
+              "stripe_transition_count": 100,
+              "local_foot_abs_x_max_m": 3.5625038146972656,
+              "local_foot_abs_y_max_m": 0.7168693542480469,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.05506467246408769,
+              "yaw_tracking_rmse_radps": 0.11265906048575101,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.036731836949475107,
+                "lin_vel_y_mps": -0.013806489619115988,
+                "ang_vel_z_radps": 0.4144544096125497
+              },
+              "torque_l2_norm_mean_nm": 10.964186350504557,
+              "absolute_mechanical_power_mean_w": 7.0733288335800175,
+              "roll_abs_rad_max": 0.07155130058526993,
+              "pitch_abs_rad_max": 0.12739068269729614,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.6715277777777777,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.4007081985473633,
+              "local_foot_abs_y_max_m": 0.39567187428474426,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.06397733798534737,
+              "yaw_tracking_rmse_radps": 0.18696941771633424,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.006627858214229086,
+                "lin_vel_y_mps": 0.008321850849703575,
+                "ang_vel_z_radps": -0.38980267266432445
+              },
+              "torque_l2_norm_mean_nm": 14.260274535285102,
+              "absolute_mechanical_power_mean_w": 12.505210557513767,
+              "roll_abs_rad_max": 0.1510838121175766,
+              "pitch_abs_rad_max": 0.28602445125579834,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5484722222222222,
+              "stripe_transition_count": 18,
+              "local_foot_abs_x_max_m": 0.37882232666015625,
+              "local_foot_abs_y_max_m": 0.37100857496261597,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_050_030",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.5,
+          "low_dynamic": 0.3,
+          "all_directions_gate_pass": false,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.03768994003538532,
+              "yaw_tracking_rmse_radps": 0.046708450033345686,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6001768553256989,
+                "lin_vel_y_mps": -0.022122782757764477,
+                "ang_vel_z_radps": -0.03527633818102509
+              },
+              "torque_l2_norm_mean_nm": 10.877220194074843,
+              "absolute_mechanical_power_mean_w": 21.05921809938219,
+              "roll_abs_rad_max": 0.02893885225057602,
+              "pitch_abs_rad_max": 0.023122746497392654,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.48875,
+              "stripe_transition_count": 174,
+              "local_foot_abs_x_max_m": 5.919670104980469,
+              "local_foot_abs_y_max_m": 1.3302924633026123,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.05993894414163457,
+              "yaw_tracking_rmse_radps": 0.043159693214336256,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.3485338379277123,
+                "lin_vel_y_mps": 0.0016299668725373016,
+                "ang_vel_z_radps": -0.037694949395695905
+              },
+              "torque_l2_norm_mean_nm": 11.261859622531468,
+              "absolute_mechanical_power_mean_w": 18.617883833779228,
+              "roll_abs_rad_max": 0.060686271637678146,
+              "pitch_abs_rad_max": 0.03577521815896034,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4995833333333333,
+              "stripe_transition_count": 99,
+              "local_foot_abs_x_max_m": 3.6000518798828125,
+              "local_foot_abs_y_max_m": 0.7344894409179688,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.055336334568134,
+              "yaw_tracking_rmse_radps": 0.11127264808105046,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.038172741606055445,
+                "lin_vel_y_mps": -0.01347681682686218,
+                "ang_vel_z_radps": 0.41574624882804023
+              },
+              "torque_l2_norm_mean_nm": 10.68269321653578,
+              "absolute_mechanical_power_mean_w": 6.73013460000356,
+              "roll_abs_rad_max": 0.06971818953752518,
+              "pitch_abs_rad_max": 0.12067919224500656,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.6536111111111111,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.4080467224121094,
+              "local_foot_abs_y_max_m": 0.3939838409423828,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.0313950084333678,
+              "yaw_tracking_rmse_radps": 0.30923225102313445,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.009120920635371779,
+                "lin_vel_y_mps": 0.00553354662636088,
+                "ang_vel_z_radps": -0.2590548409190443
+              },
+              "torque_l2_norm_mean_nm": 12.785951328277587,
+              "absolute_mechanical_power_mean_w": 6.600915030903287,
+              "roll_abs_rad_max": 0.12329546362161636,
+              "pitch_abs_rad_max": 0.18320178985595703,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5433333333333333,
+              "stripe_transition_count": 12,
+              "local_foot_abs_x_max_m": 0.27286529541015625,
+              "local_foot_abs_y_max_m": 0.30550166964530945,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_040_025",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.4,
+          "low_dynamic": 0.25,
+          "all_directions_gate_pass": false,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.037871434418984044,
+              "yaw_tracking_rmse_radps": 0.04702787868493846,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.6002338545852237,
+                "lin_vel_y_mps": -0.022608294606519242,
+                "ang_vel_z_radps": -0.03496164466868827
+              },
+              "torque_l2_norm_mean_nm": 10.834341021643745,
+              "absolute_mechanical_power_mean_w": 20.685645143720837,
+              "roll_abs_rad_max": 0.02900451235473156,
+              "pitch_abs_rad_max": 0.023818958550691605,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.48430555555555554,
+              "stripe_transition_count": 164,
+              "local_foot_abs_x_max_m": 5.923412322998047,
+              "local_foot_abs_y_max_m": 1.3130722045898438,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.059829943322800005,
+              "yaw_tracking_rmse_radps": 0.04358612545799186,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.3490590402815077,
+                "lin_vel_y_mps": 0.0011551901708460517,
+                "ang_vel_z_radps": -0.03795439521523399
+              },
+              "torque_l2_norm_mean_nm": 11.219707374572755,
+              "absolute_mechanical_power_mean_w": 18.450042007234362,
+              "roll_abs_rad_max": 0.0651942789554596,
+              "pitch_abs_rad_max": 0.033992473036050797,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5016666666666667,
+              "stripe_transition_count": 99,
+              "local_foot_abs_x_max_m": 3.5974559783935547,
+              "local_foot_abs_y_max_m": 0.7326736450195312,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.05542177343333084,
+              "yaw_tracking_rmse_radps": 0.1171969297527924,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.041967077581211924,
+                "lin_vel_y_mps": -0.012680392044389413,
+                "ang_vel_z_radps": 0.409720398651229
+              },
+              "torque_l2_norm_mean_nm": 10.463975132836236,
+              "absolute_mechanical_power_mean_w": 6.362690170076158,
+              "roll_abs_rad_max": 0.07915625721216202,
+              "pitch_abs_rad_max": 0.11972075700759888,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.6147222222222222,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.3983430862426758,
+              "local_foot_abs_y_max_m": 0.41094017028808594,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.028435066502351527,
+              "yaw_tracking_rmse_radps": 0.3236562755934318,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.005329431296559051,
+                "lin_vel_y_mps": 0.008513576538405485,
+                "ang_vel_z_radps": -0.23306421821523043
+              },
+              "torque_l2_norm_mean_nm": 13.239091665479872,
+              "absolute_mechanical_power_mean_w": 6.536186689005958,
+              "roll_abs_rad_max": 0.18616676330566406,
+              "pitch_abs_rad_max": 0.20683081448078156,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5373611111111111,
+              "stripe_transition_count": 6,
+              "local_foot_abs_x_max_m": 0.3217465281486511,
+              "local_foot_abs_y_max_m": 0.2960205078125,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_030_020",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.3,
+          "low_dynamic": 0.2,
+          "all_directions_gate_pass": false,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.038190712555063414,
+              "yaw_tracking_rmse_radps": 0.04743697771854786,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.5997346480687459,
+                "lin_vel_y_mps": -0.023120637115530876,
+                "ang_vel_z_radps": -0.035495363036493977
+              },
+              "torque_l2_norm_mean_nm": 10.787693332036337,
+              "absolute_mechanical_power_mean_w": 20.39685046725803,
+              "roll_abs_rad_max": 0.025926312431693077,
+              "pitch_abs_rad_max": 0.025349333882331848,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4831944444444444,
+              "stripe_transition_count": 164,
+              "local_foot_abs_x_max_m": 5.910005569458008,
+              "local_foot_abs_y_max_m": 1.3527259826660156,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.05810164967086513,
+              "yaw_tracking_rmse_radps": 0.04481041864547516,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.35139018098513286,
+                "lin_vel_y_mps": 0.0013306601315788511,
+                "ang_vel_z_radps": -0.038617642912496294
+              },
+              "torque_l2_norm_mean_nm": 11.210641871558295,
+              "absolute_mechanical_power_mean_w": 18.282655028237237,
+              "roll_abs_rad_max": 0.06662778556346893,
+              "pitch_abs_rad_max": 0.044826067984104156,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.47,
+              "stripe_transition_count": 97,
+              "local_foot_abs_x_max_m": 3.6353416442871094,
+              "local_foot_abs_y_max_m": 0.7593879699707031,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.05956023501663595,
+              "yaw_tracking_rmse_radps": 0.11841721252737773,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.04319659660673804,
+                "lin_vel_y_mps": -0.016842006197095746,
+                "ang_vel_z_radps": 0.41159625311692555
+              },
+              "torque_l2_norm_mean_nm": 10.966343417697482,
+              "absolute_mechanical_power_mean_w": 7.286787025133768,
+              "roll_abs_rad_max": 0.08189056068658829,
+              "pitch_abs_rad_max": 0.13273733854293823,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.6091666666666666,
+              "stripe_transition_count": 16,
+              "local_foot_abs_x_max_m": 0.3858451843261719,
+              "local_foot_abs_y_max_m": 0.4588489532470703,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.0515963510411591,
+              "yaw_tracking_rmse_radps": 0.1425150888733866,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.013339123607923588,
+                "lin_vel_y_mps": 0.011832302410621196,
+                "ang_vel_z_radps": -0.4117926754222976
+              },
+              "torque_l2_norm_mean_nm": 13.528637398613824,
+              "absolute_mechanical_power_mean_w": 13.354715891944037,
+              "roll_abs_rad_max": 0.4048480689525604,
+              "pitch_abs_rad_max": 0.20371103286743164,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.5611111111111111,
+              "stripe_transition_count": 21,
+              "local_foot_abs_x_max_m": 0.49893856048583984,
+              "local_foot_abs_y_max_m": 0.3862628936767578,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            }
+          ]
+        },
+        {
+          "case_id": "mixed_020_010",
+          "mixed": true,
+          "high_static": 0.8,
+          "high_dynamic": 0.6,
+          "low_static": 0.2,
+          "low_dynamic": 0.1,
+          "all_directions_gate_pass": false,
+          "all_directions_field_coverage_pass": true,
+          "directions": [
+            {
+              "id": "forward",
+              "command": [
+                0.6,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.040094710207400755,
+              "yaw_tracking_rmse_radps": 0.05226940429091956,
+              "achieved_mean": {
+                "lin_vel_x_mps": 0.5932138645648957,
+                "lin_vel_y_mps": -0.02410847056469518,
+                "ang_vel_z_radps": -0.039394430651187175
+              },
+              "torque_l2_norm_mean_nm": 10.81116123729282,
+              "absolute_mechanical_power_mean_w": 20.655542572869194,
+              "roll_abs_rad_max": 0.022714143618941307,
+              "pitch_abs_rad_max": 0.02813800796866417,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.48819444444444443,
+              "stripe_transition_count": 164,
+              "local_foot_abs_x_max_m": 5.841459274291992,
+              "local_foot_abs_y_max_m": 1.4973182678222656,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "backward",
+              "command": [
+                -0.4,
+                0.0,
+                0.0
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.062098237317096974,
+              "yaw_tracking_rmse_radps": 0.05811039602729535,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.3513780374659432,
+                "lin_vel_y_mps": -0.007658257350946466,
+                "ang_vel_z_radps": -0.04094311220674879
+              },
+              "torque_l2_norm_mean_nm": 11.687957560221355,
+              "absolute_mechanical_power_mean_w": 24.324770052168105,
+              "roll_abs_rad_max": 0.1974434107542038,
+              "pitch_abs_rad_max": 0.3310631811618805,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.4673611111111111,
+              "stripe_transition_count": 112,
+              "local_foot_abs_x_max_m": 3.6060447692871094,
+              "local_foot_abs_y_max_m": 0.7080898284912109,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "left_turn",
+              "command": [
+                0.0,
+                0.0,
+                0.5
+              ],
+              "sample_count": 1800,
+              "trial_count": 4,
+              "fall_count": 0,
+              "timeout_count": 0,
+              "survival_rate": 1.0,
+              "linear_tracking_rmse_mps": 0.06100989343223186,
+              "yaw_tracking_rmse_radps": 0.1096134387506683,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.04204268063935969,
+                "lin_vel_y_mps": -0.021619681211498876,
+                "ang_vel_z_radps": 0.4188857611020406
+              },
+              "torque_l2_norm_mean_nm": 10.715436384412978,
+              "absolute_mechanical_power_mean_w": 7.460589522255791,
+              "roll_abs_rad_max": 0.07876709848642349,
+              "pitch_abs_rad_max": 0.12597140669822693,
+              "command_sign_pass": true,
+              "gate_pass": true,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.6266666666666667,
+              "stripe_transition_count": 19,
+              "local_foot_abs_x_max_m": 0.4059314727783203,
+              "local_foot_abs_y_max_m": 0.3776988983154297,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 0
+            },
+            {
+              "id": "right_turn",
+              "command": [
+                0.0,
+                0.0,
+                -0.5
+              ],
+              "sample_count": 1614,
+              "trial_count": 4,
+              "fall_count": 1,
+              "timeout_count": 0,
+              "survival_rate": 0.75,
+              "linear_tracking_rmse_mps": 0.07645547805310857,
+              "yaw_tracking_rmse_radps": 0.2042409137823407,
+              "achieved_mean": {
+                "lin_vel_x_mps": -0.00899619477843725,
+                "lin_vel_y_mps": 0.020792250930665748,
+                "ang_vel_z_radps": -0.4369827837785971
+              },
+              "torque_l2_norm_mean_nm": 15.703053061994625,
+              "absolute_mechanical_power_mean_w": 33.291359815160284,
+              "roll_abs_rad_max": 0.965644359588623,
+              "pitch_abs_rad_max": 0.39321091771125793,
+              "command_sign_pass": true,
+              "gate_pass": false,
+              "contact_slip_speed_mean_mps": null,
+              "contact_slip_over_0_1_ratio": null,
+              "low_zone_foot_exposure_ratio": 0.48729863692688974,
+              "stripe_transition_count": 47,
+              "local_foot_abs_x_max_m": 0.5860803723335266,
+              "local_foot_abs_y_max_m": 0.4762840270996094,
+              "minimum_local_field_coverage_pass": true,
+              "contact_foot_sample_count": 0,
+              "contact_observation_available": false,
+              "contact_termination_count": 0,
+              "kinematic_fall_count": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "case_reports": [
+    {
+      "path": "reports/runs/g008_periodic_friction_case_uniform_nominal_e32_h500_s20260826.json",
+      "sha256": "442728080ef1626f1bfe25d77cf11d3c561fbec89a7481b27944eaf1abb197cd",
+      "case_id": "uniform_nominal",
+      "wall_time_seconds": 54.052
+    },
+    {
+      "path": "reports/runs/g008_periodic_friction_case_mixed_070_050_e32_h500_s20260826.json",
+      "sha256": "0712692dfc6c33c244145ee3035e1986a8837d018dcc9d48a2d9a7936272eef5",
+      "case_id": "mixed_070_050",
+      "wall_time_seconds": 65.931
+    },
+    {
+      "path": "reports/runs/g008_periodic_friction_case_mixed_060_040_e32_h500_s20260826.json",
+      "sha256": "b7578e5ce0ca1e92c51439c94e43759f518850238f2fbb1fca362053e482c62a",
+      "case_id": "mixed_060_040",
+      "wall_time_seconds": 62.939
+    },
+    {
+      "path": "reports/runs/g008_periodic_friction_case_mixed_050_030_e32_h500_s20260826.json",
+      "sha256": "14ac0fb24ef40aef011eabdd52c793f604a3600d4e6e68c4caa1ba7a89d7b93e",
+      "case_id": "mixed_050_030",
+      "wall_time_seconds": 58.781
+    },
+    {
+      "path": "reports/runs/g008_periodic_friction_case_mixed_040_025_e32_h500_s20260826.json",
+      "sha256": "60363de76f1d5ab9a3cef03716f4177f8ebe94164c72920fe572440a36e011a9",
+      "case_id": "mixed_040_025",
+      "wall_time_seconds": 57.564
+    },
+    {
+      "path": "reports/runs/g008_periodic_friction_case_mixed_030_020_e32_h500_s20260826.json",
+      "sha256": "c30ddd1815e872359016ca94887752d40dba820e3ca015c68cc3e21bafea83df",
+      "case_id": "mixed_030_020",
+      "wall_time_seconds": 53.942
+    },
+    {
+      "path": "reports/runs/g008_periodic_friction_case_mixed_020_010_e32_h500_s20260826.json",
+      "sha256": "2e6895e0820ff5e6978ad881649630f69974d086eb767ab638b412ed4b9d6b62",
+      "case_id": "mixed_020_010",
+      "wall_time_seconds": 54.582
+    }
+  ],
+  "failed_evaluations": [
+    {
+      "path": "reports/runs/g008_periodic_friction_case_mixed_010_005_e32_h500_s20260826_failure.json",
+      "sha256": "f91db8b39b9bfe0676f153fb21d31110a975012aeda0cb051daa5efed771a436",
+      "case_id": "mixed_010_005",
+      "status": "failed",
+      "completed_steps_before_native_termination": 200,
+      "attempt_count": 4,
+      "failure_classification": "reproducible Isaac Sim native process termination; policy performance unresolved"
+    }
+  ],
+  "evaluation_source_sha256": "c332de15bde4cbcf6c8ee4dd45a0202633b049a9ba4a6c4d4f711bc0ec7dabe4",
+  "direction_evaluator_source_sha256": "f8409bff16fbb04e35c54be2607159309e93ed36b6ecb011ebf5b15b194f0fae",
+  "aggregation_source_sha256": "12b575850c9ab601dbbc0e792d787b3a8d67f1afc6aa1615cfa683944ed74500",
+  "interpretation_contract": {
+    "contiguous_pass_floor": "lowest coefficient reached before the first all-direction failure",
+    "baseline_qualification": "a mixed-friction tolerance is withheld when the uniform nominal case fails the same gate",
+    "lowest_tested_passing": "lowest isolated passing case, reported separately when results are non-monotonic",
+    "non_monotonic_warning": "a later isolated pass does not erase an earlier failure",
+    "failed_evaluation": "a simulator-native termination is unresolved evidence and is excluded from policy pass/fail thresholds",
+    "claim_scope": "single-seed Isaac Sim stress test, not a real-floor friction guarantee"
+  }
+}

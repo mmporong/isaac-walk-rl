@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "failed",
+  "protocol": "spatial_periodic_friction_stripes_paired_policy_case_v1",
+  "task": "Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0",
+  "case": {
+    "id": "mixed_010_005",
+    "mixed": true,
+    "high_static": 0.8,
+    "high_dynamic": 0.6,
+    "low_static": 0.1,
+    "low_dynamic": 0.05
+  },
+  "headless": true,
+  "device": "cuda:0",
+  "evaluation_seed": 20260826,
+  "num_envs": 32,
+  "environments_per_policy_direction": 4,
+  "horizon_steps": 500,
+  "warmup_steps": 50,
+  "completed_steps_before_native_termination": 200,
+  "attempts": [
+    {
+      "run_kind": "eighth case in isolated-process sweep",
+      "last_progress_line": "completed_steps=200",
+      "report_file_created": false,
+      "observed_shell_exit_code": 0
+    },
+    {
+      "run_kind": "standalone isolated retry",
+      "last_progress_line": "completed_steps=200",
+      "report_file_created": false,
+      "observed_shell_exit_code": 0
+    },
+    {
+      "run_kind": "final evaluator with independent kinematic fall detection",
+      "last_progress_line": "completed_steps=100",
+      "report_file_created": false,
+      "observed_shell_exit_code": 0
+    },
+    {
+      "run_kind": "final evaluator after post-step stripe accounting review",
+      "last_progress_line": "completed_steps=100",
+      "report_file_created": false,
+      "observed_shell_exit_code": 0
+    }
+  ],
+  "failure_classification": "reproducible Isaac Sim native process termination; policy performance unresolved",
+  "evaluation_source_sha256": "c332de15bde4cbcf6c8ee4dd45a0202633b049a9ba4a6c4d4f711bc0ec7dabe4",
+  "metric_notes": {
+    "interpretation": "The process terminated before an atomic report was written. This case is neither a pass nor a policy failure.",
+    "threshold_scope": "Completed-case thresholds stop at mixed_020_010 (low static 0.2, low dynamic 0.1)."
+  }
+}

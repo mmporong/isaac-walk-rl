@@ -50,3 +50,5 @@
 - 링크 질량은 `M(q)q̈+C(q,q̇)q̇+g(q)=Sᵀτ+Jᵀλ`의 관성·Coriolis/centrifugal·중력항을 바꾼다. mass를 바꿀 때 inertia를 함께 scale하되 COM과 geometry가 고정된 근사임을 명시한다.
 - 마찰과 링크 질량을 한 번에 randomize하지 않는다. 단일축 결과와 nominal guardrail이 나온 뒤에만 상호작용 실험을 연다.
 - 상세 수치와 문헌 근거는 `docs/G008_COMMAND_FRICTION_LINK_MASS.md`에 있다.
+- 공간 혼합 마찰 결과는 직선 보행 한계와 전 방향 회전 gate를 따로 읽는다. 단일 seed에서 중간 계수 실패 뒤 더 낮은 계수가 다시 통과하면 연속 통과 하한만 보수적 한계로 사용한다.
+- 그룹별 질량 screen에서 scale이 같아도 thigh와 foot의 총질량 변화는 다르다. scale 기준 민감도와 동일 kg 추가 질량 민감도를 같은 결과로 취급하지 않는다.

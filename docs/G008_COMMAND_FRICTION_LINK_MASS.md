@@ -438,6 +438,9 @@ py -m pytest .\tests\test_g008_contracts.py .\tests\test_g008_direction_evaluati
 - 공개 GIF·접촉시트와 로컬 원본 영상 해시: `docs/G008_VISUAL_EVIDENCE.md`, `reports/runs/g008_direction_visual_evidence.json`
 - 세 정책 비교 촬영 보고서: `reports/runs/g008_policy_command_capture.json`, `reports/runs/g008_policy_friction_s1_capture.json`, `reports/runs/g008_policy_leg_mass_s1_capture.json`
 - 비교 MP4와 공개 파생물 해시: `reports/runs/g008_policy_comparison_visual_evidence.json`
+- 공간 혼합 마찰·링크 그룹 질량 후속 해석: `docs/G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md`
+- 공간 혼합 마찰 스윕: `reports/runs/g008_periodic_friction_sweep_command_vs_friction_s1_e32_h500_s20260826.json`
+- 링크 그룹 질량 민감도: `reports/runs/g008_link_mass_sensitivity_command_vs_leg_mass_s1_e800_h300_s20260826.json`
 
 저장소의 JSON에는 `%USERPROFILE%` 치환 경로와 SHA-256을 기록한다. 원시 checkpoint와 TensorBoard는 저장소 밖 `$HOME\IsaacLab\logs`에 둔다.
 
@@ -461,6 +464,8 @@ py -m pytest .\tests\test_g008_contracts.py .\tests\test_g008_direction_evaluati
 ### 2. S1을 seed 43·44에서 반복한다
 
 현재 S1 결과는 seed 42 한 번이다. friction과 leg-mass를 각각 seed 43·44로 반복하고, 평면 randomized/nominal 평가와 rough local-plane 평가를 같은 프로토콜로 실행한다. checkpoint별 SHA-256, terrain level 변화, 방향별 RMSE, torque, power, 자세 peak를 seed별 표로 남긴다. 세 seed 중 하나라도 nominal guardrail을 잃으면 S2로 넘어가지 않는다.
+
+2026-08-26에 추가한 공간 혼합 마찰과 그룹별 질량 민감도도 같은 원칙으로 seed를 늘린다. 마찰은 높은 계수부터 연속 통과한 하한, 더 낮은 계수의 개별 통과, native 종료로 판정하지 못한 case를 분리한다. 현재 friction S1은 전진·후진·좌회전만 완료 최저 `0.2/0.1`까지 연속 통과했고, 우회전 하한과 `0.1/0.05`는 확정하지 않았다. 질량은 scale 비교와 동일 kg 증분 비교를 따로 둔다. 상세 프로토콜과 첫 결과는 `G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md`에 있다.
 
 ### 3. friction S2와 leg-mass S2를 계속 분리한다
 

@@ -105,6 +105,8 @@
 - leg-mass 학습의 terrain level mean도 약 3.43에서 2.29로 내려갔다. friction과 mass S1 모두 rough 난이도가 후퇴했으므로 평면 gate만으로 rough 개선을 주장하지 않는다.
 - command, friction S1, leg-mass S1 정책을 평면·seed 42·같은 900-step 명령으로 별도 Isaac Sim 프로세스에서 촬영했다. friction 단일 환경의 발바닥 평균은 static/dynamic `0.8152/0.5799`, leg-mass의 16개 body scale은 `0.9575~1.0452`였다. 정책별 H.264 원본과 1280×380 비교 MP4는 로컬에만 두고, 720×214 GIF와 네 방향 접촉시트만 Git에 넣는다. 해시와 ffprobe 결과는 `reports/runs/g008_policy_*_capture.json`, `reports/runs/g008_policy_comparison_visual_evidence.json`에 기록했다.
 - 상세 역학, PPO batch/epoch, 문헌 채택 범위와 sim-to-real 한계는 `docs/G008_COMMAND_FRICTION_LINK_MASS.md`에 기록했다.
+- 폭 `0.5 m`의 고·저마찰 face를 단일 static triangle mesh에 교차 배치하고 command/friction S1을 case당 32환경·500 step으로 비교했다. 기본 ground collider는 생성하지 않았고 non-collision height-scan mesh를 분리했다. friction S1의 전진·후진·좌회전은 완료된 최저 저마찰 `0.2/0.1`까지 연속 통과했다. 우회전은 `0.7/0.5`에서 첫 FAIL, `0.6/0.4`에서 개별 PASS가 나와 전 방향 연속 하한은 확정하지 않았다. `0.1/0.05`는 네 번 모두 100~200 step 뒤 Isaac Sim native 종료가 재현돼 미확정으로 분리했다. multi-material mesh에서 contact force sample이 비어 slip은 `null`로 두고, base 높이·body up-axis의 독립 낙상 판정을 추가했다.
+- hip·thigh·calf·foot를 한 그룹씩 `0.8~1.2`배로 바꾼 800환경·300-step 민감도 시험을 수행했다. 질량과 inertia tensor가 같은 비율로 적용됐고 두 정책의 전진·후진은 25개 조건을 모두 통과했다. command는 nominal 네 방향 PASS, leg-mass S1은 nominal 우회전 yaw RMSE `0.44 rad/s`로 FAIL했다. `docs/G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md`와 두 최종 JSON에 상세 근거를 남겼다.
 
 ### G007 RBQ 외부 자산 호환성 사전조사
 

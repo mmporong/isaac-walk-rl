@@ -126,9 +126,11 @@ S1 runtime probe에서는 발바닥 static/dynamic friction이 `0.7226~0.8770`/`
 
 leg-mass S1도 같은 budget으로 별도 학습했지만 randomized·nominal 평면 모두 우회전 yaw gate에 실패했습니다. 평균 yaw rate가 command checkpoint의 `-0.4533 rad/s`에서 약 `-0.235 rad/s`로 줄고 yaw RMSE가 약 `0.295 rad/s`로 커졌습니다. nominal guardrail도 실패했으므로 leg-mass S2는 중단합니다.
 
+후속 held-out 시험에서는 폭 `0.5 m`의 고·저마찰 띠를 단일 triangle mesh의 face material로 교차 배치하고, 기본 ground collider를 제거해 이중 접촉을 막았습니다. friction S1은 전진·후진·좌회전을 완료된 최저 조건 `μ_s/μ_d=0.2/0.1`까지 연속 통과했습니다. 우회전은 `0.7/0.5`에서 먼저 실패하고 `0.6/0.4`에서 개별 통과해 전 방향 보수적 하한은 확정하지 않았습니다. `0.1/0.05`는 네 번 모두 Isaac Sim native 종료가 재현돼 PASS/FAIL이 아닌 미확정으로 남겼습니다. hip·thigh·calf·foot를 한 그룹씩 `0.8~1.2`배로 바꾼 시험에서는 두 정책의 전진·후진이 25개 조건을 모두 통과했지만, leg-mass S1은 nominal부터 우회전 gate에 실패했습니다. 평가 설계, 시뮬레이터 한계, 그룹별 질량 표와 다음 실험은 [`docs/G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md`](docs/G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md)에 정리했습니다.
+
 command, friction S1, leg-mass S1 checkpoint를 같은 평면·seed·명령 시퀀스로 재생한 동기화 GIF와 접촉시트, 로컬 전용 원본 MP4의 경로·해시는 [`docs/G008_VISUAL_EVIDENCE.md`](docs/G008_VISUAL_EVIDENCE.md)에 있습니다. Git에는 GIF와 PNG만 포함하며 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008`에 보관합니다.
 
-PPO batch·epoch, 235차원 observation, 50 Hz 제어, 마찰원뿔, yaw moment, 링크별 질량과 inertia 재계산, 논문 수치의 채택·배제 근거, sim-to-real 측정 항목은 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md)에 정리했습니다. 실행 계약은 [`configs/g008_locomotion_dynamics.json`](configs/g008_locomotion_dynamics.json), runtime 증거는 `reports/runs/g008_*.json`을 기준으로 봅니다.
+PPO batch·epoch, 235차원 observation, 50 Hz 제어, 마찰원뿔, yaw moment, 링크별 질량과 inertia 재계산, 논문 수치의 채택·배제 근거, sim-to-real 측정 항목은 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md)에 정리했습니다. 혼합 마찰과 그룹별 질량 한계 시험은 [`docs/G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md`](docs/G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md), 실행 계약은 [`configs/g008_locomotion_dynamics.json`](configs/g008_locomotion_dynamics.json), runtime 증거는 `reports/runs/g008_*.json`을 기준으로 봅니다.
 
 ```powershell
 cd "$HOME\isaac-walk-rl"

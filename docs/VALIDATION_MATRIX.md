@@ -19,6 +19,8 @@
 | G008 네 방향 명령 경로 | exact forward/backward/left-yaw/right-yaw primitive를 포함한 custom command term, direct yaw-rate, 태스크 등록·학습 스모크·고정 명령 평가 | warm-start `1,024 env × 300 iterations`와 평면 64환경 평가 PASS; 생존 64/64, 선속도 RMSE `0.0466~0.0794`, yaw RMSE `0.0741~0.1154`. rough는 좌·우 PASS, 전진·후진 자세 gate FAIL |
 | G008 마찰 단일축 S1 | command 설정 대비 material event만 변경, `.*_foot`, static `0.72~0.88`, dynamic `0.52~0.68`, 64 buckets, dynamic≤static | config diff·smoke·1,024환경 runtime probe PASS. `1,024 env × 300 iterations` 뒤 randomized·nominal 평면 네 방향 gate PASS. terrain level mean이 약 3.45→2.27로 하락해 rough 개선과 S2 진입은 미승인 |
 | G008 다리 링크 질량 단일축 S1 | command 설정에 독립적인 16-body mass event만 추가, body별 `0.95~1.05`, inertia 재계산 | config diff·smoke·1,024환경 runtime probe PASS. `1,024 env × 300 iterations` 학습은 완료했으나 randomized·nominal 평면 우회전 yaw RMSE `0.2956/0.2947`로 FAIL. nominal guardrail 실패, S2 미승인 |
+| G008 공간 혼합 마찰 스트레스 시험 | 폭 `0.5 m`의 face별 고·저마찰을 단일 triangle mesh에 배치, ground collider 없음, 완료 case당 32환경·500 step, command/friction S1 동시 배치, 띠 노출·전환·방향 gate·독립 kinematic fall | friction S1 전진·후진·좌회전은 완료 최저 `0.2/0.1`까지 연속 PASS. 우회전은 `0.7/0.5` 첫 FAIL 뒤 `0.6/0.4` 개별 PASS라 전 방향 하한 미확정. `0.1/0.05`는 4회 native 종료로 평가 미확정. contact force 누락으로 slip은 `null`, 완료 case에서 friction S1 우회전 kinematic fall 1건 |
+| G008 링크 그룹 질량 민감도 | hip·thigh·calf·foot 중 한 그룹씩 `0.8~1.2`배, inertia 동비율 재계산, 25조건×2정책×4방향×4반복, 총 800환경·300 step | 두 정책 모두 전진·후진 25/25 조건 PASS, 전체 0 falls. command nominal 네 방향 PASS, leg-mass S1 nominal 우회전 yaw RMSE `0.44 rad/s`로 FAIL. leg-mass S2 미승인 유지 |
 | G008 세 정책 시각 비교 | command·friction S1·leg-mass S1을 평면·seed 42·같은 900-step 명령으로 별도 프로세스에서 추론하고 runtime 물성과 checkpoint hash를 촬영 보고서에 고정 | 3/3 촬영 exit 0, 정책당 H.264 899 frames. 1280×380 로컬 비교 MP4와 720×214 공개 GIF, 네 방향 접촉시트의 SHA-256·ffprobe·10 MiB 제한 검증 PASS |
 | RBQ 외부 자산 호환성 사전조사 | source·8 blob·라이선스 근거 고정, fail-closed blocker 재현 | G007 gate 구현 완료; `license_scope_unresolved`, expect-blocked exit 0·require-ready exit 3, targeted 46 tests PASS·code review APPROVE. 자산·파생물 다운로드/변환/smoke 미실행 |
 
@@ -30,6 +32,7 @@
 - v2.1.1 Go2 task registration: https://github.com/isaac-sim/IsaacLab/blob/90b79bb2d44feb8d833f260f2bf37da3487180ba/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/go2/__init__.py
 - Isaac Sim 4.5 requirements: https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/requirements.html
 - G008 설계 문서: [`G008_COMMAND_FRICTION_LINK_MASS.md`](G008_COMMAND_FRICTION_LINK_MASS.md)
+- G008 혼합 마찰·링크 그룹 질량 한계: [`G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md`](G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md)
 - G008 비교 영상·해시: [`G008_VISUAL_EVIDENCE.md`](G008_VISUAL_EVIDENCE.md)
 - G008 dynamics event 구현: https://isaac-sim.github.io/IsaacLab/v2.1.1/_modules/isaaclab/envs/mdp/events.html
 - G008 병렬 PPO·terrain curriculum 근거: https://proceedings.mlr.press/v164/rudin22a.html

@@ -136,6 +136,73 @@
       }
     ]
   },
+  "part_4_periodic_friction_stress_evaluation": {
+    "type": "held_out_evaluation_not_training",
+    "field_axis": "environment_local_x",
+    "stripe_width_m": 0.5,
+    "minimum_local_stripe_count": 48,
+    "minimum_local_field_length_m": 24.0,
+    "minimum_local_field_width_m": 4.0,
+    "stripe_surface_height_m": 0.002,
+    "environment_spacing_m": 16.0,
+    "geometry": "single static triangle mesh with per-face physics-material subsets",
+    "collision_underlay": false,
+    "high_friction": {"static": 0.8, "dynamic": 0.6},
+    "low_friction_sweep": [
+      {"static": 0.7, "dynamic": 0.5},
+      {"static": 0.6, "dynamic": 0.4},
+      {"static": 0.5, "dynamic": 0.3},
+      {"static": 0.4, "dynamic": 0.25},
+      {"static": 0.3, "dynamic": 0.2},
+      {"static": 0.2, "dynamic": 0.1},
+      {"static": 0.1, "dynamic": 0.05}
+    ],
+    "num_envs_per_case": 32,
+    "repetitions_per_policy_direction": 4,
+    "horizon_steps": 500,
+    "warmup_steps": 50,
+    "evaluation_seed": 20260826,
+    "result": {
+      "lowest_completed_case": {"static": 0.2, "dynamic": 0.1},
+      "friction_s1_forward_backward_left_turn_contiguous_pass_floor": {
+        "static": 0.2,
+        "dynamic": 0.1
+      },
+      "friction_s1_all_direction_contiguous_pass_floor": null,
+      "friction_s1_right_turn_first_failure": {
+        "static": 0.7,
+        "dynamic": 0.5,
+        "direction": "right_turn"
+      },
+      "friction_s1_right_turn_lowest_isolated_pass": {"static": 0.6, "dynamic": 0.4},
+      "command_uniform_nominal_all_directions_pass": false,
+      "friction_s1_uniform_nominal_all_directions_pass": true,
+      "mixed_010_005_status": "unresolved_after_four_native_terminations",
+      "completed_case_kinematic_falls": 1,
+      "contact_force_slip_metric_available": false,
+      "non_monotonic_gate_sequence": true
+    }
+  },
+  "part_5_link_group_mass_sensitivity": {
+    "type": "held_out_evaluation_not_training",
+    "groups": ["hip", "thigh", "calf", "foot"],
+    "factors": [0.8, 0.9, 0.95, 1.05, 1.1, 1.2],
+    "one_group_at_a_time": true,
+    "recompute_inertia": true,
+    "center_of_mass_change": false,
+    "num_envs": 800,
+    "repetitions_per_policy_case_direction": 4,
+    "horizon_steps": 300,
+    "warmup_steps": 50,
+    "evaluation_seed": 20260826,
+    "result": {
+      "command_nominal_all_directions_pass": true,
+      "leg_mass_s1_nominal_all_directions_pass": false,
+      "forward_backward_all_cases_pass_both_policies": true,
+      "all_policy_case_falls": 0,
+      "leg_mass_s1_stage_2_approved": false
+    }
+  },
   "execution_order": [
     "command_suite_qualification",
     "friction_stage_1",
