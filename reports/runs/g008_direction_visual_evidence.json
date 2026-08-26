@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "task": "Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0",
+  "seed": 42,
+  "headless": true,
+  "step_dt_s": 0.02,
+  "total_steps": 900,
+  "sequence": [
+    {
+      "name": "stand",
+      "steps": 50,
+      "command": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "forward",
+      "steps": 175,
+      "command": [
+        0.6,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "stand",
+      "steps": 50,
+      "command": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "backward",
+      "steps": 175,
+      "command": [
+        -0.4,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "stand",
+      "steps": 50,
+      "command": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "left_turn",
+      "steps": 175,
+      "command": [
+        0.0,
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "name": "stand",
+      "steps": 50,
+      "command": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "right_turn",
+      "steps": 175,
+      "command": [
+        0.0,
+        0.0,
+        -0.5
+      ]
+    }
+  ],
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_11-11-12_g008_command_finetune_g006_s42_e1024_i300\\model_1798.pt",
+    "sha256": "53cc09043088bcd53618d2ae1f90c7f2e91d01eab7090cc63922486942b2ed47"
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_directions_s42.mp4",
+    "sha256": "c388648da898b48a6a00d2415c5a9d7e2342b605c8d07fd559b7400525a716ec",
+    "bytes": 1822108,
+    "git_policy": "local_only"
+  },
+  "public_derivatives": {
+    "tool": "ffmpeg 8.1-full_build-www.gyan.dev",
+    "gif": {
+      "path": "docs/media/g008/g008_direction_commands.gif",
+      "sha256": "91d213654bf2912b8f04a3142391675d7708d6748b3b3ca30508133f1bf06810",
+      "bytes": 6648559,
+      "width": 420,
+      "height": 315,
+      "fps": 6,
+      "frames": 108
+    },
+    "contact_sheet": {
+      "path": "docs/media/g008/g008_direction_contact_sheet.png",
+      "sha256": "d80e5bb8bc77a2dd9cfa60b04f290c7ccd3e5d09a056361313e7e6a0172899f7",
+      "bytes": 604557,
+      "frame_times_seconds": [3.0, 7.5, 12.0, 16.5],
+      "layout_order": ["forward", "backward", "left_turn", "right_turn"]
+    }
+  },
+  "record_source_sha256": "c8c0cbcd4c0c04024dd7fa31ec2f4510220ffaf95d2c43b4e990e1b9f39bc9d0"
+}

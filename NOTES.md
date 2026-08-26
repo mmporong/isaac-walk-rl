@@ -19,7 +19,7 @@
 ## 설계 원칙
 
 - baseline을 보존하고 한 번에 한 축만 바꾼다.
-- “자연스러움” 같은 주관 평가만 사용하지 않는다. 추적 오차, 에너지 proxy, 넘어짐률, 회복률을 함께 본다.
+- "자연스러움" 같은 주관 평가만 사용하지 않는다. 추적 오차, 에너지 proxy, 넘어짐률, 회복률을 함께 본다.
 - 환경 수와 처리량은 다른 GPU 벤치마크에서 추정하지 않고 현재 RTX 3060 12GB에서 측정한다.
 - 영상은 보조 증거다. 정책 checkpoint, 설정 diff, seed, 지표가 주 증거다.
 
@@ -41,3 +41,12 @@
 - 공식 Isaac Lab v2.1.1, v2.3.2, 조사 시점 main 고정 소스에는 대상 match가 없다. 따라서 상위 버전의 공식 구현 이식을 전제하지 않는다.
 - `license_scope_unresolved`가 해제되기 전에는 자산 다운로드·변환·topology 검증·smoke를 실행하지 않는다.
 - 상세 근거와 재현 명령은 `docs/G007_RBQ_COMPATIBILITY_SPIKE.md`에 있다. G006 production과 전체 ultragoal 완료 여부는 별도로 판정한다.
+
+## G008 역학 메모
+
+- 명령은 base frame `[v_x,v_y,ω_z]`다. `+ω_z`는 좌회전, `-ω_z`는 우회전으로 평가한다.
+- 연속 uniform 범위에 순수 후진·순수 yaw가 포함된다는 사실만으로 학습 빈도가 보장되지 않는다. exact primitive를 별도 확률 질량으로 둔다.
+- 발 접선력은 `sqrt(Fx²+Fy²)≤μFz`를 넘을 수 없다. 낮은 마찰은 선가속뿐 아니라 `Σ(r_xF_y-r_yF_x)`로 만드는 yaw moment도 제한한다.
+- 링크 질량은 `M(q)q̈+C(q,q̇)q̇+g(q)=Sᵀτ+Jᵀλ`의 관성·Coriolis/centrifugal·중력항을 바꾼다. mass를 바꿀 때 inertia를 함께 scale하되 COM과 geometry가 고정된 근사임을 명시한다.
+- 마찰과 링크 질량을 한 번에 randomize하지 않는다. 단일축 결과와 nominal guardrail이 나온 뒤에만 상호작용 실험을 연다.
+- 상세 수치와 문헌 근거는 `docs/G008_COMMAND_FRICTION_LINK_MASS.md`에 있다.

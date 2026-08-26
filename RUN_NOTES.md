@@ -84,6 +84,27 @@
 - 전체 평균표, seed 방향 일관성, 실용 임계값과 한계는 `docs/G005_REWARD_ABLATION.md`에 기록했다.
 - G006 실행 계약: official `UnitreeGo2RoughEnvCfg` baseline과 동일 rough terrain curriculum·공통 official DR을 유지한 채 `events.push_robot`만 변경한 push curriculum을 고정 protocol로 비교한다. 추적 오차·낙상률·에너지 proxy·회복률을 함께 보며, final production과 strict summary는 아직 대기 중이다.
 
+### G008 방향 명령·마찰·링크 질량
+
+- 2026-08-26에 G008을 command, friction, leg-mass 세 태스크 축으로 나눴다. friction과 leg-mass는 같은 환경에 동시에 넣지 않았다.
+- command sampler는 80% exact primitive와 20% continuous SE(2) 명령을 섞는다. exact primitive는 전진 `[0.6,0,0]`, 후진 `[-0.4,0,0]`, 좌회전 `[0,0,0.5]`, 우회전 `[0,0,-0.5]`, 정지 `[0,0,0]`다. command resampling은 4~6초, heading controller는 비활성화했다.
+- friction은 발 collision shape만 대상으로 S1 `μ_s=0.72~0.88`, `μ_d=0.52~0.68`; S2 `0.62~1.00`, `0.42~0.78`; S3 `0.50~1.25`, `0.30~1.00`으로 등록했다.
+- leg-mass는 hip/thigh/calf/foot 16개 body를 환경·body별 독립 uniform scale로 바꾸며 inertia를 mass ratio로 다시 계산한다. S1 `0.95~1.05`, S2 `0.90~1.10`, S3 `0.80~1.20`이다.
+- command, friction S1, leg-mass S1을 각각 64 environments, 1 iteration, seed 42로 실행했다. 세 run 모두 exit 0, model_0.pt, TensorBoard, fatal pattern 0, GPU 측정·회복을 통과했다. peak VRAM은 5,259/5,259/5,260 MiB, wall time은 20.649/18.602/18.577초였다.
+- G006 baseline seed 42의 `model_1499.pt`를 G008 command task에 넣고 64 environments, 방향당 16개, 250 steps, warmup 50 steps, seed 20260826으로 nominal 평가했다. 64개 모두 생존했고 네 방향의 평균 속도 부호가 명령과 일치했다.
+- 좌회전은 linear/yaw RMSE `0.0921 m/s`/`0.1412 rad/s`, 우회전은 `0.0459`/`0.1300`으로 gate를 통과했다. 전진은 `0.2151`/`0.1550`, 후진은 `0.1297`/`0.1138`로 속도 기준을 만족했지만 pitch max가 각각 `0.6937`, `0.6046 rad`라 자세 gate에서 실패했다.
+- 새 command distribution을 처음부터 `1,024 env × 300 iterations × seed 42`로 학습한 run은 exit 0, `model_299.pt`, TensorBoard, GPU 회수까지 통과했다. wall time `1,201.052 s`, 평균 `6,299.93 steps/s`, peak VRAM `5,907 MiB`였지만 평면 평가에서는 전진과 좌·우 회전 응답이 거의 0인 지역해라 네 방향 gate에 실패했다.
+- G006 baseline `model_1499.pt`에서 같은 budget을 이어 학습한 run은 `model_1798.pt`, SHA-256 `53cc09043088bcd53618d2ae1f90c7f2e91d01eab7090cc63922486942b2ed47`을 만들었다. RSL-RL이 loaded iteration을 포함해 `1499~1798`을 실행한다는 점을 보고서 재검증과 회귀 테스트로 고정했다. wall time `1,077.001 s`, 평균 `7,039.55 steps/s`, final mean reward `35.41`, peak VRAM `5,892 MiB`였다.
+- warm-start 평면 평가에서는 64/64 생존, 네 방향 부호 일치, 선속도 RMSE `0.0466~0.0794 m/s`, yaw RMSE `0.0741~0.1154 rad/s`로 네 방향 모두 gate를 통과했다. rough에서는 좌·우 회전이 통과했고, 전진 max roll/pitch `0.3713/0.4788 rad`, 후진 max pitch `0.3505 rad` 때문에 자세 gate에 실패했다.
+- 1,024환경 runtime probe에서 friction S1은 static `0.7226~0.8770`, dynamic `0.5295~0.6729`, leg mass scale은 고정 1.0이었다. leg-mass S1은 scale `0.9500~1.0500`, 총 다리 질량 `7.8296~8.3781 kg`, inertia 재계산 최대 오차 약 `1.86e-9`였고 foot static friction은 0.8로 고정됐다.
+- command checkpoint에서 friction S1을 `1,024 env × 300 iterations × seed 42`로 이어 학습했다. `model_2097.pt`, SHA-256 `40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0`, wall time `1,234.808 s`, 평균 `6,213.25 steps/s`, final mean reward `35.19`, peak VRAM `5,936 MiB`로 학습 보고서는 PASS였다.
+- friction S1 checkpoint는 randomized·nominal 평면에서 모두 64/64 생존과 네 방향 gate를 통과했다. randomized 조건의 선속도 RMSE는 `0.05~0.06 m/s`, yaw RMSE는 `0.08~0.16 rad/s`였다. rough 학습의 terrain level mean은 약 3.45에서 2.27로 내려가 rough 강건성 개선이나 S2 진입을 주장하지 않는다.
+- command checkpoint의 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_directions_s42.mp4`에만 보관한다. Git에는 GIF와 네 방향 접촉시트를 넣고, 원본과 파생물의 SHA-256은 `reports/runs/g008_direction_visual_evidence.json`에 기록했다.
+- command checkpoint에서 갈라진 leg-mass S1도 `1,024 env × 300 iterations × seed 42`로 완료했다. `model_2097.pt`, SHA-256 `8976cfff6eee6d1a998c7aa554b23d98b01d3d64da02b43ac3133a9186ae97fa`, wall time `1,373.046 s`, 평균 `5,668.77 steps/s`, final mean reward `35.25`, peak VRAM `5,908 MiB`였다.
+- leg-mass S1은 randomized·nominal 평면에서 전진·후진·좌회전은 통과했지만 우회전 yaw RMSE가 `0.2956/0.2947 rad/s`로 기준 0.25를 넘었다. 평균 yaw rate는 `-0.2348/-0.2353 rad/s`로 command checkpoint의 `-0.4533 rad/s`보다 느렸다. nominal guardrail이 실패해 leg-mass S2를 열지 않는다.
+- leg-mass 학습의 terrain level mean도 약 3.43에서 2.29로 내려갔다. friction과 mass S1 모두 rough 난이도가 후퇴했으므로 평면 gate만으로 rough 개선을 주장하지 않는다.
+- 상세 역학, PPO batch/epoch, 문헌 채택 범위와 sim-to-real 한계는 `docs/G008_COMMAND_FRICTION_LINK_MASS.md`에 기록했다.
+
 ### G007 RBQ 외부 자산 호환성 사전조사
 
 - 2026-08-24에 RBQ v1.20.0 tag object `741ce5733dcd7c0babec663bb7e1afbc02a776ca`와 source commit `68bc33b77719d357b4323fb88549efd905caf721`을 고정했다.

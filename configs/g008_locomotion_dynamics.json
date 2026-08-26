@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "implementation",
+  "isaaclab": {
+    "tag": "v2.1.1",
+    "commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+    "sim_version": "4.5.0"
+  },
+  "research_sources": [
+    {
+      "id": "rudin2022",
+      "title": "Learning to Walk in Minutes Using Massively Parallel Deep Reinforcement Learning",
+      "url": "https://proceedings.mlr.press/v164/rudin22a.html",
+      "applied_to": ["massively_parallel_ppo", "terrain_curriculum"]
+    },
+    {
+      "id": "margolis2023",
+      "title": "Walk These Ways: Tuning Robot Control for Generalization with Multiplicity of Behavior",
+      "url": "https://proceedings.mlr.press/v205/margolis23a.html",
+      "applied_to": ["parameterized_velocity_commands", "behavior_coverage"]
+    },
+    {
+      "id": "tan2018",
+      "title": "Sim-to-Real: Learning Agile Locomotion For Quadruped Robots",
+      "url": "https://arxiv.org/abs/1804.10332",
+      "applied_to": ["friction_envelope", "mass_envelope", "randomization_tradeoff"]
+    },
+    {
+      "id": "kumar2021",
+      "title": "RMA: Rapid Motor Adaptation for Legged Robots",
+      "url": "https://arxiv.org/abs/2107.04034",
+      "applied_to": ["progressive_dynamics_difficulty", "friction_and_payload_evaluation"]
+    },
+    {
+      "id": "xie2021",
+      "title": "Dynamics Randomization Revisited: A Case Study for Quadrupedal Locomotion",
+      "url": "https://arxiv.org/abs/2011.02404",
+      "applied_to": ["single_axis_ablation", "nominal_guardrail", "conservative_ranges"]
+    },
+    {
+      "id": "isaaclab_events_v211",
+      "title": "Isaac Lab 2.1.1 event implementation",
+      "url": "https://isaac-sim.github.io/IsaacLab/v2.1.1/_modules/isaaclab/envs/mdp/events.html",
+      "applied_to": ["material_buckets", "per_body_mass_scaling", "inertia_recomputation"]
+    }
+  ],
+  "part_1_command_suite": {
+    "task": "Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0",
+    "command_frame": "robot_base",
+    "command_order": ["lin_vel_x_mps", "lin_vel_y_mps", "ang_vel_z_radps"],
+    "primitive_probability": 0.8,
+    "continuous_probability": 0.2,
+    "resampling_time_s": [4.0, 6.0],
+    "primitives": [
+      {"id": "forward", "command": [0.6, 0.0, 0.0], "conditional_weight": 0.225},
+      {"id": "backward", "command": [-0.4, 0.0, 0.0], "conditional_weight": 0.225},
+      {"id": "left_turn", "command": [0.0, 0.0, 0.5], "conditional_weight": 0.225},
+      {"id": "right_turn", "command": [0.0, 0.0, -0.5], "conditional_weight": 0.225},
+      {"id": "stand", "command": [0.0, 0.0, 0.0], "conditional_weight": 0.1}
+    ],
+    "continuous_ranges": {
+      "lin_vel_x_mps": [-0.8, 0.8],
+      "lin_vel_y_mps": [-0.5, 0.5],
+      "ang_vel_z_radps": [-0.8, 0.8]
+    },
+    "reason": "Exact primitives prevent pure reverse and pure yaw commands from becoming low-probability corners of a continuous distribution; the continuous branch preserves curved and lateral motion coverage."
+  },
+  "part_2_friction": {
+    "representation": "per_environment_per_foot_shape_robot_material",
+    "effective_contact_model": "terrain_coefficient_1.0 multiplied by sampled foot coefficient",
+    "terrain_combine_mode": "multiply",
+    "target_bodies": ".*_foot",
+    "restitution": [0.0, 0.0],
+    "num_material_buckets": 64,
+    "make_static_dynamic_consistent": true,
+    "stages": [
+      {
+        "stage": 1,
+        "name": "narrow",
+        "task": "Isaac-G008-Velocity-Rough-Go2-Friction-S1-v0",
+        "static_friction": [0.72, 0.88],
+        "dynamic_friction": [0.52, 0.68]
+      },
+      {
+        "stage": 2,
+        "name": "moderate",
+        "task": "Isaac-G008-Velocity-Rough-Go2-Friction-S2-v0",
+        "static_friction": [0.62, 1.0],
+        "dynamic_friction": [0.42, 0.78]
+      },
+      {
+        "stage": 3,
+        "name": "research_envelope",
+        "task": "Isaac-G008-Velocity-Rough-Go2-Friction-S3-v0",
+        "static_friction": [0.5, 1.25],
+        "dynamic_friction": [0.3, 1.0]
+      }
+    ]
+  },
+  "part_3_leg_link_mass": {
+    "target_body_regex": ".*_(hip|thigh|calf|foot)",
+    "target_body_count": 16,
+    "sampling": "independent_uniform_scale_per_environment_per_body",
+    "recompute_inertia": true,
+    "center_of_mass_change": false,
+    "runtime_nominal_mass_kg": {
+      "base": 6.921,
+      "hip_each": 0.678,
+      "thigh_each": 1.152,
+      "calf_each": 0.154,
+      "foot_each": 0.04,
+      "head_upper": 0.001,
+      "head_lower": 0.001,
+      "total_robot": 15.019,
+      "all_leg_bodies": 8.096
+    },
+    "stages": [
+      {
+        "stage": 1,
+        "name": "narrow",
+        "task": "Isaac-G008-Velocity-Rough-Go2-LegMass-S1-v0",
+        "scale": [0.95, 1.05]
+      },
+      {
+        "stage": 2,
+        "name": "moderate",
+        "task": "Isaac-G008-Velocity-Rough-Go2-LegMass-S2-v0",
+        "scale": [0.9, 1.1]
+      },
+      {
+        "stage": 3,
+        "name": "literature_envelope",
+        "task": "Isaac-G008-Velocity-Rough-Go2-LegMass-S3-v0",
+        "scale": [0.8, 1.2]
+      }
+    ]
+  },
+  "execution_order": [
+    "command_suite_qualification",
+    "friction_stage_1",
+    "leg_mass_stage_1",
+    "friction_stage_2_after_stage_1_gate",
+    "leg_mass_stage_2_after_stage_1_gate",
+    "stage_3_only_after_nominal_guardrail"
+  ],
+  "training_budget_by_stage": {
+    "smoke": {"num_envs": 64, "max_iterations": 1, "seeds": [42]},
+    "stage_1": {"num_envs": 1024, "max_iterations": 300, "seeds": [42]},
+    "stage_2": {"num_envs": 2048, "max_iterations": 600, "seeds": [42, 43]},
+    "stage_3": {"num_envs": 4096, "max_iterations": 1500, "seeds": [42, 43, 44]}
+  },
+  "advance_gate": {
+    "command_primitives": ["forward", "backward", "left_turn", "right_turn"],
+    "survival_to_horizon_required": true,
+    "roll_pitch_abs_rad_max": 0.35,
+    "linear_tracking_error_mps_max": 0.25,
+    "yaw_tracking_error_radps_max": 0.25,
+    "nominal_guardrail_required": true,
+    "compare_torque_and_mechanical_power_proxy": true,
+    "stage_advance_rule": "Advance one axis only after the current stage passes both randomized-domain and nominal-domain guardrails."
+  }
+}

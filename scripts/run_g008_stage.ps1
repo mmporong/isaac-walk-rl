@@ -1,0 +1,73 @@
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $true)]
+    [ValidateSet('command', 'friction', 'leg_mass')]
+    [string]$Part,
+
+    [ValidateRange(0, 3)]
+    [int]$Stage = 0,
+
+    [ValidateRange(1, 65536)]
+    [int]$NumEnvs = 64,
+
+    [ValidateRange(1, 1000000)]
+    [int]$MaxIterations = 1,
+
+    [int]$Seed = 42,
+
+    [string]$ResumeRun,
+
+    [ValidatePattern('^$|^model_[0-9]+\.pt$')]
+    [string]$ResumeCheckpoint,
+
+    [Parameter(Mandatory = $true)]
+    [ValidatePattern('^[a-z0-9][a-z0-9_-]+$')]
+    [string]$RunName
+)
+
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+if ($Part -eq 'command') {
+    if ($Stage -ne 0) {
+        throw 'command 파트는 Stage 0만 사용합니다.'
+    }
+    $task = 'Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0'
+}
+else {
+    if ($Stage -lt 1) {
+        throw "$Part 파트는 Stage 1~3을 사용합니다."
+    }
+    $suffix = if ($Part -eq 'friction') { 'Friction' } else { 'LegMass' }
+    $task = "Isaac-G008-Velocity-Rough-Go2-$suffix-S$Stage-v0"
+}
+
+$trainingEntrypoint = Join-Path $PSScriptRoot 'bootstrap_train_g008.py'
+$reportPath = Join-Path (Split-Path -Parent $PSScriptRoot) "reports\runs\$RunName.json"
+
+$trainingArguments = @{
+    Task = $task
+    NumEnvs = $NumEnvs
+    MaxIterations = $MaxIterations
+    Seed = $Seed
+    RunName = $RunName
+    ReportPath = $reportPath
+    TrainingEntrypointPath = $trainingEntrypoint
+}
+if (-not [string]::IsNullOrWhiteSpace($ResumeRun)) {
+    if ([string]::IsNullOrWhiteSpace($ResumeCheckpoint)) {
+        throw 'ResumeRun을 사용할 때 ResumeCheckpoint가 필요합니다.'
+    }
+    $trainingArguments.Resume = $true
+    $trainingArguments.LoadRun = $ResumeRun
+    $trainingArguments.ResumeCheckpoint = $ResumeCheckpoint
+}
+elseif (-not [string]::IsNullOrWhiteSpace($ResumeCheckpoint)) {
+    throw 'ResumeCheckpoint는 ResumeRun과 함께 사용해야 합니다.'
+}
+
+& (Join-Path $PSScriptRoot 'run_training.ps1') @trainingArguments
+
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}

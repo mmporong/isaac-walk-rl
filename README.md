@@ -20,7 +20,7 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 - Isaac Lab 2.1.1은 `pip install isaaclab==2.1.1` 대상이 아닙니다. 공식 태그 소스를 저장소 밖에 clone해 설치합니다.
 - Isaac Lab 2.2는 Sim 4.5에서 무조건 사용할 수 없는 버전이 아닙니다. 이 프로젝트는 재현성을 위해 2.1.1을 고정합니다.
 - RTX 3060 12GB에서 2048/4096 environments가 된다는 보장은 없습니다. 64부터 단계적으로 올리며 peak VRAM과 steps/s를 실측합니다.
-- Go2를 “가장 많이 쓰이는 모델”이라고 단정하지 않습니다. ANYmal-C 공식 baseline을 관문으로 삼고, Isaac Lab 내장 Go2 태스크를 심화 대상으로 사용합니다.
+- Go2를 "가장 많이 쓰이는 모델"이라고 단정하지 않습니다. ANYmal-C 공식 baseline을 관문으로 삼고, Isaac Lab 내장 Go2 태스크를 심화 대상으로 사용합니다.
 - RBQ v1.20.0에는 공개 URDF·STL 경로가 있습니다. 공식 Isaac Lab v2.1.1·v2.3.2·조사 시점 main에는 대상 구현이 없으므로, 마지막 단계는 외부 커스텀 자산의 라이선스와 호환성을 fail-closed로 판정합니다.
 
 ## 실행 순서
@@ -112,6 +112,28 @@ python .\scripts\summarize_g006.py `
   --queue-state .\reports\runs\g006_queue_state.json `
   --isaaclab-root "$HOME\IsaacLab" `
   --output .\reports\runs\g006_summary.json
+```
+
+## 방향 명령·마찰·링크 질량 단계
+
+G008은 논문 조사 결과를 세 개의 분리된 태스크 축으로 옮겼습니다. command suite는 전진·후진·제자리 좌회전·제자리 우회전 exact primitive를 명령 sampler의 80%에 배정하고, 나머지 20%는 연속 `v_x/v_y/ω_z` 명령으로 둡니다. 마찰과 다리 링크 질량은 서로 섞지 않고 S1→S2→S3으로 범위를 넓힙니다.
+
+2026-08-26 기준 command, friction S1, leg-mass S1의 `64 env × 1 iteration` headless 스모크가 모두 통과했습니다. command를 처음부터 `1,024 env × 300 iterations` 학습한 run은 평면에서 정지에 가까운 지역해로 수렴했습니다. G006 `model_1499.pt`에서 같은 budget을 이어 학습한 `model_1798.pt`는 평면 네 방향 gate를 모두 통과했습니다. 64/64 환경이 생존했고 선속도 RMSE는 `0.0466~0.0794 m/s`, yaw RMSE는 `0.0741~0.1154 rad/s`였습니다. rough terrain에서는 좌·우 회전만 전체 gate를 통과했고, 전진·후진은 순간 roll/pitch가 `0.35 rad` 기준을 넘었습니다.
+
+S1 runtime probe에서는 발바닥 static/dynamic friction이 `0.7226~0.8770`/`0.5295~0.6729`, 다리 링크별 mass scale이 `0.9500~1.0500`으로 실제 적용됐습니다. 질량 변경 뒤 inertia tensor의 최대 재계산 오차는 약 `1.86e-9`였습니다. friction S1은 `1,024 env × 300 iterations` 학습 뒤 randomized·nominal 평면 네 방향 gate를 모두 통과했습니다. 다만 rough 학습의 terrain level mean이 약 3.45에서 2.27로 내려가 S2 확대는 보류합니다.
+
+leg-mass S1도 같은 budget으로 별도 학습했지만 randomized·nominal 평면 모두 우회전 yaw gate에 실패했습니다. 평균 yaw rate가 command checkpoint의 `-0.4533 rad/s`에서 약 `-0.235 rad/s`로 줄고 yaw RMSE가 약 `0.295 rad/s`로 커졌습니다. nominal guardrail도 실패했으므로 leg-mass S2는 중단합니다.
+
+승인된 command checkpoint의 전진·후진·좌우 회전 GIF와 접촉시트, 로컬 전용 원본 MP4의 경로·해시는 [`docs/G008_VISUAL_EVIDENCE.md`](docs/G008_VISUAL_EVIDENCE.md)에 있습니다. Git에는 GIF와 PNG만 포함하며 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008`에 보관합니다.
+
+PPO batch·epoch, 235차원 observation, 50 Hz 제어, 마찰원뿔, yaw moment, 링크별 질량과 inertia 재계산, 논문 수치의 채택·배제 근거, sim-to-real 측정 항목은 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md)에 정리했습니다. 실행 계약은 [`configs/g008_locomotion_dynamics.json`](configs/g008_locomotion_dynamics.json), runtime 증거는 `reports/runs/g008_*.json`을 기준으로 봅니다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+
+.\scripts\run_g008_stage.ps1 -Part command -Stage 0 -NumEnvs 64 -MaxIterations 1 -Seed 42 -RunName g008_command_smoke_e64_i1_s42
+.\scripts\run_g008_stage.ps1 -Part friction -Stage 1 -NumEnvs 64 -MaxIterations 1 -Seed 42 -RunName g008_friction_s1_smoke_e64_i1_s42
+.\scripts\run_g008_stage.ps1 -Part leg_mass -Stage 1 -NumEnvs 64 -MaxIterations 1 -Seed 42 -RunName g008_leg_mass_s1_smoke_e64_i1_s42
 ```
 
 ## RBQ 외부 자산 호환성 게이트

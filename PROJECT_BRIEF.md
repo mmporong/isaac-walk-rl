@@ -2,7 +2,7 @@
 
 ## 목표 결과
 
-Isaac Sim 4.5 / Isaac Lab 2.1.1 / RSL-RL PPO의 Windows 네이티브 재현 환경을 고정하고, ANYmal-C baseline에서 시작해 Go2의 보상·지형·외란 회복 실험을 정량 비교한다. 마지막에는 RBQ 공개 자산을 외부 커스텀 자산으로 분류하고 라이선스·호환성 게이트를 증거 기반으로 판정한다.
+Isaac Sim 4.5 / Isaac Lab 2.1.1 / RSL-RL PPO의 Windows 네이티브 재현 환경을 고정하고, ANYmal-C baseline에서 시작해 Go2의 보상·지형·외란 회복 실험을 정량 비교한다. 이어서 네 방향 명령과 마찰·다리 링크 질량의 단계별 dynamics randomization을 단일축으로 검증한다. RBQ 공개 자산은 외부 커스텀 자산으로 분류하고 라이선스·호환성 게이트를 증거 기반으로 판정한다.
 
 ## 성공 기준
 
@@ -14,6 +14,7 @@ Isaac Sim 4.5 / Isaac Lab 2.1.1 / RSL-RL PPO의 Windows 네이티브 재현 환�
 6. rough terrain과 domain randomization 단계의 추적 오차, 넘어짐률, 에너지 proxy를 baseline과 비교한다.
 7. 외란 회복 성공 조건을 코드로 고정하고 baseline/개선 정책에 동일한 push grid를 적용해 회복률, 분자/분모, Wilson 95% 신뢰구간을 보고한다.
 8. RBQ URDF·mesh 경로와 source commit을 고정하고, 자산 라이선스 범위와 로컬 처리 권한을 확인한다. 허가가 불명확하면 자산을 받거나 변환하지 않고 재현 가능한 blocker를 문서화한다.
+9. 전진·후진·좌회전·우회전 명령을 고정 평가하고, 마찰과 16개 다리 링크 질량을 별도 S1→S2→S3 태스크로 확장한다. 각 단계는 randomized-domain과 nominal-domain guardrail을 통과해야 다음 범위로 간다.
 
 ## 검증된 고정값
 
@@ -83,6 +84,13 @@ Isaac Sim 4.5 / Isaac Lab 2.1.1 / RSL-RL PPO의 Windows 네이티브 재현 환�
 - RBQ v1.20.0의 자산 경로·Git 객체·라이선스 근거를 고정하고, 공식 Isaac Lab 공개 소스에 RBQ 구현이 있는지 확인한다.
 - DoD: 허가가 확인되면 별도 자산 검증과 smoke 증거를 만든다. 허가가 불명확하면 자산 다운로드·변환 전에 fail-closed로 멈추는 재현 가능한 blocker와 해제 조건을 기록한다. 전체 저장소는 code review와 독립 검증을 통과한다.
 
+### G8. 방향 명령과 물성 단일축 curriculum
+
+- 논문과 Isaac Lab 고정 소스를 조사해 명령 분포와 dynamics 범위를 정한다.
+- 전진·후진·제자리 좌회전·제자리 우회전을 exact primitive로 반복 학습하되 연속 SE(2) 명령도 유지한다.
+- 발바닥 접촉 마찰과 16개 다리 링크 질량을 서로 다른 태스크로 구성하고, 각 축을 S1→S2→S3으로 넓힌다.
+- DoD: 설정 격리 테스트, headless smoke, runtime 물성 probe, 네 방향 평가, stage별 nominal guardrail과 문헌 수치의 채택·배제 근거가 있다. 실행하지 않은 stage는 완료로 기록하지 않는다.
+
 ## 외부 부수효과
 
 - 새 Git 저장소와 단계별 커밋을 만든다.
@@ -91,4 +99,4 @@ Isaac Sim 4.5 / Isaac Lab 2.1.1 / RSL-RL PPO의 Windows 네이티브 재현 환�
 
 ## 중단 조건
 
-G1~G7이 증거와 함께 완료되거나, 같은 설치/실행 blocker가 대체 경로까지 포함해 재현되고 현재 하드웨어·고정 버전 안에서 의미 있는 다음 단계가 없을 때만 중단한다.
+요청된 목표가 증거와 함께 완료되거나, 같은 설치/실행 blocker가 대체 경로까지 포함해 재현되고 현재 하드웨어·고정 버전 안에서 의미 있는 다음 단계가 없을 때만 중단한다.

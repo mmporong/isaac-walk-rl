@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "protocol": "directional_qualification_v1",
+  "task": "Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0",
+  "domain_mode": "nominal",
+  "terrain_mode": "plane",
+  "headless": true,
+  "device": "cuda:0",
+  "evaluation_seed": 20260826,
+  "num_envs": 64,
+  "environments_per_direction": 16,
+  "horizon_steps": 250,
+  "warmup_steps": 50,
+  "step_dt_s": 0.02,
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_10-48-01_g008_command_qualification_e1024_i300_s42\\model_299.pt",
+    "sha256": "a3dc16782f4ef9fb813b26c76bb0c1ac153aa0ca5fad8714a5116bd9e406e2b4"
+  },
+  "evaluation_source_sha256": "f8409bff16fbb04e35c54be2607159309e93ed36b6ecb011ebf5b15b194f0fae",
+  "gate": {
+    "survival_rate_min": 1.0,
+    "roll_abs_rad_max": 0.35,
+    "pitch_abs_rad_max": 0.35,
+    "linear_tracking_rmse_mps_max": 0.25,
+    "yaw_tracking_rmse_radps_max": 0.25
+  },
+  "all_directions_gate_pass": false,
+  "directions": [
+    {
+      "id": "forward",
+      "command": {
+        "lin_vel_x_mps": 0.6,
+        "lin_vel_y_mps": 0.0,
+        "ang_vel_z_radps": 0.0
+      },
+      "sample_count": 3200,
+      "trial_count": 16,
+      "fall_count": 0,
+      "timeout_count": 0,
+      "survival_rate": 1.0,
+      "linear_tracking_rmse_mps": 0.6005791398570864,
+      "yaw_tracking_rmse_radps": 0.09930385383212957,
+      "achieved_mean": {
+        "lin_vel_x_mps": -0.0002414731396129355,
+        "lin_vel_y_mps": -0.001265984711353667,
+        "ang_vel_z_radps": 0.0013246676698327065
+      },
+      "torque_l2_norm_mean_nm": 11.27234613418579,
+      "absolute_mechanical_power_mean_w": 6.750366096496582,
+      "roll_abs_rad_max": 0.145426943898201,
+      "pitch_abs_rad_max": 0.20261304080486298,
+      "command_sign_pass": false,
+      "gate_pass": false
+    },
+    {
+      "id": "backward",
+      "command": {
+        "lin_vel_x_mps": -0.4,
+        "lin_vel_y_mps": 0.0,
+        "ang_vel_z_radps": 0.0
+      },
+      "sample_count": 3200,
+      "trial_count": 16,
+      "fall_count": 0,
+      "timeout_count": 0,
+      "survival_rate": 1.0,
+      "linear_tracking_rmse_mps": 0.18521499114456597,
+      "yaw_tracking_rmse_radps": 0.15994865113537118,
+      "achieved_mean": {
+        "lin_vel_x_mps": -0.28413717932999133,
+        "lin_vel_y_mps": -0.016156127428403125,
+        "ang_vel_z_radps": -0.09186770630301908
+      },
+      "torque_l2_norm_mean_nm": 18.883994817733765,
+      "absolute_mechanical_power_mean_w": 60.3418469619751,
+      "roll_abs_rad_max": 0.15734733641147614,
+      "pitch_abs_rad_max": 0.1918017417192459,
+      "command_sign_pass": true,
+      "gate_pass": true
+    },
+    {
+      "id": "left_turn",
+      "command": {
+        "lin_vel_x_mps": 0.0,
+        "lin_vel_y_mps": 0.0,
+        "ang_vel_z_radps": 0.5
+      },
+      "sample_count": 3200,
+      "trial_count": 16,
+      "fall_count": 0,
+      "timeout_count": 0,
+      "survival_rate": 1.0,
+      "linear_tracking_rmse_mps": 0.021772994887981168,
+      "yaw_tracking_rmse_radps": 0.4981826039287724,
+      "achieved_mean": {
+        "lin_vel_x_mps": 0.00048001909352024085,
+        "lin_vel_y_mps": -0.0011529409131617286,
+        "ang_vel_z_radps": 0.013442419420462101
+      },
+      "torque_l2_norm_mean_nm": 13.212397508621216,
+      "absolute_mechanical_power_mean_w": 8.005679843425751,
+      "roll_abs_rad_max": 0.09052498638629913,
+      "pitch_abs_rad_max": 0.10912486910820007,
+      "command_sign_pass": true,
+      "gate_pass": false
+    },
+    {
+      "id": "right_turn",
+      "command": {
+        "lin_vel_x_mps": 0.0,
+        "lin_vel_y_mps": 0.0,
+        "ang_vel_z_radps": -0.5
+      },
+      "sample_count": 3200,
+      "trial_count": 16,
+      "fall_count": 0,
+      "timeout_count": 0,
+      "survival_rate": 1.0,
+      "linear_tracking_rmse_mps": 0.03089181559423523,
+      "yaw_tracking_rmse_radps": 0.43857635254596733,
+      "achieved_mean": {
+        "lin_vel_x_mps": 0.01175346311996691,
+        "lin_vel_y_mps": 0.004429498267127201,
+        "ang_vel_z_radps": -0.07510220214957371
+      },
+      "torque_l2_norm_mean_nm": 15.54593011379242,
+      "absolute_mechanical_power_mean_w": 10.37590012550354,
+      "roll_abs_rad_max": 0.09201303869485855,
+      "pitch_abs_rad_max": 0.23649084568023682,
+      "command_sign_pass": true,
+      "gate_pass": false
+    }
+  ],
+  "metric_notes": {
+    "tracking_window": "warmup 이후, 첫 종료 전 active state만 집계",
+    "torque": "관절 applied_torque 벡터의 L2 norm 평균",
+    "mechanical_power": "sum(abs(applied_torque * joint_velocity))의 시뮬레이션 proxy",
+    "causal_scope": "정책의 방향 명령 추종을 확인하며 실물 전이 성능을 입증하지 않음"
+  },
+  "wall_time_seconds": 21.43
+}

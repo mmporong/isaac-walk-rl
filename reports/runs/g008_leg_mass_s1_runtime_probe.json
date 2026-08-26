@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "task": "Isaac-G008-Velocity-Rough-Go2-LegMass-S1-v0",
+  "seed": 42,
+  "num_envs": 1024,
+  "device": "cuda:0",
+  "body_names": [
+    "base",
+    "FL_hip",
+    "FR_hip",
+    "Head_upper",
+    "RL_hip",
+    "RR_hip",
+    "FL_thigh",
+    "FR_thigh",
+    "Head_lower",
+    "RL_thigh",
+    "RR_thigh",
+    "FL_calf",
+    "FR_calf",
+    "RL_calf",
+    "RR_calf",
+    "FL_foot",
+    "FR_foot",
+    "RL_foot",
+    "RR_foot"
+  ],
+  "leg_body_names": [
+    "FL_hip",
+    "FR_hip",
+    "RL_hip",
+    "RR_hip",
+    "FL_thigh",
+    "FR_thigh",
+    "RL_thigh",
+    "RR_thigh",
+    "FL_calf",
+    "FR_calf",
+    "RL_calf",
+    "RR_calf",
+    "FL_foot",
+    "FR_foot",
+    "RL_foot",
+    "RR_foot"
+  ],
+  "foot_body_names": [
+    "FL_foot",
+    "FR_foot",
+    "RL_foot",
+    "RR_foot"
+  ],
+  "leg_body_count": 16,
+  "foot_shape_count_per_environment": 4,
+  "command_sample": {
+    "exact_primitive_counts": {
+      "forward": 158,
+      "backward": 205,
+      "left_turn": 179,
+      "right_turn": 178,
+      "stand": 82
+    },
+    "continuous_or_non_exact_count": 222,
+    "total_count": 1024
+  },
+  "mass": {
+    "leg_mass_scale": {
+      "count": 16384,
+      "min": 0.9500010013580322,
+      "mean": 1.0003257989883423,
+      "max": 1.0499930381774902
+    },
+    "nominal_total_leg_mass_kg": 8.095998764038086,
+    "sampled_total_leg_mass_kg": {
+      "count": 1024,
+      "min": 7.829642295837402,
+      "mean": 8.100669860839844,
+      "max": 8.37812614440918
+    }
+  },
+  "inertia": {
+    "recomputed_from_nominal_by_mass_ratio": true,
+    "absolute_error_max": 1.862645149230957e-09
+  },
+  "foot_material": {
+    "static_friction": {
+      "count": 4096,
+      "min": 0.800000011920929,
+      "mean": 0.8000001311302185,
+      "max": 0.800000011920929
+    },
+    "dynamic_friction": {
+      "count": 4096,
+      "min": 0.6000000238418579,
+      "mean": 0.6000000238418579,
+      "max": 0.6000000238418579
+    },
+    "restitution": {
+      "count": 4096,
+      "min": 0.0,
+      "mean": 0.0,
+      "max": 0.0
+    },
+    "dynamic_not_greater_than_static": true
+  },
+  "probe_source_sha256": "7aa103541fb2b499aefa6385b4e663bd6d99402344fdd8127a008de4e9b85fa5"
+}

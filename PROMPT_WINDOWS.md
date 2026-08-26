@@ -14,7 +14,7 @@
 
 Isaac Lab 원본은 프로젝트 저장소 밖에 두며 직접 수정하지 않는다. 커스텀 변경은 이 저장소에서 오버라이드 또는 확장 패키지로 관리한다.
 
-## 0단계 — 설치와 등록 검증
+## 0단계: 설치와 등록 검증
 
 PowerShell 7.x(`pwsh`)에서 실행한다. 현재 검증 버전은 7.6.5이며, Windows PowerShell 5.1은 지원 검증 대상이 아니다.
 
@@ -34,7 +34,7 @@ DoD:
 - CUDA 사용 가능 여부와 GPU 이름을 기록한다.
 - 등록 목록에서 대상 task ID 4개를 확인한다.
 
-## 1단계 — ANYmal-C 관문
+## 1단계: ANYmal-C 관문
 
 설치 smoke:
 
@@ -47,13 +47,13 @@ smoke가 끝난 후 같은 태스크의 300-iteration baseline을 수행한다. 
 
 DoD: 정상 종료, 실행 명령, seed, peak VRAM, steps/s, TensorBoard·체크포인트 경로, 핵심 지표 기록.
 
-## 2단계 — Go2 flat 자원 사다리
+## 2단계: Go2 flat 자원 사다리
 
 태스크는 `Isaac-Velocity-Flat-Unitree-Go2-v0`를 사용한다. 64→256→512→1024→2048 environments 순서로 같은 seed와 짧은 budget을 실행한다. 4096은 직전 단계 peak VRAM이 전체의 80% 이하이고 OOM·PhysX fallback·비정상 종료가 없을 때만 실행한다.
 
 DoD: 환경 수별 peak VRAM, 평균 steps/s, wall time, 성공/실패 원인을 표로 기록. MuJoCo 51k 수치와 비교할 때 simulator·hardware·측정 정의가 다름을 명시.
 
-## 3단계 — 보상 ablation
+## 3단계: 보상 ablation
 
 baseline을 유지한 채 다음 항목을 한 번에 하나씩 변경한다.
 
@@ -65,13 +65,13 @@ baseline을 유지한 채 다음 항목을 한 번에 하나씩 변경한다.
 
 DoD: 설정 diff, 명령, seed별 결과, 평균·분산, TensorBoard 근거, 해석 가능한 비교표.
 
-## 4단계 — official rough baseline 고정
+## 4단계: official rough baseline 고정
 
 `Isaac-Velocity-Rough-Unitree-Go2-v0`의 official `UnitreeGo2RoughEnvCfg`를 baseline으로 사용한다. baseline과 이후 변형은 동일한 rough terrain curriculum과 official domain randomization을 공통으로 유지한다. 기본 환경에 이미 존재하는 terrain curriculum과 event를 먼저 분석하고 중복 구현하지 않는다.
 
 DoD: official rough baseline의 고정 설정, 적용된 공통 randomization 범위, terrain curriculum 진행 증거, official rough baseline 대비 추적 오차·낙상률·에너지 proxy의 기술통계 비교. flat→rough 또는 domain randomization 단독 인과효과를 주장하지 않는다.
 
-## 5단계 — 외란 회복
+## 5단계: 외란 회복
 
 학습 전 평가 프로토콜을 먼저 고정한다.
 
@@ -85,7 +85,7 @@ official rough baseline과 동일 rough·공통 official DR 조건에서 `events
 
 DoD: 회복 성공 분자/분모, 회복률, Wilson 95% 신뢰구간, 조건별 표와 실패 사례.
 
-## 6단계 — RBQ 외부 자산 호환성 사전조사
+## 6단계: RBQ 외부 자산 호환성 사전조사
 
 RBQ v1.20.0의 source commit과 `rbq_sdk/ros2/src/rbq_description/` 아래 8개 자산 blob을 manifest에 고정한다. 공식 Isaac Lab v2.1.1·v2.3.2·조사 시점 main에는 대상 구현이 없으므로 기존 구현의 이식을 전제하지 않는다.
 
@@ -97,6 +97,19 @@ python .\scripts\validate_rbq_assets.py --manifest .\configs\g007_rbq_asset_mani
 ```
 
 DoD: source·blob inventory·라이선스 근거와 검증기 해시를 고정한다. 허가가 없으면 `license_scope_unresolved` blocker, 재현 명령, 해제에 필요한 권한 범위를 기록한다. 허가가 확인된 뒤에만 byte hash → URI/topology → converter → fixed-base smoke를 별도 수행한다.
+
+## 7단계: 방향 명령과 물성 단일축 curriculum
+
+`Isaac-Velocity-Rough-Unitree-Go2-v0`를 상속한 저장소 로컬 태스크를 사용한다. command suite에서 전진·후진·제자리 좌회전·제자리 우회전을 먼저 검증한다. 이후 마찰과 다리 링크 질량을 같은 태스크에 섞지 않고 별도 S1→S2→S3으로 실행한다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+.\scripts\run_g008_stage.ps1 -Part command -Stage 0 -NumEnvs 1024 -MaxIterations 300 -Seed 42 -RunName g008_command_qualification_e1024_i300_s42
+.\scripts\run_g008_stage.ps1 -Part friction -Stage 1 -NumEnvs 1024 -MaxIterations 300 -Seed 42 -RunName g008_friction_s1_e1024_i300_s42
+.\scripts\run_g008_stage.ps1 -Part leg_mass -Stage 1 -NumEnvs 1024 -MaxIterations 300 -Seed 42 -RunName g008_leg_mass_s1_e1024_i300_s42
+```
+
+DoD: command은 네 방향의 생존·추적·자세 gate를 고정 평가한다. friction과 leg-mass는 설정 diff에서 자기 event만 달라야 한다. 각 물성 stage는 runtime 실제 범위와 inertia 조건을 probe하고, randomized-domain과 nominal-domain이 모두 기준을 만족할 때만 다음 stage로 간다.
 
 ## 실행 기록과 Git
 

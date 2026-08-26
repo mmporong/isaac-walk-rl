@@ -16,6 +16,9 @@
 | rough·DR | official `UnitreeGo2RoughEnvCfg` baseline과 공통 terrain curriculum·official DR 고정, normalized diff는 `events.push_robot`만 허용, official rough baseline 대비 추적 오차·낙상률·에너지 proxy 기술통계 비교. flat→rough 또는 DR 단독 인과효과는 주장하지 않음 | PASS; 4096 env × 1500 iterations × seeds 42/43/44, 6/6 jobs complete. push curriculum은 tracking error sq `-9.1290%`, yaw error sq `-9.7386%`, torque L2 `+4.4411%`, mechanical power proxy `+3.6121%` |
 | 외란 회복 비교 | 동일 rough·공통 official DR 조건의 고정 protocol과 Wilson 95% CI | PASS; 6480 push trials와 540 guardrail trials. 회복률 `99.5370%`→`99.5988%` (`+0.0617%p`), paired bootstrap 95% CI `-0.7716%p ~ +0.9568%p`; guardrail 양쪽 `100%`, 유의한 개선 주장 없음 |
 | G006 durable JSON 이식성 | 실제 실행은 허용 root 안의 resolved 절대경로, 저장 command와 그 hash는 `%USERPROFILE%`·`%REPO_ROOT%`·`%ISAACLAB_ROOT%` 뒤에 문자열 끝 또는 separator만 허용하고 선택한 token root containment를 통과한 경로에 바인딩; summary path는 repo/queue-relative 또는 `%USERPROFILE%`로 기록하고 Isaac root는 CLI로 명시; legacy complete state는 전체 artifact/hash 검증 후에만 무재실행 마이그레이션 | PASS; 6/6 legacy commands portable migration, production training/evaluation artifact hash 변경 0, 시스템/Isaac Python strict summary SHA-256 `c0ef40715ce09915d3789249168228090049d7edc5a2cea82231c4ebddbfe76a`로 byte-identical |
+| G008 네 방향 명령 경로 | exact forward/backward/left-yaw/right-yaw primitive를 포함한 custom command term, direct yaw-rate, 태스크 등록·학습 스모크·고정 명령 평가 | warm-start `1,024 env × 300 iterations`와 평면 64환경 평가 PASS; 생존 64/64, 선속도 RMSE `0.0466~0.0794`, yaw RMSE `0.0741~0.1154`. rough는 좌·우 PASS, 전진·후진 자세 gate FAIL |
+| G008 마찰 단일축 S1 | command 설정 대비 material event만 변경, `.*_foot`, static `0.72~0.88`, dynamic `0.52~0.68`, 64 buckets, dynamic≤static | config diff·smoke·1,024환경 runtime probe PASS. `1,024 env × 300 iterations` 뒤 randomized·nominal 평면 네 방향 gate PASS. terrain level mean이 약 3.45→2.27로 하락해 rough 개선과 S2 진입은 미승인 |
+| G008 다리 링크 질량 단일축 S1 | command 설정에 독립적인 16-body mass event만 추가, body별 `0.95~1.05`, inertia 재계산 | config diff·smoke·1,024환경 runtime probe PASS. `1,024 env × 300 iterations` 학습은 완료했으나 randomized·nominal 평면 우회전 yaw RMSE `0.2956/0.2947`로 FAIL. nominal guardrail 실패, S2 미승인 |
 | RBQ 외부 자산 호환성 사전조사 | source·8 blob·라이선스 근거 고정, fail-closed blocker 재현 | G007 gate 구현 완료; `license_scope_unresolved`, expect-blocked exit 0·require-ready exit 3, targeted 46 tests PASS·code review APPROVE. 자산·파생물 다운로드/변환/smoke 미실행 |
 
 ## 1차 근거
@@ -25,6 +28,11 @@
 - v2.1.1 ANYmal-C task registration: https://github.com/isaac-sim/IsaacLab/blob/90b79bb2d44feb8d833f260f2bf37da3487180ba/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/anymal_c/__init__.py
 - v2.1.1 Go2 task registration: https://github.com/isaac-sim/IsaacLab/blob/90b79bb2d44feb8d833f260f2bf37da3487180ba/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/go2/__init__.py
 - Isaac Sim 4.5 requirements: https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/requirements.html
+- G008 설계 문서: [`G008_COMMAND_FRICTION_LINK_MASS.md`](G008_COMMAND_FRICTION_LINK_MASS.md)
+- G008 dynamics event 구현: https://isaac-sim.github.io/IsaacLab/v2.1.1/_modules/isaaclab/envs/mdp/events.html
+- G008 병렬 PPO·terrain curriculum 근거: https://proceedings.mlr.press/v164/rudin22a.html
+- G008 velocity command 근거: https://proceedings.mlr.press/v205/margolis23a/margolis23a.pdf
+- G008 dynamics randomization 범위·비판 근거: https://arxiv.org/html/1804.10332, https://arxiv.org/html/2107.04034, https://arxiv.org/html/2011.02404
 - RBQ v1.20.0 tag object API: https://api.github.com/repos/RainbowRobotics/RBQ/git/tags/741ce5733dcd7c0babec663bb7e1afbc02a776ca
 - RBQ 고정 commit URDF: https://raw.githubusercontent.com/RainbowRobotics/RBQ/68bc33b77719d357b4323fb88549efd905caf721/rbq_sdk/ros2/src/rbq_description/urdf/rbq.urdf
 - RBQ 고정 commit package.xml: https://raw.githubusercontent.com/RainbowRobotics/RBQ/68bc33b77719d357b4323fb88549efd905caf721/rbq_sdk/ros2/src/rbq_description/package.xml

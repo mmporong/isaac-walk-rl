@@ -26,6 +26,12 @@ param(
 
     [string]$TrainingEntrypointPath,
 
+    [switch]$Resume,
+
+    [string]$LoadRun,
+
+    [string]$ResumeCheckpoint,
+
     [ValidateRange(1, 60)]
     [int]$GpuSampleIntervalSeconds = 2
 )
@@ -163,6 +169,18 @@ foreach ($override in $HydraOverrides) {
     }
 }
 
+if ($Resume) {
+    if ([string]::IsNullOrWhiteSpace($LoadRun) -or $LoadRun -notmatch '^[A-Za-z0-9_.-]+$') {
+        throw 'Resume에는 안전한 LoadRun 이름이 필요합니다.'
+    }
+    if ([string]::IsNullOrWhiteSpace($ResumeCheckpoint) -or $ResumeCheckpoint -notmatch '^model_[0-9]+\.pt$') {
+        throw 'ResumeCheckpoint는 model_<iteration>.pt 형식이어야 합니다.'
+    }
+}
+elseif (-not [string]::IsNullOrWhiteSpace($LoadRun) -or -not [string]::IsNullOrWhiteSpace($ResumeCheckpoint)) {
+    throw 'LoadRun과 ResumeCheckpoint는 -Resume과 함께 사용해야 합니다.'
+}
+
 if (-not (Test-Path -LiteralPath $pythonBat -PathType Leaf)) {
     throw "Isaac Sim bundled python.bat을 찾을 수 없습니다: $pythonBat"
 }
@@ -192,6 +210,9 @@ $arguments = @(
     '--run_name', $RunName,
     '--headless'
 )
+if ($Resume) {
+    $arguments += @('--resume', '--load_run', $LoadRun, '--checkpoint', $ResumeCheckpoint)
+}
 $arguments += @($HydraOverrides)
 $argumentLine = ($arguments | ForEach-Object {
     Convert-ToWindowsCommandLineArgument ([string]$_)
@@ -308,11 +329,21 @@ $gpuMeasurementComplete = ($gpuMeasurementFailureCount -eq 0 -and $null -ne $fin
 $recoveredToBaseline = ($gpuMeasurementComplete -and $finalGpuMiB -le ($baselineGpuMiB + 128))
 $fatalPatterns = @('Traceback (most recent call last)', '[Error]')
 $fatalMatches = @($fatalPatterns | Where-Object { $combined.Contains($_) })
-$expectedLastIteration = $MaxIterations - 1
+$expectedLastIteration = if ($Resume) {
+    # RSL-RL includes the loaded iteration in the resumed learning range.
+    # model_N plus M iterations therefore ends at model_(N + M - 1).
+    [int]([regex]::Match($ResumeCheckpoint, '^model_([0-9]+)\.pt$').Groups[1].Value) + $MaxIterations - 1
+}
+else {
+    $MaxIterations - 1
+}
+$expectedIterationTarget = if ($Resume) { $expectedLastIteration + 1 } else { $MaxIterations }
 $successChecks = [ordered]@{
     process_exit_zero = ($process.ExitCode -eq 0)
     no_traceback_or_error = ($fatalMatches.Count -eq 0)
-    requested_iteration_reached = ($lastIteration -eq $expectedLastIteration -and $iterationTarget -eq $MaxIterations)
+    requested_iteration_reached = (
+        $lastIteration -eq $expectedLastIteration -and $iterationTarget -eq $expectedIterationTarget
+    )
     log_directory_exists = ($actualLogDirectory -and (Test-Path -LiteralPath $actualLogDirectory -PathType Container))
     tensorboard_exists = $tensorboardExists
     checkpoint_exists = ($null -ne $checkpoint)
@@ -338,7 +369,12 @@ $report = [ordered]@{
         '--seed', $Seed,
         '--run_name', $RunName,
         '--headless'
-    ) + @($HydraOverrides)
+    ) + $(if ($Resume) { @('--resume', '--load_run', $LoadRun, '--checkpoint', $ResumeCheckpoint) } else { @() }) + @($HydraOverrides)
+    resume = [ordered]@{
+        enabled = [bool]$Resume
+        load_run = if ($Resume) { $LoadRun } else { $null }
+        checkpoint = if ($Resume) { $ResumeCheckpoint } else { $null }
+    }
     effective_hydra_overrides = @($HydraOverrides)
     training_entrypoint = [ordered]@{
         path = Convert-ToPortablePath $trainScript
