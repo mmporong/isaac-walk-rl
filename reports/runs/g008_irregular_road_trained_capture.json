@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "purpose": "irregular-road stage and checkpoint visual evidence",
+  "profile": {
+    "profile_id": "irregular_road_trained_i300",
+    "label": "Irregular-road PPO +300 | final checkpoint",
+    "stage": "irregular_road",
+    "task": "Isaac-G008-Velocity-IrregularRoad-Go2-S1-v0",
+    "seed": 20260826,
+    "headless": true,
+    "step_dt_s": 0.02,
+    "total_steps": 900,
+    "sequence": [
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "forward",
+        "steps": 175,
+        "command": [
+          0.6,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "backward",
+        "steps": 175,
+        "command": [
+          -0.4,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "left_turn",
+        "steps": 175,
+        "command": [
+          0.0,
+          0.0,
+          0.5
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "right_turn",
+        "steps": 175,
+        "command": [
+          0.0,
+          0.0,
+          -0.5
+        ]
+      }
+    ],
+    "checkpoint": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_20-53-21_g008_irregular_road_s1_finetune_friction_s1_e64_i300_s20260826\\model_2396.pt",
+      "sha256": "1384b92107b776c6c18851abd17d47efc66b9ea42306f6ca354b0b525c7c4486"
+    },
+    "stage_physics": {
+      "field": {
+        "seed": 20260826,
+        "bounds_m": {
+          "x": [
+            -28.0,
+            28.0
+          ],
+          "y": [
+            -28.0,
+            28.0
+          ]
+        },
+        "cell_size_m": 0.25,
+        "grid_cells": [
+          224,
+          224
+        ],
+        "friction_buckets": [
+          {
+            "index": 0,
+            "static": 0.25,
+            "dynamic": 0.15,
+            "cell_count": 12544,
+            "cell_ratio": 0.25
+          },
+          {
+            "index": 1,
+            "static": 0.4,
+            "dynamic": 0.28,
+            "cell_count": 12544,
+            "cell_ratio": 0.25
+          },
+          {
+            "index": 2,
+            "static": 0.6,
+            "dynamic": 0.45,
+            "cell_count": 12544,
+            "cell_ratio": 0.25
+          },
+          {
+            "index": 3,
+            "static": 0.8,
+            "dynamic": 0.6,
+            "cell_count": 12544,
+            "cell_ratio": 0.25
+          }
+        ],
+        "height_min_m": -0.038533713668584824,
+        "height_max_m": 0.04249459132552147,
+        "height_range_m": 0.08102830499410629,
+        "adjacent_height_delta_max_m": 0.011210378259420395,
+        "local_slope_mean_deg": 0.8757703900337219,
+        "local_slope_max_deg": 2.6989047527313232,
+        "components": {
+          "road_crown_height_m": 0.015,
+          "undulation_amplitude_m": 0.03,
+          "roughness_amplitude_m": 0.012,
+          "pothole_depth_m": 0.025
+        }
+      },
+      "surface_readback": {
+        "default_ground_collision_prim": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "default_ground_collision_exists": false,
+        "height_scan_prim": "/World/irregular_road_field/surface",
+        "height_scan_has_collision_api": false,
+        "collision_meshes": [
+          {
+            "bucket": 0,
+            "prim_path": "/World/irregular_road_field/friction_0_surface",
+            "face_count": 25088,
+            "has_collision_api": true
+          },
+          {
+            "bucket": 1,
+            "prim_path": "/World/irregular_road_field/friction_1_surface",
+            "face_count": 25088,
+            "has_collision_api": true
+          },
+          {
+            "bucket": 2,
+            "prim_path": "/World/irregular_road_field/friction_2_surface",
+            "face_count": 25088,
+            "has_collision_api": true
+          },
+          {
+            "bucket": 3,
+            "prim_path": "/World/irregular_road_field/friction_3_surface",
+            "face_count": 25088,
+            "has_collision_api": true
+          }
+        ],
+        "collision_face_total": 100352,
+        "expected_face_total": 100352,
+        "one_material_binding_per_collision_mesh": true,
+        "physics_material_targets": [
+          "/World/irregular_road_field/friction_0_material",
+          "/World/irregular_road_field/friction_1_material",
+          "/World/irregular_road_field/friction_2_material",
+          "/World/irregular_road_field/friction_3_material"
+        ]
+      }
+    },
+    "quantitative_report": {
+      "path": "reports/runs/g008_irregular_road_trained_s1_e32_h500_s20260826.json",
+      "sha256": "a905624210d016d003603ec100a4586a0ad2a8e0f9abb7528f918805e88e4ceb"
+    },
+    "local_video": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_irregular_road_trained_i300_s20260826.mp4",
+      "sha256": "fdb7d7319edbe431bd5f0bb2b37b8ca8377d53281189c9a65a3220f404006943",
+      "bytes": 2286032,
+      "git_policy": "local_only"
+    }
+  },
+  "record_source_sha256": "909a4bf6c9859bc724d7dd1f9823dc473f02509232cf836d149a830f890fc4e9",
+  "evaluator_source_sha256": "40692f1d99ef2a301d98116c4c32fd1aa246ab56d8eb56b870e6a63d6efead2a",
+  "road_generator_source_sha256": "3d8c0ee34723e9dc3a8f6b9c95b4455b0e5f056d32e3713bc32286e26e724b72"
+}

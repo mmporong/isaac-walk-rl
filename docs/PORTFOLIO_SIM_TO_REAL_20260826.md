@@ -13,6 +13,7 @@ G008은 이 실험 하네스를 방향 명령과 물성 단일축 검증으로 �
 - G006 warm-start 뒤 `1,024 env × 300 iterations × seed 42`로 학습한 방향 명령 정책은 평면 전진·후진·좌회전·우회전 gate를 모두 통과했습니다. rough terrain에서는 좌·우 회전만 통과했고 전진·후진은 자세 gate를 넘었습니다.
 - friction S1은 randomized·nominal 평면 네 방향 gate를 통과했습니다. rough 학습의 terrain level mean이 약 3.45에서 2.27로 내려가 S2 확대는 보류했습니다.
 - leg-mass S1은 학습은 끝났지만 randomized·nominal 평면에서 우회전 yaw gate를 잃었습니다. nominal guardrail도 실패해 S2를 중단했습니다.
+- 비주기 2D 마찰과 약 8.1cm 높이차를 합친 도로에서는 기존 friction S1이 낙상 없이 3/4 방향을 통과했습니다. 같은 환경에서 64개 환경·300 iterations를 추가 학습한 모델은 회전 중 5회 넘어져 채택하지 않았습니다. 평균 학습 reward가 고정 방향 최악 성능을 보장하지 않는다는 음성 결과까지 보존했습니다.
 
 따라서 `dynamics randomization 단일축 gate`는 구현·측정 단계로 올릴 수 있습니다. 다만 seed 42의 좁은 S1 학습 범위와 nominal 평면 결과이므로, 미관측 동역학에 강하다는 주장은 아직 사용할 수 없습니다.
 
@@ -23,6 +24,8 @@ G008은 이 실험 하네스를 방향 명령과 물성 단일축 검증으로 �
 ### 1. 단일축 gate를 held-out dynamics로 확장
 
 G008 S1의 마찰·다리 링크 질량 단일축 평가를 seed 42/43/44와 rough guardrail로 반복합니다. S1이 nominal과 randomized 조건을 모두 통과한 축만 S2로 넓힙니다. 그다음 학습 범위의 경계와 범위 밖을 별도 held-out으로 떼어 평가합니다. 이후 중심 위치, 모터 강도, 관절 지연, 센서 노이즈, 토크 제한을 한 축씩 추가하며 회복률뿐 아니라 추적 오차, torque, mechanical power proxy, fall time을 함께 봅니다.
+
+불규칙 도로는 형상과 마찰을 다시 분리합니다. 먼저 현재 높이 형상에 nominal `0.8/0.6`만 놓고 여러 terrain seed를 통과시킨 뒤, `0.6/0.45 ↔ 0.8/0.6`, 세 구간, 네 구간 순으로 넓힙니다. 각 단계의 checkpoint는 평균 reward가 아니라 전진·후진·좌회전·우회전 중 최저 gate로 고릅니다.
 
 ### 2. cross-simulator
 

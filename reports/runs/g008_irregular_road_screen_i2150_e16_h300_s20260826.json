@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "protocol": "irregular_road_spatial_friction_height_v1",
+  "task": "Isaac-G008-Velocity-IrregularRoad-Go2-S1-v0",
+  "policy_id": "irregular_road_s1_i2150",
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_20-53-21_g008_irregular_road_s1_finetune_friction_s1_e64_i300_s20260826\\model_2150.pt",
+    "sha256": "18ca26aaa67223e7f245b90973cb5d7adf42da54dc699b121fa4ed20aabd9522"
+  },
+  "headless": true,
+  "device": "cuda:0",
+  "evaluation_seed": 20260826,
+  "terrain_seed": 20260826,
+  "num_envs": 16,
+  "environments_per_direction": 4,
+  "horizon_steps": 300,
+  "warmup_steps": 50,
+  "step_dt_s": 0.02,
+  "observation_corruption": false,
+  "gate": {
+    "survival_rate_min": 1.0,
+    "roll_abs_rad_max": 0.35,
+    "pitch_abs_rad_max": 0.35,
+    "linear_tracking_rmse_mps_max": 0.25,
+    "yaw_tracking_rmse_radps_max": 0.25
+  },
+  "all_directions_gate_pass": false,
+  "all_directions_field_coverage_pass": true,
+  "directions": [
+    {
+      "id": "forward",
+      "command": [
+        0.6,
+        0.0,
+        0.0
+      ],
+      "sample_count": 1000,
+      "trial_count": 4,
+      "fall_count": 0,
+      "timeout_count": 0,
+      "survival_rate": 1.0,
+      "linear_tracking_rmse_mps": 0.05057344129029912,
+      "yaw_tracking_rmse_radps": 0.037048122359019255,
+      "achieved_mean": {
+        "lin_vel_x_mps": 0.6265610885620118,
+        "lin_vel_y_mps": -0.029434464131481944,
+        "ang_vel_z_radps": -0.015159868132323027
+      },
+      "torque_l2_norm_mean_nm": 11.164298477172851,
+      "absolute_mechanical_power_mean_w": 23.53876361846924,
+      "roll_abs_rad_max": 0.04809600114822388,
+      "pitch_abs_rad_max": 0.050031859427690506,
+      "command_sign_pass": true,
+      "gate_pass": true,
+      "friction_bucket_foot_sample_counts": [
+        954,
+        1077,
+        1099,
+        870
+      ],
+      "friction_bucket_foot_sample_ratios": [
+        0.2385,
+        0.26925,
+        0.27475,
+        0.2175
+      ],
+      "four_foot_material_diversity": {
+        "frame_counts": {
+          "1": 196,
+          "2": 614,
+          "3": 190,
+          "4": 0
+        },
+        "frame_ratios": {
+          "1": 0.196,
+          "2": 0.614,
+          "3": 0.19,
+          "4": 0.0
+        },
+        "all_same_frame_ratio": 0.196,
+        "all_four_distinct_frame_ratio": 0.0,
+        "maximum_simultaneous_bucket_count": 3
+      },
+      "material_transition_count": 111,
+      "footprint_height_span_mean_m": 0.004871938869357109,
+      "footprint_height_span_max_m": 0.011796524748206139,
+      "terrain_height_min_m": -0.01892564259469509,
+      "terrain_height_max_m": 0.013422754593193531,
+      "local_slope_mean_deg": 0.9398868107795715,
+      "local_slope_max_deg": 1.6181749105453491,
+      "out_of_field_foot_sample_count": 0,
+      "field_coverage_pass": true,
+      "contact_foot_sample_count": 2631,
+      "contact_observation_available": true,
+      "contact_slip_speed_mean_mps": 0.1510543728318789,
+      "contact_slip_over_0_1_ratio": 0.1345496009122007,
+      "contact_termination_count": 0,
+      "kinematic_fall_count": 0
+    },
+    {
+      "id": "backward",
+      "command": [
+        -0.4,
+        0.0,
+        0.0
+      ],
+      "sample_count": 1000,
+      "trial_count": 4,
+      "fall_count": 0,
+      "timeout_count": 0,
+      "survival_rate": 1.0,
+      "linear_tracking_rmse_mps": 0.10002691583761253,
+      "yaw_tracking_rmse_radps": 0.07232828798675385,
+      "achieved_mean": {
+        "lin_vel_x_mps": -0.306114723443985,
+        "lin_vel_y_mps": -0.011153481897898018,
+        "ang_vel_z_radps": -0.06153049115650356
+      },
+      "torque_l2_norm_mean_nm": 10.345278366088866,
+      "absolute_mechanical_power_mean_w": 14.737596542358398,
+      "roll_abs_rad_max": 0.0695282518863678,
+      "pitch_abs_rad_max": 0.031244322657585144,
+      "command_sign_pass": true,
+      "gate_pass": true,
+      "friction_bucket_foot_sample_counts": [
+        613,
+        1204,
+        529,
+        1654
+      ],
+      "friction_bucket_foot_sample_ratios": [
+        0.15325,
+        0.301,
+        0.13225,
+        0.4135
+      ],
+      "four_foot_material_diversity": {
+        "frame_counts": {
+          "1": 397,
+          "2": 434,
+          "3": 169,
+          "4": 0
+        },
+        "frame_ratios": {
+          "1": 0.397,
+          "2": 0.434,
+          "3": 0.169,
+          "4": 0.0
+        },
+        "all_same_frame_ratio": 0.397,
+        "all_four_distinct_frame_ratio": 0.0,
+        "maximum_simultaneous_bucket_count": 3
+      },
+      "material_transition_count": 39,
+      "footprint_height_span_mean_m": 0.004495689219795167,
+      "footprint_height_span_max_m": 0.009653023444116116,
+      "terrain_height_min_m": -0.021928032860159874,
+      "terrain_height_max_m": 0.005951759405434132,
+      "local_slope_mean_deg": 0.812335109949112,
+      "local_slope_max_deg": 1.4210313558578491,
+      "out_of_field_foot_sample_count": 0,
+      "field_coverage_pass": true,
+      "contact_foot_sample_count": 3750,
+      "contact_observation_available": true,
+      "contact_slip_speed_mean_mps": 0.2604947813510895,
+      "contact_slip_over_0_1_ratio": 0.2517333333333333,
+      "contact_termination_count": 0,
+      "kinematic_fall_count": 0
+    },
+    {
+      "id": "left_turn",
+      "command": [
+        0.0,
+        0.0,
+        0.5
+      ],
+      "sample_count": 1000,
+      "trial_count": 4,
+      "fall_count": 0,
+      "timeout_count": 0,
+      "survival_rate": 1.0,
+      "linear_tracking_rmse_mps": 0.054913161034666765,
+      "yaw_tracking_rmse_radps": 0.2560208302416295,
+      "achieved_mean": {
+        "lin_vel_x_mps": -0.01193666324345395,
+        "lin_vel_y_mps": -0.015530050176661462,
+        "ang_vel_z_radps": 0.3019930652976036
+      },
+      "torque_l2_norm_mean_nm": 13.242199962615967,
+      "absolute_mechanical_power_mean_w": 6.7574545116424565,
+      "roll_abs_rad_max": 0.31185486912727356,
+      "pitch_abs_rad_max": 0.102023184299469,
+      "command_sign_pass": true,
+      "gate_pass": false,
+      "friction_bucket_foot_sample_counts": [
+        109,
+        1504,
+        870,
+        1517
+      ],
+      "friction_bucket_foot_sample_ratios": [
+        0.02725,
+        0.376,
+        0.2175,
+        0.37925
+      ],
+      "four_foot_material_diversity": {
+        "frame_counts": {
+          "1": 75,
+          "2": 433,
+          "3": 459,
+          "4": 33
+        },
+        "frame_ratios": {
+          "1": 0.075,
+          "2": 0.433,
+          "3": 0.459,
+          "4": 0.033
+        },
+        "all_same_frame_ratio": 0.075,
+        "all_four_distinct_frame_ratio": 0.033,
+        "maximum_simultaneous_bucket_count": 4
+      },
+      "material_transition_count": 8,
+      "footprint_height_span_mean_m": 0.003885996036231518,
+      "footprint_height_span_max_m": 0.009382728487253189,
+      "terrain_height_min_m": -0.03230329975485802,
+      "terrain_height_max_m": 0.01780574768781662,
+      "local_slope_mean_deg": 0.8662281641960144,
+      "local_slope_max_deg": 1.424835205078125,
+      "out_of_field_foot_sample_count": 0,
+      "field_coverage_pass": true,
+      "contact_foot_sample_count": 3833,
+      "contact_observation_available": true,
+      "contact_slip_speed_mean_mps": 0.054241687312096304,
+      "contact_slip_over_0_1_ratio": 0.12627184972606315,
+      "contact_termination_count": 0,
+      "kinematic_fall_count": 0
+    },
+    {
+      "id": "right_turn",
+      "command": [
+        0.0,
+        0.0,
+        -0.5
+      ],
+      "sample_count": 1000,
+      "trial_count": 4,
+      "fall_count": 0,
+      "timeout_count": 0,
+      "survival_rate": 1.0,
+      "linear_tracking_rmse_mps": 0.0658090791535596,
+      "yaw_tracking_rmse_radps": 0.18101601855030103,
+      "achieved_mean": {
+        "lin_vel_x_mps": 0.0014976259311661124,
+        "lin_vel_y_mps": -0.013897889248095452,
+        "ang_vel_z_radps": -0.4172094806432724
+      },
+      "torque_l2_norm_mean_nm": 13.26191307067871,
+      "absolute_mechanical_power_mean_w": 10.628565920829773,
+      "roll_abs_rad_max": 0.26147258281707764,
+      "pitch_abs_rad_max": 0.1454509049654007,
+      "command_sign_pass": true,
+      "gate_pass": true,
+      "friction_bucket_foot_sample_counts": [
+        852,
+        660,
+        1486,
+        1002
+      ],
+      "friction_bucket_foot_sample_ratios": [
+        0.213,
+        0.165,
+        0.3715,
+        0.2505
+      ],
+      "four_foot_material_diversity": {
+        "frame_counts": {
+          "1": 49,
+          "2": 648,
+          "3": 303,
+          "4": 0
+        },
+        "frame_ratios": {
+          "1": 0.049,
+          "2": 0.648,
+          "3": 0.303,
+          "4": 0.0
+        },
+        "all_same_frame_ratio": 0.049,
+        "all_four_distinct_frame_ratio": 0.0,
+        "maximum_simultaneous_bucket_count": 3
+      },
+      "material_transition_count": 29,
+      "footprint_height_span_mean_m": 0.005093507717363536,
+      "footprint_height_span_max_m": 0.013614133931696415,
+      "terrain_height_min_m": -0.025063391774892807,
+      "terrain_height_max_m": 0.01607772521674633,
+      "local_slope_mean_deg": 0.8111878366470336,
+      "local_slope_max_deg": 1.3963359594345093,
+      "out_of_field_foot_sample_count": 0,
+      "field_coverage_pass": true,
+      "contact_foot_sample_count": 3764,
+      "contact_observation_available": true,
+      "contact_slip_speed_mean_mps": 0.09045402327400022,
+      "contact_slip_over_0_1_ratio": 0.16073326248671627,
+      "contact_termination_count": 0,
+      "kinematic_fall_count": 0
+    }
+  ],
+  "road_field": {
+    "seed": 20260826,
+    "bounds_m": {
+      "x": [
+        -28.0,
+        28.0
+      ],
+      "y": [
+        -28.0,
+        28.0
+      ]
+    },
+    "cell_size_m": 0.25,
+    "grid_cells": [
+      224,
+      224
+    ],
+    "friction_buckets": [
+      {
+        "index": 0,
+        "static": 0.25,
+        "dynamic": 0.15,
+        "cell_count": 12544,
+        "cell_ratio": 0.25
+      },
+      {
+        "index": 1,
+        "static": 0.4,
+        "dynamic": 0.28,
+        "cell_count": 12544,
+        "cell_ratio": 0.25
+      },
+      {
+        "index": 2,
+        "static": 0.6,
+        "dynamic": 0.45,
+        "cell_count": 12544,
+        "cell_ratio": 0.25
+      },
+      {
+        "index": 3,
+        "static": 0.8,
+        "dynamic": 0.6,
+        "cell_count": 12544,
+        "cell_ratio": 0.25
+      }
+    ],
+    "height_min_m": -0.038533713668584824,
+    "height_max_m": 0.04249459132552147,
+    "height_range_m": 0.08102830499410629,
+    "adjacent_height_delta_max_m": 0.011210378259420395,
+    "local_slope_mean_deg": 0.8757703900337219,
+    "local_slope_max_deg": 2.6989047527313232,
+    "components": {
+      "road_crown_height_m": 0.015,
+      "undulation_amplitude_m": 0.03,
+      "roughness_amplitude_m": 0.012,
+      "pothole_depth_m": 0.025
+    }
+  },
+  "contact_model": {
+    "robot_foot_material": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "combine_mode": "multiply",
+    "geometry": "four disjoint static triangle meshes, one per friction bucket; one non-colliding full mesh for height scan",
+    "surface_readback": {
+      "default_ground_collision_prim": "/World/ground/terrain/GroundPlane/CollisionPlane",
+      "default_ground_collision_exists": false,
+      "height_scan_prim": "/World/irregular_road_field/surface",
+      "height_scan_has_collision_api": false,
+      "collision_meshes": [
+        {
+          "bucket": 0,
+          "prim_path": "/World/irregular_road_field/friction_0_surface",
+          "face_count": 25088,
+          "has_collision_api": true
+        },
+        {
+          "bucket": 1,
+          "prim_path": "/World/irregular_road_field/friction_1_surface",
+          "face_count": 25088,
+          "has_collision_api": true
+        },
+        {
+          "bucket": 2,
+          "prim_path": "/World/irregular_road_field/friction_2_surface",
+          "face_count": 25088,
+          "has_collision_api": true
+        },
+        {
+          "bucket": 3,
+          "prim_path": "/World/irregular_road_field/friction_3_surface",
+          "face_count": 25088,
+          "has_collision_api": true
+        }
+      ],
+      "collision_face_total": 100352,
+      "expected_face_total": 100352,
+      "one_material_binding_per_collision_mesh": true,
+      "physics_material_targets": [
+        "/World/irregular_road_field/friction_0_material",
+        "/World/irregular_road_field/friction_1_material",
+        "/World/irregular_road_field/friction_2_material",
+        "/World/irregular_road_field/friction_3_material"
+      ]
+    }
+  },
+  "fall_detection": {
+    "contact_termination_term": "base_contact",
+    "kinematic_base_height_above_sampled_terrain_min_m": 0.18,
+    "kinematic_body_up_world_z_min": 0.5
+  },
+  "evaluation_source_sha256": "40692f1d99ef2a301d98116c4c32fd1aa246ab56d8eb56b870e6a63d6efead2a",
+  "road_generator_source_sha256": "3d8c0ee34723e9dc3a8f6b9c95b4455b0e5f056d32e3713bc32286e26e724b72",
+  "metric_notes": {
+    "four_foot_material_diversity": "각 active frame의 네 발 world XY가 가리키는 재질 버킷 수; 접촉 여부와 무관한 footprint 지표",
+    "height": "같은 collision 지형의 bilinear 높이와 cell 국소 경사를 발 위치에서 표본화",
+    "material_timing": "모든 재질과 높이는 시뮬레이션 시작 전에 고정되고 접촉 중에는 바뀌지 않음",
+    "causal_scope": "단일 terrain/evaluation seed의 시뮬레이션 stress test이며 실물 도로 한계를 뜻하지 않음"
+  },
+  "wall_time_seconds": 35.78
+}

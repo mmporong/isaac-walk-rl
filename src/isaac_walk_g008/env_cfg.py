@@ -2,15 +2,48 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
+from isaaclab.assets import AssetBaseCfg
 from isaaclab.envs import mdp
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import SceneEntityCfg
+from isaaclab.sim.spawners.spawner_cfg import SpawnerCfg
 from isaaclab.utils import configclass
 from isaaclab_tasks.manager_based.locomotion.velocity.config.go2.rough_env_cfg import UnitreeGo2RoughEnvCfg
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import UniformVelocityCommandCfg
 
 from .commands import BalancedVelocityCommandCfg
 from .contracts import GO2_LEG_BODY_PATTERN, friction_stage, leg_mass_stage
+from .irregular_road import (
+    DEFAULT_COLORS_RGB,
+    DEFAULT_DYNAMIC_FRICTION,
+    DEFAULT_STATIC_FRICTION,
+    IRREGULAR_ROAD_MESH_PRIM,
+    IRREGULAR_ROAD_PRIM,
+    spawn_irregular_road_field,
+)
+
+
+@configclass
+class IrregularRoadFieldCfg(SpawnerCfg):
+    """USD spawner parameters for the training-sized irregular road."""
+
+    func: Callable = spawn_irregular_road_field
+    x_min_m: float = -28.0
+    x_max_m: float = 28.0
+    y_min_m: float = -28.0
+    y_max_m: float = 28.0
+    cell_size_m: float = 0.25
+    seed: int = 20260826
+    env_spacing_m: float = 4.0
+    static_friction: tuple[float, ...] = DEFAULT_STATIC_FRICTION
+    dynamic_friction: tuple[float, ...] = DEFAULT_DYNAMIC_FRICTION
+    colors_rgb: tuple[tuple[float, float, float], ...] = DEFAULT_COLORS_RGB
+    crown_height_m: float = 0.015
+    undulation_amplitude_m: float = 0.030
+    roughness_amplitude_m: float = 0.012
+    pothole_depth_m: float = 0.025
 
 
 @configclass
@@ -71,6 +104,40 @@ class G008FrictionStage3EnvCfg(_G008FrictionMixin, G008CommandEnvCfg):
     def __post_init__(self):
         super().__post_init__()
         self._configure_friction(3)
+
+
+@configclass
+class G008IrregularRoadStage1EnvCfg(G008CommandEnvCfg):
+    """Go2 command task on one non-periodic 2-D friction and height field."""
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.scene.env_spacing = 4.0
+        self.scene.terrain = None
+        self.scene.height_scanner.mesh_prim_paths = [IRREGULAR_ROAD_MESH_PRIM]
+        self.scene.irregular_road_field = AssetBaseCfg(
+            prim_path=IRREGULAR_ROAD_PRIM,
+            spawn=IrregularRoadFieldCfg(),
+            collision_group=-1,
+        )
+        self.curriculum.terrain_levels = None
+        self.events.add_base_mass = None
+        self.events.base_external_force_torque = None
+        self.events.physics_material.params.update(
+            {
+                "asset_cfg": SceneEntityCfg("robot", body_names=".*_foot"),
+                "static_friction_range": (1.0, 1.0),
+                "dynamic_friction_range": (1.0, 1.0),
+                "restitution_range": (0.0, 0.0),
+                "num_buckets": 1,
+                "make_consistent": True,
+            }
+        )
+        self.events.reset_base.params["pose_range"] = {
+            "x": (-0.25, 0.25),
+            "y": (-0.25, 0.25),
+            "yaw": (-3.14, 3.14),
+        }
 
 
 class _G008LegMassMixin:

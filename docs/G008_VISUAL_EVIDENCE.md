@@ -2,7 +2,7 @@
 
 ## 공개 범위
 
-Git에는 GIF와 접촉시트만 넣는다. 정책별 원본 세 개와 비교 MP4 한 개는 로컬 Isaac Lab 로그에 보관한다. 공개 파생물은 동작을 확인하는 자료이며 64환경 고정 평가 JSON을 대신하지 않는다.
+Git에는 GIF와 접촉시트만 넣는다. 정책별 원본과 비교 MP4는 로컬 Isaac Lab 로그에 보관한다. 공개 파생물은 동작을 확인하는 자료이며 단계별 다중 환경 정량 평가 JSON을 대신하지 않는다.
 
 ![세 정책 동기화 비교 GIF](media/g008/g008_policy_comparison.gif)
 
@@ -187,3 +187,23 @@ cd "$HOME\isaac-walk-rl"
 ![네 방향 단독 접촉시트](media/g008/g008_direction_contact_sheet.png)
 
 단독 원본은 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_directions_s42.mp4`에 있다. H.264, 1280×720, 50 fps, 899 frames, 17.98초이며 SHA-256은 `c388648da898b48a6a00d2415c5a9d7e2342b605c8d07fd559b7400525a716ec`이다. 기존 공개 GIF와 접촉시트의 메타데이터는 `reports/runs/g008_direction_visual_evidence.json`에 남겼다.
+
+## 비주기 불규칙 도로 단계
+
+![기존 friction S1과 불규칙 도로 PPO 300회 후 비교](media/g008/g008_irregular_road_baseline_vs_trained.gif)
+
+![불규칙 도로 네 방향 접촉시트](media/g008/g008_irregular_road_baseline_vs_trained_contact_sheet.png)
+
+왼쪽은 기존 friction S1 `model_2097.pt`, 오른쪽은 불규칙 도로에서 64환경 × 300 iterations를 추가 학습한 `model_2396.pt`다. 두 패널은 seed `20260826`, 같은 900-step 명령 시퀀스, 같은 카메라를 사용한다. 색은 네 마찰 구간을 구분하며, 실제 접촉은 구간별로 분리한 네 collision mesh가 계산한다.
+
+이 영상은 추가 학습 모델의 개선을 뜻하지 않는다. 32환경·500-step full 평가에서 기존 정책은 3/4 방향 PASS·낙상 0, 추가 학습 최종 정책은 2/4 방향 PASS·낙상 5였다. 최종 선택은 기존 friction S1이다.
+
+| 파일 | 공개 여부 | 크기 | SHA-256 |
+| --- | --- | ---: | --- |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_irregular_road_baseline_friction_s1_s20260826.mp4` | 로컬 전용 | `2,280,120 bytes` | `53a62317a4b1db7b29358c65d0c78135f2c7108b54ad3fa3ac98274fab4ff6a9` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_irregular_road_trained_i300_s20260826.mp4` | 로컬 전용 | `2,286,032 bytes` | `fdb7d7319edbe431bd5f0bb2b37b8ca8377d53281189c9a65a3220f404006943` |
+| `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008\g008_irregular_road_baseline_vs_trained_s20260826.mp4` | 로컬 전용 | `3,939,535 bytes` | `8759fc601d90fa94ff3199666baba9720448327b9d282bd67c4d2cfd6bf218e7` |
+| `docs/media/g008/g008_irregular_road_baseline_vs_trained.gif` | Git 공개 | `6,633,310 bytes` | `f8f93efe9920e3d755e52f9b74bc6eb9c33624fabb37fe166d2134863fb70426` |
+| `docs/media/g008/g008_irregular_road_baseline_vs_trained_contact_sheet.png` | Git 공개 | `934,030 bytes` | `6191c9bf6a8aee28ace69f6d15df1bb559b63271f5520390b413c7be0f9d282b` |
+
+원본과 비교 MP4는 H.264, 50fps, 899 frames, 17.98초다. 공개 GIF는 720×438, 4fps, 72 frames이며 Git 제한 10MiB 아래다. 촬영 조건·checkpoint·지형 readback·파생물 해시는 `reports/runs/g008_irregular_road_*_capture.json`과 `reports/runs/g008_irregular_road_visual_evidence.json`에 있다. 정량 해석은 [G008 불규칙 도로·공간 마찰 강화학습](G008_IRREGULAR_ROAD.md)을 따른다.

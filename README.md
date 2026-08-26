@@ -128,6 +128,8 @@ leg-mass S1도 같은 budget으로 별도 학습했지만 randomized·nominal �
 
 후속 held-out 시험에서는 폭 `0.5 m`의 고·저마찰 띠를 단일 triangle mesh의 face material로 교차 배치하고, 기본 ground collider를 제거해 이중 접촉을 막았습니다. friction S1은 전진·후진·좌회전을 완료된 최저 조건 `μ_s/μ_d=0.2/0.1`까지 연속 통과했습니다. 우회전은 `0.7/0.5`에서 먼저 실패하고 `0.6/0.4`에서 개별 통과해 전 방향 보수적 하한은 확정하지 않았습니다. `0.1/0.05`는 네 번 모두 Isaac Sim native 종료가 재현돼 PASS/FAIL이 아닌 미확정으로 남겼습니다. hip·thigh·calf·foot를 한 그룹씩 `0.8~1.2`배로 바꾼 시험에서는 두 정책의 전진·후진이 25개 조건을 모두 통과했지만, leg-mass S1은 nominal부터 우회전 gate에 실패했습니다. 평가 설계, 시뮬레이터 한계, 그룹별 질량 표와 다음 실험은 [`docs/G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md`](docs/G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md)에 정리했습니다.
 
+주기적인 띠보다 실제 도로에 가까운 다음 단계로, 56m × 56m 비주기 2D 마찰 mosaic에 crown·긴 파장 굴곡·표면 요철·얕은 함몰을 합친 전용 태스크를 만들었습니다. 네 발이 같은 마찰에 놓이는 frame과 네 발이 모두 다른 frame을 runtime에서 함께 확인했습니다. friction S1 정책은 32환경·10초 평가에서 낙상 없이 3/4 방향을 통과했고, 불규칙 도로에서 64환경 × 300 iterations를 추가 학습한 checkpoint는 회전 중 5회 넘어져 채택하지 않았습니다. 구현, 실제 PPO batch·epoch, 네 발 접촉 분포, 역학 해석과 단계별 후속 curriculum은 [`docs/G008_IRREGULAR_ROAD.md`](docs/G008_IRREGULAR_ROAD.md)에 기록했습니다.
+
 혼합 `0.8/0.6 ↔ 0.2/0.1` 마찰 띠와 hip·thigh·calf·foot `1.2배` 질량 화면도 별도로 촬영했습니다. 원본 MP4는 로컬에만 두고 단계별 GIF·네 방향 스크린샷·물리 readback JSON을 Git에 넣었습니다. 이후 실행 동작에 영향을 주는 stage, checkpoint, randomization 범위 또는 평가 지형이 바뀌면 같은 촬영 세트를 다시 만듭니다.
 
 command, friction S1, leg-mass S1 checkpoint를 같은 평면·seed·명령 시퀀스로 재생한 동기화 GIF와 접촉시트, 로컬 전용 원본 MP4의 경로·해시는 [`docs/G008_VISUAL_EVIDENCE.md`](docs/G008_VISUAL_EVIDENCE.md)에 있습니다. Git에는 GIF와 PNG만 포함하며 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g008`에 보관합니다.

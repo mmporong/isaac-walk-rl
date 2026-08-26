@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('command', 'friction', 'leg_mass')]
+    [ValidateSet('command', 'friction', 'irregular_road', 'leg_mass')]
     [string]$Part,
 
     [ValidateRange(0, 3)]
@@ -33,6 +33,12 @@ if ($Part -eq 'command') {
         throw 'command 파트는 Stage 0만 사용합니다.'
     }
     $task = 'Isaac-G008-Velocity-Rough-Go2-CommandSuite-v0'
+}
+elseif ($Part -eq 'irregular_road') {
+    if ($Stage -ne 1) {
+        throw 'irregular_road 파트는 Stage 1만 사용합니다.'
+    }
+    $task = 'Isaac-G008-Velocity-IrregularRoad-Go2-S1-v0'
 }
 else {
     if ($Stage -lt 1) {

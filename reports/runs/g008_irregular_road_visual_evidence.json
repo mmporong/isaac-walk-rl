@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "goal": "G008",
+  "status": "complete",
+  "stage": "irregular_road",
+  "purpose": "visual comparison of the best inherited policy and the final dedicated PPO checkpoint",
+  "capture_reports": [
+    {
+      "path": "reports/runs/g008_irregular_road_baseline_capture.json",
+      "sha256": "643aa45d0d57b33c5dd2030bb51dace4f4f3947695b2aa5c87c8aa32c4d858fe"
+    },
+    {
+      "path": "reports/runs/g008_irregular_road_trained_capture.json",
+      "sha256": "cd1181a859f0f288bf04c6b4e5640cd273392afaec55c50337bb78afdddac8c3"
+    }
+  ],
+  "profile_order": [
+    "irregular_road_baseline_friction_s1",
+    "irregular_road_trained_i300"
+  ],
+  "quantitative_reports": [
+    {
+      "path": "reports/runs/g008_irregular_road_baseline_friction_s1_e32_h500_s20260826.json",
+      "sha256": "56c9a28e30d156dfa98818d87a5be193729a290ee564c025a0ffdd071553daa7"
+    },
+    {
+      "path": "reports/runs/g008_irregular_road_trained_s1_e32_h500_s20260826.json",
+      "sha256": "a905624210d016d003603ec100a4586a0ad2a8e0f9abb7528f918805e88e4ceb"
+    }
+  ],
+  "composition": {
+    "seed": 20260826,
+    "matched_command_sequence": true,
+    "synchronized_panels": true,
+    "interpretation": "visual playback only; the linked 32-environment reports decide PASS/FAIL"
+  },
+  "tool": "ffmpeg version 8.1-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "local_composite": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\g008_irregular_road_baseline_vs_trained_s20260826.mp4",
+    "sha256": "8759fc601d90fa94ff3199666baba9720448327b9d282bd67c4d2cfd6bf218e7",
+    "bytes": 3939535,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 780,
+    "frame_rate": "50/1",
+    "frames": 899,
+    "duration_s": 17.98
+  },
+  "public_derivatives": {
+    "gif": {
+      "path": "docs/media/g008/g008_irregular_road_baseline_vs_trained.gif",
+      "sha256": "f8f93efe9920e3d755e52f9b74bc6eb9c33624fabb37fe166d2134863fb70426",
+      "bytes": 6633310,
+      "git_policy": "git_public",
+      "codec": "gif",
+      "width": 720,
+      "height": 438,
+      "frame_rate": "4/1",
+      "frames": 72,
+      "duration_s": 18.0
+    },
+    "contact_sheet": {
+      "path": "docs/media/g008/g008_irregular_road_baseline_vs_trained_contact_sheet.png",
+      "sha256": "6191c9bf6a8aee28ace69f6d15df1bb559b63271f5520390b413c7be0f9d282b",
+      "bytes": 934030,
+      "git_policy": "git_public",
+      "codec": "png",
+      "width": 1280,
+      "height": 780,
+      "frame_rate": "25/1",
+      "frames": null,
+      "duration_s": null,
+      "frame_times_seconds": [
+        3.0,
+        7.5,
+        12.0,
+        16.5
+      ],
+      "layout_order": [
+        "forward",
+        "backward",
+        "left_turn",
+        "right_turn"
+      ]
+    }
+  },
+  "record_source_sha256": "909a4bf6c9859bc724d7dd1f9823dc473f02509232cf836d149a830f890fc4e9",
+  "builder_source_sha256": "7c17a48020bffb295578bb5b3404294a81e09c2076263a83e1ad628d8ed8e26b"
+}

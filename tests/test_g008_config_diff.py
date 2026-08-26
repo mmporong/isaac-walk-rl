@@ -20,6 +20,7 @@ from isaac_walk_g008.env_cfg import (
     G008FrictionStage1EnvCfg,
     G008FrictionStage2EnvCfg,
     G008FrictionStage3EnvCfg,
+    G008IrregularRoadStage1EnvCfg,
     G008LegMassStage1EnvCfg,
     G008LegMassStage2EnvCfg,
     G008LegMassStage3EnvCfg,
@@ -46,7 +47,7 @@ class G008ConfigContractTests(unittest.TestCase):
 
         register_tasks()
         register_tasks()
-        self.assertEqual(len(TASK_ENTRY_POINTS), 7)
+        self.assertEqual(len(TASK_ENTRY_POINTS), 8)
         for task_id, env_entry_point in TASK_ENTRY_POINTS.items():
             spec = gym.spec(task_id)
             self.assertEqual(spec.kwargs["env_cfg_entry_point"], env_entry_point)
@@ -98,6 +99,20 @@ class G008ConfigContractTests(unittest.TestCase):
             class_to_dict(G008LegMassStage3EnvCfg()),
         )
         self.assertEqual(stage_changes, {"events.add_leg_mass.params.mass_distribution_params"})
+
+    def test_irregular_road_replaces_the_underlay_and_uses_neutral_foot_material(self):
+        cfg = G008IrregularRoadStage1EnvCfg()
+        self.assertIsNone(cfg.scene.terrain)
+        self.assertEqual(
+            cfg.scene.height_scanner.mesh_prim_paths,
+            ["/World/irregular_road_field/surface"],
+        )
+        self.assertEqual(cfg.scene.irregular_road_field.collision_group, -1)
+        self.assertEqual(cfg.scene.irregular_road_field.spawn.cell_size_m, 0.25)
+        self.assertEqual(cfg.scene.irregular_road_field.spawn.static_friction, (0.25, 0.4, 0.6, 0.8))
+        self.assertEqual(cfg.events.physics_material.params["asset_cfg"].body_names, ".*_foot")
+        self.assertEqual(cfg.events.physics_material.params["static_friction_range"], (1.0, 1.0))
+        self.assertIsNone(cfg.curriculum.terrain_levels)
 
 
 if __name__ == "__main__":
