@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_id": "S0",
+  "contract_id": "g009_s0_rev1",
+  "task_id": "Isaac-G009-Velocity-Slope-Go2-S0-v0",
+  "versions": {
+    "isaac_sim": "4.5.0",
+    "isaac_lab_tag": "v2.1.1",
+    "isaac_lab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+    "rsl_rl": "2.3.3",
+    "algorithm": "RSL-RL PPO"
+  },
+  "analytic_gate": {
+    "slopes_deg": [0, 5, 10, 15, 20, 25],
+    "terrain_azimuths_deg": [0, 90, 180, 270],
+    "terrain_seed": 20260828,
+    "residual_amplitude_m": 0.0,
+    "angle_tolerance_deg": 0.1,
+    "normal_tolerance_deg": 0.001
+  },
+  "terrain": {
+    "bounds_m": {
+      "x": [-28.0, 28.0],
+      "y": [-28.0, 28.0]
+    },
+    "cell_size_m": 0.25,
+    "single_static_mesh": true,
+    "surface_prim": "/World/g009_slope_field/surface",
+    "ground_material": {
+      "static_friction": 0.8,
+      "dynamic_friction": 0.6,
+      "friction_combine_mode": "multiply"
+    },
+    "foot_material": {
+      "static_friction": 1.0,
+      "dynamic_friction": 1.0
+    }
+  },
+  "reset": {
+    "align_body_up_to_triangle_normal": true,
+    "height_source": "analytic triangle plane",
+    "visual_yaw_about_support_normal_deg": 90.0
+  },
+  "visual_protocol": {
+    "profiles": [
+      {"profile_id": "slope_05", "slope_deg": 5.0, "terrain_azimuth_deg": 0.0},
+      {"profile_id": "slope_15", "slope_deg": 15.0, "terrain_azimuth_deg": 0.0},
+      {"profile_id": "slope_25_stress", "slope_deg": 25.0, "terrain_azimuth_deg": 0.0}
+    ],
+    "sequence": [
+      {"name": "stand", "steps": 75, "command": [0.0, 0.0, 0.0]},
+      {"name": "contour_left", "steps": 200, "command": [0.4, 0.0, 0.0]},
+      {"name": "stand", "steps": 50, "command": [0.0, 0.0, 0.0]},
+      {"name": "contour_right", "steps": 200, "command": [-0.4, 0.0, 0.0]}
+    ],
+    "seed": 20260828,
+    "headless_offscreen": true,
+    "camera_contract": "same env-relative eye/lookat for all profiles",
+    "interpretation": "S0 wiring and qualitative playback only; not a WALK qualification gate"
+  },
+  "parent_checkpoint": {
+    "role": "PARENT-G008-FS1 visual playback only",
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\\model_2097.pt",
+    "sha256": "40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0"
+  },
+  "stage_gate": {
+    "id": "E01",
+    "requires_new_ppo_training": false,
+    "blocks_training_until_pass": true,
+    "policy_success_claimed": false
+  }
+}

@@ -1,0 +1,1382 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_id": "S0",
+  "validator_id": "g009_s0_import_light_analytic_gate",
+  "status": "pass",
+  "scope": {
+    "claim": "E01 import-light analytic geometry, material, and friction gate",
+    "uses_isaac_runtime": false,
+    "claims_isaac_usd_runtime_readback": false,
+    "claims_policy_success": false,
+    "limitation": "This report does not claim Isaac USD runtime readback or policy success; those require separate Isaac Sim runtime evidence."
+  },
+  "protocol": {
+    "slopes_deg": [
+      0,
+      5,
+      10,
+      15,
+      20,
+      25
+    ],
+    "terrain_azimuths_deg": [
+      0,
+      90,
+      180,
+      270
+    ],
+    "seed": 20260828,
+    "residual_amplitude_m": 0.0,
+    "nominal_friction": {
+      "static": 0.8,
+      "dynamic": 0.6
+    },
+    "angle_tolerance_deg": 0.1,
+    "normal_tolerance_deg": 0.001,
+    "expected_cell_count": 24
+  },
+  "source_bindings": {
+    "terrain_sha256": "720a6659f12aae3aed050f07e38277b94b16b64cebc885a71735934535fa7f43",
+    "support_plane_sha256": "4cbc8d5773b42fa2983bf5ae8502e51454139b37251a58b9517be54a63ba6fbc",
+    "validator_sha256": "21e7dbc86cdefdfe09827f84ea53893ad46cb61e2343c4a5e4b6dc39e130e4e4"
+  },
+  "aggregate": {
+    "cell_count": 24,
+    "pass_count": 24,
+    "max_slope_angle_error_deg": 7.172749647565979e-07,
+    "max_analytic_triangle_normal_error_deg": 2.181721622226445e-05,
+    "gates": {
+      "cell_matrix_complete": true,
+      "all_angle_errors_within_0_1_deg": true,
+      "all_normals_upward": true,
+      "all_analytic_triangle_normals_match": true,
+      "all_materials_zero_only": true,
+      "all_friction_order_valid": true,
+      "all_same_seed_repeat_hashes_match": true
+    }
+  },
+  "cells": [
+    {
+      "cell_id": "slope-00_azimuth-000",
+      "seed": 20260828,
+      "requested_slope_deg": 0.0,
+      "measured_slope_deg": 0.0,
+      "slope_angle_error_deg": 0.0,
+      "terrain_azimuth_deg": 0.0,
+      "analytic_normal": [
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "triangle_normal_max_error_deg": 0.0,
+      "triangle_normal_min_z": 1.0,
+      "axes_xy": {
+        "uphill": [
+          1.0,
+          0.0
+        ],
+        "downhill": [
+          -1.0,
+          -0.0
+        ],
+        "contour_left": [
+          -0.0,
+          1.0
+        ],
+        "contour_right": [
+          0.0,
+          -1.0
+        ]
+      },
+      "mesh_sha256": "4cb9574044478e7f0d50ebbe099f36389f190ca838510fcb03c75afecf3e181b",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "4cb9574044478e7f0d50ebbe099f36389f190ca838510fcb03c75afecf3e181b",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.0,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-00_azimuth-090",
+      "seed": 20260828,
+      "requested_slope_deg": 0.0,
+      "measured_slope_deg": 0.0,
+      "slope_angle_error_deg": 0.0,
+      "terrain_azimuth_deg": 90.0,
+      "analytic_normal": [
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "triangle_normal_max_error_deg": 0.0,
+      "triangle_normal_min_z": 1.0,
+      "axes_xy": {
+        "uphill": [
+          6.123233995736766e-17,
+          1.0
+        ],
+        "downhill": [
+          -6.123233995736766e-17,
+          -1.0
+        ],
+        "contour_left": [
+          -1.0,
+          6.123233995736766e-17
+        ],
+        "contour_right": [
+          1.0,
+          -6.123233995736766e-17
+        ]
+      },
+      "mesh_sha256": "4cb9574044478e7f0d50ebbe099f36389f190ca838510fcb03c75afecf3e181b",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "4cb9574044478e7f0d50ebbe099f36389f190ca838510fcb03c75afecf3e181b",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.0,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-00_azimuth-180",
+      "seed": 20260828,
+      "requested_slope_deg": 0.0,
+      "measured_slope_deg": 0.0,
+      "slope_angle_error_deg": 0.0,
+      "terrain_azimuth_deg": 180.0,
+      "analytic_normal": [
+        0.0,
+        -0.0,
+        1.0
+      ],
+      "triangle_normal_max_error_deg": 0.0,
+      "triangle_normal_min_z": 1.0,
+      "axes_xy": {
+        "uphill": [
+          -1.0,
+          1.2246467991473532e-16
+        ],
+        "downhill": [
+          1.0,
+          -1.2246467991473532e-16
+        ],
+        "contour_left": [
+          -1.2246467991473532e-16,
+          -1.0
+        ],
+        "contour_right": [
+          1.2246467991473532e-16,
+          1.0
+        ]
+      },
+      "mesh_sha256": "654ba647f72286688ff08cfc6c235c1c5c73edb71968bb86089509933cff2d2b",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "654ba647f72286688ff08cfc6c235c1c5c73edb71968bb86089509933cff2d2b",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.0,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-00_azimuth-270",
+      "seed": 20260828,
+      "requested_slope_deg": 0.0,
+      "measured_slope_deg": 0.0,
+      "slope_angle_error_deg": 0.0,
+      "terrain_azimuth_deg": 270.0,
+      "analytic_normal": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "triangle_normal_max_error_deg": 0.0,
+      "triangle_normal_min_z": 1.0,
+      "axes_xy": {
+        "uphill": [
+          -1.8369701987210297e-16,
+          -1.0
+        ],
+        "downhill": [
+          1.8369701987210297e-16,
+          1.0
+        ],
+        "contour_left": [
+          1.0,
+          -1.8369701987210297e-16
+        ],
+        "contour_right": [
+          -1.0,
+          1.8369701987210297e-16
+        ]
+      },
+      "mesh_sha256": "a6ec92eae78a77cb5d1b86998fbd90f1d68b4c13817a60e44d8e0ec1b1df38f0",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "a6ec92eae78a77cb5d1b86998fbd90f1d68b4c13817a60e44d8e0ec1b1df38f0",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.0,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-05_azimuth-000",
+      "seed": 20260828,
+      "requested_slope_deg": 5.0,
+      "measured_slope_deg": 5.000000150730174,
+      "slope_angle_error_deg": 1.507301741199285e-07,
+      "terrain_azimuth_deg": 0.0,
+      "analytic_normal": [
+        -0.08715574274765818,
+        -0.0,
+        0.9961946980917455
+      ],
+      "triangle_normal_max_error_deg": 6.037091348628668e-06,
+      "triangle_normal_min_z": 0.9961946888404606,
+      "axes_xy": {
+        "uphill": [
+          1.0,
+          0.0
+        ],
+        "downhill": [
+          -1.0,
+          -0.0
+        ],
+        "contour_left": [
+          -0.0,
+          1.0
+        ],
+        "contour_right": [
+          0.0,
+          -1.0
+        ]
+      },
+      "mesh_sha256": "29ba35b6f1f56fba857763669f8b12e7db172e9b8feb1cf0ac47b3d7f2eb56a0",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "29ba35b6f1f56fba857763669f8b12e7db172e9b8feb1cf0ac47b3d7f2eb56a0",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.109360829407405,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-05_azimuth-090",
+      "seed": 20260828,
+      "requested_slope_deg": 5.0,
+      "measured_slope_deg": 5.000000150730174,
+      "slope_angle_error_deg": 1.507301741199285e-07,
+      "terrain_azimuth_deg": 90.0,
+      "analytic_normal": [
+        -5.336750069161487e-18,
+        -0.08715574274765818,
+        0.9961946980917455
+      ],
+      "triangle_normal_max_error_deg": 6.037091348628668e-06,
+      "triangle_normal_min_z": 0.9961946888404606,
+      "axes_xy": {
+        "uphill": [
+          6.123233995736766e-17,
+          1.0
+        ],
+        "downhill": [
+          -6.123233995736766e-17,
+          -1.0
+        ],
+        "contour_left": [
+          -1.0,
+          6.123233995736766e-17
+        ],
+        "contour_right": [
+          1.0,
+          -6.123233995736766e-17
+        ]
+      },
+      "mesh_sha256": "82b0d98096f8c4c77d2138b43d988041fdb0852c2cee5eb9d736824716af834a",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "82b0d98096f8c4c77d2138b43d988041fdb0852c2cee5eb9d736824716af834a",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.109360829407405,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-05_azimuth-180",
+      "seed": 20260828,
+      "requested_slope_deg": 5.0,
+      "measured_slope_deg": 5.000000150730174,
+      "slope_angle_error_deg": 1.507301741199285e-07,
+      "terrain_azimuth_deg": 180.0,
+      "analytic_normal": [
+        0.08715574274765818,
+        -1.0673500138322974e-17,
+        0.9961946980917455
+      ],
+      "triangle_normal_max_error_deg": 6.037091348628668e-06,
+      "triangle_normal_min_z": 0.9961946888404606,
+      "axes_xy": {
+        "uphill": [
+          -1.0,
+          1.2246467991473532e-16
+        ],
+        "downhill": [
+          1.0,
+          -1.2246467991473532e-16
+        ],
+        "contour_left": [
+          -1.2246467991473532e-16,
+          -1.0
+        ],
+        "contour_right": [
+          1.2246467991473532e-16,
+          1.0
+        ]
+      },
+      "mesh_sha256": "f1d2fd94228a4b1c9059d59452602e8e46e23bc6449191c3955033a679ee01f0",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "f1d2fd94228a4b1c9059d59452602e8e46e23bc6449191c3955033a679ee01f0",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.109360829407405,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-05_azimuth-270",
+      "seed": 20260828,
+      "requested_slope_deg": 5.0,
+      "measured_slope_deg": 5.000000150730174,
+      "slope_angle_error_deg": 1.507301741199285e-07,
+      "terrain_azimuth_deg": 270.0,
+      "analytic_normal": [
+        1.601025020748446e-17,
+        0.08715574274765818,
+        0.9961946980917455
+      ],
+      "triangle_normal_max_error_deg": 6.037091348628668e-06,
+      "triangle_normal_min_z": 0.9961946888404606,
+      "axes_xy": {
+        "uphill": [
+          -1.8369701987210297e-16,
+          -1.0
+        ],
+        "downhill": [
+          1.8369701987210297e-16,
+          1.0
+        ],
+        "contour_left": [
+          1.0,
+          -1.8369701987210297e-16
+        ],
+        "contour_right": [
+          -1.0,
+          1.8369701987210297e-16
+        ]
+      },
+      "mesh_sha256": "620176e131b8e8cd8f36eee38c9a6c42cfe2792d1a8701f1af67e2fea11f992c",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "620176e131b8e8cd8f36eee38c9a6c42cfe2792d1a8701f1af67e2fea11f992c",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.109360829407405,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-10_azimuth-000",
+      "seed": 20260828,
+      "requested_slope_deg": 10.0,
+      "measured_slope_deg": 9.999999695372937,
+      "slope_angle_error_deg": 3.046270631301695e-07,
+      "terrain_azimuth_deg": 0.0,
+      "analytic_normal": [
+        -0.17364817766693036,
+        -0.0,
+        0.9848077530122081
+      ],
+      "triangle_normal_max_error_deg": 1.2720940824698908e-05,
+      "triangle_normal_min_z": 0.9848077313496311,
+      "axes_xy": {
+        "uphill": [
+          1.0,
+          0.0
+        ],
+        "downhill": [
+          -1.0,
+          -0.0
+        ],
+        "contour_left": [
+          -0.0,
+          1.0
+        ],
+        "contour_right": [
+          0.0,
+          -1.0
+        ]
+      },
+      "mesh_sha256": "5fb1a66091f0aaf0786b88c7baa49bdaef56f15b3426e2bfa87b30ca99ac6f1a",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "5fb1a66091f0aaf0786b88c7baa49bdaef56f15b3426e2bfa87b30ca99ac6f1a",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.22040872588558122,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-10_azimuth-090",
+      "seed": 20260828,
+      "requested_slope_deg": 10.0,
+      "measured_slope_deg": 9.999999695372937,
+      "slope_angle_error_deg": 3.046270631301695e-07,
+      "terrain_azimuth_deg": 90.0,
+      "analytic_normal": [
+        -1.063288424787886e-17,
+        -0.17364817766693036,
+        0.9848077530122081
+      ],
+      "triangle_normal_max_error_deg": 1.2720940824698908e-05,
+      "triangle_normal_min_z": 0.9848077313496311,
+      "axes_xy": {
+        "uphill": [
+          6.123233995736766e-17,
+          1.0
+        ],
+        "downhill": [
+          -6.123233995736766e-17,
+          -1.0
+        ],
+        "contour_left": [
+          -1.0,
+          6.123233995736766e-17
+        ],
+        "contour_right": [
+          1.0,
+          -6.123233995736766e-17
+        ]
+      },
+      "mesh_sha256": "da821566051abd1cf35eae9aa68829428d9390d04bdf2c3987a9eee849fd3a2a",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "da821566051abd1cf35eae9aa68829428d9390d04bdf2c3987a9eee849fd3a2a",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.22040872588558122,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-10_azimuth-180",
+      "seed": 20260828,
+      "requested_slope_deg": 10.0,
+      "measured_slope_deg": 9.999999695372937,
+      "slope_angle_error_deg": 3.046270631301695e-07,
+      "terrain_azimuth_deg": 180.0,
+      "analytic_normal": [
+        0.17364817766693036,
+        -2.126576849575772e-17,
+        0.9848077530122081
+      ],
+      "triangle_normal_max_error_deg": 1.2720940824698908e-05,
+      "triangle_normal_min_z": 0.9848077313496311,
+      "axes_xy": {
+        "uphill": [
+          -1.0,
+          1.2246467991473532e-16
+        ],
+        "downhill": [
+          1.0,
+          -1.2246467991473532e-16
+        ],
+        "contour_left": [
+          -1.2246467991473532e-16,
+          -1.0
+        ],
+        "contour_right": [
+          1.2246467991473532e-16,
+          1.0
+        ]
+      },
+      "mesh_sha256": "59ea8ccec7ace54404f39e1aa1ec931bd5d7a5dce133cb936cf84d02026bc92d",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "59ea8ccec7ace54404f39e1aa1ec931bd5d7a5dce133cb936cf84d02026bc92d",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.22040872588558122,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-10_azimuth-270",
+      "seed": 20260828,
+      "requested_slope_deg": 10.0,
+      "measured_slope_deg": 9.999999695372937,
+      "slope_angle_error_deg": 3.046270631301695e-07,
+      "terrain_azimuth_deg": 270.0,
+      "analytic_normal": [
+        3.189865274363657e-17,
+        0.17364817766693036,
+        0.9848077530122081
+      ],
+      "triangle_normal_max_error_deg": 1.2720940824698908e-05,
+      "triangle_normal_min_z": 0.9848077313496311,
+      "axes_xy": {
+        "uphill": [
+          -1.8369701987210297e-16,
+          -1.0
+        ],
+        "downhill": [
+          1.8369701987210297e-16,
+          1.0
+        ],
+        "contour_left": [
+          1.0,
+          -1.8369701987210297e-16
+        ],
+        "contour_right": [
+          -1.0,
+          1.8369701987210297e-16
+        ]
+      },
+      "mesh_sha256": "b681ba35d39f2e2f36d2a44f253251e0c3eec849a08fadb3206aab5766254efa",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "b681ba35d39f2e2f36d2a44f253251e0c3eec849a08fadb3206aab5766254efa",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.22040872588558122,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-15_azimuth-000",
+      "seed": 20260828,
+      "requested_slope_deg": 15.0,
+      "measured_slope_deg": 15.000000068689834,
+      "slope_angle_error_deg": 6.868983426500108e-08,
+      "terrain_azimuth_deg": 0.0,
+      "analytic_normal": [
+        -0.2588190451025208,
+        -0.0,
+        0.9659258262890684
+      ],
+      "triangle_normal_max_error_deg": 7.963470424126384e-06,
+      "triangle_normal_min_z": 0.9659257899952332,
+      "axes_xy": {
+        "uphill": [
+          1.0,
+          0.0
+        ],
+        "downhill": [
+          -1.0,
+          -0.0
+        ],
+        "contour_left": [
+          -0.0,
+          1.0
+        ],
+        "contour_right": [
+          0.0,
+          -1.0
+        ]
+      },
+      "mesh_sha256": "e5f7a263f22a1cf11ee4f5ca4b616f73714df3750c61c2fbf1ade3bc935302b6",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "e5f7a263f22a1cf11ee4f5ca4b616f73714df3750c61c2fbf1ade3bc935302b6",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.33493649053890334,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-15_azimuth-090",
+      "seed": 20260828,
+      "requested_slope_deg": 15.0,
+      "measured_slope_deg": 15.000000068689783,
+      "slope_angle_error_deg": 6.868978275065274e-08,
+      "terrain_azimuth_deg": 90.0,
+      "analytic_normal": [
+        -1.5848095757158825e-17,
+        -0.2588190451025208,
+        0.9659258262890684
+      ],
+      "triangle_normal_max_error_deg": 7.963470424126384e-06,
+      "triangle_normal_min_z": 0.9659257899952332,
+      "axes_xy": {
+        "uphill": [
+          6.123233995736766e-17,
+          1.0
+        ],
+        "downhill": [
+          -6.123233995736766e-17,
+          -1.0
+        ],
+        "contour_left": [
+          -1.0,
+          6.123233995736766e-17
+        ],
+        "contour_right": [
+          1.0,
+          -6.123233995736766e-17
+        ]
+      },
+      "mesh_sha256": "c51d53d566533faf49a01402338da29fbd0cff36eb7f6c52a087997e39182a75",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "c51d53d566533faf49a01402338da29fbd0cff36eb7f6c52a087997e39182a75",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.33493649053890334,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-15_azimuth-180",
+      "seed": 20260828,
+      "requested_slope_deg": 15.0,
+      "measured_slope_deg": 15.000000068689834,
+      "slope_angle_error_deg": 6.868983426500108e-08,
+      "terrain_azimuth_deg": 180.0,
+      "analytic_normal": [
+        0.2588190451025208,
+        -3.169619151431765e-17,
+        0.9659258262890684
+      ],
+      "triangle_normal_max_error_deg": 7.963470424126384e-06,
+      "triangle_normal_min_z": 0.9659257899952332,
+      "axes_xy": {
+        "uphill": [
+          -1.0,
+          1.2246467991473532e-16
+        ],
+        "downhill": [
+          1.0,
+          -1.2246467991473532e-16
+        ],
+        "contour_left": [
+          -1.2246467991473532e-16,
+          -1.0
+        ],
+        "contour_right": [
+          1.2246467991473532e-16,
+          1.0
+        ]
+      },
+      "mesh_sha256": "78121d7a8bedec7660f902c913317e1b6dd0911101b337bf8f23f1c8bfb9f847",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "78121d7a8bedec7660f902c913317e1b6dd0911101b337bf8f23f1c8bfb9f847",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.33493649053890334,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-15_azimuth-270",
+      "seed": 20260828,
+      "requested_slope_deg": 15.0,
+      "measured_slope_deg": 15.000000068689783,
+      "slope_angle_error_deg": 6.868978275065274e-08,
+      "terrain_azimuth_deg": 270.0,
+      "analytic_normal": [
+        4.754428727147647e-17,
+        0.2588190451025208,
+        0.9659258262890684
+      ],
+      "triangle_normal_max_error_deg": 7.963470424126384e-06,
+      "triangle_normal_min_z": 0.9659257899952332,
+      "axes_xy": {
+        "uphill": [
+          -1.8369701987210297e-16,
+          -1.0
+        ],
+        "downhill": [
+          1.8369701987210297e-16,
+          1.0
+        ],
+        "contour_left": [
+          1.0,
+          -1.8369701987210297e-16
+        ],
+        "contour_right": [
+          -1.0,
+          1.8369701987210297e-16
+        ]
+      },
+      "mesh_sha256": "8b86c4d2d734b34de7156f3f55700121a64d88265f303d7df06a731a23b4dc72",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "8b86c4d2d734b34de7156f3f55700121a64d88265f303d7df06a731a23b4dc72",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.33493649053890334,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-20_azimuth-000",
+      "seed": 20260828,
+      "requested_slope_deg": 20.0,
+      "measured_slope_deg": 19.999999282725035,
+      "slope_angle_error_deg": 7.172749647565979e-07,
+      "terrain_azimuth_deg": 0.0,
+      "analytic_normal": [
+        -0.34202014332566877,
+        -0.0,
+        0.9396926207859084
+      ],
+      "triangle_normal_max_error_deg": 2.181721622226445e-05,
+      "triangle_normal_min_z": 0.9396926070663154,
+      "axes_xy": {
+        "uphill": [
+          1.0,
+          0.0
+        ],
+        "downhill": [
+          -1.0,
+          -0.0
+        ],
+        "contour_left": [
+          -0.0,
+          1.0
+        ],
+        "contour_right": [
+          0.0,
+          -1.0
+        ]
+      },
+      "mesh_sha256": "116ee3e6113777b1853de4570ba915453b820e677012ca7e63f90804e0a4364e",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "116ee3e6113777b1853de4570ba915453b820e677012ca7e63f90804e0a4364e",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.4549627928327529,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-20_azimuth-090",
+      "seed": 20260828,
+      "requested_slope_deg": 20.0,
+      "measured_slope_deg": 19.999999282725053,
+      "slope_angle_error_deg": 7.172749469930295e-07,
+      "terrain_azimuth_deg": 90.0,
+      "analytic_normal": [
+        -2.0942693688384962e-17,
+        -0.34202014332566877,
+        0.9396926207859084
+      ],
+      "triangle_normal_max_error_deg": 2.181721622226445e-05,
+      "triangle_normal_min_z": 0.9396926070663154,
+      "axes_xy": {
+        "uphill": [
+          6.123233995736766e-17,
+          1.0
+        ],
+        "downhill": [
+          -6.123233995736766e-17,
+          -1.0
+        ],
+        "contour_left": [
+          -1.0,
+          6.123233995736766e-17
+        ],
+        "contour_right": [
+          1.0,
+          -6.123233995736766e-17
+        ]
+      },
+      "mesh_sha256": "5ca9019061fe9f6513d4b460ca78d9c82cbb888b2c6eff16dbfa48da7e285bdb",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "5ca9019061fe9f6513d4b460ca78d9c82cbb888b2c6eff16dbfa48da7e285bdb",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.4549627928327529,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-20_azimuth-180",
+      "seed": 20260828,
+      "requested_slope_deg": 20.0,
+      "measured_slope_deg": 19.999999282725035,
+      "slope_angle_error_deg": 7.172749647565979e-07,
+      "terrain_azimuth_deg": 180.0,
+      "analytic_normal": [
+        0.34202014332566877,
+        -4.1885387376769924e-17,
+        0.9396926207859084
+      ],
+      "triangle_normal_max_error_deg": 2.181721622226445e-05,
+      "triangle_normal_min_z": 0.9396926070663154,
+      "axes_xy": {
+        "uphill": [
+          -1.0,
+          1.2246467991473532e-16
+        ],
+        "downhill": [
+          1.0,
+          -1.2246467991473532e-16
+        ],
+        "contour_left": [
+          -1.2246467991473532e-16,
+          -1.0
+        ],
+        "contour_right": [
+          1.2246467991473532e-16,
+          1.0
+        ]
+      },
+      "mesh_sha256": "e56ab5417e254db37cb8fe4bb486cd1dc34973b18977d2570e21135ef7b02e70",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "e56ab5417e254db37cb8fe4bb486cd1dc34973b18977d2570e21135ef7b02e70",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.4549627928327529,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-20_azimuth-270",
+      "seed": 20260828,
+      "requested_slope_deg": 20.0,
+      "measured_slope_deg": 19.999999282725053,
+      "slope_angle_error_deg": 7.172749469930295e-07,
+      "terrain_azimuth_deg": 270.0,
+      "analytic_normal": [
+        6.282808106515488e-17,
+        0.34202014332566877,
+        0.9396926207859084
+      ],
+      "triangle_normal_max_error_deg": 2.181721622226445e-05,
+      "triangle_normal_min_z": 0.9396926070663154,
+      "axes_xy": {
+        "uphill": [
+          -1.8369701987210297e-16,
+          -1.0
+        ],
+        "downhill": [
+          1.8369701987210297e-16,
+          1.0
+        ],
+        "contour_left": [
+          1.0,
+          -1.8369701987210297e-16
+        ],
+        "contour_right": [
+          -1.0,
+          1.8369701987210297e-16
+        ]
+      },
+      "mesh_sha256": "7c4c8db5e8c2fb91b63dbfa8fdf19b0d010be0cee960ca308cb249bd5fbb2abf",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "7c4c8db5e8c2fb91b63dbfa8fdf19b0d010be0cee960ca308cb249bd5fbb2abf",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.4549627928327529,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-25_azimuth-000",
+      "seed": 20260828,
+      "requested_slope_deg": 25.0,
+      "measured_slope_deg": 25.00000055171336,
+      "slope_angle_error_deg": 5.51713359442374e-07,
+      "terrain_azimuth_deg": 0.0,
+      "analytic_normal": [
+        -0.42261826174069944,
+        -0.0,
+        0.90630778703665
+      ],
+      "triangle_normal_max_error_deg": 2.1565179853261896e-05,
+      "triangle_normal_min_z": 0.9063076277852409,
+      "axes_xy": {
+        "uphill": [
+          1.0,
+          0.0
+        ],
+        "downhill": [
+          -1.0,
+          -0.0
+        ],
+        "contour_left": [
+          -0.0,
+          1.0
+        ],
+        "contour_right": [
+          0.0,
+          -1.0
+        ]
+      },
+      "mesh_sha256": "b1265ff8fb1a5473ef50b925116c95c6bbe0c7f5acc7b4cc248676b28e6b7f32",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "b1265ff8fb1a5473ef50b925116c95c6bbe0c7f5acc7b4cc248676b28e6b7f32",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.5828845726937482,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-25_azimuth-090",
+      "seed": 20260828,
+      "requested_slope_deg": 25.0,
+      "measured_slope_deg": 25.00000055171336,
+      "slope_angle_error_deg": 5.51713359442374e-07,
+      "terrain_azimuth_deg": 90.0,
+      "analytic_normal": [
+        -2.5877905075098297e-17,
+        -0.42261826174069944,
+        0.90630778703665
+      ],
+      "triangle_normal_max_error_deg": 2.1565179853261896e-05,
+      "triangle_normal_min_z": 0.9063076277852409,
+      "axes_xy": {
+        "uphill": [
+          6.123233995736766e-17,
+          1.0
+        ],
+        "downhill": [
+          -6.123233995736766e-17,
+          -1.0
+        ],
+        "contour_left": [
+          -1.0,
+          6.123233995736766e-17
+        ],
+        "contour_right": [
+          1.0,
+          -6.123233995736766e-17
+        ]
+      },
+      "mesh_sha256": "463b471fe0fa3aee72b676c770c5a79d37cfa15fe35311f0f7eb36ee50f74c10",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "463b471fe0fa3aee72b676c770c5a79d37cfa15fe35311f0f7eb36ee50f74c10",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.5828845726937482,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-25_azimuth-180",
+      "seed": 20260828,
+      "requested_slope_deg": 25.0,
+      "measured_slope_deg": 25.00000055171336,
+      "slope_angle_error_deg": 5.51713359442374e-07,
+      "terrain_azimuth_deg": 180.0,
+      "analytic_normal": [
+        0.42261826174069944,
+        -5.1755810150196594e-17,
+        0.90630778703665
+      ],
+      "triangle_normal_max_error_deg": 2.1565179853261896e-05,
+      "triangle_normal_min_z": 0.9063076277852409,
+      "axes_xy": {
+        "uphill": [
+          -1.0,
+          1.2246467991473532e-16
+        ],
+        "downhill": [
+          1.0,
+          -1.2246467991473532e-16
+        ],
+        "contour_left": [
+          -1.2246467991473532e-16,
+          -1.0
+        ],
+        "contour_right": [
+          1.2246467991473532e-16,
+          1.0
+        ]
+      },
+      "mesh_sha256": "1f5ad264e5bf83efae29292424de325dbf2ad4aaf9305c0d96b26a2218df745b",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "1f5ad264e5bf83efae29292424de325dbf2ad4aaf9305c0d96b26a2218df745b",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.5828845726937482,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    },
+    {
+      "cell_id": "slope-25_azimuth-270",
+      "seed": 20260828,
+      "requested_slope_deg": 25.0,
+      "measured_slope_deg": 25.00000055171336,
+      "slope_angle_error_deg": 5.51713359442374e-07,
+      "terrain_azimuth_deg": 270.0,
+      "analytic_normal": [
+        7.763371522529488e-17,
+        0.42261826174069944,
+        0.90630778703665
+      ],
+      "triangle_normal_max_error_deg": 2.1565179853261896e-05,
+      "triangle_normal_min_z": 0.9063076277852409,
+      "axes_xy": {
+        "uphill": [
+          -1.8369701987210297e-16,
+          -1.0
+        ],
+        "downhill": [
+          1.8369701987210297e-16,
+          1.0
+        ],
+        "contour_left": [
+          1.0,
+          -1.8369701987210297e-16
+        ],
+        "contour_right": [
+          -1.0,
+          1.8369701987210297e-16
+        ]
+      },
+      "mesh_sha256": "6a45c717c415a307a0ed8f66a6b944f0f6a5fca406508e1a870f9f8875da6224",
+      "material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "same_seed_repeat_mesh_sha256": "6a45c717c415a307a0ed8f66a6b944f0f6a5fca406508e1a870f9f8875da6224",
+      "same_seed_repeat_material_sha256": "6fec975fc0a7956d17acc6091a687ff258f533a4747446552a18f67ba2534ab8",
+      "material_unique_ids": [
+        0
+      ],
+      "friction_readback": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "tan_theta_over_mu_s": 0.5828845726937482,
+        "physical_limit_stress": false
+      },
+      "gates": {
+        "angle_error_within_tolerance": true,
+        "normals_upward": true,
+        "analytic_triangle_normal_match": true,
+        "material_zero_only": true,
+        "friction_order_valid": true,
+        "same_seed_repeat_hash": true
+      },
+      "status": "pass"
+    }
+  ],
+  "errors": []
+}

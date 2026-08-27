@@ -1,0 +1,8 @@
+contract_id=g009_c0_media_contract
+status=pass
+stage_count=24
+g008_path_contract=pass
+g008_regression_execution=pass
+regression_exit=0 command=%PYTHON% -m pytest -q tests/test_g008_visual_evidence.py tests/test_g008_stage_capture.py tests/test_g008_stage_visual_evidence.py tests/test_g008_policy_comparison_visual_evidence.py tests/test_g008_irregular_road_reports.py tests/test_g008_road_curriculum_reports.py
+regression_exit=0 command=pwsh -NoProfile -File scripts/validate_repository.ps1
+validator_json_sha256=413ef20ca969f7cd09c5720f81ea288f06e530673b0628f141f0d0bbafb8000c

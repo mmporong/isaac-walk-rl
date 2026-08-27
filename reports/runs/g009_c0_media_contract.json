@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "contract_id": "g009_c0_media_contract",
+  "mode": "receipt",
+  "status": "pass",
+  "stage_count": 24,
+  "stage_ids": [
+    "S0",
+    "S1-low",
+    "S1-high",
+    "D0A",
+    "D0B",
+    "D0C",
+    "D1",
+    "S2",
+    "S3-controlled",
+    "S3-spatial",
+    "R0",
+    "F0A",
+    "R0B",
+    "R1",
+    "R2",
+    "R3-controlled",
+    "R3-spatial",
+    "D2",
+    "F0B-TV",
+    "R4",
+    "I0",
+    "F0B-FINAL",
+    "I1",
+    "D3"
+  ],
+  "canonical_outputs": {
+    "validator_json": "reports/runs/g009_c0_media_contract.json",
+    "execution_log": "reports/validation/g009_c0_media_contract.log"
+  },
+  "rule_diff": {
+    "before": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008",
+    "after": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\<goal_id>",
+    "g008_compatibility_preserved": true
+  },
+  "g008_regression": {
+    "path_contract_status": "pass",
+    "local_video_references_checked": 18,
+    "execution_status": "pass",
+    "executions": [
+      {
+        "command": [
+          "%PYTHON%",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/test_g008_visual_evidence.py",
+          "tests/test_g008_stage_capture.py",
+          "tests/test_g008_stage_visual_evidence.py",
+          "tests/test_g008_policy_comparison_visual_evidence.py",
+          "tests/test_g008_irregular_road_reports.py",
+          "tests/test_g008_road_curriculum_reports.py"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e8f855cd866014351636b7dddcb2b51ea2c4b46941e31faef0deb7033a67b22e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_tail": "...............                                                          [100%]\r\n15 passed in 0.31s\r\n",
+        "stderr_tail": ""
+      },
+      {
+        "command": [
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "scripts/validate_repository.ps1"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "95df462c697f3f71c92c83262d2b476fe49926ba11b1bda37dafeb4b1b2ae8fb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_tail": "저장소 검증 PASS: 필수 파일, 의존성 경계, 산출물 제한, reports/runs JSON-only 경계, OMX 추적 경계, git diff 검사\r\n",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "source_bindings": {
+    "agents_sha256": "b3036582b15e64150bdaa9d900eafcc1420cb6fa1256921b938d65afeee14c74",
+    "contract_sha256": "8da890bea48bf9c9da17ba0a0a3f2973f4e784de4b55f6912c17d7d4f20f8a3d",
+    "validator_sha256": "905b2933a15898623aaca21ddcde4ca9808d89cd13b8a7a45c441b79996ddffb"
+  },
+  "checked": [
+    "registry",
+    "portable_paths",
+    "public_media_size_limit",
+    "c0_governance",
+    "repository_goal_path_rule",
+    "g008_path_regression"
+  ],
+  "errors": []
+}
