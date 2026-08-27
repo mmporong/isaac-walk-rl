@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import subprocess
@@ -253,7 +254,17 @@ def validate_capture_reports(
         material = physics.get("ground_material")
         _require(isinstance(material, Mapping), f"{prefix}.physics_readback.ground_material is required")
         for field, expected in config["terrain"]["ground_material"].items():
-            _require(material.get(field) == expected, f"{prefix} ground_material.{field} mismatch")
+            actual = material.get(field)
+            if isinstance(expected, (int, float)) and not isinstance(expected, bool):
+                _require(
+                    isinstance(actual, (int, float))
+                    and not isinstance(actual, bool)
+                    and math.isfinite(float(actual))
+                    and math.isclose(float(actual), float(expected), rel_tol=0.0, abs_tol=1.0e-6),
+                    f"{prefix} ground_material.{field} mismatch",
+                )
+            else:
+                _require(actual == expected, f"{prefix} ground_material.{field} mismatch")
         _require(isinstance(report.get("metrics"), Mapping), f"{prefix}.metrics must be an object")
 
         local_video = report.get("local_video")

@@ -122,6 +122,27 @@ def test_capture_contract_accepts_exact_config_order_and_bindings(tmp_path: Path
     assert len(sources) == 3 and all(path.is_file() for path in sources)
 
 
+def test_capture_contract_accepts_float32_material_readback_only_within_tolerance(
+    tmp_path: Path, monkeypatch
+) -> None:
+    config_path, capture_paths = _fixture(tmp_path, monkeypatch)
+    for path in capture_paths:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        report["physics_readback"]["ground_material"].update(
+            static_friction=0.800000011920929,
+            dynamic_friction=0.6000000238418579,
+        )
+        path.write_text(json.dumps(report), encoding="utf-8")
+
+    media.validate_capture_reports(capture_paths, config_path)
+
+    report = json.loads(capture_paths[0].read_text(encoding="utf-8"))
+    report["physics_readback"]["ground_material"]["static_friction"] = 0.80001
+    capture_paths[0].write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ValueError, match="ground_material.static_friction mismatch"):
+        media.validate_capture_reports(capture_paths, config_path)
+
+
 @pytest.mark.parametrize(
     ("mutation", "message"),
     [
