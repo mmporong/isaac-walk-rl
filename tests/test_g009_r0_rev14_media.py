@@ -329,6 +329,7 @@ def test_tradeoff_contract_is_explicit_without_generated_media() -> None:
         "PUBLIC DIAGNOSTIC",
         "TELEMETRY ANIMATION",
         "NOT CAMERA FOOTAGE",
+        "05 FORCE/SEPARATION",
         "NO PPO",
         "REJECTED",
     )

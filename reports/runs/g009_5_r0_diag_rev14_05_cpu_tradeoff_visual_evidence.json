@@ -1,0 +1,64 @@
+{
+  "schema_version": "g009.r0.rev14.tradeoff_visual_evidence.v1",
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "rejected",
+  "diagnostic_only": true,
+  "telemetry_animation": true,
+  "camera_footage": false,
+  "public_claim_eligible": false,
+  "qualification_status": "not_run",
+  "learned_policy_qualified": false,
+  "ppo_training_run": false,
+  "completed_stages": {
+    "cpu_runtime_3x": true,
+    "gpu_runtime_3x": true,
+    "strict_tradeoff_synthesis": true
+  },
+  "blocked_stages": {
+    "gate01": true,
+    "gate10": true,
+    "ppo_training": true
+  },
+  "labels": [
+    "PUBLIC DIAGNOSTIC",
+    "TELEMETRY ANIMATION",
+    "NOT CAMERA FOOTAGE",
+    "05 FORCE/SEPARATION",
+    "NO PPO",
+    "REJECTED"
+  ],
+  "source": {
+    "path": "reports/runs/g009_r0_runtime_probe_rev14_tradeoff_synthesis_3x3_s42.json",
+    "sha256": "605fa6a6080109c5b8699364216102fc61d41c761a07316c4441cf30de97553c"
+  },
+  "source_builder": {
+    "path": "scripts/build_g009_r0_rev14_tradeoff_media.py",
+    "sha256": "96fbe54b4f743ca8fe920c4f72f5877d265667dbd83d9339dbb0b96bc24ac49b"
+  },
+  "force_check": {
+    "passed": true,
+    "threshold_bodyweights": 15.0,
+    "observed_bodyweights": 13.943856239318848
+  },
+  "separation_check": {
+    "passed": false,
+    "threshold_m": -0.01,
+    "observed_m": -0.010990187525749207
+  },
+  "png": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev14_05_cpu_tradeoff.png",
+    "sha256": "5701decf68c9b489279313b09b8bbff28d956a48ff2a39c54280b47ae1d097bb",
+    "bytes": 83069,
+    "width": 1280,
+    "height": 720
+  },
+  "gif": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev14_05_cpu_tradeoff.gif",
+    "sha256": "fc4ad595f1141b0ecedd043d3d01579a18a5c64c2e14b9bc580ed8bdf16ec803",
+    "bytes": 121680,
+    "frames": 6,
+    "duration_ms": 5400
+  }
+}

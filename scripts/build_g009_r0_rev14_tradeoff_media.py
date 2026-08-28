@@ -28,6 +28,7 @@ LABELS = (
     "PUBLIC DIAGNOSTIC",
     "TELEMETRY ANIMATION",
     "NOT CAMERA FOOTAGE",
+    "05 FORCE/SEPARATION",
     "NO PPO",
     "REJECTED",
 )
@@ -196,11 +197,11 @@ def render_frame(synthesis: dict[str, Any], progress: float, destination: Path) 
     title.text(
         0.5,
         0.22,
-        "G009 R0 REV14 · NO PPO · REJECTED",
+        "G009-5 R0 REV14 · 05 FORCE/SEPARATION · NO PPO · REJECTED",
         ha="center",
         va="center",
         color="#ffe36e",
-        fontsize=20,
+        fontsize=18,
         fontweight="bold",
     )
     title.set_xticks([])
@@ -225,7 +226,7 @@ def render_frame(synthesis: dict[str, Any], progress: float, destination: Path) 
     force_axis.legend(loc="upper right")
     force_axis.text(
         0,
-        shown_force + 0.35,
+        max(0.6, shown_force - 0.8),
         f"{shown_force:.3f} BW",
         ha="center",
         color="white",
@@ -253,7 +254,7 @@ def render_frame(synthesis: dict[str, Any], progress: float, destination: Path) 
     sep_axis.legend(loc="upper right")
     sep_axis.text(
         0,
-        shown_mm - 0.45,
+        shown_mm + 0.65,
         f"{shown_mm:.3f} mm",
         ha="center",
         color="white",
@@ -280,7 +281,7 @@ def render_frame(synthesis: dict[str, Any], progress: float, destination: Path) 
     note.text(
         0.02,
         0.18,
-        "Interpretation: lower collision force does not prove acceptable contact topology; GPU validation completed, Gate01/PPO remain blocked.",
+        "Interpretation: force PASS does not prove valid contact; GPU validation complete, Gate01/Gate10/PPO blocked.",
         color="#f2cf5b",
         fontsize=11.5,
     )
