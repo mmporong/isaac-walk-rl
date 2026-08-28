@@ -1,0 +1,267 @@
+{
+  "schema_version": "g009.r0.pilot_analysis.v2",
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "public_claim_eligible": false,
+  "qualification_allowed": false,
+  "qualification_status": "not_run",
+  "qualification_block_reasons": [
+    "diagnostic_pilot_never_qualifies",
+    "hard_joint_limit_nonzero",
+    "strict_success_zero"
+  ],
+  "revision": "rev12",
+  "gate_label": "gate10",
+  "output_stem": "g009_5_r0_diag_rev12_gate10_01_prone",
+  "analysis_source": {
+    "path": "scripts/analyze_g009_r0_pilot.py",
+    "sha256": "ab40b8d4b9673c6f03faea7ec2885dbe332430d163dee4d6df887230d1c78ff2"
+  },
+  "training_report": {
+    "path": "reports/runs/go2_flat_recover_rev12_prone_gate10_s42_20260828-183416.json",
+    "sha256": "5dc6455b7b414e3093fe2de78468cc0007e9cbec9fb83513802542161be4c982",
+    "run_name": "go2_flat_recover_rev12_prone_gate10_s42_20260828-183416",
+    "source_commit": "281e61149574b30b524f1306eb08607467792c53",
+    "source_bundle_sha256": "2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa"
+  },
+  "tensorboard": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_18-34-25_go2_flat_recover_rev12_prone_gate10_s42_20260828-183416",
+    "event_bundle_sha256": "05a2b300500c73d95f0dc79859258235682bfabae88462d33701c256af9a8264",
+    "event_files": {
+      "events.out.tfevents.1787909669.DESKTOP-991BNBV.26680.0": "c9ca0dae03282b7069855175e15216dbaaae0c7ede890c3aa24c1bcfb1b5fff6"
+    },
+    "sample_count_per_tag": 10
+  },
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_18-34-25_go2_flat_recover_rev12_prone_gate10_s42_20260828-183416\\model_9.pt",
+    "sha256": "b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2"
+  },
+  "pilot": {
+    "num_envs": 1024,
+    "iterations": 10,
+    "seed": 42,
+    "headless": true,
+    "scratch": true
+  },
+  "observations": {
+    "hard_joint_limit": {
+      "sample_count": 10,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0416666679084301,
+      "mean": 0.01250000037252903,
+      "nonzero_sample_count": 3
+    },
+    "numeric_invalid": {
+      "sample_count": 10,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "stable_support": {
+      "sample_count": 10,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "upright_hold": {
+      "sample_count": 10,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "strict_stable_success": {
+      "sample_count": 10,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "strict_success_reward": {
+      "sample_count": 10,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "curriculum_boundary_leak": {
+      "detected": false,
+      "phase_index_maximum": 0.0,
+      "prone_probability_minimum": 1.0,
+      "left_side_probability_maximum": 0.0,
+      "right_side_probability_maximum": 0.0
+    },
+    "policy_mean_noise_std": {
+      "sample_count": 10,
+      "latest": 0.5164541602134705,
+      "minimum": 0.5025169849395752,
+      "maximum": 0.5164541602134705,
+      "mean": 0.5083401501178741,
+      "nonzero_sample_count": 10
+    }
+  },
+  "tail_10_iterations": [
+    {
+      "iteration": 0,
+      "mean_reward": -0.5078176259994507,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5025169849395752
+    },
+    {
+      "iteration": 1,
+      "mean_reward": -1.2074089050292969,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0416666679084301,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5031600594520569
+    },
+    {
+      "iteration": 2,
+      "mean_reward": -2.309021234512329,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0416666679084301,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5053077936172485
+    },
+    {
+      "iteration": 3,
+      "mean_reward": -3.4647233486175537,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0416666679084301,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5058966875076294
+    },
+    {
+      "iteration": 4,
+      "mean_reward": -4.361095905303955,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5060326457023621
+    },
+    {
+      "iteration": 5,
+      "mean_reward": -4.794312477111816,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.506662905216217
+    },
+    {
+      "iteration": 6,
+      "mean_reward": -5.306820869445801,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5103479027748108
+    },
+    {
+      "iteration": 7,
+      "mean_reward": -5.727231502532959,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.512324333190918
+    },
+    {
+      "iteration": 8,
+      "mean_reward": -5.035314559936523,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5146980285644531
+    },
+    {
+      "iteration": 9,
+      "mean_reward": -5.155621528625488,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5164541602134705
+    }
+  ],
+  "interpretation": "rev12 gate10 진단: 관절 한계 종료가 관측됨; prone 커리큘럼 경계 누수가 관측되지 않음; stable_support 신호가 관측되지 않음; upright_hold 신호가 관측되지 않음; 엄격 성공이 관측되지 않음. 정책 자격 평가는 수행하지 않았다."
+}

@@ -170,7 +170,7 @@ py .\scripts\build_g009_s0_media.py --capture-reports `
   --config .\configs\g009_s0.json
 ```
 
-- 다음 실행은 `G009-5` R0 flat RECOVER를 scratch에서 학습하고, S0 nominal WALK와 R0 RECOVER의 torque·power·impact proxy를 calibration한 뒤 `G009-6` S1-low `5/10°` WALK를 여는 순서다. 각 stage는 별도 다중 seed 평가 JSON과 MP4·GIF·PNG·sidecar를 새로 만든다.
+- S0 완료 당시 다음 순서를 `G009-5` R0 flat RECOVER scratch 학습 → S0 nominal WALK·R0 RECOVER torque/power/impact calibration → `G009-6` S1-low `5/10°` WALK로 정했다. 각 stage는 별도 다중 seed 평가 JSON과 MP4·GIF·PNG·sidecar를 새로 만든다. 현재 R0의 최신 상태는 아래 rev12 gate10 실패 절에 기록한다.
 
 ### G009-5 R0 평지 전복 복구 PPO 계약·진단
 
@@ -303,9 +303,10 @@ rev9 prone pilot은 clean source에서 `1,024 env × 50 iterations × seed 42`�
 4. `[기각]` rev11 `1,024×1` scratch gate01은 process/run-health는 PASS였지만 첫 scalar의 hard-joint-limit이 `0.0416667`이라 안전 gate를 통과하지 못했다. numeric-invalid는 `0`, prone probability는 `1.0`, curriculum phase는 `0`이었다. gate10·gate50은 실행하지 않는다.
 5. `[완료]` rev12에서 articulation solver position iteration만 `4 → 8`로 올렸다. CPU/GPU runtime probe 각 3회가 모두 통과했고 raw hard-limit crossing과 non-foot contact peak가 감소했다.
 6. `[완료]` rev12 `1,024×1` scratch gate01은 hard-joint-limit·numeric-invalid `0`으로 안전 관문을 통과했다. stable support·upright hold·strict success는 모두 `0`이어서 qualification은 아니다.
-7. `[다음]` 동일 rev12 계약으로 resume 없는 `1,024×10` scratch gate10을 실행하고, 통과하면 별도 단계 영상을 만든다.
-8. `[대기]` 50회 안전 pilot은 stable support와 upright hold가 최소 한 번은 nonzero여야 한다. 통과한 revision만 `1,024×300`, seed 42 scratch qualification으로 연다.
-9. deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.
+7. `[기각]` rev12 `1,024×10` scratch gate10은 numeric-invalid `0`이었지만 iterations `1/2/3`에서 hard-joint-limit이 각각 한 건 상당 재발해 safety gate를 통과하지 못했다. gate50은 열지 않는다.
+8. `[다음]` Gate10의 정책 업데이트 경로를 유지한 pre-reset attribution으로 env·joint·action·target·torque·contact history를 먼저 귀속한다. 그 결과를 바탕으로 rev13 단일변수 A/B를 scratch로 시작한다.
+9. `[대기]` 50회 안전 pilot은 stable support와 upright hold가 최소 한 번은 nonzero여야 한다. 통과한 revision만 `1,024×300`, seed 42 scratch qualification으로 연다.
+10. deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.
 
 rev11 gate01은 clean source commit `26fa9860470fe30ce192b342165caf2122598e8f`에서 `1,024 env × 24 step × 1 iteration`, seed `42`, headless, scratch로 실행했다. wall time은 `18.581 s`, 처리량은 `7,766 steps/s`, peak VRAM은 `4,368 MiB`, final mean reward는 `-0.52`였다. `model_0.pt` SHA-256은 `e89f92235656ef61e082333981a3045ba3582331cc1f7d6457d6806172291e4c`다. stable support, upright hold, strict success는 모두 `0`이었다.
 
@@ -351,6 +352,24 @@ clean source commit `9da3e87e4be9142035d24e8a4a22e204f8b229d5`에서 CPU·GPU �
 - final mean reward는 `-0.51`, stable support·upright hold·strict success는 모두 `0`이다. 따라서 gate01 PASS는 solver 수정 뒤 첫 rollout이 안전했다는 뜻이며 복구 학습 성공이나 qualification을 뜻하지 않는다. 다음 단계는 동일 rev12의 resume 없는 scratch `1,024×10` gate10이다.
 - checkpoint `model_0.pt` SHA-256은 `52f45ef5ae9d3c98ced51132e7fb6b5e8d78d0721a7efd9657f3fdc46ea17017`이다. 1환경 deterministic playback은 8초 time-out, safety termination `false`, strict success `0`이었다.
 - 로컬 전용 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev12_gate01_01_prone_s42.mp4`다. H.264 `1280×720`, `50fps`, 8초, SHA-256 `4073f4b68d752a0760ed8ea31fc482ade95a150b657c658f69c5f1a2d7422982`이며 Git에는 넣지 않는다. 공개 GIF·PNG·JSON에는 `DIAGNOSTIC · NOT QUALIFIED · 01 PRONE · STRICT SUCCESS 0`를 표시한다.
+
+#### rev12 scratch gate10 실패와 단계 영상
+
+- Gate01 증거를 commit `281e61149574b30b524f1306eb08607467792c53`로 고정한 뒤 `go2_flat_recover_rev12_prone_gate10_s42_20260828-183416`을 resume 없이 새로 시작했다. seed `42`, headless, `1,024 env × 24 step × 10 iterations`, source bundle SHA-256 `2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa`다.
+- process/run health와 numeric-invalid는 PASS였지만 hard-joint-limit maximum이 `0.0416666679`, nonzero sample이 `3/10`이라 safety gate는 FAIL이다. iteration `1`, `2`, `3`에서 각각 `0.0416666679`였고 나머지는 `0`이다. 24-step 평균이므로 각 nonzero sample은 hard-limit 종료 한 건 상당이며 전체 세 건 상당이다.
+- Gate10의 `model_0.pt` SHA-256은 Gate01 checkpoint와 같은 `52f45ef5ae9d3c98ced51132e7fb6b5e8d78d0721a7efd9657f3fdc46ea17017`이고 두 run의 source bundle SHA도 같다. 첫 rollout과 첫 PPO update가 동일하게 재현됐다는 강한 증거다. hard-limit은 logging iteration `1/2/3`, 즉 각각 이전 PPO update `1/2/3회`가 반영된 다음 rollout에서 나타났다. 다만 환경 state·episode 길이·stochastic RNG도 함께 진행되므로 policy update만을 단독 원인으로 확정하지 않는다.
+- prone probability는 전 구간 `1.0`, curriculum phase는 `0`이었다. stable support·upright hold·strict success도 전 구간 `0`이므로 안전뿐 아니라 학습 신호 gate도 열리지 않았다. final mean reward는 `-5.16`, median 처리량은 `13,441.5 steps/s`, peak VRAM은 `4,356 MiB`다.
+- `model_9.pt` SHA-256은 `b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2`다. 1환경 deterministic playback은 8초 time-out, safety termination `false`, strict success `0`이었다. 이 재생은 1,024환경 stochastic rollout의 세 건을 상쇄하지 않는다.
+- 로컬 전용 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev12_gate10_01_prone_s42.mp4`다. H.264 `1280×720`, `50fps`, 8초, SHA-256 `b239460fba71c91ed36fcc83be90df696292988f8accff94e533ed5180e9997e`이며 Git에는 넣지 않는다. 공개 GIF·PNG·JSON에는 실패 진단 표식을 유지한다.
+- gate50은 실행하지 않는다. 다음 작업은 gate10의 10회 PPO update 경로를 그대로 두고 pre-reset terminal state를 귀속하는 계측이며, attribution 전에는 calf reset·noise·torque·tolerance·reward를 바꾸지 않는다.
+
+#### Gate10 full-update attribution 계약
+
+- 새 진단 도구 commit에서도 training source binding 10개와 aggregate SHA `2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa`는 Gate10 원본과 같아야 한다. `1,024 env × 24 step × 10 iterations`, seed `42`, `cuda:0`, headless, scratch, `init_at_random_ep_len=True`를 유지하고 공식 `OnPolicyRunner.learn()`과 원 PPO update를 10회 모두 호출한다.
+- action call `240회`를 `iteration=(act_count-1)//24`, `rollout_step=(act_count-1)%24+1`로 태깅한다. active RecorderTerm은 계속 `0`으로 두고 기존 `record_pre_reset` hook만 감싸 terminal state를 reset 전에 기록한다. observer 전후 CPU/CUDA RNG state가 같아야 한다.
+- 각 사건은 env·pose·iteration·rollout/episode/sim step, joint actual/lower/upper와 raw/margin excess, pre/post-clip action, EMA target, velocity, applied torque, root pose/twist를 저장한다. sensor 설정을 바꾸지 않고 기존 contact history와 별도 16-control-step ring buffer의 body별 contact force·joint/action history를 사건 env에 귀속한다.
+- termination `(iteration, rollout_step, env)` multiset과 attribution multiset, 원 hard-limit predicate 재계산이 정확히 같아야 한다. hard series `[0,1/24,1/24,1/24,0,0,0,0,0,0]`, `model_0.pt` SHA `52f45ef5ae9d3c98ced51132e7fb6b5e8d78d0721a7efd9657f3fdc46ea17017`, `model_9.pt` SHA `b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2`까지 같을 때만 원 Gate10 trajectory identity를 강하게 확인한다. 하나라도 다르면 동일 조건 fresh reproduction으로만 기록한다.
+- 새 프로세스 3회에서 사건 topology가 반복되는지 본다. 모든 사건이 calf lower, limit 안쪽 EMA target, 복원 방향 torque, 직전 calf/thigh/base contact 또는 lower 방향 관성, reset 과도구간과의 연결을 함께 보일 때만 rev13 calf reset `-2.37 → -2.34rad` 단일변수를 승인한다. non-calf 또는 policy target이 limit 방향인 사건이 하나라도 있으면 reset 변경은 보류한다.
 
 #### 단계별 영상·공개 정책
 

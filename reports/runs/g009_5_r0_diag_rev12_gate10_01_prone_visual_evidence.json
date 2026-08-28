@@ -1,0 +1,115 @@
+{
+  "schema_version": "g009.r0.diagnostic_visual_evidence.v1",
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "public_claim_eligible": false,
+  "qualification_status": "not_run",
+  "revision": "rev12",
+  "gate_label": "gate10",
+  "output_stem": "g009_5_r0_diag_rev12_gate10_01_prone",
+  "expected_run_name": "go2_flat_recover_rev12_prone_gate10_s42_20260828-183416",
+  "policy_result": "failure",
+  "strict_success": 0,
+  "warning_label": "DIAGNOSTIC · NOT QUALIFIED · 01 PRONE · STRICT SUCCESS 0",
+  "qualification_block_reasons": [
+    "diagnostic_pilot_never_qualifies",
+    "hard_joint_limit_nonzero",
+    "strict_success_zero"
+  ],
+  "capture_report": {
+    "path": "reports/runs/g009_5_r0_diag_rev12_gate10_01_prone_capture_s42.json",
+    "sha256": "e9df4d25c766bc7bea18b43e53936b3a7c7cb60ef4095409df56f269bd4bcbbf"
+  },
+  "analysis_report": {
+    "path": "reports/runs/g009_5_r0_diag_rev12_gate10_01_prone_analysis.json",
+    "sha256": "9e25db4b1dc7ecb8ccae444a7a37a59e1fa1ee1fa07ef181f2956c25924fce85"
+  },
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_18-34-25_go2_flat_recover_rev12_prone_gate10_s42_20260828-183416\\model_9.pt",
+    "sha256": "b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2"
+  },
+  "training_binding": {
+    "path": "reports/runs/go2_flat_recover_rev12_prone_gate10_s42_20260828-183416.json",
+    "sha256": "5dc6455b7b414e3093fe2de78468cc0007e9cbec9fb83513802542161be4c982",
+    "run_name": "go2_flat_recover_rev12_prone_gate10_s42_20260828-183416",
+    "repository": {
+      "commit": "281e61149574b30b524f1306eb08607467792c53",
+      "clean": true
+    },
+    "source_bundle": {
+      "sha256": "2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa",
+      "files": {
+        "configs/g009_r0.json": "87355a5e927b2025d9cead696bf3be1a0fd07cad53ca1cd1e9b7867b3d01eaac",
+        "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+        "scripts/run_training.ps1": "b2910517adb83ac402eeda9389a67a844663d578247fae006483efa12b67a533",
+        "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+        "src/isaac_walk_g009/mdp/__init__.py": "c5e13ec110a341e974cd303d8e44bfadb696a97ea2db2185d7a01fece74ccfd5",
+        "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+        "src/isaac_walk_g009/mdp/recover.py": "a825707a076d02fb597f2e6a779170ad34dac54037c9ef535e9f54fbfc4f3599",
+        "src/isaac_walk_g009/recover_contracts.py": "26eabe7661e980caae7684e5383e6da88d3b183b657d8d9a2d8482f052ced360",
+        "src/isaac_walk_g009/recover_env_cfg.py": "dadf6ff10f20aebd216eb0a004e51aab119b38ef61e2c782d7bc23ad6a14d73a",
+        "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+      }
+    },
+    "checkpoint_sha256": "b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2",
+    "protocol": {
+      "num_envs": 1024,
+      "max_iterations": 10,
+      "seed": 42,
+      "headless": true,
+      "scratch": true,
+      "qualification_enabled": false
+    }
+  },
+  "capture_commit": "281e61149574b30b524f1306eb08607467792c53",
+  "source_bindings": {
+    "record_source": {
+      "path": "scripts/record_g009_r0_diagnostic.py",
+      "sha256": "0e2f6fd8692f00a18d36c4682f20e16c2beea2f21078e49493b2c0e21f83b9bc"
+    },
+    "config": {
+      "path": "configs/g009_r0.json",
+      "sha256": "87355a5e927b2025d9cead696bf3be1a0fd07cad53ca1cd1e9b7867b3d01eaac"
+    },
+    "analysis_source": {
+      "path": "scripts/analyze_g009_r0_pilot.py",
+      "sha256": "ab40b8d4b9673c6f03faea7ec2885dbe332430d163dee4d6df887230d1c78ff2"
+    },
+    "media_builder": {
+      "path": "scripts/build_g009_r0_diagnostic_media.py",
+      "sha256": "a6f3741c552520a01f471322fd0a4e4e742530de1c9f99a5ee618c53d0e00279"
+    }
+  },
+  "report_type": "diagnostic_visual_evidence_sidecar",
+  "official_sidecar_schema": false,
+  "official_gate_evaluated": false,
+  "artifacts": {
+    "public_gif": {
+      "evidence_type": "diagnostic_animation",
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_01_prone.gif",
+      "sha256": "4b56124ab2776542097eee45e9fdf8a81be971667903537612b1702670a74d75",
+      "bytes": 4181904,
+      "git_policy": "public_git",
+      "codec": "gif",
+      "width": 720,
+      "height": 406,
+      "duration_s": 8.0,
+      "frame_rate": "25/4"
+    },
+    "public_png": {
+      "evidence_type": "diagnostic_contact_sheet",
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_01_prone_still.png",
+      "sha256": "e77baf3b88a987b66553ca808fefb4c961228a095cffb44d847054d46ab62ea7",
+      "bytes": 752947,
+      "git_policy": "public_git",
+      "codec": "png",
+      "width": 1280,
+      "height": 720,
+      "duration_s": null,
+      "frame_rate": "25/1"
+    }
+  }
+}

@@ -1,0 +1,579 @@
+{
+  "schema_version": 1,
+  "run_name": "go2_flat_recover_rev12_prone_gate10_s42_20260828-183416",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "num_envs": 1024,
+  "max_iterations": 10,
+  "seed": 42,
+  "headless": true,
+  "qualification_mode": {
+    "enabled": false,
+    "preflight_passed": null,
+    "policy_qualification_status": "not_run"
+  },
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "--task",
+    "Isaac-G009-Recover-Flat-Go2-R0-v0",
+    "--num_envs",
+    1024,
+    "--max_iterations",
+    10,
+    "--seed",
+    42,
+    "--run_name",
+    "go2_flat_recover_rev12_prone_gate10_s42_20260828-183416",
+    "--headless"
+  ],
+  "resume": {
+    "enabled": false,
+    "load_run": null,
+    "checkpoint": null
+  },
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "sha256": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+    "repository_internal": true
+  },
+  "repository": {
+    "commit": "281e61149574b30b524f1306eb08607467792c53",
+    "dirty": false
+  },
+  "source_bundle": {
+    "sha256": "2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa",
+    "files": {
+      "configs/g009_r0.json": "87355a5e927b2025d9cead696bf3be1a0fd07cad53ca1cd1e9b7867b3d01eaac",
+      "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+      "scripts/run_training.ps1": "b2910517adb83ac402eeda9389a67a844663d578247fae006483efa12b67a533",
+      "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+      "src/isaac_walk_g009/mdp/__init__.py": "c5e13ec110a341e974cd303d8e44bfadb696a97ea2db2185d7a01fece74ccfd5",
+      "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+      "src/isaac_walk_g009/mdp/recover.py": "a825707a076d02fb597f2e6a779170ad34dac54037c9ef535e9f54fbfc4f3599",
+      "src/isaac_walk_g009/recover_contracts.py": "26eabe7661e980caae7684e5383e6da88d3b183b657d8d9a2d8482f052ced360",
+      "src/isaac_walk_g009/recover_env_cfg.py": "dadf6ff10f20aebd216eb0a004e51aab119b38ef61e2c782d7bc23ad6a14d73a",
+      "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+    },
+    "matches_repository_commit": true
+  },
+  "started_at": "2026-08-28T18:34:16.7192637+09:00",
+  "ended_at": "2026-08-28T18:34:51.8037172+09:00",
+  "wall_time_seconds": 35.083,
+  "exit_code": 0,
+  "last_iteration": 9,
+  "iteration_target": 10,
+  "gpu": {
+    "baseline_used_mib": 1420,
+    "peak_used_mib": 4356.0,
+    "delta_used_mib": 2936.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.064,
+        "used_mib": 1422
+      },
+      {
+        "elapsed_seconds": 2.131,
+        "used_mib": 1515
+      },
+      {
+        "elapsed_seconds": 4.193,
+        "used_mib": 1515
+      },
+      {
+        "elapsed_seconds": 6.255,
+        "used_mib": 1547
+      },
+      {
+        "elapsed_seconds": 8.317,
+        "used_mib": 1604
+      },
+      {
+        "elapsed_seconds": 10.365,
+        "used_mib": 1644
+      },
+      {
+        "elapsed_seconds": 12.426,
+        "used_mib": 4086
+      },
+      {
+        "elapsed_seconds": 14.489,
+        "used_mib": 4128
+      },
+      {
+        "elapsed_seconds": 16.551,
+        "used_mib": 4356
+      },
+      {
+        "elapsed_seconds": 18.613,
+        "used_mib": 4356
+      },
+      {
+        "elapsed_seconds": 20.676,
+        "used_mib": 4356
+      },
+      {
+        "elapsed_seconds": 22.745,
+        "used_mib": 4356
+      },
+      {
+        "elapsed_seconds": 24.802,
+        "used_mib": 4356
+      },
+      {
+        "elapsed_seconds": 26.881,
+        "used_mib": 4356
+      },
+      {
+        "elapsed_seconds": 28.941,
+        "used_mib": 4356
+      },
+      {
+        "elapsed_seconds": 31.006,
+        "used_mib": 4356
+      },
+      {
+        "elapsed_seconds": 33.075,
+        "used_mib": 4356
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.049,
+        "used_mib": 1420
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      7626,
+      13112,
+      13087,
+      13754,
+      13670,
+      13816,
+      13060,
+      13831,
+      13500,
+      13383
+    ],
+    "mean_steps_per_second": 12883.9,
+    "median_steps_per_second": 13441.5,
+    "final_mean_reward": -5.16,
+    "final_mean_episode_length": 222.82
+  },
+  "training_safety_aggregate": {
+    "metric_semantics": "TensorBoard statistics over per-reset-batch termination counts across every logged scalar sample",
+    "scalar_reservoir": "unbounded (size_guidance scalars=0)",
+    "hard_joint_limit": {
+      "sample_count": 10,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0416666679084301,
+      "mean": 0.01250000037252903,
+      "nonzero_sample_count": 3
+    },
+    "numeric_invalid": {
+      "sample_count": 10,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "qualification_requires_both_maximum_counts_zero": false,
+    "qualification_passed": null,
+    "unavailable_fields": [
+      "hard_limit_total_count",
+      "hard_limit_max_excess_rad",
+      "hard_limit_by_joint",
+      "hard_limit_by_pose"
+    ],
+    "unavailable_reason": "RSL-RL episode summaries expose rates only; joint/pose attribution requires dedicated runtime instrumentation"
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_rev12_prone_gate10_s42_20260828-183416.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_rev12_prone_gate10_s42_20260828-183416.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_18-34-25_go2_flat_recover_rev12_prone_gate10_s42_20260828-183416",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_18-34-25_go2_flat_recover_rev12_prone_gate10_s42_20260828-183416\\model_9.pt",
+    "checkpoint_sha256": "b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/upright_progress",
+      "Episode_Reward/gated_base_height_progress",
+      "Episode_Reward/soft_stand_progress",
+      "Episode_Reward/stable_support",
+      "Episode_Reward/upright_hold",
+      "Episode_Reward/stable_success_once",
+      "Episode_Reward/gated_angvel_l2",
+      "Episode_Reward/joint_limit",
+      "Episode_Reward/torque_l2",
+      "Episode_Reward/joint_acc_l2",
+      "Episode_Reward/gated_action_rate_l2",
+      "Episode_Reward/mechanical_power_proxy",
+      "Episode_Reward/undesired_collision",
+      "Curriculum/recover_pose_distribution/phase_index",
+      "Curriculum/recover_pose_distribution/common_control_step",
+      "Curriculum/recover_pose_distribution/probability_prone",
+      "Curriculum/recover_pose_distribution/probability_supine",
+      "Curriculum/recover_pose_distribution/probability_left_side",
+      "Curriculum/recover_pose_distribution/probability_right_side",
+      "Episode_Termination/time_out",
+      "Episode_Termination/stable_success",
+      "Episode_Termination/numeric_invalid",
+      "Episode_Termination/hard_joint_limit",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/upright_progress": -0.07025595009326935,
+      "Episode_Reward/gated_base_height_progress": -0.21193501353263855,
+      "Episode_Reward/soft_stand_progress": -0.19776515662670135,
+      "Episode_Reward/stable_support": 0.0,
+      "Episode_Reward/upright_hold": 0.0,
+      "Episode_Reward/stable_success_once": 0.0,
+      "Episode_Reward/gated_angvel_l2": -0.02820539101958275,
+      "Episode_Reward/joint_limit": -0.00043332658242434263,
+      "Episode_Reward/torque_l2": -0.0251990407705307,
+      "Episode_Reward/joint_acc_l2": -0.051217418164014816,
+      "Episode_Reward/gated_action_rate_l2": -0.010716304183006287,
+      "Episode_Reward/mechanical_power_proxy": -0.00043298047967255116,
+      "Episode_Reward/undesired_collision": 0.0,
+      "Curriculum/recover_pose_distribution/phase_index": 0.0,
+      "Curriculum/recover_pose_distribution/common_control_step": 228.375,
+      "Curriculum/recover_pose_distribution/probability_prone": 1.0,
+      "Curriculum/recover_pose_distribution/probability_supine": 0.0,
+      "Curriculum/recover_pose_distribution/probability_left_side": 0.0,
+      "Curriculum/recover_pose_distribution/probability_right_side": 0.0,
+      "Episode_Termination/time_out": 3.25,
+      "Episode_Termination/stable_success": 0.0,
+      "Episode_Termination/numeric_invalid": 0.0,
+      "Episode_Termination/hard_joint_limit": 0.0,
+      "Loss/value_function": 0.4649389386177063,
+      "Loss/surrogate": -0.0038064622785896063,
+      "Loss/entropy": 9.078553199768066,
+      "Loss/learning_rate": 0.0002562890585977584,
+      "Policy/mean_noise_std": 0.5164541602134705,
+      "Perf/total_fps": 13383.0,
+      "Perf/collection time": 1.6833152770996094,
+      "Perf/learning_time": 0.15302205085754395,
+      "Train/mean_reward": -5.155621528625488,
+      "Train/mean_episode_length": 222.82000732421875,
+      "Train/mean_reward/time": -5.155621528625488,
+      "Train/mean_episode_length/time": 222.82000732421875
+    },
+    "series_summary": {
+      "Episode_Reward/upright_progress": {
+        "sample_count": 10,
+        "latest": -0.07025595009326935,
+        "minimum": -0.24908551573753357,
+        "maximum": -0.027922246605157852,
+        "mean": -0.1474647793918848,
+        "nonzero_sample_count": 10
+      },
+      "Episode_Reward/gated_base_height_progress": {
+        "sample_count": 10,
+        "latest": -0.21193501353263855,
+        "minimum": -0.23404864966869354,
+        "maximum": -0.013827669434249401,
+        "mean": -0.14527923231944442,
+        "nonzero_sample_count": 10
+      },
+      "Episode_Reward/soft_stand_progress": {
+        "sample_count": 10,
+        "latest": -0.19776515662670135,
+        "minimum": -0.22055868804454803,
+        "maximum": -0.013064111582934856,
+        "mean": -0.1356038267724216,
+        "nonzero_sample_count": 10
+      },
+      "Episode_Reward/stable_support": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Reward/upright_hold": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Reward/stable_success_once": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Reward/gated_angvel_l2": {
+        "sample_count": 10,
+        "latest": -0.02820539101958275,
+        "minimum": -0.02820539101958275,
+        "maximum": -0.0006642745574936271,
+        "mean": -0.01718735267641023,
+        "nonzero_sample_count": 10
+      },
+      "Episode_Reward/joint_limit": {
+        "sample_count": 10,
+        "latest": -0.00043332658242434263,
+        "minimum": -0.00043332658242434263,
+        "maximum": 0.0,
+        "mean": -0.00014772714566788637,
+        "nonzero_sample_count": 9
+      },
+      "Episode_Reward/torque_l2": {
+        "sample_count": 10,
+        "latest": -0.0251990407705307,
+        "minimum": -0.0251990407705307,
+        "maximum": -0.001709610573016107,
+        "mean": -0.016083916451316328,
+        "nonzero_sample_count": 10
+      },
+      "Episode_Reward/joint_acc_l2": {
+        "sample_count": 10,
+        "latest": -0.051217418164014816,
+        "minimum": -0.051217418164014816,
+        "maximum": -0.0015860333805903792,
+        "mean": -0.02346977450652048,
+        "nonzero_sample_count": 10
+      },
+      "Episode_Reward/gated_action_rate_l2": {
+        "sample_count": 10,
+        "latest": -0.010716304183006287,
+        "minimum": -0.010716304183006287,
+        "maximum": -0.00034992018481716514,
+        "mean": -0.005968119687167928,
+        "nonzero_sample_count": 10
+      },
+      "Episode_Reward/mechanical_power_proxy": {
+        "sample_count": 10,
+        "latest": -0.00043298047967255116,
+        "minimum": -0.00043298047967255116,
+        "maximum": -2.763140764727723E-05,
+        "mean": -0.000246177214103227,
+        "nonzero_sample_count": 10
+      },
+      "Episode_Reward/undesired_collision": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Curriculum/recover_pose_distribution/phase_index": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Curriculum/recover_pose_distribution/common_control_step": {
+        "sample_count": 10,
+        "latest": 228.375,
+        "minimum": 12.291666984558105,
+        "maximum": 228.375,
+        "mean": 120.4375018119812,
+        "nonzero_sample_count": 10
+      },
+      "Curriculum/recover_pose_distribution/probability_prone": {
+        "sample_count": 10,
+        "latest": 1.0,
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "mean": 1.0,
+        "nonzero_sample_count": 10
+      },
+      "Curriculum/recover_pose_distribution/probability_supine": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Curriculum/recover_pose_distribution/probability_left_side": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Curriculum/recover_pose_distribution/probability_right_side": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Termination/time_out": {
+        "sample_count": 10,
+        "latest": 3.25,
+        "minimum": 2.2916667461395264,
+        "maximum": 3.25,
+        "mean": 2.8000000715255737,
+        "nonzero_sample_count": 10
+      },
+      "Episode_Termination/stable_success": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Termination/numeric_invalid": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Termination/hard_joint_limit": {
+        "sample_count": 10,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0416666679084301,
+        "mean": 0.01250000037252903,
+        "nonzero_sample_count": 3
+      },
+      "Loss/value_function": {
+        "sample_count": 10,
+        "latest": 0.4649389386177063,
+        "minimum": 0.4649389386177063,
+        "maximum": 1.4503278732299805,
+        "mean": 0.8561434328556061,
+        "nonzero_sample_count": 10
+      },
+      "Loss/surrogate": {
+        "sample_count": 10,
+        "latest": -0.0038064622785896063,
+        "minimum": -0.0059220921248197556,
+        "maximum": 0.16756418347358704,
+        "mean": 0.016233859048224986,
+        "nonzero_sample_count": 10
+      },
+      "Loss/entropy": {
+        "sample_count": 10,
+        "latest": 9.078553199768066,
+        "minimum": 8.760351181030273,
+        "maximum": 9.078553199768066,
+        "mean": 8.890323734283447,
+        "nonzero_sample_count": 10
+      },
+      "Loss/learning_rate": {
+        "sample_count": 10,
+        "latest": 0.0002562890585977584,
+        "minimum": 9.999999747378752E-06,
+        "maximum": 0.00038443360244855285,
+        "mean": 0.00016151953277585563,
+        "nonzero_sample_count": 10
+      },
+      "Policy/mean_noise_std": {
+        "sample_count": 10,
+        "latest": 0.5164541602134705,
+        "minimum": 0.5025169849395752,
+        "maximum": 0.5164541602134705,
+        "mean": 0.5083401501178741,
+        "nonzero_sample_count": 10
+      },
+      "Perf/total_fps": {
+        "sample_count": 10,
+        "latest": 13383.0,
+        "minimum": 7626.0,
+        "maximum": 13831.0,
+        "mean": 12883.9,
+        "nonzero_sample_count": 10
+      },
+      "Perf/collection time": {
+        "sample_count": 10,
+        "latest": 1.6833152770996094,
+        "minimum": 1.6272411346435547,
+        "maximum": 2.969515323638916,
+        "mean": 1.8061809539794922,
+        "nonzero_sample_count": 10
+      },
+      "Perf/learning_time": {
+        "sample_count": 10,
+        "latest": 0.15302205085754395,
+        "minimum": 0.13952922821044922,
+        "maximum": 0.2530357837677002,
+        "mean": 0.1591269254684448,
+        "nonzero_sample_count": 10
+      },
+      "Train/mean_reward": {
+        "sample_count": 10,
+        "latest": -5.155621528625488,
+        "minimum": -5.727231502532959,
+        "maximum": -0.5078176259994507,
+        "mean": -3.7869367957115174,
+        "nonzero_sample_count": 10
+      },
+      "Train/mean_episode_length": {
+        "sample_count": 10,
+        "latest": 222.82000732421875,
+        "minimum": 13.140351295471191,
+        "maximum": 222.82000732421875,
+        "mean": 113.82603464126586,
+        "nonzero_sample_count": 10
+      },
+      "Train/mean_reward/time": {
+        "sample_count": 10,
+        "latest": -5.155621528625488,
+        "minimum": -5.727231502532959,
+        "maximum": -0.5078176259994507,
+        "mean": -3.7869367957115174,
+        "nonzero_sample_count": 10
+      },
+      "Train/mean_episode_length/time": {
+        "sample_count": 10,
+        "latest": 222.82000732421875,
+        "minimum": 13.140351295471191,
+        "maximum": 222.82000732421875,
+        "mean": 113.82603464126586,
+        "nonzero_sample_count": 10
+      }
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true,
+    "qualification_training_safety_zero": null
+  },
+  "run_health_passed": true,
+  "qualification_passed": null,
+  "passed": true
+}

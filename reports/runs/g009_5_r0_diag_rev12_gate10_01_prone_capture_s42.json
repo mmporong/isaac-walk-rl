@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "public_claim_eligible": false,
+  "qualification_status": "not_run",
+  "policy_result": "failure",
+  "strict_success": 0,
+  "purpose": "rev12 gate10 prone diagnostic playback; not policy qualification evidence",
+  "revision": "rev12",
+  "gate_label": "gate10",
+  "output_stem": "g009_5_r0_diag_rev12_gate10_01_prone",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "pose": {
+    "index": 1,
+    "pose_id": "prone",
+    "source_class_id": 0
+  },
+  "seed": 42,
+  "headless": true,
+  "offscreen": true,
+  "camera": {
+    "resolution": [
+      1280,
+      720
+    ],
+    "eye": [
+      1.4,
+      1.4,
+      0.85
+    ],
+    "lookat": [
+      0.0,
+      0.0,
+      0.24
+    ]
+  },
+  "step_dt_s": 0.02,
+  "elapsed_steps": 400,
+  "recorded_frames": 400,
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_18-34-25_go2_flat_recover_rev12_prone_gate10_s42_20260828-183416\\model_9.pt",
+    "sha256": "b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2"
+  },
+  "source_commit": "281e61149574b30b524f1306eb08607467792c53",
+  "capture_commit": "281e61149574b30b524f1306eb08607467792c53",
+  "source_state": {
+    "before": {
+      "commit": "281e61149574b30b524f1306eb08607467792c53",
+      "clean": true,
+      "dirty_paths": [
+        "?? reports/runs/g009_5_r0_diag_rev12_gate10_01_prone_analysis.json",
+        "?? reports/runs/go2_flat_recover_rev12_prone_gate10_s42_20260828-183416.json"
+      ],
+      "source_dirty_paths": [],
+      "allowed_dirty_scope": "reports/runs evidence only"
+    },
+    "after": {
+      "commit": "281e61149574b30b524f1306eb08607467792c53",
+      "clean": true,
+      "dirty_paths": [
+        "?? reports/runs/g009_5_r0_diag_rev12_gate10_01_prone_analysis.json",
+        "?? reports/runs/go2_flat_recover_rev12_prone_gate10_s42_20260828-183416.json"
+      ],
+      "source_dirty_paths": [],
+      "allowed_dirty_scope": "reports/runs evidence only"
+    }
+  },
+  "training_binding": {
+    "path": "reports/runs/go2_flat_recover_rev12_prone_gate10_s42_20260828-183416.json",
+    "sha256": "5dc6455b7b414e3093fe2de78468cc0007e9cbec9fb83513802542161be4c982",
+    "run_name": "go2_flat_recover_rev12_prone_gate10_s42_20260828-183416",
+    "repository": {
+      "commit": "281e61149574b30b524f1306eb08607467792c53",
+      "clean": true
+    },
+    "source_bundle": {
+      "sha256": "2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa",
+      "files": {
+        "configs/g009_r0.json": "87355a5e927b2025d9cead696bf3be1a0fd07cad53ca1cd1e9b7867b3d01eaac",
+        "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+        "scripts/run_training.ps1": "b2910517adb83ac402eeda9389a67a844663d578247fae006483efa12b67a533",
+        "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+        "src/isaac_walk_g009/mdp/__init__.py": "c5e13ec110a341e974cd303d8e44bfadb696a97ea2db2185d7a01fece74ccfd5",
+        "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+        "src/isaac_walk_g009/mdp/recover.py": "a825707a076d02fb597f2e6a779170ad34dac54037c9ef535e9f54fbfc4f3599",
+        "src/isaac_walk_g009/recover_contracts.py": "26eabe7661e980caae7684e5383e6da88d3b183b657d8d9a2d8482f052ced360",
+        "src/isaac_walk_g009/recover_env_cfg.py": "dadf6ff10f20aebd216eb0a004e51aab119b38ef61e2c782d7bc23ad6a14d73a",
+        "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+      }
+    },
+    "checkpoint_sha256": "b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2",
+    "protocol": {
+      "num_envs": 1024,
+      "max_iterations": 10,
+      "seed": 42,
+      "headless": true,
+      "scratch": true,
+      "qualification_enabled": false
+    }
+  },
+  "physics_readback": {
+    "terrain_static_friction": 0.8,
+    "terrain_dynamic_friction": 0.6,
+    "friction_combine_mode": "multiply",
+    "robot_total_mass_kg": 15.018999099731445,
+    "foot_material_static_friction_range": [
+      1.0,
+      1.0
+    ],
+    "foot_material_dynamic_friction_range": [
+      1.0,
+      1.0
+    ],
+    "effective_foot_static_friction_range": [
+      0.800000011920929,
+      0.800000011920929
+    ],
+    "effective_foot_dynamic_friction_range": [
+      0.6000000238418579,
+      0.6000000238418579
+    ],
+    "effective_friction_valid": true,
+    "active_terminations": [
+      "time_out",
+      "stable_success",
+      "numeric_invalid",
+      "hard_joint_limit"
+    ]
+  },
+  "metrics": {
+    "stable_success": false,
+    "terminated": true,
+    "termination_reason": "time_out",
+    "active_at_termination": {
+      "time_out": true,
+      "stable_success": false,
+      "numeric_invalid": false,
+      "hard_joint_limit": false
+    },
+    "safety_termination": false,
+    "recovery_time_s": null,
+    "terminal_reset_frame_excluded": true,
+    "recorded_frame_policy": "initial frame plus post-step frames; terminal auto-reset frame removed when termination occurs"
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev12_gate10_01_prone_s42.mp4",
+    "sha256": "b239460fba71c91ed36fcc83be90df696292988f8accff94e533ed5180e9997e",
+    "bytes": 1794125,
+    "git_policy": "local_only"
+  },
+  "source_bindings": {
+    "record_source": {
+      "path": "scripts/record_g009_r0_diagnostic.py",
+      "sha256": "0e2f6fd8692f00a18d36c4682f20e16c2beea2f21078e49493b2c0e21f83b9bc"
+    },
+    "config": {
+      "path": "configs/g009_r0.json",
+      "sha256": "87355a5e927b2025d9cead696bf3be1a0fd07cad53ca1cd1e9b7867b3d01eaac"
+    }
+  }
+}
