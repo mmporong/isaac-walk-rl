@@ -1,0 +1,147 @@
+{
+  "schema_version": "g009.r0.diagnostic_visual.v1",
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "public_claim_eligible": false,
+  "qualification_status": "not_run",
+  "policy_result": "failure",
+  "strict_success": 0,
+  "warning_label": "DIAGNOSTIC · NOT QUALIFIED · 01 PRONE · STRICT SUCCESS 0",
+  "qualification_block_reasons": [
+    "diagnostic_pilot_never_qualifies",
+    "hard_joint_limit_nonzero",
+    "strict_success_zero",
+    "prone_curriculum_boundary_leak"
+  ],
+  "capture_report": {
+    "path": "reports/runs/g009_r0_diag_rev9_01_prone_capture_s42.json",
+    "sha256": "03a17216433dddbc8ecb952c7f0fc68cfa4c6984cce26497fd6611bf886a9c76"
+  },
+  "analysis_report": {
+    "path": "reports/runs/g009_r0_flat_diagnostic_rev9_prone_pilot_analysis.json",
+    "sha256": "9bf5c89916dd636bd8d8697e440335ebe19c6a88d739741d97d0d382978ae748"
+  },
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_14-21-32_go2_flat_recover_rev9_prone_pilot_s42_20260828-1421\\model_49.pt",
+    "sha256": "18e87baf43351d5e36aae5cabc608666099e7460a20d2606610607bfc35b3bf1"
+  },
+  "training_binding": {
+    "path": "reports/runs/go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json",
+    "sha256": "4728a712a763e3f4857f54b97519c8cf7e350ac21f1d9ec8268b70e1694911e5",
+    "run_name": "go2_flat_recover_rev9_prone_pilot_s42_20260828-1421",
+    "repository": {
+      "commit": "030d6b4471848f538a28a8649e2d5b4e615df568",
+      "clean": true
+    },
+    "source_bundle": {
+      "sha256": "45a1b4cc9ccf73b8dedd63d69ab8e8163addb5b6cb0297daa89861a9a72abd55",
+      "files": {
+        "configs/g009_r0.json": "e4270b6ff954782f51c7455e6b9c59994d323d668355fc862b62583bfea17afb",
+        "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+        "scripts/run_training.ps1": "b2910517adb83ac402eeda9389a67a844663d578247fae006483efa12b67a533",
+        "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+        "src/isaac_walk_g009/mdp/__init__.py": "c5e13ec110a341e974cd303d8e44bfadb696a97ea2db2185d7a01fece74ccfd5",
+        "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+        "src/isaac_walk_g009/mdp/recover.py": "a825707a076d02fb597f2e6a779170ad34dac54037c9ef535e9f54fbfc4f3599",
+        "src/isaac_walk_g009/recover_contracts.py": "88b7b53dd45f857ae496272a83e60a688a3ec38c067f5bb5f6b3d25bccf3df5b",
+        "src/isaac_walk_g009/recover_env_cfg.py": "9a504e2f0b1c9d6f2c4911f013a890953b310378f7c8268d9afb0c9938c8efce",
+        "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+      }
+    },
+    "checkpoint_sha256": "18e87baf43351d5e36aae5cabc608666099e7460a20d2606610607bfc35b3bf1",
+    "protocol": {
+      "num_envs": 1024,
+      "max_iterations": 50,
+      "seed": 42,
+      "headless": true,
+      "scratch": true,
+      "qualification_enabled": false
+    }
+  },
+  "capture_commit": "1ba2859d6817faa49f8d49465274ca00a4377efe",
+  "source_bindings": {
+    "record_source": {
+      "path": "scripts/record_g009_r0_diagnostic.py",
+      "sha256": "c1e3090b3740e380e694dd4ee2ecf4a8c20906eb9af5abef0e9e8c61a743b7bf"
+    },
+    "config": {
+      "path": "configs/g009_r0.json",
+      "sha256": "e4270b6ff954782f51c7455e6b9c59994d323d668355fc862b62583bfea17afb"
+    },
+    "analysis_source": {
+      "path": "scripts/analyze_g009_r0_pilot.py",
+      "sha256": "577dbce7a564ee306216697ee4233ff6476f633811058a70a8dccd25b40a3d64"
+    },
+    "media_builder": {
+      "path": "scripts/build_g009_r0_diagnostic_media.py",
+      "sha256": "c5013dba83bc115d1f0f2f538b32fbf97a84837b6f17a16a88058c78b5298034"
+    }
+  },
+  "report_type": "diagnostic_visual_summary",
+  "pose": {
+    "index": 1,
+    "pose_id": "prone",
+    "source_class_id": 0
+  },
+  "metrics": {
+    "stable_success": false,
+    "terminated": true,
+    "termination_reason": "time_out",
+    "active_at_termination": {
+      "time_out": true,
+      "stable_success": false,
+      "numeric_invalid": false,
+      "hard_joint_limit": false
+    },
+    "safety_termination": false,
+    "recovery_time_s": null,
+    "terminal_reset_frame_excluded": true,
+    "recorded_frame_policy": "initial frame plus post-step frames; terminal auto-reset frame removed when termination occurs"
+  },
+  "contact_sheet_timestamps_s": [
+    0.8,
+    3.2,
+    5.6,
+    7.2
+  ],
+  "artifacts": {
+    "local_mp4": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev9_01_prone_s42.mp4",
+      "sha256": "acea63898220e3d355222c138b022bf77b4704705dd1c6fb84dcefd62d9a580d",
+      "bytes": 1114591,
+      "git_policy": "local_only",
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "duration_s": 8.0,
+      "frame_rate": "50/1"
+    },
+    "public_gif": {
+      "evidence_type": "diagnostic_animation",
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev9_01_prone.gif",
+      "sha256": "39167abc0f3692d68ed49e5f3668d90b5d427c139b59432da6d75813ab543f6d",
+      "bytes": 2707484,
+      "git_policy": "public_git",
+      "codec": "gif",
+      "width": 720,
+      "height": 406,
+      "duration_s": 8.0,
+      "frame_rate": "25/4"
+    },
+    "public_png": {
+      "evidence_type": "diagnostic_contact_sheet",
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev9_01_prone_still.png",
+      "sha256": "f8381e20b8c8c550843f95eb6a13c09c6dedefd5d8a4d7900bef02e3682be391",
+      "bytes": 618248,
+      "git_policy": "public_git",
+      "codec": "png",
+      "width": 1280,
+      "height": 720,
+      "duration_s": null,
+      "frame_rate": "25/1"
+    }
+  }
+}

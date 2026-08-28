@@ -5,7 +5,7 @@
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0·S0 완료, G009-5 R0 rev9 prone scratch pilot과 GPU/CPU runtime calibration 완료
+- 현재 단계: C0·S0 완료, G009-5 R0 rev9 prone scratch pilot·GPU/CPU runtime calibration·진단 미디어 완료
 - 현재 한계: rev9에서 stable support·upright hold 신호는 나타났지만 엄격 성공은 `0`이고 hard-joint-limit이 50개 기록 중 23개에서 발생했다. rev9 checkpoint는 기각했으며 rev10 안전 revision과 공식 pose별 평가는 아직 실행 전
 
 ## 작업 순번
@@ -18,7 +18,7 @@
 | `G009-2` | `S0` | 6개 경사 × 4개 방위 analytic gate | `24/24` 통과 |
 | `G009-3` | `S0` | collision mesh, material, support-normal reset의 Isaac runtime readback | 완료 |
 | `G009-4` | `S0` | 5°·15°·25° 동일 조건 headless 재생 | 완료, 25°는 실패 경계 |
-| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | rev9 prone pilot 진단 완료·안전 gate 실패, rev10 준비 |
+| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | rev9 pilot·진단 미디어 완료, 안전 gate 실패·rev10 준비 |
 | `G009-6` | `S1-low` | 5°·10° 횡경사 WALK PPO | R0·calibration 뒤 실행 |
 
 이후 `S1-high`, 외란, residual terrain, 발별·공간 마찰, 경사 RECOVER와 link-mass를 순차적으로 연다. 전체 stage 순서는 [다음 학습과 검증 순서](#다음-학습과-검증-순서)에 있다.
@@ -47,7 +47,7 @@ G009는 산 비탈에서 보행 영상을 만드는 작업이 아니라, 경사�
 | S0 Isaac 구성·runtime | PASS | G009 7개 구성·spawn·reset 검사, G008 8개 회귀 검사, `5/15/25°` USD geometry·material readback | PPO 학습 성능 |
 | support-plane 수학 모듈 | 순수 수학 PASS | robust fit, fallback, 접평면 투영, COM, 지지 영역 수학 | 매 step RayCaster runtime 연결 완료 |
 | G009 WALK PPO | 미실행 | 학습 계약과 stage 순서가 사전 등록됨 | 경사 횡단 성공 |
-| G009 RECOVER PPO | 진단 학습 기각·rev9 대기 | scratch rev1~rev8, action 안전 envelope, GPU/CPU runtime 계약 | 전복 복구 성공, 공식 checkpoint qualification |
+| G009 RECOVER PPO | rev9 진단 학습·미디어 완료, checkpoint 기각 | scratch rev1~rev9, action 안전 envelope, GPU/CPU runtime 계약, 실패 동작 증거 | 전복 복구 성공, 공식 checkpoint qualification |
 | supervisor | 미구현 | 상태 전이와 평가 계약이 정해짐 | `fall -> recover -> walk` 연결 성공 |
 | S0 미디어 녹화 | 완료 | 3개 로컬 MP4, 공개 GIF·PNG, capture JSON·summary·sidecar 해시 결합 | G009 WALK 성공 |
 | 실물 로봇 | 범위 밖 | Mini Pupper 재학습 원칙만 정함 | Go2 정책의 직접 전이, sim-to-real 완료 |
@@ -532,6 +532,20 @@ rev9는 clean source에서 `1,024 env × 24 steps × 50 iterations`, seed `42`�
 
 근거: [rev9 학습 보고서](../reports/runs/go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json)
 
+### rev9 prone 진단 영상
+
+rev9의 실제 동작을 성공 영상과 분리해 `01 prone` 진단 증거로 고정했다. 촬영은 학습과 분리된 1환경·seed 42·8초·50Hz headless off-screen replay다. H.264 원본은 Git에 넣지 않고 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev9_01_prone_s42.mp4`에만 보관한다.
+
+- capture source commit: `1ba2859d6817faa49f8d49465274ca00a4377efe`
+- checkpoint: `model_49.pt`, SHA-256 `18e87baf43351d5e36aae5cabc608666099e7460a20d2606610607bfc35b3bf1`
+- 원본 MP4: `1280×720`, H.264, `8.0 s`, `400 frame`, SHA-256 `acea63898220e3d355222c138b022bf77b4704705dd1c6fb84dcefd62d9a580d`
+- 물리 readback: terrain static friction `0.8`, effective foot static friction `0.8000000119`, robot total mass `15.0189991 kg`
+- 판정: `strict success=0`, recovery time 없음, episode time-out, safety termination은 아니지만 학습 구간의 hard-joint-limit 때문에 checkpoint 자체는 기각
+- 공개 파생물: [진단 GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev9_01_prone.gif), [4시점 접촉시트](media/g009/R0/diagnostic/g009_5_r0_diag_rev9_01_prone_still.png)
+- 연결 보고서: [capture JSON](../reports/runs/g009_r0_diag_rev9_01_prone_capture_s42.json), [visual summary](../reports/runs/g009_r0_diag_rev9_01_prone_visual_summary.json), [visual evidence sidecar](../reports/runs/g009_r0_diag_rev9_01_prone_visual_evidence.json)
+
+공개 GIF와 PNG에는 `DIAGNOSTIC · NOT QUALIFIED`, `STRICT SUCCESS 0`, `HARD LIMIT EVENTS`를 고정 표기했다. 영상에서 몸통이 움직이는 사실은 복구 성공이 아니며, 다중 환경 pilot report의 strict-success `0`과 안전 gate 실패가 최종 판정이다. 첫 Vulkan 시도는 Windows renderer 초기화 전에 종료됐고, D3D12로 전환한 뒤 화면이 너무 넓었던 두 시도는 로컬 `rejected_attempts`에 보존했다. 최종 증거만 공개 경로에 연결했다.
+
 ### actor/critic, action, 성공 gate
 
 - actor `P-RECOVER-83`: proprioception·joint·이전 action·발 접촉/하중 53차원과 body-fixed 5×3 range 15차원, hit mask 15차원
@@ -674,7 +688,7 @@ G009 R0에서는 scratch PPO smoke와 50회 진단 pilot을 실제로 실행했�
 
 한 번에 경사·요철·마찰·외란·전복을 모두 섞지 않는다. 아래 순서를 지켜 새 물리 축을 하나씩 연다.
 
-1. **R0 rev9 diagnostic media**: 기각한 prone pilot을 성공 영상과 분리해 로컬 MP4와 `DIAGNOSTIC / NOT QUALIFIED` 표시가 있는 공개 GIF·PNG·정량 JSON으로 남긴다.
+1. **R0 rev9 diagnostic media — 완료**: 기각한 prone pilot을 성공 영상과 분리해 로컬 MP4와 `DIAGNOSTIC / NOT QUALIFIED` 표시가 있는 공개 GIF·PNG·정량 JSON으로 남겼다.
 2. **R0 rev10 safety revision**: action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, PPO 초기 noise `0.5`, reward, hard tolerance `0.01rad`는 유지한다. prone phase 경계를 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
 3. **R0 rev10 safety gates**: 새 scratch lineage에서 `1,024×1 → 1,024×10 → 1,024×50` 순서로 실행한다. 각 단계의 `numeric_invalid=0`, `hard_joint_limit=0`을 확인한 뒤에만 다음 단계로 넘어간다. 50회에서는 stable support와 upright hold가 최소 한 번은 nonzero여야 한다.
 4. **R0 qualification**: rev10 안전 gate를 통과한 뒤 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch에서 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
@@ -747,7 +761,7 @@ G009를 포트폴리오에 넣을 때 핵심은 “Isaac Sim에서 로봇을 걸
 7. 기존 checkpoint 재생과 새 PPO 학습을 문서에서 구분했다.
 8. stage마다 영상과 정량 report를 checkpoint SHA-256으로 결합한다.
 
-현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생, R0의 actor privilege 경계·보상/성공 계약·GPU/CPU runtime calibration, 그리고 rev1~rev8 실패 진단이다. 25°에서 기존 정책이 크게 기울고 아래로 밀린 결과와 R0의 sparse-reward 실패도 경계 조건으로 공개한다. 성공한 전복 복구 영상은 rev9가 gate를 통과한 뒤 추가한다.
+현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생, R0의 actor privilege 경계·보상/성공 계약·GPU/CPU runtime calibration, 그리고 rev1~rev9 실패 진단이다. 25°에서 기존 정책이 크게 기울고 아래로 밀린 결과와 R0의 sparse-reward·hard-joint-limit 실패도 경계 조건으로 공개한다. 성공한 전복 복구 영상은 향후 revision이 공식 qualification gate를 통과한 뒤 별도로 추가한다.
 
 ## 실물 로봇과 Mini Pupper에 대한 범위 제한
 
@@ -775,6 +789,11 @@ G009의 Go2 checkpoint를 Mini Pupper나 3D 프린팅 로봇에 직접 옮기지
 - [R0 probe synthesis](../reports/runs/g009_r0_runtime_probe_synthesis.json)
 - [R0 rev7 50회 진단 pilot](../reports/runs/go2_flat_recover_rev7_pilot_s42_20260828-1312.json)
 - [R0 rev8 50회 안전 pilot](../reports/runs/go2_flat_recover_rev8_safety_pilot_s42_20260828-1318.json)
+- [R0 rev9 50회 prone pilot](../reports/runs/go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json)
+- [R0 rev9 prone 진단 capture](../reports/runs/g009_r0_diag_rev9_01_prone_capture_s42.json)
+- [R0 rev9 prone 진단 GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev9_01_prone.gif)
+- [R0 rev9 prone 진단 접촉시트](media/g009/R0/diagnostic/g009_5_r0_diag_rev9_01_prone_still.png)
+- [R0 rev9 prone 진단 미디어 sidecar](../reports/runs/g009_r0_diag_rev9_01_prone_visual_evidence.json)
 - [S0 analytic validation](../reports/runs/g009_s0_analytic_validation.json)
 - [S0 시각·물리 summary](../reports/runs/g009_s0_visual_summary.json)
 - [S0 미디어 sidecar](../reports/runs/g009_s0_visual_evidence.json)

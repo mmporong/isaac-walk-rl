@@ -265,9 +265,17 @@ rev9 prone pilot은 clean source에서 `1,024 env × 50 iterations × seed 42`�
 
 근거는 [rev9 prone pilot report](reports/runs/go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json)다. partial recovery signal은 확인했지만 strict success와 안전 gate를 통과하지 못했으므로 rev9 checkpoint를 기각하며 300-iteration qualification으로 확장하지 않는다.
 
+#### rev9 prone 진단 미디어
+
+- `01 prone`을 1환경, seed 42, 400 control step(`8.0 s`, `50 Hz`)으로 headless off-screen 재생했다. renderer는 Windows D3D12를 사용했다. 첫 Vulkan 실행은 renderer 초기화 전 실패했고, 너무 넓게 촬영된 두 D3D12 시도는 로컬 `rejected_attempts`에 보존한 뒤 카메라를 다시 고정했다.
+- 최종 원본은 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev9_01_prone_s42.mp4`다. `1280×720` H.264, 400 frame, SHA-256 `acea63898220e3d355222c138b022bf77b4704705dd1c6fb84dcefd62d9a580d`, 크기 `1,114,591 bytes`이며 Git에는 넣지 않는다.
+- capture source commit은 `1ba2859d6817faa49f8d49465274ca00a4377efe`, checkpoint SHA-256은 `18e87baf43351d5e36aae5cabc608666099e7460a20d2606610607bfc35b3bf1`다. terrain static friction은 `0.8`, effective foot static friction readback은 `0.8000000119`, robot total mass는 `15.0189991 kg`다.
+- 재생 결과는 `strict success=0`, recovery time 없음, time-out이다. 해당 재생의 safety termination은 `0`이지만 rev9 학습 중 hard-joint-limit이 50개 기록 중 23개에서 발생했으므로 checkpoint 기각 판정은 유지한다.
+- 공개 파일은 `docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev9_01_prone.gif`와 `g009_5_r0_diag_rev9_01_prone_still.png`다. 오버레이에 `DIAGNOSTIC · NOT QUALIFIED`, `STRICT SUCCESS 0`, `HARD LIMIT EVENTS`를 넣었다. capture·summary·sidecar JSON은 원본 MP4, checkpoint, training report, source bundle, 공개 파생물의 SHA-256을 결합한다.
+
 다음 revision은 rev9를 resume하지 않고 scratch로 시작한다.
 
-1. rev9 checkpoint 동작을 diagnostic-only 로컬 MP4와 `NOT QUALIFIED` 오버레이가 있는 공개 GIF·PNG·JSON으로 고정한다.
+1. `[완료]` rev9 checkpoint 동작을 diagnostic-only 로컬 MP4와 `NOT QUALIFIED` 오버레이가 있는 공개 GIF·PNG·JSON으로 고정했다.
 2. rev10에서 action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, 초기 noise `0.5`, reward, hard tolerance는 유지한다. curriculum 경계를 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
 3. `1,024×1 → 1,024×10 → 1,024×50` scratch 안전 gate를 순서대로 실행한다. 각 단계에서 numeric-invalid와 hard-joint-limit 최대값이 모두 `0`이어야 다음 단계로 간다.
 4. 50회 안전 pilot은 stable support와 upright hold가 최소 한 번은 nonzero여야 한다. 통과한 revision만 `1,024×300`, seed 42 scratch qualification으로 연다.
