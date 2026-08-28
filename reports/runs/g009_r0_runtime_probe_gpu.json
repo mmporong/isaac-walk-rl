@@ -1,0 +1,2289 @@
+{
+  "schema_version": 3,
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "probe": "flat_recover_runtime_calibration",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "contract_sha256": "4e0499699a24a272cccb9687f417d97770fcbc229186e2aedde6914e45beab66",
+  "source_bundle": {
+    "schema_version": 1,
+    "git_commit": "42647e1620907c811ab8b646732a528878b07b83",
+    "git_commit_valid": true,
+    "source_binding_paths": [
+      "configs/g009_r0.json",
+      "scripts/bootstrap_train_g009.py",
+      "scripts/probe_g009_recover_runtime.py",
+      "scripts/run_training.ps1",
+      "scripts/sync_g009_r0_contract.py",
+      "scripts/synthesize_g009_r0_probe.py",
+      "src/isaac_walk_g009/agent_cfg.py",
+      "src/isaac_walk_g009/mdp/__init__.py",
+      "src/isaac_walk_g009/mdp/events.py",
+      "src/isaac_walk_g009/mdp/recover.py",
+      "src/isaac_walk_g009/recover_contracts.py",
+      "src/isaac_walk_g009/recover_env_cfg.py",
+      "src/isaac_walk_g009/registry.py"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0.json": "e4270b6ff954782f51c7455e6b9c59994d323d668355fc862b62583bfea17afb",
+      "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+      "scripts/probe_g009_recover_runtime.py": "93e8fdc8b3dd37dda50c6c06d2c957f6f7f068963fde3f8dca5495e5f1b3444d",
+      "scripts/run_training.ps1": "b2910517adb83ac402eeda9389a67a844663d578247fae006483efa12b67a533",
+      "scripts/sync_g009_r0_contract.py": "387af5d8b9f0cc4e78dd4c81900a45cb453f4af63de73a7512160a9f179efc57",
+      "scripts/synthesize_g009_r0_probe.py": "ec43ce31ecb33a9f8c5d19ef20e10ef36f3edf888d5148e0d30174fb305203e6",
+      "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+      "src/isaac_walk_g009/mdp/__init__.py": "c5e13ec110a341e974cd303d8e44bfadb696a97ea2db2185d7a01fece74ccfd5",
+      "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+      "src/isaac_walk_g009/mdp/recover.py": "a825707a076d02fb597f2e6a779170ad34dac54037c9ef535e9f54fbfc4f3599",
+      "src/isaac_walk_g009/recover_contracts.py": "88b7b53dd45f857ae496272a83e60a688a3ec38c067f5bb5f6b3d25bccf3df5b",
+      "src/isaac_walk_g009/recover_env_cfg.py": "9a504e2f0b1c9d6f2c4911f013a890953b310378f7c8268d9afb0c9938c8efce",
+      "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+    },
+    "source_bundle_sha256": "2745de1317e7d312bb18eb1ec208bfdddf5180577f9491cc825ebd09e5f96c2f",
+    "all_files_present": true,
+    "missing_files": [],
+    "clean": true,
+    "dirty_source_paths": []
+  },
+  "seed": 42,
+  "device": "cuda:0",
+  "num_envs": 8,
+  "rollout_steps": 150,
+  "rollout_duration_s": 3.0,
+  "headless": true,
+  "pose_name_order": [
+    "prone",
+    "supine",
+    "left_side",
+    "right_side"
+  ],
+  "action_modes": [
+    "zero_normalized",
+    "reset_pose_hold"
+  ],
+  "observation_shapes": {
+    "policy": [
+      8,
+      83
+    ],
+    "critic": [
+      8,
+      107
+    ]
+  },
+  "observation_calibration": {
+    "critic_base_height_m": [
+      0.16500000655651093,
+      0.05999999865889549,
+      0.16300000250339508,
+      0.16300000250339508,
+      0.16500000655651093,
+      0.05999999865889549,
+      0.16300000250339508,
+      0.16300000250339508
+    ],
+    "flat_ground_height_error_m": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "critic_terrain_normal_base": [
+      [
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      [
+        0.0,
+        0.9999999403953552,
+        5.960464477539063e-08
+      ],
+      [
+        0.0,
+        -0.9999999403953552,
+        5.960464477539063e-08
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      [
+        0.0,
+        0.9999999403953552,
+        5.960464477539063e-08
+      ],
+      [
+        0.0,
+        -0.9999999403953552,
+        5.960464477539063e-08
+      ]
+    ],
+    "reset_actor_foot_load_bodyweights": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "reset_body_range_normalized": [
+      [
+        0.12345609068870544,
+        0.11845488101243973,
+        0.11674021184444427,
+        0.11845488846302032,
+        0.12345609068870544,
+        0.12181183695793152,
+        0.11674022674560547,
+        0.11499999463558197,
+        0.11674022674560547,
+        0.12181183695793152,
+        0.12345609068870544,
+        0.11845488846302032,
+        0.11674022674560547,
+        0.11845488846302032,
+        0.12345609068870544
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        0.8961166739463806,
+        0.5652442574501038,
+        1.0,
+        1.0,
+        1.0,
+        0.8909634351730347,
+        0.47931423783302307,
+        1.0,
+        1.0,
+        1.0,
+        0.9435688257217407,
+        0.518394947052002
+      ],
+      [
+        0.45317795872688293,
+        0.9002132415771484,
+        1.0,
+        1.0,
+        1.0,
+        0.592494010925293,
+        0.9227586984634399,
+        1.0,
+        1.0,
+        1.0,
+        0.4878888428211212,
+        0.9494041204452515,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.12345608323812485,
+        0.11845488101243973,
+        0.11674021184444427,
+        0.11845488846302032,
+        0.12345608323812485,
+        0.12181183695793152,
+        0.11674022674560547,
+        0.11499999463558197,
+        0.11674022674560547,
+        0.12181183695793152,
+        0.12345608323812485,
+        0.11845488846302032,
+        0.11674022674560547,
+        0.11845488846302032,
+        0.12345608323812485
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        0.9421125650405884,
+        0.5293949246406555,
+        1.0,
+        1.0,
+        1.0,
+        0.9428433775901794,
+        0.5382272005081177,
+        1.0,
+        1.0,
+        1.0,
+        0.8885743021965027,
+        0.5329068899154663
+      ],
+      [
+        0.4220457971096039,
+        0.9296888709068298,
+        1.0,
+        1.0,
+        1.0,
+        0.5594317317008972,
+        0.9450091123580933,
+        1.0,
+        1.0,
+        1.0,
+        0.48337477445602417,
+        0.8857147097587585,
+        1.0,
+        1.0,
+        1.0
+      ]
+    ],
+    "reset_body_range_hit_mask": [
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "reset_body_range_hit_count": [
+      15,
+      0,
+      6,
+      6,
+      15,
+      0,
+      6,
+      6
+    ],
+    "body_range_camera_config": {
+      "prim_path": "/World/envs/env_.*/Robot/base",
+      "mesh_prim_paths": [
+        "/World/ground"
+      ],
+      "data_types": [
+        "distance_to_camera"
+      ],
+      "max_distance_m": 1.0,
+      "offset_position_m": [
+        0.0,
+        0.0,
+        -0.05
+      ],
+      "offset_rotation_wxyz": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476,
+        0.0
+      ],
+      "offset_convention": "world",
+      "pattern": {
+        "width": 5,
+        "height": 3,
+        "focal_length": 24.0,
+        "horizontal_aperture": 20.955
+      },
+      "checks": {
+        "body_range_camera_attached_to_base": true,
+        "body_range_camera_targets_ground": true,
+        "body_range_camera_distance_output": true,
+        "body_range_camera_pattern_5x3": true,
+        "body_range_camera_max_distance_1m": true,
+        "body_range_camera_offset_matches_contract": true,
+        "body_range_camera_rotation_matches_contract": true
+      }
+    },
+    "body_range_camera_world_position_m": [
+      [
+        3.75,
+        -1.25,
+        0.11500000953674316
+      ],
+      [
+        3.75,
+        1.25,
+        0.11000002920627594
+      ],
+      [
+        1.25,
+        -1.2000000476837158,
+        0.16300001740455627
+      ],
+      [
+        1.25,
+        1.2000000476837158,
+        0.16300000250339508
+      ],
+      [
+        -1.25,
+        -1.25,
+        0.11500000953674316
+      ],
+      [
+        -1.25,
+        1.25,
+        0.11000002920627594
+      ],
+      [
+        -3.75,
+        -1.2000000476837158,
+        0.16300001740455627
+      ],
+      [
+        -3.75,
+        1.2000000476837158,
+        0.16300000250339508
+      ]
+    ],
+    "body_range_camera_world_quaternion_wxyz": [
+      [
+        0.7071068286895752,
+        2.468905080377226e-08,
+        0.7071068286895752,
+        -2.4526752184783618e-08
+      ],
+      [
+        -2.4487643912607382e-08,
+        0.7071068286895752,
+        -2.468905080377226e-08,
+        0.7071068286895752
+      ],
+      [
+        0.5000000596046448,
+        0.5000000596046448,
+        0.5000000596046448,
+        0.5000001192092896
+      ],
+      [
+        0.5000000596046448,
+        -0.4999999701976776,
+        0.5000000596046448,
+        -0.5
+      ],
+      [
+        0.7071068286895752,
+        2.468905080377226e-08,
+        0.7071068286895752,
+        -2.4526752184783618e-08
+      ],
+      [
+        -2.4487643912607382e-08,
+        0.7071068286895752,
+        -2.468905080377226e-08,
+        0.7071068286895752
+      ],
+      [
+        0.5000000596046448,
+        0.5000000596046448,
+        0.5000000596046448,
+        0.5000001192092896
+      ],
+      [
+        0.5000000596046448,
+        -0.4999999701976776,
+        0.5000000596046448,
+        -0.5
+      ]
+    ],
+    "body_range_camera_position_error_m": [
+      0.0,
+      2.9802322387695312e-08,
+      1.4901161193847656e-08,
+      0.0,
+      0.0,
+      2.9802322387695312e-08,
+      1.4901161193847656e-08,
+      0.0
+    ],
+    "body_range_camera_quaternion_error_l2": [
+      9.119505506305359e-08,
+      9.11845461359917e-08,
+      2.0431443203960953e-07,
+      1.2990531672585348e-07,
+      9.119505506305359e-08,
+      9.11845461359917e-08,
+      2.0431443203960953e-07,
+      1.2990531672585348e-07
+    ],
+    "foot_load_range_independence": {
+      "foot_load_max_abs_change_under_forced_no_hit": 0.0,
+      "foot_load_unchanged_under_forced_no_hit": true,
+      "forced_no_hit_range_is_one": true,
+      "forced_no_hit_mask_is_zero": true,
+      "forced_no_hit_does_not_mark_actor_invalid": true
+    },
+    "privilege_isolation": {
+      "actor_max_abs_change": 0.0,
+      "critic_max_abs_change": 1.0,
+      "actor_unchanged": true,
+      "critic_perturbation_exercised": true,
+      "actor_call_succeeds_without_live_mass_read": true,
+      "actor_mass_read_error": null
+    }
+  },
+  "physics_readback": {
+    "nominal_total_mass_kg": [
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078
+    ],
+    "foot_material_static_dynamic": [
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ]
+    ],
+    "effective_friction_static_dynamic": [
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ]
+    ],
+    "contact_separation_method": "PhysX per-physics-step contact report event without GPU filter",
+    "contact_separation_api_available": true,
+    "contact_separation_error": null,
+    "contact_report_event_count": 0,
+    "contact_report_expected_physics_steps": 600,
+    "contact_report_headers_seen": 0,
+    "robot_ground_headers_seen": 0,
+    "contact_force_history_steps": 4,
+    "contact_force_sampling_dt_s": 0.005,
+    "separation_point_count_per_env": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "minimum_separation_provenance_per_env": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "device_capability_diagnostics": {
+    "ground_contact_separation_available": false,
+    "ground_contact_separation_above_minus_1cm": false
+  },
+  "required_crosschecks": {
+    "cpu_contact_separation": {
+      "name": "cpu_contact_separation",
+      "authority_device": "cpu",
+      "required_for_final_synthesis": true,
+      "this_run_is_authority": false,
+      "data_available": false,
+      "threshold_m": -0.01,
+      "threshold_passed": null,
+      "status": "requires_cpu_crosscheck",
+      "passed": null
+    }
+  },
+  "final_synthesis": {
+    "status": "not_run",
+    "passed": null,
+    "reason": "combine GPU blocking dynamics with the authoritative CPU contact-separation crosscheck"
+  },
+  "reward_manager_calibration": {
+    "expected": {
+      "step_dt_s": 0.02,
+      "terminal_raw_pulse": 50.0,
+      "terminal_weight": 10.0,
+      "terminal_contribution": 10.0,
+      "potential_delta": 0.2475,
+      "potential_raw_rate": 12.375,
+      "potential_weight": 2.0,
+      "potential_contribution": 0.495
+    },
+    "observed": {
+      "required_consecutive_steps": 25,
+      "pretrigger_steps_clear": true,
+      "trigger_on_required_step": true,
+      "repeated_step_has_no_pulse": true,
+      "success_contribution": [
+        10.0,
+        0.0,
+        0.0,
+        10.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "success_contribution_exact_10": true,
+      "partial_reset_clears_only_selected": true,
+      "partial_reset_retriggers_only_selected": true,
+      "configured_min_foot_support_ratio": 0.6,
+      "body_supported_nonfoot_contact_did_not_latch": true,
+      "low_foot_load_did_not_latch": true,
+      "potential_contribution": [
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492
+      ],
+      "potential_contribution_exact_0_495": true
+    }
+  },
+  "action_readback": {
+    "type": "EMAJointPositionToLimitsAction",
+    "scale": 0.8,
+    "ema_alpha": 0.2,
+    "ema_reset_target_max_error_rad_per_env": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "asset_soft_joint_limit_factor": 0.9,
+    "effective_target_hard_limit_range_fraction": 0.7200000000000001
+  },
+  "action_dim": 12,
+  "active_terminations": [
+    "time_out",
+    "stable_success",
+    "numeric_invalid",
+    "hard_joint_limit"
+  ],
+  "reset": {
+    "source_class_ids": [
+      0,
+      1,
+      2,
+      3,
+      0,
+      1,
+      2,
+      3
+    ],
+    "source_class_one_hot": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "root_position_local_m": [
+      [
+        0.0,
+        0.0,
+        0.16500000655651093
+      ],
+      [
+        0.0,
+        0.0,
+        0.05999999865889549
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ],
+      [
+        0.0,
+        0.0,
+        0.16500000655651093
+      ],
+      [
+        0.0,
+        0.0,
+        0.05999999865889549
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ]
+    ],
+    "root_quaternion_wxyz": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        0.7071067690849304,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        -0.7071067690849304,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        0.7071067690849304,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        -0.7071067690849304,
+        0.0,
+        0.0
+      ]
+    ],
+    "body_up_error_l2": [
+      0.0,
+      0.0,
+      8.429369557916289e-08,
+      8.429369557916289e-08,
+      0.0,
+      0.0,
+      8.429369557916289e-08,
+      8.429369557916289e-08
+    ],
+    "joint_position_rad": [
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316,
+        -2.4000000953674316
+      ]
+    ],
+    "joint_hard_limits_rad": [
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.5707999467849731,
+        3.4906997680664062
+      ],
+      [
+        -1.5707999467849731,
+        3.4906997680664062
+      ],
+      [
+        -0.5235999226570129,
+        4.537899494171143
+      ],
+      [
+        -0.5235999226570129,
+        4.537899494171143
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ]
+    ],
+    "hold_normalized_action": [
+      [
+        0.13262882828712463,
+        -0.13262882828712463,
+        0.13262882828712463,
+        -0.13262882828712463,
+        0.2963823080062866,
+        0.2963823080062866,
+        -0.2783264219760895,
+        -0.2783264219760895,
+        -0.9133359789848328,
+        -0.9133359789848328,
+        -0.9133359789848328,
+        -0.9133359789848328
+      ],
+      [
+        0.13262882828712463,
+        -0.13262882828712463,
+        0.13262882828712463,
+        -0.13262882828712463,
+        0.2963823080062866,
+        0.2963823080062866,
+        -0.2783264219760895,
+        -0.2783264219760895,
+        -0.9133359789848328,
+        -0.9133359789848328,
+        -0.9133359789848328,
+        -0.9133359789848328
+      ],
+      [
+        0.13262882828712463,
+        -0.13262882828712463,
+        0.13262882828712463,
+        -0.13262882828712463,
+        0.2963823080062866,
+        0.2963823080062866,
+        -0.2783264219760895,
+        -0.2783264219760895,
+        -0.9133359789848328,
+        -0.9133359789848328,
+        -0.9133359789848328,
+        -0.9133359789848328
+      ],
+      [
+        0.13262882828712463,
+        -0.13262882828712463,
+        0.13262882828712463,
+        -0.13262882828712463,
+        0.2963823080062866,
+        0.2963823080062866,
+        -0.2783264219760895,
+        -0.2783264219760895,
+        -0.9133359789848328,
+        -0.9133359789848328,
+        -0.9133359789848328,
+        -0.9133359789848328
+      ]
+    ]
+  },
+  "calibration_thresholds": {
+    "solver_joint_limit_tolerance_rad": 0.01,
+    "min_root_height_m": 0.02,
+    "min_contact_separation_m": -0.01,
+    "max_nonfoot_force_bodyweights": 15.0,
+    "max_excess_contact_delta_v_m_s": 3.0,
+    "tail_window_steps": 25,
+    "max_tail_horizontal_speed_m_s": 0.5,
+    "max_tail_vertical_speed_m_s": 0.25,
+    "max_tail_angular_speed_rad_s": 2.0
+  },
+  "pose_mode_metrics": [
+    {
+      "env_index": 0,
+      "pose_id": "prone",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.12345609068870544,
+        0.11845488101243973,
+        0.11674021184444427,
+        0.11845488846302032,
+        0.12345609068870544,
+        0.12181183695793152,
+        0.11674022674560547,
+        0.11499999463558197,
+        0.11674022674560547,
+        0.12181183695793152,
+        0.12345609068870544,
+        0.11845488846302032,
+        0.11674022674560547,
+        0.11845488846302032,
+        0.12345609068870544
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 15,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.6130728721618652,
+      "max_root_angular_speed_rad_s": 0.996501624584198,
+      "min_root_height_m": 0.15805870294570923,
+      "max_root_height_m": 0.23121418058872223,
+      "max_joint_speed_rad_s": 6.967881679534912,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 11.931647300720215,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": false,
+      "max_nonfoot_force_bodyweights": 0.0,
+      "max_nonfoot_force_physics_step": -1,
+      "max_nonfoot_force_time_s": null,
+      "excess_contact_delta_v_m_s": 0.0,
+      "peak_step_excess_contact_delta_v_m_s": 0.0,
+      "peak_step_excess_contact_impulse_control_step": -1,
+      "peak_step_excess_contact_impulse_time_s": null,
+      "first_contact_physics_step": 2,
+      "first_contact_time_s": 0.01,
+      "first_contact_force_bodyweights": 0.719212532043457,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.009271814487874508,
+      "tail_vertical_speed_p95_m_s": 0.0061564058996737,
+      "tail_angular_speed_p95_rad_s": 0.016647014766931534,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 1,
+      "pose_id": "supine",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 0,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.10528941452503204,
+      "max_root_angular_speed_rad_s": 0.6105477809906006,
+      "min_root_height_m": 0.05699454993009567,
+      "max_root_height_m": 0.05959008261561394,
+      "max_joint_speed_rad_s": 5.463000297546387,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 4.870187759399414,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": false,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 2.496790885925293,
+      "max_nonfoot_force_physics_step": 5,
+      "max_nonfoot_force_time_s": 0.025,
+      "excess_contact_delta_v_m_s": 0.116222083568573,
+      "peak_step_excess_contact_delta_v_m_s": 0.07024405896663666,
+      "peak_step_excess_contact_impulse_control_step": 2,
+      "peak_step_excess_contact_impulse_time_s": 0.04,
+      "first_contact_physics_step": 4,
+      "first_contact_time_s": 0.02,
+      "first_contact_force_bodyweights": 2.0462310314178467,
+      "first_contact_excess_delta_v_m_s": 0.02679263986647129,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.002626183442771435,
+      "tail_vertical_speed_p95_m_s": 0.002097794320434332,
+      "tail_angular_speed_p95_rad_s": 0.032024186104536057,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 2,
+      "pose_id": "left_side",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        0.8961166739463806,
+        0.5652442574501038,
+        1.0,
+        1.0,
+        1.0,
+        0.8909634351730347,
+        0.47931423783302307,
+        1.0,
+        1.0,
+        1.0,
+        0.9435688257217407,
+        0.518394947052002
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.2518126666545868,
+      "max_root_angular_speed_rad_s": 2.0069751739501953,
+      "min_root_height_m": 0.15504929423332214,
+      "max_root_height_m": 0.1626465618610382,
+      "max_joint_speed_rad_s": 5.8485212326049805,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 4.222266674041748,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 3.891218662261963,
+      "max_nonfoot_force_physics_step": 11,
+      "max_nonfoot_force_time_s": 0.055,
+      "excess_contact_delta_v_m_s": 0.22385136783123016,
+      "peak_step_excess_contact_delta_v_m_s": 0.22385136783123016,
+      "peak_step_excess_contact_impulse_control_step": 3,
+      "peak_step_excess_contact_impulse_time_s": 0.06,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 1.4196017980575562,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.003591251326724887,
+      "tail_vertical_speed_p95_m_s": 0.005192384589463472,
+      "tail_angular_speed_p95_rad_s": 0.06174826622009277,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 3,
+      "pose_id": "right_side",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.45317795872688293,
+        0.9002132415771484,
+        1.0,
+        1.0,
+        1.0,
+        0.592494010925293,
+        0.9227586984634399,
+        1.0,
+        1.0,
+        1.0,
+        0.4878888428211212,
+        0.9494041204452515,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.2517918050289154,
+      "max_root_angular_speed_rad_s": 2.0062947273254395,
+      "min_root_height_m": 0.15502989292144775,
+      "max_root_height_m": 0.16264666616916656,
+      "max_joint_speed_rad_s": 5.847972393035889,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 4.25305700302124,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 3.796741008758545,
+      "max_nonfoot_force_physics_step": 11,
+      "max_nonfoot_force_time_s": 0.055,
+      "excess_contact_delta_v_m_s": 0.2430947870016098,
+      "peak_step_excess_contact_delta_v_m_s": 0.2430947870016098,
+      "peak_step_excess_contact_impulse_control_step": 3,
+      "peak_step_excess_contact_impulse_time_s": 0.06,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 1.419649362564087,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.001239072298631072,
+      "tail_vertical_speed_p95_m_s": 0.006272559519857168,
+      "tail_angular_speed_p95_rad_s": 0.03362909331917763,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 4,
+      "pose_id": "prone",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.12345608323812485,
+        0.11845488101243973,
+        0.11674021184444427,
+        0.11845488846302032,
+        0.12345608323812485,
+        0.12181183695793152,
+        0.11674022674560547,
+        0.11499999463558197,
+        0.11674022674560547,
+        0.12181183695793152,
+        0.12345608323812485,
+        0.11845488846302032,
+        0.11674022674560547,
+        0.11845488846302032,
+        0.12345608323812485
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 15,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.007704019546508789,
+      "max_hard_joint_limit_violation_control_step": 14,
+      "max_hard_joint_limit_violation_time_s": 0.28,
+      "max_hard_joint_limit_violation_joint": "RR_calf_joint",
+      "max_root_linear_speed_m_s": 0.5878093838691711,
+      "max_root_angular_speed_rad_s": 1.221726417541504,
+      "min_root_height_m": 0.09803715348243713,
+      "max_root_height_m": 0.16254748404026031,
+      "max_joint_speed_rad_s": 3.73445725440979,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 8.40882396697998,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 3.0728185176849365,
+      "max_nonfoot_force_physics_step": 23,
+      "max_nonfoot_force_time_s": 0.115,
+      "excess_contact_delta_v_m_s": 0.0771467462182045,
+      "peak_step_excess_contact_delta_v_m_s": 0.0771467462182045,
+      "peak_step_excess_contact_impulse_control_step": 6,
+      "peak_step_excess_contact_impulse_time_s": 0.12,
+      "first_contact_physics_step": 6,
+      "first_contact_time_s": 0.03,
+      "first_contact_force_bodyweights": 0.5213301777839661,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.002108215354382992,
+      "tail_vertical_speed_p95_m_s": 0.0014665910275653005,
+      "tail_angular_speed_p95_rad_s": 0.02726476825773716,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 5,
+      "pose_id": "supine",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 0,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.19619999825954437,
+      "max_root_angular_speed_rad_s": 0.020901883020997047,
+      "min_root_height_m": 0.05700008198618889,
+      "max_root_height_m": 0.05754749849438667,
+      "max_joint_speed_rad_s": 1.1483235359191895,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 0.9937970638275146,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": false,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 3.462984561920166,
+      "max_nonfoot_force_physics_step": 5,
+      "max_nonfoot_force_time_s": 0.025,
+      "excess_contact_delta_v_m_s": 0.11505185812711716,
+      "peak_step_excess_contact_delta_v_m_s": 0.11505185812711716,
+      "peak_step_excess_contact_impulse_control_step": 2,
+      "peak_step_excess_contact_impulse_time_s": 0.04,
+      "first_contact_physics_step": 5,
+      "first_contact_time_s": 0.025,
+      "first_contact_force_bodyweights": 3.462984561920166,
+      "first_contact_excess_delta_v_m_s": 0.0962844043970108,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.00019518873887136579,
+      "tail_vertical_speed_p95_m_s": 0.0008591485093347728,
+      "tail_angular_speed_p95_rad_s": 0.009339729323983192,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 6,
+      "pose_id": "left_side",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        0.9421125650405884,
+        0.5293949246406555,
+        1.0,
+        1.0,
+        1.0,
+        0.9428433775901794,
+        0.5382272005081177,
+        1.0,
+        1.0,
+        1.0,
+        0.8885743021965027,
+        0.5329068899154663
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 1.1066796779632568,
+      "max_root_angular_speed_rad_s": 6.672374725341797,
+      "min_root_height_m": 0.0569969117641449,
+      "max_root_height_m": 0.1624646782875061,
+      "max_joint_speed_rad_s": 9.56486988067627,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 4.213257789611816,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 13.656575202941895,
+      "max_nonfoot_force_physics_step": 127,
+      "max_nonfoot_force_time_s": 0.635,
+      "excess_contact_delta_v_m_s": 1.0214900970458984,
+      "peak_step_excess_contact_delta_v_m_s": 0.9194784760475159,
+      "peak_step_excess_contact_impulse_control_step": 32,
+      "peak_step_excess_contact_impulse_time_s": 0.64,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 1.3117347955703735,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.00019067649554926902,
+      "tail_vertical_speed_p95_m_s": 0.0008366905385628343,
+      "tail_angular_speed_p95_rad_s": 0.009145739488303661,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 7,
+      "pose_id": "right_side",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.4220457971096039,
+        0.9296888709068298,
+        1.0,
+        1.0,
+        1.0,
+        0.5594317317008972,
+        0.9450091123580933,
+        1.0,
+        1.0,
+        1.0,
+        0.48337477445602417,
+        0.8857147097587585,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 1.1403465270996094,
+      "max_root_angular_speed_rad_s": 6.9116106033325195,
+      "min_root_height_m": 0.05700046941637993,
+      "max_root_height_m": 0.1624647080898285,
+      "max_joint_speed_rad_s": 6.1113386154174805,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 5.4834089279174805,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 14.893546104431152,
+      "max_nonfoot_force_physics_step": 126,
+      "max_nonfoot_force_time_s": 0.63,
+      "excess_contact_delta_v_m_s": 1.0421113967895508,
+      "peak_step_excess_contact_delta_v_m_s": 0.932123601436615,
+      "peak_step_excess_contact_impulse_control_step": 32,
+      "peak_step_excess_contact_impulse_time_s": 0.64,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 1.3118025064468384,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.0001446854876121506,
+      "tail_vertical_speed_p95_m_s": 0.0006849050987511873,
+      "tail_angular_speed_p95_rad_s": 0.007280584424734116,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    }
+  ],
+  "checks": {
+    "joint_action_type_matches_contract": true,
+    "joint_action_scale_matches_contract": true,
+    "joint_action_ema_alpha_matches_contract": true,
+    "joint_action_ema_history_matches_reset_joint_positions": true,
+    "soft_joint_limit_factor_matches_contract": true,
+    "policy_observation_dim_83": true,
+    "critic_observation_dim_107": true,
+    "action_dim_12": true,
+    "eight_env_pose_mode_stratification": true,
+    "eight_env_pose_one_hot": true,
+    "pose_orientation_matches_contract": true,
+    "observations_finite_at_reset": true,
+    "critic_base_height_matches_root_height": true,
+    "critic_terrain_normal_finite_unit_length": true,
+    "body_range_camera_world_pose_matches_base_offset": true,
+    "body_range_camera_attached_to_base": true,
+    "body_range_camera_targets_ground": true,
+    "body_range_camera_distance_output": true,
+    "body_range_camera_pattern_5x3": true,
+    "body_range_camera_max_distance_1m": true,
+    "body_range_camera_offset_matches_contract": true,
+    "body_range_camera_rotation_matches_contract": true,
+    "actor_foot_load_finite_nonnegative": true,
+    "body_range_finite_unit_interval": true,
+    "body_range_mask_binary": true,
+    "body_range_no_hit_is_one": true,
+    "prone_has_at_least_one_camera_hit_both_modes": true,
+    "supine_has_zero_camera_hits_both_modes": true,
+    "actor_foot_load_valid_through_rollout": true,
+    "body_range_valid_through_rollout": true,
+    "body_range_mask_valid_through_rollout": true,
+    "body_range_no_hit_is_one_through_rollout": true,
+    "actor_foot_load_independent_of_ray_no_hit": true,
+    "forced_ray_no_hit_maps_to_valid_actor_observation": true,
+    "foot_material_readback_matches_startup": true,
+    "effective_friction_matches_multiply_combine": true,
+    "nominal_mass_readback_matches_contract": true,
+    "actor_privileged_perturbation_invariant": true,
+    "actor_call_path_avoids_live_mass_read": true,
+    "reward_terminal_contribution_exact_10": true,
+    "reward_potential_contribution_exact_0_495": true,
+    "stable_success_25_step_one_shot": true,
+    "stable_success_partial_reset_isolated": true,
+    "stable_success_uses_60pct_foot_load_gate": true,
+    "body_supported_state_does_not_latch_success": true,
+    "low_foot_load_state_does_not_latch_success": true,
+    "rollout_state_finite_all_pose_modes": true,
+    "no_numeric_invalid_termination": true,
+    "no_hard_joint_limit_termination": true,
+    "joint_positions_within_hard_limit_margin": true,
+    "torque_within_runtime_limit": true,
+    "joint_speed_within_runtime_limit": true,
+    "root_height_above_2cm": true,
+    "at_least_one_contact_type_exercised_per_pose_mode": true,
+    "foot_contact_exercised_globally": true,
+    "nonfoot_contact_exercised_globally": true,
+    "nonfoot_peak_force_bounded": true,
+    "nonfoot_excess_impulse_bounded": true,
+    "tail_horizontal_speed_settled": true,
+    "tail_vertical_speed_settled": true,
+    "tail_angular_speed_settled": true,
+    "reset_pose_hold_actions_bounded": true,
+    "zero_normalized_actions_are_zero": true,
+    "base_contact_not_a_termination": true,
+    "source_binding_files_present": true,
+    "source_binding_git_commit_valid": true,
+    "source_binding_clean": true
+  },
+  "run_health": {
+    "passed": true,
+    "check_names": [
+      "observations_finite_at_reset",
+      "rollout_state_finite_all_pose_modes",
+      "no_numeric_invalid_termination"
+    ]
+  },
+  "runtime_contract": {
+    "passed": true,
+    "blocking_checks": [
+      "joint_action_type_matches_contract",
+      "joint_action_scale_matches_contract",
+      "joint_action_ema_alpha_matches_contract",
+      "joint_action_ema_history_matches_reset_joint_positions",
+      "soft_joint_limit_factor_matches_contract",
+      "policy_observation_dim_83",
+      "critic_observation_dim_107",
+      "action_dim_12",
+      "eight_env_pose_mode_stratification",
+      "eight_env_pose_one_hot",
+      "pose_orientation_matches_contract",
+      "observations_finite_at_reset",
+      "critic_base_height_matches_root_height",
+      "critic_terrain_normal_finite_unit_length",
+      "body_range_camera_world_pose_matches_base_offset",
+      "body_range_camera_attached_to_base",
+      "body_range_camera_targets_ground",
+      "body_range_camera_distance_output",
+      "body_range_camera_pattern_5x3",
+      "body_range_camera_max_distance_1m",
+      "body_range_camera_offset_matches_contract",
+      "body_range_camera_rotation_matches_contract",
+      "actor_foot_load_finite_nonnegative",
+      "body_range_finite_unit_interval",
+      "body_range_mask_binary",
+      "body_range_no_hit_is_one",
+      "prone_has_at_least_one_camera_hit_both_modes",
+      "supine_has_zero_camera_hits_both_modes",
+      "actor_foot_load_valid_through_rollout",
+      "body_range_valid_through_rollout",
+      "body_range_mask_valid_through_rollout",
+      "body_range_no_hit_is_one_through_rollout",
+      "actor_foot_load_independent_of_ray_no_hit",
+      "forced_ray_no_hit_maps_to_valid_actor_observation",
+      "foot_material_readback_matches_startup",
+      "effective_friction_matches_multiply_combine",
+      "nominal_mass_readback_matches_contract",
+      "actor_privileged_perturbation_invariant",
+      "actor_call_path_avoids_live_mass_read",
+      "reward_terminal_contribution_exact_10",
+      "reward_potential_contribution_exact_0_495",
+      "stable_success_25_step_one_shot",
+      "stable_success_partial_reset_isolated",
+      "stable_success_uses_60pct_foot_load_gate",
+      "body_supported_state_does_not_latch_success",
+      "low_foot_load_state_does_not_latch_success",
+      "rollout_state_finite_all_pose_modes",
+      "no_numeric_invalid_termination",
+      "no_hard_joint_limit_termination",
+      "joint_positions_within_hard_limit_margin",
+      "torque_within_runtime_limit",
+      "joint_speed_within_runtime_limit",
+      "root_height_above_2cm",
+      "at_least_one_contact_type_exercised_per_pose_mode",
+      "foot_contact_exercised_globally",
+      "nonfoot_contact_exercised_globally",
+      "nonfoot_peak_force_bounded",
+      "nonfoot_excess_impulse_bounded",
+      "tail_horizontal_speed_settled",
+      "tail_vertical_speed_settled",
+      "tail_angular_speed_settled",
+      "reset_pose_hold_actions_bounded",
+      "zero_normalized_actions_are_zero",
+      "base_contact_not_a_termination",
+      "source_binding_files_present",
+      "source_binding_git_commit_valid",
+      "source_binding_clean"
+    ]
+  },
+  "qualification": {
+    "status": "not_run",
+    "passed": null,
+    "reason": "runtime calibration does not evaluate a learned checkpoint"
+  },
+  "passed_semantics": "runtime_contract_only_not_policy_qualification",
+  "passed": true
+}

@@ -248,10 +248,10 @@ pose curriculum clock은 `env.common_step_counter`이며 PPO iteration당 `24` c
 
 #### runtime calibration과 테스트
 
-- [GPU probe](reports/runs/g009_r0_runtime_probe_gpu.json)와 [CPU probe](reports/runs/g009_r0_runtime_probe_cpu.json)는 각각 8환경, 150-step, seed `42`로 reset pose, P83/C107 차원, range/no-hit, foot load, friction·mass readback, latch, joint/torque/speed·contact 안전 경계를 검사했다. 두 report는 clean git commit, 13개 source binding 파일 SHA와 source bundle SHA를 기록한다.
+- [GPU probe](reports/runs/g009_r0_runtime_probe_gpu.json)와 [CPU probe](reports/runs/g009_r0_runtime_probe_cpu.json)는 각각 8환경, 150-step, seed `42`로 reset pose, P83/C107 차원, range/no-hit, foot load, friction·mass readback, latch, joint/torque/speed·contact 안전 경계를 검사했다. 두 report의 clean source commit은 `42647e1620907c811ab8b646732a528878b07b83`, 13개 파일 source bundle SHA-256은 `2745de1317e7d312bb18eb1ec208bfdddf5180577f9491cc825ebd09e5f96c2f`다.
 - [GPU/CPU synthesis](reports/runs/g009_r0_runtime_probe_synthesis.json)은 두 probe가 같은 계약 SHA를 사용했으며 `gpu_run_health_passed=true`, `gpu_runtime_contract_passed=true`, `cpu_authoritative_separation_passed=true`, `runtime_calibration_passed=true`임을 기록한다.
 - 이 PASS는 환경·센서·계약이 실행된다는 뜻일 뿐 학습 성공이 아니다. synthesis는 명시적으로 `learned_policy_qualified=false`, qualification `status=not_run`이다.
-- rev9 순수 Python G009 검사 결과는 `168 passed`, Isaac 번들 Python의 `test_g009_recover_config.py`는 `6 passed`, `test_g009_config_diff.py`는 `7 passed`다. 잠재 보상 telescope, one-shot latch, actor privilege 경계, pose curriculum, evaluation/media fail-closed, qualification 실행 조건을 포함한다.
+- rev9 순수 Python G009 검사 결과는 `172 passed`, Isaac 번들 Python의 `test_g009_recover_config.py`는 `6 passed`, `test_g009_config_diff.py`는 `7 passed`다. 잠재 보상 telescope, one-shot latch, actor privilege 경계, pose curriculum, source-bundle provenance, evaluation/media fail-closed, qualification 실행 조건을 포함한다.
 
 #### 다음 실행과 qualification gate
 
