@@ -42,10 +42,10 @@ PHYSICS_DT_S = 0.005
 CONTROL_DECIMATION = 4
 CONTROL_DT_S = PHYSICS_DT_S * CONTROL_DECIMATION
 EPISODE_LENGTH_S = 8.0
-ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 8
-ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT = 1
-MAX_DEPENETRATION_VELOCITY_M_S = 0.75
-REV13_BASELINE_MAX_DEPENETRATION_VELOCITY_M_S = 1.0
+ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 16
+ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT = 0
+MAX_DEPENETRATION_VELOCITY_M_S = 1.0
+REV12_BASELINE_ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 8
 
 ACTION_SCALE = 0.70
 ACTION_EMA_ALPHA = 0.2
@@ -302,7 +302,7 @@ def recover_contract() -> dict[str, Any]:
         for pose in RECOVER_POSES.values()
     ]
     return {
-        "contract_id": "g009_r0_recover_rev14",
+        "contract_id": "g009_r0_recover_rev15",
         "stage_id": "R0",
         "policy_schema": "P-RECOVER-83/C-RECOVER-107",
         "poses": poses,
@@ -321,15 +321,15 @@ def recover_contract() -> dict[str, Any]:
                 ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT
             ),
             "max_depenetration_velocity_m_s": MAX_DEPENETRATION_VELOCITY_M_S,
-            "rev13_baseline_max_depenetration_velocity_m_s": (
-                REV13_BASELINE_MAX_DEPENETRATION_VELOCITY_M_S
+            "rev12_baseline_articulation_solver_position_iteration_count": (
+                REV12_BASELINE_ARTICULATION_SOLVER_POSITION_ITERATION_COUNT
             ),
-            "rev11_baseline_articulation_solver_position_iteration_count": 4,
-            "rev12_baseline_articulation_solver_velocity_iteration_count": 0,
             "single_variable_change": (
-                "decrease only the Go2 rigid-body maximum depenetration velocity "
-                "from 1.0 to 0.75 m/s; retain articulation solver position/velocity "
-                "iteration counts at 8/1 and retain action, reset, reward, curriculum, "
+                "increase only the Go2 articulation position-solver iteration count "
+                "from the accepted rev12 runtime baseline 8 to 16; restore and retain "
+                "the rev12 velocity-solver count at 0 and rigid-body maximum "
+                "depenetration velocity at 1.0 m/s instead of inheriting rejected "
+                "rev13/rev14 semantics; retain action, reset, reward, curriculum, "
                 "torque, joint-limit tolerance, and observation-noise contracts"
             ),
         },
@@ -711,7 +711,7 @@ __all__ = [
     "PRIVILEGED_OBSERVATION_TERMS",
     "R0_REWARD_TERMS",
     "RECOVER_POSES",
-    "REV13_BASELINE_MAX_DEPENETRATION_VELOCITY_M_S",
+    "REV12_BASELINE_ARTICULATION_SOLVER_POSITION_ITERATION_COUNT",
     "RESET_POSE_XY_RANGE_M",
     "RESET_YAW_RANGE_RAD",
     "RecoverPose",

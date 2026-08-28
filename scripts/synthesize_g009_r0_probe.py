@@ -44,6 +44,8 @@ REV14_CONTRACT_SHA256 = "744c53d3c8d1e608f849af405c7d0fad314b01234fc4cb9a4ab1000
 REV14_REQUIRED_CHECKS = STRICT_REQUIRED_CHECKS | {
     "rigid_body_max_depenetration_velocity_matches_contract"
 }
+REV15_CONTRACT_SHA256 = "5f29ba19458404b5009d3734294c57e79294efecc7fe03bf8c71c71656129832"
+REV15_REQUIRED_CHECKS = REV14_REQUIRED_CHECKS
 STRICT_REQUIRED_CHECKS_BY_CONTRACT: dict[str, frozenset[str]] = {
     "0679a10d025156f53452e04b50c40b530318cf4c5e904cfc34152b9dea700da4": (
         STRICT_REQUIRED_CHECKS
@@ -55,6 +57,7 @@ STRICT_REQUIRED_CHECKS_BY_CONTRACT: dict[str, frozenset[str]] = {
         STRICT_REQUIRED_CHECKS
     ),
     REV14_CONTRACT_SHA256: REV14_REQUIRED_CHECKS,
+    REV15_CONTRACT_SHA256: REV15_REQUIRED_CHECKS,
 }
 
 
@@ -280,6 +283,46 @@ def _validate_strict_device_report(
             f"{label} runtime_contract aggregate disagrees with failed checks: "
             f"{', '.join(failed_checks)}"
         )
+    if contract_sha256 == REV15_CONTRACT_SHA256:
+        progression = _nested(report, "progression_gate")
+        if not isinstance(progression, dict):
+            raise SynthesisError(f"{label} rev15 progression_gate must be an object")
+        _require_true(progression.get("passed"), f"{label} rev15 progression_gate")
+        _require_true(report.get("passed"), f"{label} rev15 top-level passed")
+        if report.get("passed_semantics") != "progression_gate_not_policy_qualification":
+            raise SynthesisError(f"{label} rev15 passed_semantics mismatch")
+        if progression.get("device") != device:
+            raise SynthesisError(f"{label} rev15 progression gate device mismatch")
+        cpu_required = expected_device == "cpu"
+        if progression.get("cpu_contact_separation_required_this_run") is not cpu_required:
+            raise SynthesisError(
+                f"{label} rev15 progression gate device authority scope mismatch"
+            )
+        blocking_checks = progression.get("blocking_checks")
+        if not isinstance(blocking_checks, dict):
+            raise SynthesisError(
+                f"{label} rev15 progression gate blocking_checks must be an object"
+            )
+        _require_true(
+            blocking_checks.get("runtime_contract"),
+            f"{label} rev15 progression runtime_contract",
+        )
+        if cpu_required:
+            if progression.get("status") != "passed":
+                raise SynthesisError(f"{label} rev15 CPU progression status mismatch")
+            _require_true(
+                blocking_checks.get("cpu_contact_separation"),
+                f"{label} rev15 progression cpu_contact_separation",
+            )
+        else:
+            if progression.get("status") != (
+                "passed_runtime_contract_cpu_authority_not_evaluated"
+            ):
+                raise SynthesisError(f"{label} rev15 GPU progression status mismatch")
+            if "cpu_contact_separation" in blocking_checks:
+                raise SynthesisError(
+                    f"{label} rev15 GPU progression gate must not claim CPU authority"
+                )
     _require_not_run_qualification(report, label)
     if expected_device != "cpu":
         return

@@ -31,6 +31,8 @@ param(
 
     [switch]$Qualification,
 
+    [switch]$RequireZeroTrainingSafetyTerminations,
+
     [switch]$Resume,
 
     [string]$LoadRun,
@@ -149,6 +151,60 @@ function Get-TextSha256 {
     }
 }
 
+function Test-ZeroFiniteSafetySummary {
+    param([AllowNull()][object]$Summary)
+
+    if ($null -eq $Summary) {
+        return $false
+    }
+
+    $numericTypes = [type[]]@(
+        [byte], [sbyte], [int16], [uint16], [int32], [uint32],
+        [int64], [uint64], [single], [double], [decimal]
+    )
+    $integerTypes = [type[]]@(
+        [byte], [sbyte], [int16], [uint16], [int32], [uint32], [int64], [uint64]
+    )
+
+    foreach ($field in @('latest', 'minimum', 'maximum', 'mean')) {
+        $property = $Summary.PSObject.Properties[$field]
+        if (
+            $null -eq $property -or
+            $null -eq $property.Value -or
+            $numericTypes -notcontains $property.Value.GetType()
+        ) {
+            return $false
+        }
+        [double]$value = $property.Value
+        if (
+            [double]::IsNaN($value) -or
+            [double]::IsInfinity($value) -or
+            $value -ne 0.0
+        ) {
+            return $false
+        }
+    }
+
+    $sampleCountProperty = $Summary.PSObject.Properties['sample_count']
+    $nonzeroCountProperty = $Summary.PSObject.Properties['nonzero_sample_count']
+    if (
+        $null -eq $sampleCountProperty -or
+        $null -eq $sampleCountProperty.Value -or
+        $integerTypes -notcontains $sampleCountProperty.Value.GetType() -or
+        $null -eq $nonzeroCountProperty -or
+        $null -eq $nonzeroCountProperty.Value -or
+        $integerTypes -notcontains $nonzeroCountProperty.Value.GetType()
+    ) {
+        return $false
+    }
+    [decimal]$sampleCount = $sampleCountProperty.Value
+    [decimal]$nonzeroCount = $nonzeroCountProperty.Value
+    return (
+        $sampleCount -gt 0 -and
+        $nonzeroCount -eq 0
+    )
+}
+
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $isaacLabFullPath = [System.IO.Path]::GetFullPath($IsaacLabPath)
 $pythonBat = Join-Path $isaacLabFullPath '_isaac_sim\python.bat'
@@ -200,6 +256,12 @@ elseif (-not [string]::IsNullOrWhiteSpace($LoadRun) -or -not [string]::IsNullOrW
 }
 if ($Qualification -and $Resume) {
     throw 'Qualification 학습은 scratch 실행만 허용합니다.'
+}
+if ($RequireZeroTrainingSafetyTerminations -and $Resume) {
+    throw 'Training safety gate는 scratch 진단 학습에서만 사용할 수 있으며 Resume과 함께 사용할 수 없습니다.'
+}
+if ($RequireZeroTrainingSafetyTerminations -and $HydraOverrides.Count -gt 0) {
+    throw 'Training safety gate는 고정된 scratch 의미를 검증하므로 Hydra override를 허용하지 않습니다.'
 }
 if ($Qualification -and $HydraOverrides.Count -gt 0) {
     throw 'Qualification 학습은 런타임 의미를 바꾸는 Hydra override를 허용하지 않습니다.'
@@ -472,11 +534,10 @@ if ($tensorboardScalars -and $tensorboardScalars.series_summary) {
     if ($hardJointLimitProperty) { $hardJointLimitSummary = $hardJointLimitProperty.Value }
     if ($numericInvalidProperty) { $numericInvalidSummary = $numericInvalidProperty.Value }
 }
-$qualificationTrainingSafetyPassed = if ($Qualification) {
-    $null -ne $hardJointLimitSummary -and
-    $null -ne $numericInvalidSummary -and
-    [double]$hardJointLimitSummary.maximum -eq 0.0 -and
-    [double]$numericInvalidSummary.maximum -eq 0.0
+$trainingSafetyGateRequired = [bool]($Qualification -or $RequireZeroTrainingSafetyTerminations)
+$trainingSafetyGatePassed = if ($trainingSafetyGateRequired) {
+    (Test-ZeroFiniteSafetySummary $hardJointLimitSummary) -and
+    (Test-ZeroFiniteSafetySummary $numericInvalidSummary)
 }
 else {
     $null
@@ -509,7 +570,8 @@ $successChecks = [ordered]@{
     checkpoint_exists = ($null -ne $checkpoint)
     gpu_measurement_complete = $gpuMeasurementComplete
     gpu_recovered_to_baseline = $recoveredToBaseline
-    qualification_training_safety_zero = $qualificationTrainingSafetyPassed
+    qualification_training_safety_zero = if ($Qualification) { $trainingSafetyGatePassed } else { $null }
+    requested_training_safety_gate_zero = if ($RequireZeroTrainingSafetyTerminations) { $trainingSafetyGatePassed } else { $null }
 }
 $passed = -not ($successChecks.Values -contains $false)
 
@@ -540,6 +602,15 @@ $report = [ordered]@{
         enabled = [bool]$Resume
         load_run = if ($Resume) { $LoadRun } else { $null }
         checkpoint = if ($Resume) { $ResumeCheckpoint } else { $null }
+    }
+    training_safety_gate = [ordered]@{
+        requested = [bool]$RequireZeroTrainingSafetyTerminations
+        required = $trainingSafetyGateRequired
+        scratch_required = [bool]$RequireZeroTrainingSafetyTerminations
+        hard_joint_limit_series_present = ($null -ne $hardJointLimitSummary)
+        numeric_invalid_series_present = ($null -ne $numericInvalidSummary)
+        requires_both_maximum_counts_zero = $trainingSafetyGateRequired
+        passed = $trainingSafetyGatePassed
     }
     effective_hydra_overrides = @($HydraOverrides)
     training_entrypoint = [ordered]@{
@@ -587,7 +658,9 @@ $report = [ordered]@{
         hard_joint_limit = $hardJointLimitSummary
         numeric_invalid = $numericInvalidSummary
         qualification_requires_both_maximum_counts_zero = [bool]$Qualification
-        qualification_passed = $qualificationTrainingSafetyPassed
+        qualification_passed = if ($Qualification) { $trainingSafetyGatePassed } else { $null }
+        diagnostic_gate_requested = [bool]$RequireZeroTrainingSafetyTerminations
+        diagnostic_gate_passed = if ($RequireZeroTrainingSafetyTerminations) { $trainingSafetyGatePassed } else { $null }
         unavailable_fields = @(
             'hard_limit_total_count',
             'hard_limit_max_excess_rad',

@@ -102,6 +102,27 @@ def _write_report(path: Path, report: dict) -> None:
     path.write_text(json.dumps(report), encoding="utf-8")
 
 
+def _bind_rev15_progression(report: dict) -> None:
+    is_cpu = report["device"] == "cpu"
+    report["contract_sha256"] = SYNTHESIS.REV15_CONTRACT_SHA256
+    report["passed"] = True
+    report["passed_semantics"] = "progression_gate_not_policy_qualification"
+    report["progression_gate"] = {
+        "passed": True,
+        "status": (
+            "passed"
+            if is_cpu
+            else "passed_runtime_contract_cpu_authority_not_evaluated"
+        ),
+        "device": report["device"],
+        "cpu_contact_separation_required_this_run": is_cpu,
+        "blocking_checks": {
+            "runtime_contract": True,
+            **({"cpu_contact_separation": True} if is_cpu else {}),
+        },
+    }
+
+
 def _valid_paths(tmp_path: Path) -> tuple[Path, Path]:
     gpu_path = tmp_path / "gpu.json"
     cpu_path = tmp_path / "cpu.json"
@@ -465,6 +486,55 @@ def test_strict_repeated_synthesis_accepts_complete_rev14_check_contract(
     result = SYNTHESIS.synthesize_repeated_reports(gpu_paths, cpu_paths)
 
     assert result["runtime_calibration_passed"] is True
+
+
+def test_strict_repeated_synthesis_accepts_complete_rev15_progression_contract(
+    tmp_path: Path,
+) -> None:
+    gpu_paths, cpu_paths = _repeated_paths(tmp_path)
+    for path in [*gpu_paths, *cpu_paths]:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        _bind_rev15_progression(report)
+        _write_report(path, report)
+
+    result = SYNTHESIS.synthesize_repeated_reports(gpu_paths, cpu_paths)
+
+    assert result["runtime_calibration_passed"] is True
+
+
+@pytest.mark.parametrize("device", ["gpu", "cpu"])
+def test_strict_repeated_synthesis_requires_rev15_progression_gate(
+    tmp_path: Path, device: str
+) -> None:
+    gpu_paths, cpu_paths = _repeated_paths(tmp_path)
+    for path in [*gpu_paths, *cpu_paths]:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        _bind_rev15_progression(report)
+        _write_report(path, report)
+    target = (gpu_paths if device == "gpu" else cpu_paths)[1]
+    report = json.loads(target.read_text(encoding="utf-8"))
+    del report["progression_gate"]
+    _write_report(target, report)
+
+    with pytest.raises(SYNTHESIS.SynthesisError, match="required field: progression_gate"):
+        SYNTHESIS.synthesize_repeated_reports(gpu_paths, cpu_paths)
+
+
+def test_strict_repeated_synthesis_rejects_rev15_gpu_claiming_cpu_authority(
+    tmp_path: Path,
+) -> None:
+    gpu_paths, cpu_paths = _repeated_paths(tmp_path)
+    for path in [*gpu_paths, *cpu_paths]:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        _bind_rev15_progression(report)
+        _write_report(path, report)
+    gpu = json.loads(gpu_paths[0].read_text(encoding="utf-8"))
+    gpu["progression_gate"]["cpu_contact_separation_required_this_run"] = True
+    gpu["progression_gate"]["blocking_checks"]["cpu_contact_separation"] = True
+    _write_report(gpu_paths[0], gpu)
+
+    with pytest.raises(SYNTHESIS.SynthesisError, match="device authority scope mismatch"):
+        SYNTHESIS.synthesize_repeated_reports(gpu_paths, cpu_paths)
 
 
 def test_strict_repeated_synthesis_keeps_rev12_required_check_compatibility(

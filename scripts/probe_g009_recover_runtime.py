@@ -434,6 +434,74 @@ def summarize_status(checks: dict[str, bool], health_names: tuple[str, ...]) -> 
     }
 
 
+def apply_progression_gate(
+    status: dict[str, Any],
+    *,
+    device: str,
+    cpu_contact_separation: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Fail closed on authoritative CPU separation without blocking GPU probes."""
+
+    runtime_passed = status.get("runtime_contract", {}).get("passed") is True
+    this_run_is_cpu = device.strip().lower() == "cpu"
+    if this_run_is_cpu:
+        separation_available = bool(
+            cpu_contact_separation
+            and cpu_contact_separation.get("authority_device") == "cpu"
+            and cpu_contact_separation.get("this_run_is_authority") is True
+            and cpu_contact_separation.get("data_available") is True
+            and cpu_contact_separation.get("status") == "observed"
+        )
+        separation_passed = bool(
+            separation_available
+            and cpu_contact_separation
+            and cpu_contact_separation.get("passed") is True
+        )
+        passed = runtime_passed and separation_passed
+        if not runtime_passed:
+            gate_status = "runtime_contract_failed"
+        elif not separation_available:
+            gate_status = "cpu_contact_separation_missing"
+        elif not separation_passed:
+            gate_status = "cpu_contact_separation_failed"
+        else:
+            gate_status = "passed"
+        blocking_checks = {
+            "runtime_contract": runtime_passed,
+            "cpu_contact_separation": separation_passed,
+        }
+    else:
+        passed = runtime_passed
+        gate_status = (
+            "passed_runtime_contract_cpu_authority_not_evaluated"
+            if runtime_passed
+            else "runtime_contract_failed"
+        )
+        blocking_checks = {"runtime_contract": runtime_passed}
+
+    result = dict(status)
+    result.update(
+        {
+            "progression_gate": {
+                "passed": passed,
+                "status": gate_status,
+                "device": device,
+                "cpu_contact_separation_required_this_run": this_run_is_cpu,
+                "blocking_checks": blocking_checks,
+            },
+            "passed_semantics": "progression_gate_not_policy_qualification",
+            "passed": passed,
+        }
+    )
+    return result
+
+
+def report_exit_code(report: dict[str, Any]) -> int:
+    """Return a fail-closed CLI exit code from the progression verdict."""
+
+    return 0 if report.get("progression_gate", {}).get("passed") is True else 1
+
+
 def contact_exercise_checks(foot_exercised, nonfoot_exercised) -> dict[str, bool]:
     """Require contact per environment without prescribing the supporting body."""
 
@@ -1975,7 +2043,11 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
             "rollout_state_finite_all_pose_modes",
             "no_numeric_invalid_termination",
         )
-        status = summarize_status(checks, health_names)
+        status = apply_progression_gate(
+            summarize_status(checks, health_names),
+            device=args.device,
+            cpu_contact_separation=separation_crosscheck,
+        )
         startup.update(
             {
                 "articulation_solver_iterations": (
@@ -2162,13 +2234,14 @@ def main(argv: list[str] | None = None) -> int:
                     "output": str(output),
                     "run_health_passed": report["run_health"]["passed"],
                     "runtime_contract_passed": report["runtime_contract"]["passed"],
+                    "progression_gate_passed": report["progression_gate"]["passed"],
                     "qualification_status": report["qualification"]["status"],
                 },
                 ensure_ascii=False,
             ),
             flush=True,
         )
-        return 0 if report["runtime_contract"]["passed"] else 1
+        return report_exit_code(report)
     finally:
         simulation_app.close()
 

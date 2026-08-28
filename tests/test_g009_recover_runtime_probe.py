@@ -1041,6 +1041,146 @@ def test_cpu_separation_crosscheck_preserves_failed_exact_threshold() -> None:
     assert result["passed"] is False
 
 
+def test_cpu_progression_gate_passes_only_with_authoritative_separation() -> None:
+    runtime = PROBE.summarize_status({"finite": True}, ("finite",))
+    separation = PROBE.separation_crosscheck_status(
+        device="cpu",
+        data_available=True,
+        threshold_passed=True,
+    )
+
+    status = PROBE.apply_progression_gate(
+        runtime,
+        device="cpu",
+        cpu_contact_separation=separation,
+    )
+
+    assert status["runtime_contract"]["passed"] is True
+    assert status["progression_gate"] == {
+        "passed": True,
+        "status": "passed",
+        "device": "cpu",
+        "cpu_contact_separation_required_this_run": True,
+        "blocking_checks": {
+            "runtime_contract": True,
+            "cpu_contact_separation": True,
+        },
+    }
+    assert status["passed"] is True
+    assert PROBE.report_exit_code(status) == 0
+
+
+def test_cpu_progression_gate_fails_on_separation_threshold() -> None:
+    runtime = PROBE.summarize_status({"finite": True}, ("finite",))
+    separation = PROBE.separation_crosscheck_status(
+        device="cpu",
+        data_available=True,
+        threshold_passed=False,
+    )
+
+    status = PROBE.apply_progression_gate(
+        runtime,
+        device="cpu",
+        cpu_contact_separation=separation,
+    )
+
+    assert status["runtime_contract"]["passed"] is True
+    assert status["progression_gate"]["status"] == "cpu_contact_separation_failed"
+    assert status["progression_gate"]["blocking_checks"]["cpu_contact_separation"] is False
+    assert status["passed"] is False
+    assert PROBE.report_exit_code(status) == 1
+
+
+@pytest.mark.parametrize(
+    "separation",
+    [
+        None,
+        PROBE.separation_crosscheck_status(
+            device="cpu",
+            data_available=False,
+            threshold_passed=False,
+        ),
+        {
+            **PROBE.separation_crosscheck_status(
+                device="cpu",
+                data_available=True,
+                threshold_passed=True,
+            ),
+            "authority_device": "gpu",
+        },
+        {
+            **PROBE.separation_crosscheck_status(
+                device="cpu",
+                data_available=True,
+                threshold_passed=True,
+            ),
+            "status": "requires_cpu_crosscheck",
+        },
+    ],
+)
+def test_cpu_progression_gate_fails_closed_when_separation_is_missing(
+    separation: dict[str, object] | None,
+) -> None:
+    runtime = PROBE.summarize_status({"finite": True}, ("finite",))
+
+    status = PROBE.apply_progression_gate(
+        runtime,
+        device="cpu",
+        cpu_contact_separation=separation,
+    )
+
+    assert status["runtime_contract"]["passed"] is True
+    assert status["progression_gate"]["status"] == "cpu_contact_separation_missing"
+    assert status["passed"] is False
+    assert PROBE.report_exit_code(status) == 1
+
+
+def test_gpu_progression_gate_does_not_require_cpu_authority_in_this_run() -> None:
+    runtime = PROBE.summarize_status({"finite": True}, ("finite",))
+    external = PROBE.separation_crosscheck_status(
+        device="cuda:0",
+        data_available=False,
+        threshold_passed=False,
+    )
+
+    status = PROBE.apply_progression_gate(
+        runtime,
+        device="cuda:0",
+        cpu_contact_separation=external,
+    )
+
+    assert status["runtime_contract"]["passed"] is True
+    assert status["progression_gate"] == {
+        "passed": True,
+        "status": "passed_runtime_contract_cpu_authority_not_evaluated",
+        "device": "cuda:0",
+        "cpu_contact_separation_required_this_run": False,
+        "blocking_checks": {"runtime_contract": True},
+    }
+    assert status["passed"] is True
+    assert PROBE.report_exit_code(status) == 0
+
+
+def test_gpu_progression_gate_still_fails_on_its_runtime_contract() -> None:
+    runtime = PROBE.summarize_status(
+        {"finite": True, "physics": False},
+        ("finite",),
+    )
+
+    status = PROBE.apply_progression_gate(
+        runtime,
+        device="cuda:0",
+        cpu_contact_separation=None,
+    )
+
+    assert status["progression_gate"]["status"] == "runtime_contract_failed"
+    assert status["progression_gate"]["blocking_checks"] == {
+        "runtime_contract": False
+    }
+    assert status["passed"] is False
+    assert PROBE.report_exit_code(status) == 1
+
+
 def test_runtime_failure_does_not_claim_policy_qualification() -> None:
     status = PROBE.summarize_status(
         {"finite": True, "contact_separation_available": False},
