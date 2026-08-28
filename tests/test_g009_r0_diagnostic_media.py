@@ -272,6 +272,7 @@ def test_public_paths_are_isolated_under_diagnostic_namespace() -> None:
     assert diagnostic.DEFAULT_PNG.as_posix().endswith("docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev9_01_prone_still.png")
     assert diagnostic.DEFAULT_SIDECAR.name == "g009_r0_diag_rev9_01_prone_visual_evidence.json"
     assert "four_pose_recovery" not in diagnostic.DEFAULT_GIF.name
+    assert "fontsize=26" in diagnostic._overlay_filter(diagnostic.DEFAULT_FONT, 0)
 
 
 def test_media_signatures_size_and_transaction_rollback(tmp_path: Path) -> None:

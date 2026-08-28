@@ -212,9 +212,9 @@ def _overlay_filter(font: Path, strict_success: int) -> str:
         footer = "REV9 PILOT - HARD LIMIT EVENTS - STRICT SUCCESS 0"
     return (
         "scale=960:540:force_original_aspect_ratio=decrease,pad=960:540:(ow-iw)/2:(oh-ih)/2:black,setsar=1,"
-        "drawbox=x=0:y=0:w=iw:h=84:color=0x8B0000@0.92:t=fill,"
+        "drawbox=x=0:y=0:w=iw:h=72:color=0x8B0000@0.92:t=fill,"
         f"drawtext={font_expr}:text='{headline}':"
-        "x=(w-text_w)/2:y=20:fontsize=34:fontcolor=white:borderw=2:bordercolor=black,"
+        "x=(w-text_w)/2:y=18:fontsize=26:fontcolor=white:borderw=1:bordercolor=black,"
         "drawbox=x=0:y=h-48:w=iw:h=48:color=black@0.78:t=fill,"
         f"drawtext={font_expr}:text='{footer}':"
         "x=(w-text_w)/2:y=h-37:fontsize=22:fontcolor=yellow"
