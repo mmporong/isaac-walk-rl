@@ -35,7 +35,7 @@ DEFAULT_TASK = "Isaac-G009-Recover-Flat-Go2-R0-v0"
 POSE_NAMES = ("prone", "supine", "left_side", "right_side")
 DEFAULT_OUTPUT_DIR = Path.home() / "IsaacLab" / "logs" / "visual_evidence" / "g009" / "R0"
 WINDOWS_KIT_ARGS = (
-    "--/app/window/enabled=false --/app/livestream/enabled=false "
+    "--/app/vulkan=false --/app/window/hideUi=true "
     "--/app/renderer/resolution/width=1280 --/app/renderer/resolution/height=720"
 )
 

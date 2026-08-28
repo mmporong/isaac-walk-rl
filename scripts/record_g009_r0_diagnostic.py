@@ -33,7 +33,7 @@ EXPECTED_TRAINING_COMMIT = "030d6b4471848f538a28a8649e2d5b4e615df568"
 EXPECTED_SOURCE_BUNDLE_SHA256 = "45a1b4cc9ccf73b8dedd63d69ab8e8163addb5b6cb0297daa89861a9a72abd55"
 EXPECTED_CHECKPOINT_SHA256 = "18e87baf43351d5e36aae5cabc608666099e7460a20d2606610607bfc35b3bf1"
 WINDOWS_KIT_ARGS = (
-    "--/app/window/enabled=false --/app/livestream/enabled=false "
+    "--/app/vulkan=false --/app/window/hideUi=true "
     "--/app/renderer/resolution/width=1280 --/app/renderer/resolution/height=720"
 )
 

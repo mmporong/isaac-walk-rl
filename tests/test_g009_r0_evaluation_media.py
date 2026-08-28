@@ -137,6 +137,7 @@ def test_report_preserves_four_pose_blocking_cells() -> None:
 def test_local_video_names_keep_stage_and_pose_numbering() -> None:
     assert recorder.output_name("prone", 42) == "g009_5_r0_01_prone_s42.mp4"
     assert recorder.output_name("right_side", 42) == "g009_5_r0_04_right_side_s42.mp4"
+    assert "--/app/vulkan=false" in recorder.WINDOWS_KIT_ARGS
     assert recorder.validate_output_dir(recorder.DEFAULT_OUTPUT_DIR) == recorder.DEFAULT_OUTPUT_DIR.resolve()
     with pytest.raises(ValueError, match="local-only"):
         recorder.validate_output_dir(ROOT / "docs" / "media" / "g009" / "R0")
