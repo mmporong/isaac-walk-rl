@@ -280,6 +280,8 @@ rev9 prone pilot은 clean source에서 `1,024 env × 50 iterations × seed 42`�
 - soft joint limit factor `0.9`를 곱한 effective target range는 hard range의 `0.72 → 0.63`, 한쪽당 목표 margin은 `0.14 → 0.185`다. EMA alpha `0.2`, PPO initial noise `0.5`, 보상 항목·가중치, hard-limit tolerance `0.01rad`는 유지했다.
 - pose curriculum phase end를 `(1200,2400) → (1201,2401)`로 바꿨다. 경계 판정은 control step `0/1199/1200 → phase 0`, `1201/2399/2400 → phase 1`, `2401 → phase 2`이며, `1..1200` 전 구간 prone 확률 `1.0` 회귀 검사를 추가했다.
 - canonical manifest `--check`, 순수 계약 테스트 `5 passed`, Isaac 번들 구성 테스트 `7 passed`, G009 구성 차이 테스트 `7 passed`를 통과했다. 이는 구성 검증이며 학습 안전성과 복구 성능을 뜻하지 않는다.
+- gate별 진단 도구는 rev10 `gate01/gate10/gate50`의 exact run name, canonical report path, 현재 HEAD, 필수 source 10개, checkpoint 경로·hash·iteration을 fail-closed로 결합한다. 같은 stem의 analysis·capture·MP4·공개 4종은 덮어쓰지 않는다.
+- 진단 도구 회귀는 `49 passed`, 전체 순수 Python G009 회귀는 `222 passed`, `uvx pyright`는 `0 errors / 0 warnings / 0 informations`였고 Python compile과 `git diff --check`도 통과했다. 현재 rev10 코드에서도 실제 rev9 training bundle `45a1b4cc9ccf73b8dedd63d69ab8e8163addb5b6cb0297daa89861a9a72abd55`와 capture commit `1ba2859d6817faa49f8d49465274ca00a4377efe`의 로컬 MP4·analysis를 당시 Git blob의 LF/CRLF 후보로 재검증했다.
 
 다음 revision은 rev9를 resume하지 않고 scratch로 시작한다.
 

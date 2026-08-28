@@ -561,6 +561,48 @@ EMA alpha `0.2`, 50Hz 제어, PPO initial noise `0.5`, soft-limit factor `0.9`, 
 
 curriculum 회귀는 control step `0/1199/1200`을 phase 0, `1201/2399/2400`을 phase 1, `2401`을 phase 2로 고정한다. 별도 전수 검사에서 `1..1200` 전 구간은 prone 확률 `1.0`, 나머지 자세 `0.0`이어야 한다.
 
+### rev10 단계별 진단 증거 계약
+
+`1,024×1`, `1,024×10`, `1,024×50`은 checkpoint와 학습 budget이 서로 다른 단계이므로 각각 새 영상을 만든다. 파일 stem은 순서가 보이도록 다음처럼 고정한다.
+
+| 학습 gate | checkpoint | output stem | 판정 용도 |
+| --- | --- | --- | --- |
+| `gate01` | `model_0.pt` | `g009_5_r0_diag_rev10_gate01_01_prone` | 첫 PPO update 뒤 수치·관절 안전 |
+| `gate10` | `model_9.pt` | `g009_5_r0_diag_rev10_gate10_01_prone` | 초기 탐색 증가 뒤 안전 유지 |
+| `gate50` | `model_49.pt` | `g009_5_r0_diag_rev10_gate50_01_prone` | prone-only pilot의 안전·support/hold 신호 |
+
+원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\<stem>_s42.mp4`에만 둔다. 공개 GIF·PNG는 `docs/media/g009/R0/diagnostic`, capture·analysis·summary·sidecar JSON은 `reports/runs`에 같은 stem으로 둔다. 세 gate 모두 `diagnostic_only=true`, `qualification_status=not_run`, `public_claim_eligible=false`이며 단일 환경 영상의 성공 장면이 있어도 공식 qualification으로 승격하지 않는다.
+
+동적 recorder는 미래 report를 자기 자신과 비교하지 않는다. 호출자가 지정한 정확한 run name, `reports/runs/<run-name>.json`, 현재 Git HEAD, 필수 source binding 10개 전체 집합·개별 hash·aggregate, checkpoint 경로·hash·iteration 번호를 함께 대조한다. output stem은 정규식 full-match를 통과해야 하며 기존 analysis·capture·MP4·GIF·PNG·summary·sidecar가 하나라도 있으면 덮어쓰지 않고 중단한다. rev9 역사 증거는 당시 training/capture commit의 Git blob을 LF와 CRLF 두 EOL 후보로 재구성해 검증하므로 rev10 config가 현재 HEAD에 있어도 과거 해시 계보가 깨지지 않는다.
+
+각 gate의 실행 순서는 TensorBoard 분석 → 1환경 off-screen 녹화 → 공개 파생물 생성이다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+
+$gate = "gate01"
+$runName = "<정확한 run_training.ps1 RunName>"
+$stem = "g009_5_r0_diag_rev10_${gate}_01_prone"
+$trainingReport = ".\reports\runs\${runName}.json"
+$checkpoint = "$HOME\IsaacLab\logs\rsl_rl\g009_recover_r0\<run-directory>\model_0.pt"
+
+& "$HOME\IsaacLab\_isaac_sim\python.bat" .\scripts\analyze_g009_r0_pilot.py `
+  --training-report $trainingReport --checkpoint $checkpoint `
+  --revision rev10 --gate-label $gate --output-stem $stem `
+  --expected-run-name $runName
+
+& "$HOME\IsaacLab\_isaac_sim\python.bat" .\scripts\record_g009_r0_diagnostic.py `
+  --training-report $trainingReport --checkpoint $checkpoint `
+  --revision rev10 --gate-label $gate --output-stem $stem `
+  --expected-run-name $runName --headless
+
+py .\scripts\build_g009_r0_diagnostic_media.py `
+  --revision rev10 --gate-label $gate --output-stem $stem `
+  --expected-run-name $runName
+```
+
+`gate10`은 `model_9.pt`, `gate50`은 `model_49.pt`로 바꾼다. 실제 gate 통과 판정은 영상이 아니라 bound training report의 safety aggregate와 TensorBoard series로 내린다.
+
 ### rev9 actor/critic, action, 성공 gate
 
 - actor `P-RECOVER-83`: proprioception·joint·이전 action·발 접촉/하중 53차원과 body-fixed 5×3 range 15차원, hit mask 15차원

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Record the rejected rev9 prone pilot as a headless, local-only diagnostic MP4."""
+"""Record a G009 R0 prone gate, with the rejected rev9 pilot as the legacy default."""
 
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -39,6 +40,23 @@ WINDOWS_KIT_ARGS = (
     "--/app/vulkan=false --/app/window/hideUi=true "
     "--/app/renderer/resolution/width=1280 --/app/renderer/resolution/height=720"
 )
+SUPPORTED_GATE_ITERATIONS = {"gate01": 1, "gate10": 10, "gate50": 50}
+OUTPUT_STEM_PATTERN = re.compile(r"^g009_5_r0_diag_rev[0-9]+_gate(?:01|10|50)_01_prone$")
+RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+REQUIRED_SOURCE_BUNDLE_PATHS = frozenset(
+    {
+        "configs/g009_r0.json",
+        "scripts/bootstrap_train_g009.py",
+        "scripts/run_training.ps1",
+        "src/isaac_walk_g009/agent_cfg.py",
+        "src/isaac_walk_g009/mdp/__init__.py",
+        "src/isaac_walk_g009/mdp/events.py",
+        "src/isaac_walk_g009/mdp/recover.py",
+        "src/isaac_walk_g009/recover_contracts.py",
+        "src/isaac_walk_g009/recover_env_cfg.py",
+        "src/isaac_walk_g009/registry.py",
+    }
+)
 
 
 def file_sha256(path: Path) -> str:
@@ -59,6 +77,32 @@ def portable_path(path: Path) -> str:
         return "%USERPROFILE%\\" + str(resolved.relative_to(Path.home().resolve()))
     except ValueError:
         return str(resolved)
+
+
+def resolve_portable_path(value: str) -> Path:
+    prefix = "%USERPROFILE%\\"
+    if value.startswith(prefix):
+        return Path.home() / value.removeprefix(prefix)
+    path = Path(value)
+    return path if path.is_absolute() else REPO_ROOT / path
+
+
+def current_git_commit() -> str:
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, check=True, capture_output=True, text=True
+    ).stdout.strip()
+
+
+def git_blob_sha256_candidates(commit: str, relative_path: str) -> frozenset[str]:
+    result = subprocess.run(
+        ["git", "show", f"{commit}:{relative_path}"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+    )
+    raw = result.stdout
+    crlf = raw.replace(b"\n", b"\r\n")
+    return frozenset({hashlib.sha256(raw).hexdigest(), hashlib.sha256(crlf).hexdigest()})
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -99,7 +143,7 @@ def source_bundle_sha256(files: Mapping[str, str]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def validate_source_bundle(bundle: Mapping[str, Any]) -> dict[str, Any]:
+def validate_source_bundle(bundle: Mapping[str, Any], *, git_commit: str | None = None) -> dict[str, Any]:
     files = bundle.get("files")
     if not isinstance(files, Mapping) or not files:
         raise ValueError("diagnostic training source_bundle.files must be non-empty")
@@ -108,14 +152,18 @@ def validate_source_bundle(bundle: Mapping[str, Any]) -> dict[str, Any]:
         if not isinstance(relative, str) or not isinstance(expected, str):
             raise TypeError("diagnostic training source bundle entries must be string pairs")
         normalized_relative = relative.replace("\\", "/")
-        path = (REPO_ROOT / normalized_relative).resolve()
-        try:
-            path.relative_to(REPO_ROOT.resolve())
-        except ValueError as exc:
-            raise ValueError(f"source bundle path escapes repository: {relative}") from exc
-        if not path.is_file():
-            raise FileNotFoundError(path)
-        actual = file_sha256(path)
+        if git_commit is None:
+            path = (REPO_ROOT / normalized_relative).resolve()
+            try:
+                path.relative_to(REPO_ROOT.resolve())
+            except ValueError as exc:
+                raise ValueError(f"source bundle path escapes repository: {relative}") from exc
+            if not path.is_file():
+                raise FileNotFoundError(path)
+            actual = file_sha256(path)
+        else:
+            candidates = git_blob_sha256_candidates(git_commit, normalized_relative)
+            actual = expected if expected in candidates else ""
         if actual != expected:
             raise ValueError(f"source bundle file hash mismatch: {normalized_relative}")
         normalized[normalized_relative] = actual
@@ -125,21 +173,91 @@ def validate_source_bundle(bundle: Mapping[str, Any]) -> dict[str, Any]:
     return {"sha256": aggregate, "files": normalized}
 
 
-def validate_diagnostic_training_report(path: Path, checkpoint: Path) -> dict[str, Any]:
+def _dynamic_identity(
+    report: Mapping[str, Any], expected_run_name: str, revision: str, gate_label: str, output_stem: str
+) -> dict[str, Any]:
+    if not re.fullmatch(r"rev[0-9]+", revision):
+        raise ValueError("diagnostic revision must match rev<number>")
+    if gate_label not in SUPPORTED_GATE_ITERATIONS:
+        raise ValueError("diagnostic gate_label must be gate01, gate10, or gate50")
+    if not OUTPUT_STEM_PATTERN.fullmatch(output_stem):
+        raise ValueError("diagnostic output_stem must use the numbered G009 R0 prone pattern")
+    if f"_{revision}_" not in f"_{output_stem}_" or f"_{gate_label}_" not in f"_{output_stem}_":
+        raise ValueError("diagnostic output_stem revision/gate mismatch")
+    if not RUN_NAME_PATTERN.fullmatch(expected_run_name):
+        raise ValueError("diagnostic expected_run_name is not canonical")
+    if f"_{revision}_" not in f"_{expected_run_name}_" or f"_{gate_label}_" not in f"_{expected_run_name}_":
+        raise ValueError("diagnostic training run_name revision/gate mismatch")
+    if report.get("run_name") != expected_run_name:
+        raise ValueError("diagnostic training run_name does not match expected_run_name")
+    return {
+        "expected_run_name": expected_run_name,
+        "revision": revision,
+        "gate_label": gate_label,
+        "iterations": SUPPORTED_GATE_ITERATIONS[gate_label],
+        "output_stem": output_stem,
+    }
+
+
+def validate_diagnostic_training_report(
+    path: Path,
+    checkpoint: Path,
+    *,
+    revision: str | None = None,
+    gate_label: str | None = None,
+    output_stem: str | None = None,
+    expected_run_name: str | None = None,
+) -> dict[str, Any]:
     report = _read_json(path)
     actual_report_sha = file_sha256(path)
     actual_checkpoint_sha = file_sha256(checkpoint)
     safety = report.get("training_safety_aggregate", {})
     series = report.get("tensorboard", {}).get("series_summary", {})
+    dynamic_values = (revision, gate_label, output_stem, expected_run_name)
+    dynamic = any(value is not None for value in dynamic_values)
+    if dynamic and not all(isinstance(value, str) and value for value in dynamic_values):
+        raise ValueError("revision, gate_label, output_stem, and expected_run_name must be supplied together")
+    identity = (
+        _dynamic_identity(
+            report, str(expected_run_name), str(revision), str(gate_label), str(output_stem)
+        ) if dynamic else None
+    )
+    if identity:
+        canonical_report = REPO_ROOT / "reports" / "runs" / f"{expected_run_name}.json"
+        if path.resolve() != canonical_report.resolve():
+            raise ValueError("diagnostic training report path does not match expected_run_name")
+    expected_iterations = identity["iterations"] if identity else 50
+    iteration_fields = {
+        "max_iterations": report.get("max_iterations"),
+        "last_iteration": report.get("last_iteration"),
+        "iteration_target": report.get("iteration_target"),
+    }
+    invalid_iteration_types = [name for name, value in iteration_fields.items() if type(value) is not int]
+    if invalid_iteration_types:
+        raise ValueError("diagnostic iteration fields must be integers: " + ", ".join(invalid_iteration_types))
+    bound_run_name = str(expected_run_name) if identity else EXPECTED_RUN_NAME
+    expected_commit = report.get("repository", {}).get("commit") if identity else EXPECTED_TRAINING_COMMIT
+    expected_bundle = report.get("source_bundle", {}).get("sha256") if identity else EXPECTED_SOURCE_BUNDLE_SHA256
+    expected_checkpoint = report.get("artifacts", {}).get("checkpoint_sha256") if identity else EXPECTED_CHECKPOINT_SHA256
+    expected_report_sha = EXPECTED_TRAINING_REPORT_SHA256
+    if identity:
+        bundle_files = report.get("source_bundle", {}).get("files")
+        if not isinstance(bundle_files, Mapping) or set(bundle_files) != REQUIRED_SOURCE_BUNDLE_PATHS:
+            raise ValueError("diagnostic source bundle path set mismatch")
+    actual_head = current_git_commit() if identity else EXPECTED_TRAINING_COMMIT
+    reported_checkpoint_path = resolve_portable_path(
+        str(report.get("artifacts", {}).get("checkpoint", ""))
+    ).resolve()
+    if not identity and actual_report_sha != expected_report_sha:
+        raise ValueError("rev9 diagnostic training binding failed: report_sha256")
     checks = {
-        "report_sha256": actual_report_sha == EXPECTED_TRAINING_REPORT_SHA256,
-        "run_name": report.get("run_name") == EXPECTED_RUN_NAME,
+        "run_name": report.get("run_name") == bound_run_name,
         "task": report.get("task") == DEFAULT_TASK,
         "seed": report.get("seed") == 42,
         "num_envs": report.get("num_envs") == 1024,
-        "max_iterations": report.get("max_iterations") == 50,
-        "last_iteration": report.get("last_iteration") == 49,
-        "iteration_target": report.get("iteration_target") == 50,
+        "max_iterations": report.get("max_iterations") == expected_iterations,
+        "last_iteration": report.get("last_iteration") == expected_iterations - 1,
+        "iteration_target": report.get("iteration_target") == expected_iterations,
         "headless": report.get("headless") is True,
         "scratch": report.get("resume", {}).get("enabled") is False,
         "no_hydra_overrides": report.get("effective_hydra_overrides") == [],
@@ -150,38 +268,52 @@ def validate_diagnostic_training_report(path: Path, checkpoint: Path) -> dict[st
         ),
         "run_health": report.get("run_health_passed") is True and report.get("passed") is True,
         "repository_clean_at_training": report.get("repository", {}).get("dirty") is False,
-        "training_commit": report.get("repository", {}).get("commit") == EXPECTED_TRAINING_COMMIT,
+        "training_commit": (
+            isinstance(expected_commit, str)
+            and re.fullmatch(r"[0-9a-fA-F]{40}", expected_commit) is not None
+            and expected_commit == actual_head
+        ),
         "source_bundle_commit_match": report.get("source_bundle", {}).get("matches_repository_commit") is True,
-        "source_bundle_identity": report.get("source_bundle", {}).get("sha256") == EXPECTED_SOURCE_BUNDLE_SHA256,
+        "source_bundle_identity": isinstance(expected_bundle, str) and len(expected_bundle) == 64,
         "checkpoint_identity": (
-            report.get("artifacts", {}).get("checkpoint_sha256") == EXPECTED_CHECKPOINT_SHA256
-            and actual_checkpoint_sha == EXPECTED_CHECKPOINT_SHA256
+            isinstance(expected_checkpoint, str)
+            and report.get("artifacts", {}).get("checkpoint_sha256") == expected_checkpoint
+            and actual_checkpoint_sha == expected_checkpoint
+            and (not identity or reported_checkpoint_path == checkpoint.resolve())
             and Path(str(report.get("artifacts", {}).get("checkpoint", "")).replace("\\", "/")).name
-            == "model_49.pt"
+            == f"model_{expected_iterations - 1}.pt"
         ),
         "numeric_safety_series_present": safety.get("numeric_invalid", {}).get("maximum") == 0.0,
-        "rejected_hard_limit_evidence_present": (
-            isinstance(safety.get("hard_joint_limit", {}).get("maximum"), (int, float))
-            and safety["hard_joint_limit"]["maximum"] > 0.0
+        "hard_limit_series_present": isinstance(safety.get("hard_joint_limit", {}).get("maximum"), (int, float)),
+        "strict_success_series_present": isinstance(
+            series.get("Episode_Reward/stable_success_once", {}).get("maximum"), (int, float)
         ),
-        "strict_success_absent": series.get("Episode_Reward/stable_success_once", {}).get("maximum") == 0.0,
     }
+    if not dynamic:
+        checks["rejected_hard_limit_evidence_present"] = (
+            safety.get("hard_joint_limit", {}).get("maximum", 0.0) > 0.0
+        )
+        checks["strict_success_absent"] = (
+            series.get("Episode_Reward/stable_success_once", {}).get("maximum") == 0.0
+        )
     failed = [name for name, passed in checks.items() if not passed]
     if failed:
-        raise ValueError("rev9 diagnostic training binding failed: " + ", ".join(failed))
-    source_bundle = validate_source_bundle(report.get("source_bundle", {}))
-    if source_bundle["sha256"] != EXPECTED_SOURCE_BUNDLE_SHA256:
-        raise ValueError("rev9 diagnostic source bundle identity mismatch")
+        raise ValueError(("diagnostic" if dynamic else "rev9 diagnostic") + " training binding failed: " + ", ".join(failed))
+    source_bundle = validate_source_bundle(
+        report.get("source_bundle", {}), git_commit=None if identity else EXPECTED_TRAINING_COMMIT
+    )
+    if source_bundle["sha256"] != expected_bundle:
+        raise ValueError("diagnostic source bundle identity mismatch")
     return {
         "path": portable_path(path),
         "sha256": actual_report_sha,
-        "run_name": EXPECTED_RUN_NAME,
-        "repository": {"commit": EXPECTED_TRAINING_COMMIT, "clean": True},
+        "run_name": bound_run_name,
+        "repository": {"commit": expected_commit, "clean": True},
         "source_bundle": source_bundle,
         "checkpoint_sha256": actual_checkpoint_sha,
         "protocol": {
             "num_envs": 1024,
-            "max_iterations": 50,
+            "max_iterations": expected_iterations,
             "seed": 42,
             "headless": True,
             "scratch": True,
@@ -197,15 +329,32 @@ def validate_output_dir(path: Path) -> Path:
     return resolved
 
 
-def validate_report_path(path: Path) -> Path:
+def expected_report_path(output_stem: str | None, seed: int = 42) -> Path:
+    return DEFAULT_REPORT_PATH if output_stem is None else REPO_ROOT / "reports" / "runs" / f"{output_stem}_capture_s{seed}.json"
+
+
+def validate_report_path(path: Path, output_stem: str | None = None, seed: int = 42) -> Path:
     resolved = path.resolve()
-    if resolved != DEFAULT_REPORT_PATH.resolve():
-        raise ValueError(f"diagnostic capture report path is fixed to {DEFAULT_REPORT_PATH}")
+    expected = expected_report_path(output_stem, seed)
+    if resolved != expected.resolve():
+        raise ValueError(f"diagnostic capture report path is fixed to {expected}")
     return resolved
 
 
-def output_name() -> str:
-    return OUTPUT_FILENAME
+def output_name(output_stem: str | None = None, seed: int = 42) -> str:
+    return OUTPUT_FILENAME if output_stem is None else f"{output_stem}_s{seed}.mp4"
+
+
+def validate_new_capture_paths(report_path: Path, video_path: Path) -> None:
+    for path in (report_path.resolve(), video_path.resolve()):
+        if path.exists():
+            raise FileExistsError(path)
+
+
+def validate_new_report_path_before_launch(report_path: Path) -> None:
+    resolved = report_path.resolve()
+    if resolved.exists():
+        raise FileExistsError(resolved)
 
 
 def diagnostic_recorded_frame_count(elapsed_steps: int, terminated: bool) -> int:
@@ -258,7 +407,7 @@ def _trim_capture(source: Path, destination: Path, frame_count: int, ffmpeg: str
 
 
 def _configure_environment(args: argparse.Namespace) -> Any:
-    from isaaclab_tasks.utils import parse_env_cfg
+    from isaaclab_tasks.utils import parse_env_cfg  # pyright: ignore[reportMissingImports]
 
     env_cfg: Any = parse_env_cfg(args.task, device=args.device, num_envs=CAPTURE_NUM_ENVS)
     env_cfg.seed = args.seed
@@ -274,26 +423,29 @@ def _configure_environment(args: argparse.Namespace) -> Any:
 
 
 def _record(args: argparse.Namespace) -> dict[str, Any]:
-    import gymnasium as gym
-    import torch
-    from rsl_rl.runners import OnPolicyRunner
+    import gymnasium as gym  # pyright: ignore[reportMissingImports]
+    import torch  # pyright: ignore[reportMissingImports]
+    from rsl_rl.runners import OnPolicyRunner  # pyright: ignore[reportMissingImports]
 
-    import isaaclab_tasks  # noqa: F401
-    from isaaclab_rl.rsl_rl import RslRlVecEnvWrapper
-    from isaaclab_tasks.utils import load_cfg_from_registry
+    import isaaclab_tasks  # noqa: F401  # pyright: ignore[reportMissingImports]
+    from isaaclab_rl.rsl_rl import RslRlVecEnvWrapper  # pyright: ignore[reportMissingImports]
+    from isaaclab_tasks.utils import load_cfg_from_registry  # pyright: ignore[reportMissingImports]
     from isaac_walk_g009 import register_tasks
 
     register_tasks()
     checkpoint = args.checkpoint.resolve()
-    training_binding = validate_diagnostic_training_report(args.training_report.resolve(), checkpoint)
+    training_binding = validate_diagnostic_training_report(
+        args.training_report.resolve(), checkpoint,
+        revision=args.revision, gate_label=args.gate_label, output_stem=args.output_stem,
+        expected_run_name=args.expected_run_name,
+    )
     source_state_before = git_source_state()
     if not source_state_before["clean"]:
         raise ValueError("diagnostic capture source tree is dirty outside reports/runs")
     output_dir = validate_output_dir(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    destination = output_dir / output_name()
-    if destination.exists():
-        raise FileExistsError(destination)
+    destination = output_dir / output_name(args.output_stem, args.seed)
+    validate_new_capture_paths(args.report, destination)
 
     env_cfg: Any = _configure_environment(args)
     agent_cfg: Any = load_cfg_from_registry(args.task, "rsl_rl_cfg_entry_point")
@@ -304,7 +456,7 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
     if controller is not None:
         controller.update_view_to_asset_root("robot")
         controller.update_view_location(eye=CAMERA_EYE, lookat=CAMERA_LOOKAT)
-    prefix = "g009-5-r0-diag-rev9-pilot-01-prone"
+    prefix = (args.output_stem or "g009_5_r0_diag_rev9_pilot_01_prone").replace("_", "-")
     recorded_env: Any = gym.wrappers.RecordVideo(
         raw_env,
         video_folder=str(output_dir),
@@ -391,7 +543,14 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
         raise
 
     source_state_after = git_source_state()
-    source_bundle_after = validate_source_bundle(training_binding["source_bundle"])
+    source_bundle_after = validate_source_bundle(
+        training_binding["source_bundle"],
+        git_commit=(
+            training_binding["repository"]["commit"]
+            if args.output_stem is None
+            else None
+        ),
+    )
     if source_state_before != source_state_after or not source_state_after["clean"]:
         destination.unlink(missing_ok=True)
         raise RuntimeError("repository commit/source state changed during diagnostic capture")
@@ -417,7 +576,14 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
         "qualification_status": "not_run",
         "policy_result": "single_playback_success" if success else "failure",
         "strict_success": int(success),
-        "purpose": "rejected rev9 prone pilot playback; not policy qualification evidence",
+        "purpose": (
+            "rejected rev9 prone pilot playback; not policy qualification evidence"
+            if args.output_stem is None
+            else f"{args.revision} {args.gate_label} prone diagnostic playback; not policy qualification evidence"
+        ),
+        "revision": args.revision or "rev9",
+        "gate_label": args.gate_label or "pilot",
+        "output_stem": args.output_stem,
         "task": args.task,
         "pose": {"index": POSE_INDEX, "pose_id": POSE, "source_class_id": SOURCE_CLASS_ID},
         "seed": args.seed,
@@ -486,11 +652,15 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    from isaaclab.app import AppLauncher
+    from isaaclab.app import AppLauncher  # pyright: ignore[reportMissingImports]
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", required=True, type=Path)
     parser.add_argument("--training-report", required=True, type=Path)
+    parser.add_argument("--revision")
+    parser.add_argument("--gate-label")
+    parser.add_argument("--output-stem")
+    parser.add_argument("--expected-run-name")
     parser.add_argument("--task", default=DEFAULT_TASK)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--horizon-steps", type=int, default=400)
@@ -509,17 +679,29 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         raise FileNotFoundError(args.checkpoint)
     if not args.training_report.is_file():
         raise FileNotFoundError(args.training_report)
+    dynamic_values = (args.revision, args.gate_label, args.output_stem, args.expected_run_name)
+    if any(value is not None for value in dynamic_values) and not all(dynamic_values):
+        raise ValueError("revision, gate-label, output-stem, and expected-run-name must be supplied together")
     if args.seed != 42 or args.horizon_steps != 400 or args.task != DEFAULT_TASK:
-        raise ValueError("rev9 diagnostic capture is fixed to task/seed42/400 steps")
+        raise ValueError("diagnostic capture is fixed to task/seed42/400 steps")
+    if args.output_stem is not None:
+        _dynamic_identity(
+            _read_json(args.training_report), args.expected_run_name,
+            args.revision, args.gate_label, args.output_stem,
+        )
+        if args.report == DEFAULT_REPORT_PATH:
+            args.report = expected_report_path(args.output_stem, args.seed)
     validate_output_dir(args.output_dir)
-    validate_report_path(args.report)
+    validate_report_path(args.report, args.output_stem, args.seed)
+    validate_new_report_path_before_launch(args.report)
     return args
 
 
 def main(argv: list[str] | None = None) -> int:
-    from isaaclab.app import AppLauncher
+    from isaaclab.app import AppLauncher  # pyright: ignore[reportMissingImports]
 
     args = parse_args(argv)
+    validate_new_report_path_before_launch(args.report)
     app_launcher = AppLauncher(args)
     simulation_app = app_launcher.app
     try:

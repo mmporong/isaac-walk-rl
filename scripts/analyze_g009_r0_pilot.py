@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reproduce the G009 R0 rev9 prone-pilot diagnostic from TensorBoard."""
+"""Reproduce a G009 R0 prone-gate diagnostic from TensorBoard."""
 
 from __future__ import annotations
 
@@ -68,13 +68,30 @@ def resolve_portable_path(value: str) -> Path:
     return path if path.is_absolute() else REPO_ROOT / path
 
 
-def validate_pilot_report(path: Path) -> tuple[dict[str, Any], Path]:
+def validate_pilot_report(
+    path: Path,
+    *,
+    checkpoint: Path | None = None,
+    revision: str | None = None,
+    gate_label: str | None = None,
+    output_stem: str | None = None,
+    expected_run_name: str | None = None,
+) -> tuple[dict[str, Any], Path]:
     report = _read_json(path)
-    _require(report.get("run_name") == EXPECTED_RUN_NAME, "unexpected rev9 pilot run_name")
-    _require(report.get("task") == EXPECTED_TASK, "unexpected rev9 pilot task")
+    dynamic = any(value is not None for value in (revision, gate_label, output_stem, expected_run_name))
+    if dynamic:
+        _require(
+            all(isinstance(value, str) and value for value in (revision, gate_label, output_stem, expected_run_name)),
+            "revision, gate_label, output_stem, and expected_run_name must be supplied together",
+        )
+    else:
+        _require(report.get("run_name") == EXPECTED_RUN_NAME, "unexpected rev9 pilot run_name")
+    _require(report.get("task") == EXPECTED_TASK, "unexpected diagnostic task")
     _require(report.get("num_envs") == 1024, "rev9 pilot requires 1024 environments")
-    _require(report.get("max_iterations") == 50, "rev9 pilot requires 50 iterations")
-    _require(report.get("last_iteration") == 49, "rev9 pilot did not reach iteration 49")
+    expected_iterations = report.get("max_iterations") if dynamic else 50
+    if type(expected_iterations) is not int or expected_iterations <= 0:
+        raise ValueError("diagnostic iteration count is invalid")
+    _require(report.get("last_iteration") == expected_iterations - 1, "diagnostic did not reach the expected last iteration")
     _require(report.get("seed") == 42, "rev9 pilot requires seed 42")
     _require(report.get("headless") is True, "rev9 pilot must be headless")
     qualification = report.get("qualification_mode", {})
@@ -88,16 +105,26 @@ def validate_pilot_report(path: Path) -> tuple[dict[str, Any], Path]:
     tensorboard_dir = resolve_portable_path(report.get("artifacts", {}).get("tensorboard_directory", "")).resolve()
     _require(tensorboard_dir.is_dir(), f"TensorBoard directory is missing: {tensorboard_dir}")
     _require(any(tensorboard_dir.glob("events.out.tfevents.*")), "TensorBoard event file is missing")
-    checkpoint = resolve_portable_path(report.get("artifacts", {}).get("checkpoint", "")).resolve()
+    report_checkpoint = resolve_portable_path(report.get("artifacts", {}).get("checkpoint", "")).resolve()
+    if checkpoint is not None:
+        _require(checkpoint.resolve() == report_checkpoint, "explicit checkpoint path does not match training report")
+    checkpoint = (checkpoint or report_checkpoint).resolve()
     _require(checkpoint.is_file(), f"pilot checkpoint is missing: {checkpoint}")
     _require(file_sha256(checkpoint) == report.get("artifacts", {}).get("checkpoint_sha256"), "pilot checkpoint hash mismatch")
-    validate_diagnostic_training_report(path, checkpoint)
+    validate_diagnostic_training_report(
+        path,
+        checkpoint,
+        revision=revision,
+        gate_label=gate_label,
+        output_stem=output_stem,
+        expected_run_name=expected_run_name,
+    )
     return report, tensorboard_dir
 
 
 def load_scalar_series(tensorboard_dir: Path) -> dict[str, list[dict[str, float | int]]]:
     try:
-        from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
+        from tensorboard.backend.event_processing.event_accumulator import EventAccumulator  # pyright: ignore[reportMissingImports]
     except ImportError as exc:  # pragma: no cover - exercised by Isaac bundled Python
         raise RuntimeError("TensorBoard is unavailable; run with Isaac Sim bundled Python") from exc
     accumulator = EventAccumulator(str(tensorboard_dir), size_guidance={"scalars": 0})
@@ -157,15 +184,46 @@ def _summary(series: Sequence[Mapping[str, float | int]]) -> dict[str, float | i
     }
 
 
+def _dynamic_interpretation(
+    revision: str,
+    gate_label: str,
+    summaries: Mapping[str, Mapping[str, float | int]],
+    leak: bool,
+) -> str:
+    facts = [
+        "관절 한계 종료가 관측됨"
+        if int(summaries["Episode_Termination/hard_joint_limit"]["nonzero_sample_count"]) > 0
+        else "관절 한계 종료가 관측되지 않음",
+        "prone 커리큘럼 경계 누수가 관측됨" if leak else "prone 커리큘럼 경계 누수가 관측되지 않음",
+        "stable_support 신호가 관측됨"
+        if int(summaries["Episode_Reward/stable_support"]["nonzero_sample_count"]) > 0
+        else "stable_support 신호가 관측되지 않음",
+        "upright_hold 신호가 관측됨"
+        if int(summaries["Episode_Reward/upright_hold"]["nonzero_sample_count"]) > 0
+        else "upright_hold 신호가 관측되지 않음",
+        "엄격 성공이 관측됨"
+        if (
+            int(summaries["Episode_Termination/stable_success"]["nonzero_sample_count"]) > 0
+            or int(summaries["Episode_Reward/stable_success_once"]["nonzero_sample_count"]) > 0
+        )
+        else "엄격 성공이 관측되지 않음",
+    ]
+    return f"{revision} {gate_label} 진단: " + "; ".join(facts) + ". 정책 자격 평가는 수행하지 않았다."
+
+
 def build_analysis(
     report: Mapping[str, Any],
     report_path: Path,
     tensorboard_dir: Path,
     series: Mapping[str, Sequence[Mapping[str, float | int]]],
     event_bundle: Mapping[str, Any] | None = None,
+    revision: str | None = None,
+    gate_label: str | None = None,
+    output_stem: str | None = None,
 ) -> dict[str, Any]:
+    sample_count = int(report.get("max_iterations", 50))
     lengths = {tag: len(series[tag]) for tag in EXPECTED_TAGS}
-    _require(set(lengths.values()) == {50}, f"expected exactly 50 scalar samples per tag: {lengths}")
+    _require(set(lengths.values()) == {sample_count}, f"expected exactly {sample_count} scalar samples per tag: {lengths}")
     reference_steps = [int(item["step"]) for item in series["Train/mean_reward"]]
     for tag in EXPECTED_TAGS:
         _require([int(item["step"]) for item in series[tag]] == reference_steps, f"TensorBoard step alignment mismatch: {tag}")
@@ -196,7 +254,7 @@ def build_analysis(
         reasons.append("prone_curriculum_boundary_leak")
 
     tail = []
-    for index in range(40, 50):
+    for index in range(max(0, sample_count - 10), sample_count):
         tail.append(
             {
                 "iteration": reference_steps[index],
@@ -226,6 +284,9 @@ def build_analysis(
         "qualification_allowed": False,
         "qualification_status": "not_run",
         "qualification_block_reasons": reasons,
+        "revision": revision or "rev9",
+        "gate_label": gate_label or "pilot",
+        "output_stem": output_stem,
         "analysis_source": {
             "path": "scripts/analyze_g009_r0_pilot.py",
             "sha256": file_sha256(Path(__file__)),
@@ -241,13 +302,13 @@ def build_analysis(
             "path": report["artifacts"]["tensorboard_directory"],
             "event_bundle_sha256": event_bundle["sha256"],
             "event_files": event_bundle["files"],
-            "sample_count_per_tag": 50,
+            "sample_count_per_tag": sample_count,
         },
         "checkpoint": {
             "path": report["artifacts"]["checkpoint"],
             "sha256": report["artifacts"]["checkpoint_sha256"],
         },
-        "pilot": {"num_envs": 1024, "iterations": 50, "seed": 42, "headless": True, "scratch": True},
+        "pilot": {"num_envs": 1024, "iterations": sample_count, "seed": 42, "headless": True, "scratch": True},
         "observations": {
             "hard_joint_limit": hard,
             "numeric_invalid": summaries["Episode_Termination/numeric_invalid"],
@@ -265,7 +326,11 @@ def build_analysis(
             "policy_mean_noise_std": summaries["Policy/mean_noise_std"],
         },
         "tail_10_iterations": tail,
-        "interpretation": "부분 자세 회복 신호는 관측됐지만 엄격 성공은 없었고 관절 한계 종료와 prone 경계 누수가 있어 다음 리비전은 scratch로 진행해야 한다.",
+        "interpretation": (
+            "부분 자세 회복 신호는 관측됐지만 엄격 성공은 없었고 관절 한계 종료와 prone 경계 누수가 있어 다음 리비전은 scratch로 진행해야 한다."
+            if revision is None
+            else _dynamic_interpretation(revision, str(gate_label), summaries, leak)
+        ),
     }
 
 
@@ -280,13 +345,46 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--training-report", type=Path, default=DEFAULT_TRAINING_REPORT)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--checkpoint", type=Path)
+    parser.add_argument("--revision")
+    parser.add_argument("--gate-label")
+    parser.add_argument("--output-stem")
+    parser.add_argument("--expected-run-name")
     return parser.parse_args(argv)
+
+
+def expected_analysis_path(output_stem: str) -> Path:
+    return REPO_ROOT / "reports" / "runs" / f"{output_stem}_analysis.json"
+
+
+def validate_new_output_path(path: Path) -> Path:
+    resolved = path.resolve()
+    if resolved.exists():
+        raise FileExistsError(resolved)
+    return resolved
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     report_path = args.training_report.resolve()
-    report, tensorboard_dir = validate_pilot_report(report_path)
+    dynamic_values = (args.revision, args.gate_label, args.output_stem, args.expected_run_name)
+    if any(value is not None for value in dynamic_values) and not all(dynamic_values):
+        raise ValueError("revision, gate-label, output-stem, and expected-run-name must be supplied together")
+    if args.output_stem is not None and args.checkpoint is None:
+        raise ValueError("dynamic diagnostic analysis requires --checkpoint")
+    if args.output_stem is not None and args.output == DEFAULT_OUTPUT:
+        args.output = expected_analysis_path(args.output_stem)
+    if args.output_stem is not None and args.output.resolve() != expected_analysis_path(args.output_stem).resolve():
+        raise ValueError("diagnostic analysis output path does not match output-stem")
+    validate_new_output_path(args.output)
+    report, tensorboard_dir = validate_pilot_report(
+        report_path,
+        checkpoint=args.checkpoint,
+        revision=args.revision,
+        gate_label=args.gate_label,
+        output_stem=args.output_stem,
+        expected_run_name=args.expected_run_name,
+    )
     event_bundle_before = tensorboard_event_bundle(tensorboard_dir)
     series = load_scalar_series(tensorboard_dir)
     event_bundle_after = tensorboard_event_bundle(tensorboard_dir)
@@ -298,6 +396,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         tensorboard_dir,
         series,
         event_bundle=event_bundle_before,
+        revision=args.revision,
+        gate_label=args.gate_label,
+        output_stem=args.output_stem,
     )
     _write_json_atomic(args.output.resolve(), analysis)
     print(json.dumps({"status": analysis["status"], "output": str(args.output.resolve())}, ensure_ascii=False))

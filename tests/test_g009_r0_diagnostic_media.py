@@ -6,7 +6,7 @@ import importlib.util
 import json
 from pathlib import Path
 
-import pytest
+import pytest  # pyright: ignore[reportMissingImports]
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -94,8 +94,69 @@ def test_analysis_rejects_misaligned_tensorboard_steps(tmp_path: Path, monkeypat
         )
 
 
-def _capture_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Path, dict, dict]:
-    video = tmp_path / diagnostic.EXPECTED_LOCAL_NAME
+def test_dynamic_analysis_rejects_boolean_iteration_count(tmp_path: Path) -> None:
+    report_path = tmp_path / "training.json"
+    report_path.write_text(
+        json.dumps(
+            {
+                "run_name": "go2_flat_recover_rev10_prone_gate01_s42_fixture",
+                "task": analysis.EXPECTED_TASK,
+                "num_envs": 1024,
+                "max_iterations": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="iteration count is invalid"):
+        analysis.validate_pilot_report(
+            report_path,
+            revision="rev10",
+            gate_label="gate01",
+            output_stem="g009_5_r0_diag_rev10_gate01_01_prone",
+            expected_run_name="go2_flat_recover_rev10_prone_gate01_s42_fixture",
+        )
+
+
+def test_gate01_analysis_uses_report_iteration_count_and_stays_diagnostic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    report_path = tmp_path / "training.json"
+    report_path.write_text("{}", encoding="utf-8")
+    (tmp_path / "events.out.tfevents.fixture").write_bytes(b"event-bundle")
+    monkeypatch.setattr(analysis, "REPO_ROOT", tmp_path)
+    series = {tag: values[:1] for tag, values in _pilot_series().items()}
+    result = analysis.build_analysis(
+        {
+            "run_name": "go2_flat_recover_rev10_prone_gate01_s42_fixture",
+            "max_iterations": 1,
+            "repository": {"commit": "c" * 40},
+            "source_bundle": {"sha256": "b" * 64},
+            "artifacts": {
+                "tensorboard_directory": "tb",
+                "checkpoint": "model_0.pt",
+                "checkpoint_sha256": "a" * 64,
+            },
+        },
+        report_path,
+        tmp_path,
+        series,
+        revision="rev10",
+        gate_label="gate01",
+        output_stem="g009_5_r0_diag_rev10_gate01_01_prone",
+    )
+    assert result["pilot"]["iterations"] == 1
+    assert len(result["tail_10_iterations"]) == 1
+    assert result["qualification_allowed"] is False
+    assert result["public_claim_eligible"] is False
+    assert "관절 한계 종료가 관측됨" in result["interpretation"]
+    assert "prone 커리큘럼 경계 누수가 관측되지 않음" in result["interpretation"]
+    assert "정책 자격 평가는 수행하지 않았다" in result["interpretation"]
+
+
+def _capture_fixture(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, output_stem: str | None = None
+) -> tuple[Path, Path, dict, dict]:
+    video = tmp_path / (diagnostic.EXPECTED_LOCAL_NAME if output_stem is None else f"{output_stem}_s42.mp4")
     checkpoint = tmp_path / "model_49.pt"
     training = tmp_path / "training.json"
     tensorboard = tmp_path / "tensorboard"
@@ -117,6 +178,9 @@ def _capture_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[P
         "qualification_status": "not_run",
         "policy_result": "failure",
         "strict_success": 0,
+        "revision": "rev9" if output_stem is None else "rev10",
+        "gate_label": "pilot" if output_stem is None else "gate10",
+        "output_stem": output_stem,
         "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
         "seed": 42,
         "headless": True,
@@ -136,6 +200,11 @@ def _capture_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[P
             "path": "training.json",
             "sha256": diagnostic.file_sha256(training),
             "checkpoint_sha256": diagnostic.file_sha256(checkpoint),
+            "run_name": (
+                analysis.EXPECTED_RUN_NAME
+                if output_stem is None
+                else "go2_flat_recover_rev10_prone_gate10_s42_fixture"
+            ),
         },
         "source_bindings": {
             "record_source": {
@@ -156,6 +225,9 @@ def _capture_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[P
         "diagnostic_only": True,
         "qualification_allowed": False,
         "public_claim_eligible": False,
+        "revision": "rev9" if output_stem is None else "rev10",
+        "gate_label": "pilot" if output_stem is None else "gate10",
+        "output_stem": output_stem,
         "analysis_source": {
             "path": diagnostic.EXPECTED_ANALYSIS_SOURCE,
             "sha256": diagnostic.file_sha256(ROOT / diagnostic.EXPECTED_ANALYSIS_SOURCE),
@@ -174,6 +246,11 @@ def _capture_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[P
             "prone_curriculum_boundary_leak",
         ],
     }
+    analysis_doc["training_report"]["run_name"] = (
+        analysis.EXPECTED_RUN_NAME
+        if output_stem is None
+        else "go2_flat_recover_rev10_prone_gate10_s42_fixture"
+    )
     capture_path, analysis_path = tmp_path / "capture.json", tmp_path / "analysis.json"
     capture_path.write_text(json.dumps(capture), encoding="utf-8")
     analysis_path.write_text(json.dumps(analysis_doc), encoding="utf-8")
@@ -190,6 +267,16 @@ def _capture_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[P
         raise AssertionError(value)
 
     monkeypatch.setattr(diagnostic, "resolve_portable_path", resolve)
+    monkeypatch.setattr(
+        diagnostic,
+        "git_blob_sha256_candidates",
+        lambda _commit, relative: frozenset({diagnostic.file_sha256(ROOT / relative)}),
+    )
+    monkeypatch.setattr(
+        diagnostic,
+        "validate_diagnostic_training_report",
+        lambda *_args, **_kwargs: capture["training_binding"],
+    )
     return capture_path, analysis_path, capture, analysis_doc
 
 
@@ -290,6 +377,17 @@ def test_media_signatures_size_and_transaction_rollback(tmp_path: Path) -> None:
     assert final.read_bytes() == b"old"
 
 
+def test_analysis_and_public_media_outputs_cannot_be_overwritten(tmp_path: Path) -> None:
+    analysis_output = tmp_path / "analysis.json"
+    analysis_output.write_text("{}", encoding="utf-8")
+    with pytest.raises(FileExistsError):
+        analysis.validate_new_output_path(analysis_output)
+    existing = tmp_path / "existing.gif"
+    existing.write_bytes(b"GIF89a")
+    with pytest.raises(FileExistsError):
+        diagnostic.validate_new_public_paths((tmp_path / "new.png", existing))
+
+
 def test_diagnostic_cli_defaults_do_not_overlap_official_outputs() -> None:
     args = diagnostic.parse_args([])
     assert args.gif != official.REPO_ROOT / official.PUBLIC_GIF_PATH
@@ -302,3 +400,96 @@ def test_diagnostic_media_paths_are_fixed(tmp_path: Path) -> None:
     args = diagnostic.parse_args(["--gif", str(tmp_path / "official-overwrite.gif")])
     with pytest.raises(ValueError, match="paths are fixed"):
         diagnostic.validate_fixed_paths(args)
+
+
+def test_rev10_gate_media_identity_and_numbered_paths_are_isolated(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    stem = "g009_5_r0_diag_rev10_gate10_01_prone"
+    capture_path, analysis_path, _, analysis_doc = _capture_fixture(tmp_path, monkeypatch, stem)
+    analysis_doc["qualification_block_reasons"] = ["diagnostic_pilot_never_qualifies"]
+    analysis_path.write_text(json.dumps(analysis_doc), encoding="utf-8")
+    capture, accepted_analysis, video = diagnostic.validate_capture(
+        capture_path,
+        analysis_path,
+        revision="rev10",
+        gate_label="gate10",
+        output_stem=stem,
+        expected_run_name="go2_flat_recover_rev10_prone_gate10_s42_fixture",
+    )
+    assert capture["public_claim_eligible"] is False
+    assert accepted_analysis["qualification_allowed"] is False
+    assert video.name == f"{stem}_s42.mp4"
+    paths = diagnostic.expected_paths(stem)
+    assert paths["gif"].name == f"{stem}.gif"
+    assert paths["png"].name == f"{stem}_still.png"
+    assert paths["capture_report"].name == f"{stem}_capture_s42.json"
+
+
+def test_media_rejects_capture_training_binding_that_differs_from_revalidation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    stem = "g009_5_r0_diag_rev10_gate10_01_prone"
+    capture_path, analysis_path, capture, analysis_doc = _capture_fixture(tmp_path, monkeypatch, stem)
+    analysis_doc["qualification_block_reasons"] = ["diagnostic_pilot_never_qualifies"]
+    analysis_path.write_text(json.dumps(analysis_doc), encoding="utf-8")
+    revalidated = json.loads(json.dumps(capture["training_binding"]))
+    capture["training_binding"]["repository"] = {"commit": "b" * 40, "clean": True}
+    capture_path.write_text(json.dumps(capture), encoding="utf-8")
+    monkeypatch.setattr(diagnostic, "validate_diagnostic_training_report", lambda *_args, **_kwargs: revalidated)
+    with pytest.raises(ValueError, match="does not match revalidation"):
+        diagnostic.validate_capture(
+            capture_path,
+            analysis_path,
+            revision="rev10",
+            gate_label="gate10",
+            output_stem=stem,
+            expected_run_name="go2_flat_recover_rev10_prone_gate10_s42_fixture",
+        )
+
+
+def test_rev10_gate_cli_derives_all_outputs_and_rejects_partial_identity() -> None:
+    stem = "g009_5_r0_diag_rev10_gate01_01_prone"
+    args = diagnostic.parse_args(
+        [
+            "--revision", "rev10", "--gate-label", "gate01", "--output-stem", stem,
+            "--expected-run-name", "go2_flat_recover_rev10_prone_gate01_s42_fixture",
+        ]
+    )
+    expected = diagnostic.expected_paths(stem)
+    for name, path in expected.items():
+        assert getattr(args, name) == path
+    diagnostic.validate_fixed_paths(args)
+    with pytest.raises(ValueError, match="must be supplied together"):
+        diagnostic.parse_args(["--revision", "rev10"])
+
+
+@pytest.mark.parametrize(
+    "bad_stem",
+    [
+        "g009_5_r0_diag_rev10_gate01_01_prone_suffix",
+        "g009_5_r0_diag_rev10_gate01_01_prone/../../escape",
+    ],
+)
+def test_rev10_media_rejects_noncanonical_output_stem(bad_stem: str) -> None:
+    args = diagnostic.parse_args(
+        [
+            "--revision", "rev10", "--gate-label", "gate01", "--output-stem", bad_stem,
+            "--expected-run-name", "go2_flat_recover_rev10_prone_gate01_s42_fixture",
+        ]
+    )
+    with pytest.raises(ValueError, match="not canonical"):
+        diagnostic.validate_fixed_paths(args)
+
+
+def test_committed_rev9_capture_and_analysis_validate_when_local_video_available() -> None:
+    capture = json.loads(diagnostic.DEFAULT_CAPTURE.read_text(encoding="utf-8"))
+    video = diagnostic.resolve_portable_path(capture["local_video"]["path"])
+    if not video.is_file():
+        pytest.skip("local-only rev9 MP4 is unavailable on this host")
+    accepted_capture, accepted_analysis, accepted_video = diagnostic.validate_capture(
+        diagnostic.DEFAULT_CAPTURE, diagnostic.DEFAULT_ANALYSIS
+    )
+    assert accepted_capture["capture_commit"] == "1ba2859d6817faa49f8d49465274ca00a4377efe"
+    assert accepted_analysis["schema_version"] == "g009.r0.pilot_analysis.v2"
+    assert accepted_video == video.resolve()

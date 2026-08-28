@@ -4,7 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 
-import pytest
+import pytest  # pyright: ignore[reportMissingImports]
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -78,7 +78,51 @@ def _install_valid_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(diagnostic, "EXPECTED_TRAINING_REPORT_SHA256", report_sha)
     monkeypatch.setattr(diagnostic, "EXPECTED_CHECKPOINT_SHA256", checkpoint_sha)
     monkeypatch.setattr(diagnostic, "EXPECTED_SOURCE_BUNDLE_SHA256", bundle_sha)
+    monkeypatch.setattr(
+        diagnostic,
+        "git_blob_sha256_candidates",
+        lambda _commit, relative: frozenset({diagnostic.file_sha256(tmp_path / relative)}),
+    )
     return report_path, checkpoint, report
+
+
+def _install_dynamic_fixture(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    gate_label: str,
+    iterations: int,
+) -> tuple[Path, Path, dict, str]:
+    commit = "a" * 40
+    run_name = f"go2_flat_recover_rev10_prone_{gate_label}_s42_fixture"
+    files: dict[str, str] = {}
+    for relative in diagnostic.REQUIRED_SOURCE_BUNDLE_PATHS:
+        source = tmp_path / relative
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_text(f"{relative}\n", encoding="utf-8")
+        files[relative] = diagnostic.file_sha256(source)
+    checkpoint = tmp_path / "logs" / f"model_{iterations - 1}.pt"
+    checkpoint.parent.mkdir(parents=True)
+    checkpoint.write_bytes(f"checkpoint-{gate_label}".encode())
+    report = _valid_report(next(iter(files.values())), diagnostic.file_sha256(checkpoint))
+    report.update(
+        run_name=run_name,
+        max_iterations=iterations,
+        last_iteration=iterations - 1,
+        iteration_target=iterations,
+    )
+    report["repository"]["commit"] = commit
+    report["source_bundle"] = {
+        "sha256": diagnostic.source_bundle_sha256(files),
+        "files": files,
+        "matches_repository_commit": True,
+    }
+    report["artifacts"]["checkpoint"] = str(checkpoint)
+    report_path = tmp_path / "reports" / "runs" / f"{run_name}.json"
+    report_path.parent.mkdir(parents=True)
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    monkeypatch.setattr(diagnostic, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(diagnostic, "current_git_commit", lambda: commit)
+    return report_path, checkpoint, report, run_name
 
 
 def test_diagnostic_identity_and_local_only_filename() -> None:
@@ -102,6 +146,25 @@ def test_terminal_auto_reset_frame_is_removed() -> None:
     assert diagnostic.diagnostic_recorded_frame_count(400, terminated=True) == 400
     assert diagnostic.diagnostic_recorded_frame_count(400, terminated=False) == 401
     assert diagnostic.diagnostic_recorded_frame_count(1, terminated=True) == 1
+
+
+def test_capture_report_or_mp4_cannot_be_overwritten(tmp_path: Path) -> None:
+    report, video = tmp_path / "capture.json", tmp_path / "capture.mp4"
+    report.write_text("{}", encoding="utf-8")
+    with pytest.raises(FileExistsError):
+        diagnostic.validate_new_capture_paths(report, video)
+    report.unlink()
+    video.write_bytes(b"video")
+    with pytest.raises(FileExistsError):
+        diagnostic.validate_new_capture_paths(report, video)
+
+
+def test_existing_capture_report_is_rejected_before_app_launcher(tmp_path: Path) -> None:
+    report = tmp_path / "capture.json"
+    report.write_text("{}", encoding="utf-8")
+    assert not (tmp_path / "capture.mp4").exists()
+    with pytest.raises(FileExistsError):
+        diagnostic.validate_new_report_path_before_launch(report)
 
 
 def test_rev9_pilot_binding_accepts_only_exact_diagnostic_artifacts(
@@ -158,3 +221,171 @@ def test_rev9_binding_rejects_report_and_checkpoint_hash_changes(
     checkpoint.write_bytes(b"tampered")
     with pytest.raises(ValueError, match="checkpoint_identity"):
         diagnostic.validate_diagnostic_training_report(report_path, checkpoint)
+
+
+def test_rev10_gate_binding_is_derived_from_report_and_explicit_identity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    report_path, checkpoint, report, run_name = _install_dynamic_fixture(
+        tmp_path, monkeypatch, "gate50", 50
+    )
+    report["training_safety_aggregate"]["hard_joint_limit"]["maximum"] = 0.0
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    stem = "g009_5_r0_diag_rev10_gate50_01_prone"
+    binding = diagnostic.validate_diagnostic_training_report(
+        report_path,
+        checkpoint,
+        revision="rev10",
+        gate_label="gate50",
+        output_stem=stem,
+        expected_run_name=run_name,
+    )
+    assert binding["run_name"] == report["run_name"]
+    assert binding["repository"]["commit"] == "a" * 40
+    assert binding["protocol"]["max_iterations"] == 50
+    assert binding["sha256"] == diagnostic.file_sha256(report_path)
+    assert diagnostic.output_name(stem) == f"{stem}_s42.mp4"
+    assert diagnostic.expected_report_path(stem).name == f"{stem}_capture_s42.json"
+
+
+def test_rev10_gate_binding_fails_closed_on_gate_or_checkpoint_mismatch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    report_path, checkpoint, _, run_name = _install_dynamic_fixture(
+        tmp_path, monkeypatch, "gate10", 10
+    )
+    with pytest.raises(ValueError, match="revision/gate mismatch"):
+        diagnostic.validate_diagnostic_training_report(
+            report_path,
+            checkpoint,
+            revision="rev10",
+            gate_label="gate01",
+            output_stem="g009_5_r0_diag_rev10_gate01_01_prone",
+            expected_run_name=run_name,
+        )
+    checkpoint.write_bytes(b"tampered")
+    with pytest.raises(ValueError, match="checkpoint_identity"):
+        diagnostic.validate_diagnostic_training_report(
+            report_path,
+            checkpoint,
+            revision="rev10",
+            gate_label="gate10",
+            output_stem="g009_5_r0_diag_rev10_gate10_01_prone",
+            expected_run_name=run_name,
+        )
+
+
+@pytest.mark.parametrize(("gate_label", "iterations"), [("gate01", 1), ("gate10", 10), ("gate50", 50)])
+def test_each_rev10_gate_accepts_its_exact_iteration_and_checkpoint(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    gate_label: str,
+    iterations: int,
+) -> None:
+    report_path, checkpoint, _, run_name = _install_dynamic_fixture(
+        tmp_path, monkeypatch, gate_label, iterations
+    )
+    stem = f"g009_5_r0_diag_rev10_{gate_label}_01_prone"
+    binding = diagnostic.validate_diagnostic_training_report(
+        report_path,
+        checkpoint,
+        revision="rev10",
+        gate_label=gate_label,
+        output_stem=stem,
+        expected_run_name=run_name,
+    )
+    assert binding["protocol"]["max_iterations"] == iterations
+
+
+@pytest.mark.parametrize(
+    ("mutation", "failure"),
+    [
+        (lambda report: report.update(run_name="go2_flat_recover_rev10_prone_gate50_s42_tampered"), "expected_run_name"),
+        (lambda report: report["repository"].update(commit="b" * 40), "training_commit"),
+        (lambda report: report["source_bundle"]["files"].pop(next(iter(report["source_bundle"]["files"]))), "path set mismatch"),
+        (lambda report: report["artifacts"].update(checkpoint="C:/tampered/model_49.pt"), "checkpoint_identity"),
+    ],
+)
+def test_rev10_identity_rejects_run_commit_bundle_and_checkpoint_path_tamper(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation,
+    failure: str,
+) -> None:
+    report_path, checkpoint, report, run_name = _install_dynamic_fixture(
+        tmp_path, monkeypatch, "gate50", 50
+    )
+    mutation(report)
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ValueError, match=failure):
+        diagnostic.validate_diagnostic_training_report(
+            report_path,
+            checkpoint,
+            revision="rev10",
+            gate_label="gate50",
+            output_stem="g009_5_r0_diag_rev10_gate50_01_prone",
+            expected_run_name=run_name,
+        )
+
+
+def test_rev10_identity_rejects_noncanonical_training_report_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    report_path, checkpoint, _, run_name = _install_dynamic_fixture(
+        tmp_path, monkeypatch, "gate01", 1
+    )
+    wrong_path = tmp_path / "reports" / "runs" / "renamed.json"
+    wrong_path.write_bytes(report_path.read_bytes())
+    with pytest.raises(ValueError, match="report path"):
+        diagnostic.validate_diagnostic_training_report(
+            wrong_path,
+            checkpoint,
+            revision="rev10",
+            gate_label="gate01",
+            output_stem="g009_5_r0_diag_rev10_gate01_01_prone",
+            expected_run_name=run_name,
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("max_iterations", True), ("last_iteration", False), ("iteration_target", True)],
+)
+def test_rev10_identity_rejects_boolean_iteration_fields(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+    value: bool,
+) -> None:
+    report_path, checkpoint, report, run_name = _install_dynamic_fixture(
+        tmp_path, monkeypatch, "gate01", 1
+    )
+    report[field] = value
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ValueError, match="iteration fields must be integers"):
+        diagnostic.validate_diagnostic_training_report(
+            report_path,
+            checkpoint,
+            revision="rev10",
+            gate_label="gate01",
+            output_stem="g009_5_r0_diag_rev10_gate01_01_prone",
+            expected_run_name=run_name,
+        )
+
+
+def test_rev9_historical_bundle_accepts_only_raw_or_crlf_git_blob_candidates() -> None:
+    report_path = ROOT / "reports" / "runs" / "go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    commit = report["repository"]["commit"]
+    for relative, expected_sha in report["source_bundle"]["files"].items():
+        assert expected_sha in diagnostic.git_blob_sha256_candidates(commit, relative)
+
+
+def test_committed_rev9_training_artifacts_validate_when_available() -> None:
+    report_path = ROOT / "reports" / "runs" / "go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    checkpoint = diagnostic.resolve_portable_path(report["artifacts"]["checkpoint"])
+    if not checkpoint.is_file():
+        pytest.skip("local-only rev9 checkpoint is unavailable on this host")
+    binding = diagnostic.validate_diagnostic_training_report(report_path, checkpoint)
+    assert binding["source_bundle"]["sha256"] == report["source_bundle"]["sha256"]

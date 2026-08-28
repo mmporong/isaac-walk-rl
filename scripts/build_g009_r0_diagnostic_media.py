@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build clearly labeled public media from the G009 R0 rev9 diagnostic capture."""
+"""Build clearly labeled public media from a G009 R0 prone diagnostic capture."""
 
 from __future__ import annotations
 
@@ -7,14 +7,21 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import tempfile
 import uuid
+import sys
 from pathlib import Path, PureWindowsPath
 from typing import Any, Mapping, Sequence
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+SCRIPT_ROOT = Path(__file__).resolve().parent
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
+from record_g009_r0_diagnostic import validate_diagnostic_training_report
 EXPECTED_LOCAL_NAME = "g009_5_r0_diag_rev9_01_prone_s42.mp4"
 EXPECTED_LOCAL_PARENT = PureWindowsPath("%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic")
 DEFAULT_CAPTURE = REPO_ROOT / "reports/runs/g009_r0_diag_rev9_01_prone_capture_s42.json"
@@ -27,6 +34,8 @@ DEFAULT_FONT = Path("C:/Windows/Fonts/arialbd.ttf")
 EXPECTED_RECORD_SOURCE = "scripts/record_g009_r0_diagnostic.py"
 EXPECTED_ANALYSIS_SOURCE = "scripts/analyze_g009_r0_pilot.py"
 EXPECTED_CONFIG_SOURCE = "configs/g009_r0.json"
+OUTPUT_STEM_PATTERN = re.compile(r"^g009_5_r0_diag_rev[0-9]+_gate(?:01|10|50)_01_prone$")
+RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 MAX_PUBLIC_MEDIA_BYTES = 10 * 1024 * 1024
 GIF_SIGNATURES = (b"GIF87a", b"GIF89a")
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
@@ -43,6 +52,18 @@ def file_sha256(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def git_blob_sha256_candidates(commit: str, relative_path: str) -> frozenset[str]:
+    result = subprocess.run(
+        ["git", "show", f"{commit}:{relative_path}"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+    )
+    raw = result.stdout
+    crlf = raw.replace(b"\n", b"\r\n")
+    return frozenset({hashlib.sha256(raw).hexdigest(), hashlib.sha256(crlf).hexdigest()})
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -67,20 +88,58 @@ def portable_repo_path(path: Path) -> str:
         raise ValueError(f"public artifact must be inside repository: {path}") from exc
 
 
-def validate_fixed_paths(args: argparse.Namespace) -> None:
-    expected = {
-        "capture_report": DEFAULT_CAPTURE,
-        "analysis_report": DEFAULT_ANALYSIS,
-        "gif": DEFAULT_GIF,
-        "png": DEFAULT_PNG,
-        "summary": DEFAULT_SUMMARY,
-        "sidecar": DEFAULT_SIDECAR,
+def expected_paths(output_stem: str | None) -> dict[str, Path]:
+    if output_stem is None:
+        return {
+            "capture_report": DEFAULT_CAPTURE,
+            "analysis_report": DEFAULT_ANALYSIS,
+            "gif": DEFAULT_GIF,
+            "png": DEFAULT_PNG,
+            "summary": DEFAULT_SUMMARY,
+            "sidecar": DEFAULT_SIDECAR,
+        }
+    return {
+        "capture_report": REPO_ROOT / "reports/runs" / f"{output_stem}_capture_s42.json",
+        "analysis_report": REPO_ROOT / "reports/runs" / f"{output_stem}_analysis.json",
+        "gif": REPO_ROOT / "docs/media/g009/R0/diagnostic" / f"{output_stem}.gif",
+        "png": REPO_ROOT / "docs/media/g009/R0/diagnostic" / f"{output_stem}_still.png",
+        "summary": REPO_ROOT / "reports/runs" / f"{output_stem}_visual_summary.json",
+        "sidecar": REPO_ROOT / "reports/runs" / f"{output_stem}_visual_evidence.json",
     }
+
+
+def validate_fixed_paths(args: argparse.Namespace) -> None:
+    output_stem = getattr(args, "output_stem", None)
+    revision = getattr(args, "revision", None)
+    gate_label = getattr(args, "gate_label", None)
+    expected_run_name = getattr(args, "expected_run_name", None)
+    dynamic_values = (revision, gate_label, output_stem, expected_run_name)
+    _require(not any(value is not None for value in dynamic_values) or all(dynamic_values), "revision, gate-label, output-stem, and expected-run-name must be supplied together")
+    if output_stem is not None:
+        if not all(isinstance(value, str) for value in dynamic_values):
+            raise ValueError("dynamic diagnostic identity values must be strings")
+        assert isinstance(revision, str)
+        assert isinstance(gate_label, str)
+        assert isinstance(output_stem, str)
+        assert isinstance(expected_run_name, str)
+        _require(OUTPUT_STEM_PATTERN.fullmatch(output_stem) is not None, "output stem is not canonical")
+        _require(output_stem == f"g009_5_r0_diag_{revision}_{gate_label}_01_prone", "output stem revision/gate mismatch")
+        _require(RUN_NAME_PATTERN.fullmatch(expected_run_name) is not None, "expected run name is not canonical")
+        _require(f"_{revision}_" in f"_{expected_run_name}_" and f"_{gate_label}_" in f"_{expected_run_name}_", "expected run name revision/gate mismatch")
+    expected = expected_paths(output_stem)
     mismatches = [name for name, path in expected.items() if Path(getattr(args, name)).resolve() != path.resolve()]
     _require(not mismatches, "diagnostic media paths are fixed: " + ", ".join(mismatches))
 
 
-def validate_capture(capture_path: Path, analysis_path: Path) -> tuple[dict[str, Any], dict[str, Any], Path]:
+def validate_capture(
+    capture_path: Path,
+    analysis_path: Path,
+    *,
+    revision: str | None = None,
+    gate_label: str | None = None,
+    output_stem: str | None = None,
+    expected_run_name: str | None = None,
+) -> tuple[dict[str, Any], dict[str, Any], Path]:
     capture = _read_json(capture_path)
     analysis = _read_json(analysis_path)
     _require(capture.get("goal_id") == "g009", "capture goal_id mismatch")
@@ -110,13 +169,17 @@ def validate_capture(capture_path: Path, analysis_path: Path) -> tuple[dict[str,
     source_state = capture.get("source_state", {})
     _require(source_state.get("before") == source_state.get("after"), "source state changed during capture")
     _require(source_state.get("after", {}).get("clean") is True, "capture source state was dirty")
+    capture_commit = capture.get("capture_commit")
+    if not isinstance(capture_commit, str) or re.fullmatch(r"[0-9a-fA-F]{40}", capture_commit) is None:
+        raise ValueError("capture commit is invalid")
 
     video = capture.get("local_video", {})
     video_path = video.get("path")
     _require(isinstance(video_path, str), "capture local_video.path is required")
     portable = PureWindowsPath(video_path)
     _require(portable.parent == EXPECTED_LOCAL_PARENT, "diagnostic MP4 must remain in the local-only R0 directory")
-    _require(portable.name == EXPECTED_LOCAL_NAME, "diagnostic MP4 numbered filename mismatch")
+    expected_local_name = EXPECTED_LOCAL_NAME if output_stem is None else f"{output_stem}_s42.mp4"
+    _require(portable.name == expected_local_name, "diagnostic MP4 numbered filename mismatch")
     _require(video.get("git_policy") == "local_only", "diagnostic MP4 must be local_only")
     source = resolve_portable_path(video_path).resolve()
     _require(source.is_file() and source.stat().st_size > 0, f"diagnostic MP4 is missing: {source}")
@@ -132,6 +195,15 @@ def validate_capture(capture_path: Path, analysis_path: Path) -> tuple[dict[str,
     _require(training_path.is_file(), "bound training report is missing")
     _require(file_sha256(training_path) == training.get("sha256"), "bound training report hash mismatch")
     _require(training.get("checkpoint_sha256") == checkpoint.get("sha256"), "training/checkpoint binding mismatch")
+    revalidated_training = validate_diagnostic_training_report(
+        training_path,
+        checkpoint_path,
+        revision=revision,
+        gate_label=gate_label,
+        output_stem=output_stem,
+        expected_run_name=expected_run_name,
+    )
+    _require(revalidated_training == training, "capture training binding does not match revalidation")
 
     source_bindings = capture.get("source_bindings", {})
     expected_sources = {
@@ -141,21 +213,46 @@ def validate_capture(capture_path: Path, analysis_path: Path) -> tuple[dict[str,
     for binding_name, expected_path in expected_sources.items():
         binding = source_bindings.get(binding_name, {})
         _require(binding.get("path") == expected_path, f"capture {binding_name} path mismatch")
-        source_path = (REPO_ROOT / expected_path).resolve()
-        _require(source_path.is_file(), f"capture {binding_name} source is missing")
-        _require(file_sha256(source_path) == binding.get("sha256"), f"capture {binding_name} hash mismatch")
+        if output_stem is None:
+            source_candidates = git_blob_sha256_candidates(capture_commit, expected_path)
+            actual_source_sha = binding.get("sha256") if binding.get("sha256") in source_candidates else ""
+        else:
+            source_path = (REPO_ROOT / expected_path).resolve()
+            _require(source_path.is_file(), f"capture {binding_name} source is missing")
+            actual_source_sha = file_sha256(source_path)
+        _require(actual_source_sha == binding.get("sha256"), f"capture {binding_name} hash mismatch")
 
     _require(analysis.get("schema_version") == "g009.r0.pilot_analysis.v2", "analysis schema mismatch")
     _require(analysis.get("status") == "diagnostic_complete", "analysis must be diagnostic_complete")
     _require(analysis.get("diagnostic_only") is True, "analysis must be diagnostic_only")
     _require(analysis.get("qualification_allowed") is False, "analysis cannot allow qualification")
     _require(analysis.get("public_claim_eligible") is False, "analysis cannot be claim-eligible")
+    expected_revision = revision or "rev9"
+    expected_gate = gate_label or "pilot"
+    _require(capture.get("revision", "rev9") == expected_revision, "capture revision mismatch")
+    _require(capture.get("gate_label", "pilot") == expected_gate, "capture gate label mismatch")
+    _require(capture.get("output_stem") == output_stem, "capture output stem mismatch")
+    if output_stem is not None:
+        _require(capture.get("training_binding", {}).get("run_name") == expected_run_name, "capture training run mismatch")
+        _require(analysis.get("training_report", {}).get("run_name") == expected_run_name, "analysis training run mismatch")
+    _require(analysis.get("revision", "rev9") == expected_revision, "analysis revision mismatch")
+    _require(analysis.get("gate_label", "pilot") == expected_gate, "analysis gate label mismatch")
+    _require(analysis.get("output_stem") == output_stem, "analysis output stem mismatch")
     _require(analysis.get("checkpoint", {}).get("sha256") == checkpoint.get("sha256"), "analysis/capture checkpoint mismatch")
     _require(analysis.get("training_report", {}).get("sha256") == training.get("sha256"), "analysis/capture training report mismatch")
     analysis_source = analysis.get("analysis_source", {})
     _require(analysis_source.get("path") == EXPECTED_ANALYSIS_SOURCE, "analysis source path mismatch")
-    analysis_source_path = (REPO_ROOT / EXPECTED_ANALYSIS_SOURCE).resolve()
-    _require(file_sha256(analysis_source_path) == analysis_source.get("sha256"), "analysis source hash mismatch")
+    analysis_source_sha = (
+        (
+            analysis_source.get("sha256")
+            if analysis_source.get("sha256")
+            in git_blob_sha256_candidates(capture_commit, EXPECTED_ANALYSIS_SOURCE)
+            else ""
+        )
+        if output_stem is None
+        else file_sha256((REPO_ROOT / EXPECTED_ANALYSIS_SOURCE).resolve())
+    )
+    _require(analysis_source_sha == analysis_source.get("sha256"), "analysis source hash mismatch")
     tensorboard = analysis.get("tensorboard", {})
     tensorboard_path = resolve_portable_path(tensorboard.get("path", "")).resolve()
     _require(tensorboard_path.is_dir(), "analysis TensorBoard directory is missing")
@@ -170,10 +267,10 @@ def validate_capture(capture_path: Path, analysis_path: Path) -> tuple[dict[str,
     event_bundle_sha = hashlib.sha256(event_payload.encode("utf-8")).hexdigest()
     _require(event_bundle_sha == tensorboard.get("event_bundle_sha256"), "analysis TensorBoard event bundle mismatch")
     reasons = set(analysis.get("qualification_block_reasons", []))
-    _require(
-        {"diagnostic_pilot_never_qualifies", "hard_joint_limit_nonzero", "strict_success_zero", "prone_curriculum_boundary_leak"}.issubset(reasons),
-        "analysis is missing rev9 qualification blockers",
-    )
+    required_reasons = {"diagnostic_pilot_never_qualifies"}
+    if output_stem is None:
+        required_reasons.update({"hard_joint_limit_nonzero", "strict_success_zero", "prone_curriculum_boundary_leak"})
+    _require(required_reasons.issubset(reasons), "analysis is missing diagnostic qualification blockers")
     return capture, analysis, source
 
 
@@ -202,14 +299,20 @@ def _font_expression(font: Path) -> str:
     return "fontfile='" + font.resolve().as_posix().replace(":", r"\:") + "'"
 
 
-def _overlay_filter(font: Path, strict_success: int) -> str:
+def _overlay_filter(
+    font: Path, strict_success: int, revision: str = "rev9", gate_label: str = "pilot"
+) -> str:
     font_expr = _font_expression(font)
     if strict_success:
         headline = "DIAGNOSTIC · NOT QUALIFIED · 01 PRONE · SINGLE PLAYBACK SUCCESS"
-        footer = "REV9 PILOT - QUALIFICATION NOT RUN - STRICT SUCCESS 1"
+        footer = f"{revision.upper()} {gate_label.upper()} - QUALIFICATION NOT RUN - STRICT SUCCESS 1"
     else:
         headline = "DIAGNOSTIC · NOT QUALIFIED · 01 PRONE · STRICT SUCCESS 0"
-        footer = "REV9 PILOT - HARD LIMIT EVENTS - STRICT SUCCESS 0"
+        footer = (
+            "REV9 PILOT - HARD LIMIT EVENTS - STRICT SUCCESS 0"
+            if revision == "rev9" and gate_label == "pilot"
+            else f"{revision.upper()} {gate_label.upper()} - DIAGNOSTIC PLAYBACK - STRICT SUCCESS 0"
+        )
     return (
         "scale=960:540:force_original_aspect_ratio=decrease,pad=960:540:(ow-iw)/2:(oh-ih)/2:black,setsar=1,"
         "drawbox=x=0:y=0:w=iw:h=72:color=0x8B0000@0.92:t=fill,"
@@ -221,9 +324,12 @@ def _overlay_filter(font: Path, strict_success: int) -> str:
     )
 
 
-def _build_gif(source: Path, destination: Path, ffmpeg: str, font: Path, strict_success: int) -> None:
+def _build_gif(
+    source: Path, destination: Path, ffmpeg: str, font: Path, strict_success: int,
+    revision: str = "rev9", gate_label: str = "pilot",
+) -> None:
     graph = (
-        _overlay_filter(font, strict_success)
+        _overlay_filter(font, strict_success, revision, gate_label)
         + ",fps=6,scale=720:-2:flags=lanczos,split[base][palette_source];"
         "[palette_source]palettegen=max_colors=80:stats_mode=diff[palette];"
         "[base][palette]paletteuse=dither=sierra2_4a:diff_mode=rectangle"
@@ -238,6 +344,8 @@ def _build_contact_sheet(
     font: Path,
     duration_s: float,
     strict_success: int,
+    revision: str = "rev9",
+    gate_label: str = "pilot",
 ) -> list[float]:
     timestamps = [duration_s * fraction for fraction in (0.1, 0.4, 0.7, 0.9)]
     command = [ffmpeg, "-hide_banner", "-loglevel", "warning", "-y"]
@@ -246,7 +354,7 @@ def _build_contact_sheet(
     filters = []
     labels = []
     for index in range(4):
-        filters.append(f"[{index}:v]{_overlay_filter(font, strict_success)},scale=640:360[p{index}]")
+        filters.append(f"[{index}:v]{_overlay_filter(font, strict_success, revision, gate_label)},scale=640:360[p{index}]")
         labels.append(f"[p{index}]")
     filters.append("".join(labels) + "xstack=inputs=4:layout=0_0|640_0|0_360|640_360[out]")
     command.extend(["-filter_complex", ";".join(filters), "-map", "[out]", "-frames:v", "1", str(destination)])
@@ -305,6 +413,12 @@ def _publish_transaction(pairs: Sequence[tuple[Path, Path]], validator: Any) -> 
             backup.unlink(missing_ok=True)
 
 
+def validate_new_public_paths(paths: Sequence[Path]) -> None:
+    for path in paths:
+        if path.resolve().exists():
+            raise FileExistsError(path.resolve())
+
+
 def build(args: argparse.Namespace) -> dict[str, Any]:
     validate_fixed_paths(args)
     capture_path = args.capture_report.resolve()
@@ -313,13 +427,18 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     for path in (capture_path, analysis_path, font):
         if not path.is_file():
             raise FileNotFoundError(path)
-    capture, analysis, source = validate_capture(capture_path, analysis_path)
+    capture, analysis, source = validate_capture(
+        capture_path, analysis_path,
+        revision=args.revision, gate_label=args.gate_label, output_stem=args.output_stem,
+        expected_run_name=args.expected_run_name,
+    )
     probe = _stream_summary(_ffprobe(source, args.ffprobe))
     duration_s = float(probe["duration_s"] or 0.02)
     final_gif, final_png = args.gif.resolve(), args.png.resolve()
     final_summary, final_sidecar = args.summary.resolve(), args.sidecar.resolve()
     for path in (final_gif, final_png, final_summary, final_sidecar):
         portable_repo_path(path)
+    validate_new_public_paths((final_gif, final_png, final_summary, final_sidecar))
     with tempfile.TemporaryDirectory(prefix="g009-r0-diagnostic-media-") as temporary:
         temporary_root = Path(temporary)
         staged_gif = temporary_root / final_gif.name
@@ -327,8 +446,10 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         staged_summary = temporary_root / final_summary.name
         staged_sidecar = temporary_root / final_sidecar.name
         strict_success = capture["strict_success"]
-        _build_gif(source, staged_gif, args.ffmpeg, font, strict_success)
-        timestamps = _build_contact_sheet(source, staged_png, args.ffmpeg, font, duration_s, strict_success)
+        revision = args.revision or "rev9"
+        gate_label = args.gate_label or "pilot"
+        _build_gif(source, staged_gif, args.ffmpeg, font, strict_success, revision, gate_label)
+        timestamps = _build_contact_sheet(source, staged_png, args.ffmpeg, font, duration_s, strict_success, revision, gate_label)
         _validate_media(staged_gif, "gif")
         _validate_media(staged_png, "png")
         capture_binding = {"path": portable_repo_path(capture_path), "sha256": file_sha256(capture_path)}
@@ -359,6 +480,10 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             "diagnostic_only": True,
             "public_claim_eligible": False,
             "qualification_status": "not_run",
+            "revision": revision,
+            "gate_label": gate_label,
+            "output_stem": args.output_stem,
+            "expected_run_name": args.expected_run_name,
             "policy_result": capture["policy_result"],
             "strict_success": capture["strict_success"],
             "warning_label": (
@@ -425,7 +550,26 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--ffmpeg", default="ffmpeg")
     parser.add_argument("--ffprobe", default="ffprobe")
     parser.add_argument("--font", type=Path, default=DEFAULT_FONT)
-    return parser.parse_args(argv)
+    parser.add_argument("--revision")
+    parser.add_argument("--gate-label")
+    parser.add_argument("--output-stem")
+    parser.add_argument("--expected-run-name")
+    args = parser.parse_args(argv)
+    dynamic_values = (args.revision, args.gate_label, args.output_stem, args.expected_run_name)
+    if any(value is not None for value in dynamic_values):
+        _require(all(dynamic_values), "revision, gate-label, output-stem, and expected-run-name must be supplied together")
+        derived = expected_paths(args.output_stem)
+        for name, default in {
+            "capture_report": DEFAULT_CAPTURE,
+            "analysis_report": DEFAULT_ANALYSIS,
+            "gif": DEFAULT_GIF,
+            "png": DEFAULT_PNG,
+            "summary": DEFAULT_SUMMARY,
+            "sidecar": DEFAULT_SIDECAR,
+        }.items():
+            if Path(getattr(args, name)) == default:
+                setattr(args, name, derived[name])
+    return args
 
 
 def main(argv: Sequence[str] | None = None) -> int:
