@@ -1,5 +1,7 @@
 # G008 불규칙 도로·공간 마찰 강화학습
 
+- 작업 순번: `G008-7`
+- 선행 단계: `G008-3` friction S1, `G008-5` 주기 혼합 마찰 한계
 - 실행일: 2026-08-26
 - 태스크: `Isaac-G008-Velocity-IrregularRoad-Go2-S1-v0`
 - 로봇: Isaac Lab 내장 Unitree Go2

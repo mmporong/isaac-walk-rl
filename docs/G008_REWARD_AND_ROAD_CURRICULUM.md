@@ -1,5 +1,7 @@
 # G008 보상함수와 불규칙 도로 curriculum
 
+- 작업 순번: `G008-8`
+- 선행 단계: `G008-7` 비주기 도로·공간 마찰
 - 실행 시점: 2026-08-26~27 KST
 - 시뮬레이터: Isaac Sim 4.5.0, Isaac Lab v2.1.1
 - 로봇: Isaac Lab 내장 Unitree Go2

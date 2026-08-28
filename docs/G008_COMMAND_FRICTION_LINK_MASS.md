@@ -1,5 +1,27 @@
 # G008 논문 기반 방향 명령·마찰·다리 링크 질량 실험
 
+## 작업 순번
+
+번호는 의존성과 문서 순서를 나타낸다. command checkpoint 뒤에서 마찰과 링크 질량을 분리했으므로 `G008-3/5/7/8`과 `G008-4/6`은 서로 다른 분기다. 같은 묶음에서 실행한 두 분기의 시각 선후를 번호로 단정하지 않는다. `G008-9`는 마지막에 따로 실행한 단계가 아니라 각 단계 직후 만든 시각 자료를 모은 증거 index다. `S1`, `G0`, `T1`은 코드와 실험에서 쓰는 protocol stage ID다.
+
+```text
+G008-1 command smoke -> G008-2 command PPO
+                           |-> G008-3 friction S1 -> G008-5 mixed friction -> G008-7 irregular road -> G008-8 G0/T1
+                           `-> G008-4 leg-mass S1 -> G008-6 link-mass sensitivity
+```
+
+| 작업 번호 | 내용 | 결과 | 상세 문서 |
+| --- | --- | --- | --- |
+| `G008-1` | 네 방향 command 경로와 smoke | 완료 | 이 문서 |
+| `G008-2` | command PPO warm-start | 평면 네 방향 통과 | 이 문서 |
+| `G008-3` | friction S1 PPO | 평면 네 방향 통과, rough 확대 보류 | 이 문서 |
+| `G008-4` | leg-mass S1 PPO | 우회전 gate 실패 | 이 문서 |
+| `G008-5` | 주기 혼합 마찰 한계 | 전 방향 하한 미확정 | [혼합 마찰·링크 질량 한계](G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md) |
+| `G008-6` | 링크 그룹 질량 민감도 | leg-mass 우회전 실패 유지 | [혼합 마찰·링크 질량 한계](G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md) |
+| `G008-7` | 비주기 도로와 공간 마찰 | 추가 PPO checkpoint 기각 | [불규칙 도로](G008_IRREGULAR_ROAD.md) |
+| `G008-8` | G0 지형 분리와 T1 회전 보상 | 두 후보 기각, F1 보류 | [보상·도로 curriculum](G008_REWARD_AND_ROAD_CURRICULUM.md) |
+| `G008-9` | 단계 직후 만든 MP4·GIF·PNG·readback의 증거 index | 완료 | [시각 증거](G008_VISUAL_EVIDENCE.md) |
+
 ## 현재 결론
 
 G008은 서로 다른 원인을 한 번에 섞지 않는다. 먼저 전진·후진·제자리 좌회전·제자리 우회전을 학습 분포에서 충분히 자주 만나게 만들었다. 다음으로 발바닥 마찰과 다리 링크 질량을 별도 태스크로 나누고, 각 축을 좁은 범위에서 시작해 세 단계로 넓히도록 구성했다.

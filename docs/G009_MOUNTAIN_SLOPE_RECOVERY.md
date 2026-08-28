@@ -5,8 +5,23 @@
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0 완료, S0 지형·계측 1차 구현과 analytic/config 검증 완료, 시각 재생 진행 중
+- 현재 단계: C0와 S0 완료. 지형·계측, Isaac runtime readback, headless off-screen 시각 재생 증거까지 고정
 - 현재 한계: G009 전용 WALK/RECOVER PPO 학습과 supervisor 결합 평가는 아직 시작하지 않음
+
+## 작업 순번
+
+`G009-n`은 읽는 순서를 위한 번호이고 괄호의 `C0`, `S0`, `R0`, `S1-low`가 protocol stage ID다.
+
+| 작업 번호 | protocol stage | 내용 | 상태 |
+| --- | --- | --- | --- |
+| `G009-1` | `C0` | goal별 미디어 경로와 24개 stage registry | 완료 |
+| `G009-2` | `S0` | 6개 경사 × 4개 방위 analytic gate | `24/24` 통과 |
+| `G009-3` | `S0` | collision mesh, material, support-normal reset의 Isaac runtime readback | 완료 |
+| `G009-4` | `S0` | 5°·15°·25° 동일 조건 headless 재생 | 완료, 25°는 실패 경계 |
+| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | 다음 학습 |
+| `G009-6` | `S1-low` | 5°·10° 횡경사 WALK PPO | R0·calibration 뒤 실행 |
+
+이후 `S1-high`, 외란, residual terrain, 발별·공간 마찰, 경사 RECOVER와 link-mass를 순차적으로 연다. 전체 stage 순서는 [다음 학습과 검증 순서](#다음-학습과-검증-순서)에 있다.
 
 ## 먼저 결론
 
@@ -17,7 +32,7 @@ G009는 산 비탈에서 보행 영상을 만드는 작업이 아니라, 경사�
 3. 네 발이 서로 다른 마찰을 받거나 공간 마찰 지도가 이동 경로에 따라 바뀌어도 복구한다.
 4. 외란을 버틴 경우와 실제 낙상 뒤 RECOVER 정책으로 전환한 경우를 구분해 평가한다.
 
-현재 완료된 검증 범위는 이 실험을 시작하기 위한 C0와 S0의 analytic/config slice다. 경사 `0/5/10/15/20/25°`와 방위 `0/90/180/270°`를 교차한 24개 analytic cell이 모두 통과했다. 최대 경사각 오차는 `7.172749647565979e-07°`, analytic normal과 triangle normal의 최대 오차는 `2.181721622226445e-05°`였다. 같은 seed의 mesh·material hash도 일치했다.
+현재 완료된 범위는 이 실험을 시작하기 위한 C0와 S0다. 경사 `0/5/10/15/20/25°`와 방위 `0/90/180/270°`를 교차한 24개 analytic cell이 모두 통과했다. 최대 경사각 오차는 `7.172749647565979e-07°`, analytic normal과 triangle normal의 최대 오차는 `2.181721622226445e-05°`였다. 같은 seed의 mesh·material hash도 일치했다. Isaac runtime에서는 `5/15/25°` 단일 collision mesh와 material, reset 자세를 다시 읽었고, 같은 seed·명령·카메라로 세 영상을 녹화했다.
 
 이 결과는 지형 생성과 계측 수학이 맞는다는 뜻이다. G009 정책이 경사에서 걷거나 전복 뒤 일어난다는 뜻은 아니다. 기존 G008 checkpoint는 S0 지형과 카메라 연결을 확인하는 시각 재생용이며, G009에서 새로 학습된 checkpoint는 아직 없다.
 
@@ -29,15 +44,15 @@ G009는 산 비탈에서 보행 영상을 만드는 작업이 아니라, 경사�
 | --- | --- | --- | --- |
 | C0 미디어 계약 | PASS | `<goal_id>`별 로컬 MP4 경로, G009 24개 stage registry, G008 경로 회귀 | G009 동작 성능 |
 | S0 import-light 지형 gate | PASS | 6개 경사 × 4개 방위, 총 `24/24` cell | Isaac USD runtime 전체 물리 readback |
-| S0 Isaac 구성 | PASS | G009 7개 구성·spawn·reset 검사, G008 8개 회귀 검사 | PPO 학습 성능 |
+| S0 Isaac 구성·runtime | PASS | G009 7개 구성·spawn·reset 검사, G008 8개 회귀 검사, `5/15/25°` USD geometry·material readback | PPO 학습 성능 |
 | support-plane 수학 모듈 | 순수 수학 PASS | robust fit, fallback, 접평면 투영, COM, 지지 영역 수학 | 매 step RayCaster runtime 연결 완료 |
 | G009 WALK PPO | 미실행 | 학습 계약과 stage 순서가 사전 등록됨 | 경사 횡단 성공 |
 | G009 RECOVER PPO | 미실행 | 별도 observation·reward·termination 계약이 정해짐 | 전복 복구 성공 |
 | supervisor | 미구현 | 상태 전이와 평가 계약이 정해짐 | `fall -> recover -> walk` 연결 성공 |
-| S0 미디어 녹화 | 진행 중 | C0 경로 계약은 통과함 | MP4·GIF·PNG·sidecar 완료 또는 공개 |
+| S0 미디어 녹화 | 완료 | 3개 로컬 MP4, 공개 GIF·PNG, capture JSON·summary·sidecar 해시 결합 | G009 WALK 성공 |
 | 실물 로봇 | 범위 밖 | Mini Pupper 재학습 원칙만 정함 | Go2 정책의 직접 전이, sim-to-real 완료 |
 
-S0 녹화는 완료 판정 전 상태다. 이 문서 작성 시점에는 G009 MP4, 공개 GIF·PNG, 미디어 sidecar를 완료 증거로 등록하지 않는다. source commit도 구현 변경이 고정된 뒤 촬영 sidecar에서 확정한다. C0는 동작 stage가 아닌 governance 변경이므로 영상이 없는 것이 계약에 맞다.
+S0 증거의 source commit은 `4bad4dd8634c11aa452da41ad0c2fb852e70e607`이다. 원본 MP4는 저장소 밖에 두고 GIF·PNG·JSON만 공개한다. 25° 재생은 `termination.fall=false`였지만 최대 기울기가 `84.7832°`, 최대 하방 이동이 `2.3925 m`였다. 이를 통과나 보행 성공으로 판정하지 않고, 기존 G008 정책의 한계를 드러낸 stress 결과로 남긴다. C0는 동작 stage가 아닌 governance 변경이므로 영상이 없는 것이 계약에 맞다.
 
 ## 문제 정의
 
@@ -463,10 +478,12 @@ py -m pytest -q `
   tests/test_g009_terrain.py `
   tests/test_g009_support_plane.py `
   tests/test_g009_media_contract.py `
-  tests/test_g009_s0_validation.py
+  tests/test_g009_s0_validation.py `
+  tests/test_g009_s0_capture.py `
+  tests/test_g009_s0_media.py
 ```
 
-결과는 `41 passed in 5.41s`다. 지형 determinism, seed 분리, base+residual 합성, 방향축, friction 한계, robust plane outlier, fallback continuity, tangent projection, whole-body COM, 2점 nonblocking, media sidecar·경로 계약을 포함한다.
+결과는 `68 passed in 5.96s`다. 지형 determinism, seed 분리, base+residual 합성, 방향축, friction 한계, robust plane outlier, fallback continuity, tangent projection, whole-body COM, 2점 nonblocking, capture provenance, float32 material readback 허용 범위, transactional media publish와 rollback을 포함한다.
 
 ### 3. Isaac Lab 구성·회귀 검사
 
@@ -488,6 +505,44 @@ cd "$HOME\isaac-walk-rl"
 | 합계 | `15/15` |
 
 이 검사는 task registry, G008 상속 diff, 단일 slope collision/RayCaster surface, material binding, slope control 노출, triangle height·normal reset을 확인한다. 64-env 1-iteration PPO smoke나 다중 환경 성능 평가는 아직 아니다.
+
+### 4. S0 headless off-screen 재생
+
+학습과 영상 렌더링을 분리했다. 녹화는 Isaac Sim을 `--headless`로 실행하되 카메라 extension을 켜는 off-screen 방식이다. 물리와 정책 추론은 50 Hz(`step_dt=0.02 s`)로 실행하고, 한 환경에서 525 step, 약 10.5초를 촬영했다. 이 실행에는 PPO update, rollout batch, mini-batch, epoch가 없다. 기존 G008 checkpoint를 inference에만 사용했다.
+
+명령 시퀀스는 모든 경사에서 같으며 로봇의 body up-axis를 support normal에 맞춘 뒤 그 normal 둘레로 90° 회전해 전진축을 등고선 방향에 놓는다.
+
+| 구간 | step | 속도 명령 `[v_x,v_y,w_z]` |
+| --- | ---: | --- |
+| 정지 | `75` | `[0.0, 0.0, 0.0]` |
+| 등고선 왼쪽 | `200` | `[0.4, 0.0, 0.0]` |
+| 정지 | `50` | `[0.0, 0.0, 0.0]` |
+| 등고선 오른쪽 | `200` | `[-0.4, 0.0, 0.0]` |
+
+세 캡처는 source commit, recorder·config hash, checkpoint hash, USD readback과 원본 영상 hash를 각각 기록한다. PhysX가 material float를 float32로 반환하므로 설정값 `0.8/0.6`은 runtime에서 `0.800000011920929/0.6000000238418579`로 읽혔다. validator는 절대오차 `1e-6` 안의 유한 실수만 허용하며 bool, NaN, Inf와 의미 있는 수치 차이는 거부한다.
+
+| profile | 요청/실측 경사 | reset 최대 각도 오차 | 최대 support-normal 상대 tilt | 하방 이동 final/max | `termination.fall` | 판정 |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| `slope_05` | `5.0/4.999972°` | `0.02798°` | `3.6857°` | `0.0780/0.0780 m` | `false` | 정성 재생 완료 |
+| `slope_15` | `15.0/14.999944°` | `0.01978°` | `13.5774°` | `0.0909/0.2274 m` | `false` | 정성 재생 완료 |
+| `slope_25_stress` | `25.0/25.000044°` | `0.0°` | `84.7832°` | `2.3925/2.3925 m` | `false` | stress 실패 경계 |
+
+`termination.fall=false`만으로 성공을 판정하지 않는다. 25° 결과처럼 몸통 기울기와 하방 이동이 크게 무너질 수 있기 때문이다. 다음 WALK qualification은 다중 환경·다중 seed에서 방향별 추종, tilt, drift, 접촉, 낙상 gate를 함께 통과해야 한다.
+
+![G009 S0 5·15·25도 동기 재생](media/g009/S0/g009_s0_slopes.gif)
+
+![G009 S0 시작·후반 접촉시트](media/g009/S0/g009_s0_slopes_contact_sheet.png)
+
+증거 파일:
+
+- [5° capture report](../reports/runs/g009_s0_slope_05_capture.json)
+- [15° capture report](../reports/runs/g009_s0_slope_15_capture.json)
+- [25° stress capture report](../reports/runs/g009_s0_slope_25_stress_capture.json)
+- [시각·물리 summary](../reports/runs/g009_s0_visual_summary.json)
+- [미디어 sidecar](../reports/runs/g009_s0_visual_evidence.json)
+- 로컬 합성 MP4: `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\S0\g009_s0_slopes.mp4`
+
+합성 MP4는 H.264 `1440×430`, 50 fps, 10.48초이며 저장소에 올리지 않는다. 공개 GIF는 `960×286`, 42 frames, 10.5초, `980,271 bytes`다. 접촉시트는 `960×572`, `177,749 bytes`다. sidecar가 두 공개 파일과 로컬 합성 MP4의 SHA-256, ffprobe 결과, source commit을 묶는다.
 
 ## 기존 G008 checkpoint의 정확한 역할
 
@@ -573,7 +628,7 @@ G009를 포트폴리오에 넣을 때 핵심은 “Isaac Sim에서 로봇을 걸
 7. 기존 checkpoint 재생과 새 PPO 학습을 문서에서 구분했다.
 8. stage마다 영상과 정량 report를 checkpoint SHA-256으로 결합한다.
 
-현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac 구성 검증이다. WALK/RECOVER 학습 결과와 전복 복구 영상은 후속 실행 뒤 추가해야 한다.
+현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생이다. 25°에서 기존 정책이 크게 기울고 아래로 밀린 결과도 실패 경계로 공개한다. WALK/RECOVER 학습 결과와 전복 복구 영상은 후속 실행 뒤 추가해야 한다.
 
 ## 실물 로봇과 Mini Pupper에 대한 범위 제한
 
@@ -596,6 +651,10 @@ G009의 Go2 checkpoint를 Mini Pupper나 3D 프린팅 로봇에 직접 옮기지
 
 - [S0 실행 계약](../configs/g009_s0.json)
 - [S0 analytic validation](../reports/runs/g009_s0_analytic_validation.json)
+- [S0 시각·물리 summary](../reports/runs/g009_s0_visual_summary.json)
+- [S0 미디어 sidecar](../reports/runs/g009_s0_visual_evidence.json)
+- [S0 공개 GIF](media/g009/S0/g009_s0_slopes.gif)
+- [S0 공개 접촉시트](media/g009/S0/g009_s0_slopes_contact_sheet.png)
 - [C0 media contract receipt](../reports/runs/g009_c0_media_contract.json)
 - [C0 validation log](../reports/validation/g009_c0_media_contract.log)
 - [G008 불규칙 도로·공간 마찰 결과](G008_IRREGULAR_ROAD.md)

@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_id": "S0",
+  "status": "complete",
+  "source_commit": "4bad4dd8634c11aa452da41ad0c2fb852e70e607",
+  "dirty_paths": [],
+  "scope": {
+    "claim": "S0 wiring and qualitative visual playback evidence only",
+    "walk_qualification": false,
+    "policy_success_claimed": false
+  },
+  "profile": {
+    "profile_id": "slope_15",
+    "slope_deg": 15.0,
+    "terrain_azimuth_deg": 0.0,
+    "seed": 20260828,
+    "headless": true,
+    "step_dt_s": 0.02,
+    "total_steps": 525,
+    "sequence": [
+      {
+        "name": "stand",
+        "steps": 75,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "contour_left",
+        "steps": 200,
+        "command": [
+          0.4,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "command": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "contour_right",
+        "steps": 200,
+        "command": [
+          -0.4,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "camera": {
+      "resolution": [
+        1280,
+        720
+      ],
+      "origin_type": "env",
+      "env_index": 0,
+      "eye": [
+        4.0,
+        4.0,
+        2.8
+      ],
+      "lookat": [
+        0.0,
+        0.0,
+        0.35
+      ]
+    }
+  },
+  "config": {
+    "path": "configs/g009_s0.json",
+    "sha256": "7e8e4c0b4167971ab6f428baa243e2254adec62882a0c522e1f7aefbbae6fd87"
+  },
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\unitree_go2_rough\\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\\model_2097.pt",
+    "sha256": "40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0"
+  },
+  "physics_readback": {
+    "surface_prim": "/World/g009_slope_field/surface",
+    "single_mesh": true,
+    "mesh_count": 1,
+    "face_count": 100352,
+    "point_count": 50625,
+    "first_triangle_normal_w": [
+      -0.2588181062133315,
+      0.0,
+      0.9659260778631792
+    ],
+    "measured_slope_deg": 14.99994430795876,
+    "collision_api": true,
+    "mesh_collision_api": true,
+    "material_path": "/World/g009_slope_field/nominal_material",
+    "static_friction": 0.800000011920929,
+    "dynamic_friction": 0.6000000238418579,
+    "friction_combine_mode": "multiply",
+    "geometry_validation": {
+      "slope_error_deg": 5.5692041240007484e-05,
+      "azimuth_error_deg": 0.0,
+      "normal_error_deg": 5.568541850116403e-05,
+      "tolerance_deg": 0.001
+    },
+    "slope_deg": 15.0,
+    "terrain_azimuth_deg": 0.0,
+    "ground_material": {
+      "static_friction": 0.800000011920929,
+      "dynamic_friction": 0.6000000238418579,
+      "friction_combine_mode": "multiply"
+    },
+    "requested_geometry": {
+      "slope_deg": 15.0,
+      "terrain_azimuth_deg": 0.0,
+      "support_normal_w": [
+        -0.25881904510252074,
+        -0.0,
+        0.9659258262890683
+      ]
+    },
+    "reset": {
+      "yaw_about_support_normal_deg": 90.0,
+      "support_normal_w": [
+        -0.258819043636322,
+        0.0,
+        0.9659258127212524
+      ],
+      "support_normal_error_deg": 0.01978234015405178,
+      "body_up_error_deg": 0.01978234015405178,
+      "body_x_contour_left_error_deg": 0.0,
+      "tolerance_deg": 0.5
+    }
+  },
+  "metrics": {
+    "segments": [
+      {
+        "name": "stand",
+        "steps": 75,
+        "root_velocity_world_projection_mean_mps": {
+          "contour_left": -0.05612408281614383,
+          "downhill": -0.00947202783698837
+        }
+      },
+      {
+        "name": "contour_left",
+        "steps": 200,
+        "root_velocity_world_projection_mean_mps": {
+          "contour_left": 0.328259160425514,
+          "downhill": 0.04968707413878292
+        }
+      },
+      {
+        "name": "stand",
+        "steps": 50,
+        "root_velocity_world_projection_mean_mps": {
+          "contour_left": 0.03269614052493125,
+          "downhill": 0.028680172357708214
+        }
+      },
+      {
+        "name": "contour_right",
+        "steps": 200,
+        "root_velocity_world_projection_mean_mps": {
+          "contour_left": -0.3778607252426445,
+          "downhill": -0.031762147278059275
+        }
+      }
+    ],
+    "downhill_drift_m": {
+      "final": 0.09092828631401062,
+      "max": 0.22737079858779907
+    },
+    "support_normal_relative_body_tilt_max_deg": 13.577406883239746,
+    "termination": {
+      "terminated": false,
+      "fall": false,
+      "first_fall_step": null
+    }
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\S0\\g009_s0_slope_15_s20260828.mp4",
+    "sha256": "5b65866997994b3f4523d242e4c9d1646aa3682dfccb15ad6fe5bf79a6001f99",
+    "bytes": 411299,
+    "git_policy": "local_only"
+  },
+  "record_source_sha256": "3afebbdeb6df8a8cf65366bad6c8629c7a7ef0b62ec5012d64b8723e87c88b54"
+}

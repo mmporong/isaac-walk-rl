@@ -35,6 +35,38 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 
 구체적인 명령과 단계별 완료 조건은 `PROMPT_WINDOWS.md`, 측정 상태는 `docs/VALIDATION_MATRIX.md`, 모든 실행 기록은 `RUN_NOTES.md`에서 관리합니다.
 
+## G008에서 G009까지의 작업 번호
+
+아래 번호는 의존성과 문서 순서를 나타냅니다. `G008-3/5/7/8`은 마찰·도로 분기, `G008-4/6`은 링크 질량 분기입니다. 두 분기의 실행 시각을 번호로 단정하지 않습니다. `G008-9`는 각 단계 직후 만든 자료를 모은 증거 index입니다. 코드의 `S1`, `G0`, `R0` 같은 protocol stage ID는 괄호에 함께 적습니다.
+
+```text
+G008-1 command smoke -> G008-2 command PPO
+                           |-> G008-3 friction S1 -> G008-5 mixed friction -> G008-7 irregular road -> G008-8 G0/T1
+                           `-> G008-4 leg-mass S1 -> G008-6 link-mass sensitivity
+
+각 단계 직후 촬영한 증거 ---------------------------------------------------------------> G008-9 index
+```
+
+| 작업 번호 | 수행 내용 | 실행 성격 | 판정 |
+| --- | --- | --- | --- |
+| `G008-1` | 전진·후진·좌회전·우회전 command 경로와 64환경 smoke | 학습 smoke | 완료 |
+| `G008-2` | G006 checkpoint에서 command PPO 재개, `1,024 env × 300 iter` | 강화학습 | 평면 네 방향 통과 |
+| `G008-3` | 발바닥 마찰 S1, `1,024 env × 300 iter` | 강화학습 | 평면 네 방향 통과, rough 확대 보류 |
+| `G008-4` | 다리 링크 질량 S1, `1,024 env × 300 iter` | 강화학습 | 학습 완료, 우회전 gate 실패 |
+| `G008-5` | 주기 고·저마찰 띠에서 최저 마찰 탐색 | held-out 평가 | 일부 방향 통과, 전 방향 하한 미확정 |
+| `G008-6` | hip·thigh·calf·foot 그룹별 `0.8~1.2배` 질량 민감도 | held-out 평가 | leg-mass 우회전 실패 유지 |
+| `G008-7` | 비주기 마찰 mosaic와 crown·요철·함몰 도로 | 강화학습·평가 | 추가 학습 checkpoint 기각 |
+| `G008-8` | 균일 마찰 도로 G0와 회전 보상 T1 | 강화학습·평가 | 두 후보 기각, 저마찰 F1 보류 |
+| `G008-9` | 각 단계 직후 촬영한 MP4·GIF·PNG와 물성 readback을 한 묶음으로 정리 | 시각 증거 index | 완료 |
+| `G009-1` | goal별 경로와 24개 stage registry (`C0`) | 증거 계약 | 완료 |
+| `G009-2` | 6개 경사 × 4개 방위 analytic gate (`S0`) | 지형 검증 | `24/24` 통과 |
+| `G009-3` | collision mesh·마찰·support-normal reset (`S0`) | Isaac runtime 검증 | 완료 |
+| `G009-4` | 5°·15°·25° 동일 조건 재생 (`S0`) | 시각 증거 | 완료, 25°는 실패 경계 |
+| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 다음 강화학습 | 대기 |
+| `G009-6` | 5°·10° 횡경사 WALK (`S1-low`) | 다음 강화학습 | R0·calibration 뒤 실행 |
+
+G008의 상세 번호표는 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md), G009의 전체 후속 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에서 이어집니다.
+
 ## 저장소 경계
 
 - 이 저장소: 커스텀 코드, 설정, 재현 스크립트, 문서, 정량 결과표, 검증용 소형 GIF·스크린샷
@@ -145,6 +177,16 @@ cd "$HOME\isaac-walk-rl"
 .\scripts\run_g008_stage.ps1 -Part friction -Stage 1 -NumEnvs 64 -MaxIterations 1 -Seed 42 -RunName g008_friction_s1_smoke_e64_i1_s42
 .\scripts\run_g008_stage.ps1 -Part leg_mass -Stage 1 -NumEnvs 64 -MaxIterations 1 -Seed 42 -RunName g008_leg_mass_s1_smoke_e64_i1_s42
 ```
+
+## 산 비탈 S0 지형·재생 검증
+
+G009는 경사 횡단 WALK와 전복 RECOVER를 별도 PPO로 학습하기 전에 경사 지형과 계측 기준부터 고정하는 단계입니다. `0/5/10/15/20/25° × 0/90/180/270°` 24개 analytic cell을 통과했고, Isaac runtime에서 5°·15°·25°의 단일 collision mesh, `0.8/0.6` ground material과 support-normal 정렬을 다시 읽어 확인했습니다.
+
+같은 G008 checkpoint, seed, 명령, 카메라로 525-step headless off-screen 재생도 촬영했습니다. 5°와 15°는 낙상 termination 없이 시퀀스를 마쳤습니다. 25°에서는 최대 기울기 `84.78°`, 하방 이동 `2.39 m`가 기록돼 성공이 아닌 stress 실패 경계로 판정했습니다. 이 단계에서는 G009 PPO update를 수행하지 않았습니다.
+
+![G009 S0 경사별 동기 재생](docs/media/g009/S0/g009_s0_slopes.gif)
+
+설계한 보상 함수, actor/critic 관측, PPO batch·epoch, WALK/RECOVER 분리, 단계별 학습 budget과 다음 실행 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에 정리했습니다. 캡처의 source commit·checkpoint·물리 readback·파일 해시는 [`reports/runs/g009_s0_visual_evidence.json`](reports/runs/g009_s0_visual_evidence.json)에서 확인할 수 있습니다. 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\S0`에만 보관합니다.
 
 ## RBQ 외부 자산 호환성 게이트
 

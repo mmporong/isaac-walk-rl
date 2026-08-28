@@ -86,6 +86,7 @@
 
 ### G008 방향 명령·마찰·링크 질량
 
+- 의존성 번호는 `G008-1` command smoke에서 `G008-2` command PPO로 이어진 뒤 두 갈래로 나뉜다. 마찰·도로 분기는 `G008-3` friction S1, `G008-5` 주기 혼합 마찰, `G008-7` 비주기 도로, `G008-8` G0/T1 curriculum 순서다. 링크 질량 분기는 `G008-4` leg-mass S1, `G008-6` 링크 그룹 질량 민감도 순서다. 같은 묶음에서 수행한 두 분기의 시각 선후는 번호로 단정하지 않는다. 각 단계 직후 만든 자료는 `G008-9` 증거 index에서 모아 본다. `S1`, `G0`, `T1`은 별도의 protocol stage ID다.
 - 2026-08-26에 G008을 command, friction, leg-mass 세 태스크 축으로 나눴다. friction과 leg-mass는 같은 환경에 동시에 넣지 않았다.
 - command sampler는 80% exact primitive와 20% continuous SE(2) 명령을 섞는다. exact primitive는 전진 `[0.6,0,0]`, 후진 `[-0.4,0,0]`, 좌회전 `[0,0,0.5]`, 우회전 `[0,0,-0.5]`, 정지 `[0,0,0]`다. command resampling은 4~6초, heading controller는 비활성화했다.
 - friction은 발 collision shape만 대상으로 S1 `μ_s=0.72~0.88`, `μ_d=0.52~0.68`; S2 `0.62~1.00`, `0.42~0.78`; S3 `0.50~1.25`, `0.30~1.00`으로 등록했다.
@@ -136,3 +137,37 @@
 - 보고서 file SHA-256 `8cace17b61c944c1395bd42bff81c0cdbd8c39e8b041b0b2039f382983d8927d`, manifest canonical SHA-256 `93ec6cfa7f06d7f2c8b43ac5f057aa2e5b09767a11c515ef333b1dcac799edbf`, validator SHA-256 `28040254c014e6de99ab99dac578eee9a0ad55e94353cb6fad5d14fe75bfc36b`이다.
 - 이 blocker는 프로젝트 브리프가 허용한 G007 완료 경로다. G006 production과 전체 ultragoal 완료를 뜻하지 않는다.
 - 상세 판정과 해제 조건은 `docs/G007_RBQ_COMPATIBILITY_SPIKE.md`에 기록했다.
+
+### G009 산 비탈 S0 지형·시각 증거
+
+- `G009-1` C0에서 로컬 원본 영상 경로를 `%USERPROFILE%\IsaacLab\logs\visual_evidence\<goal_id>`로 일반화하고 G009 24개 stage registry를 고정했다. 기존 G008 로컬 영상 참조 18개와 미디어 회귀 15개를 유지했다.
+- `G009-2` S0 analytic gate는 base slope와 residual height를 분리하고 residual을 0으로 고정했다. 경사 `0/5/10/15/20/25°`, 방위 `0/90/180/270°`의 24개 cell이 모두 통과했다. 최대 경사각 오차는 `7.172749647565979e-07°`, analytic normal과 triangle normal의 최대 오차는 `2.181721622226445e-05°`다.
+- `G009-3` Isaac runtime task `Isaac-G009-Velocity-Slope-Go2-S0-v0`는 하나의 static triangle collision/RayCaster mesh를 사용한다. nominal ground static/dynamic friction은 `0.8/0.6`, foot material은 `1.0/1.0`, combine mode는 `multiply`다. G008에서 상속될 수 있는 push, base mass, external wrench randomization은 S0에서 껐다.
+- 녹화 source commit은 `4bad4dd8634c11aa452da41ad0c2fb852e70e607`이다. 세 capture report의 `dirty_paths`는 모두 빈 배열이며 recorder SHA-256은 `3afebbdeb6df8a8cf65366bad6c8629c7a7ef0b62ec5012d64b8723e87c88b54`다.
+- 재생 정책은 G008 friction S1 `model_2097.pt`, SHA-256 `40af0a0f80489d705e1e8fdeedd2f765177d3d67bf757709b9195cc2bbeaaee0`이다. G009에서 새로 학습한 정책이 아니며 S0에서는 PPO rollout batch, mini-batch, epoch, optimizer update를 실행하지 않았다.
+- `G009-4` 녹화는 `--headless` off-screen camera, 1 environment, seed `20260828`, `step_dt=0.02 s`, 총 525 step으로 수행했다. 시퀀스는 정지 75, 등고선 왼쪽 200, 정지 50, 등고선 오른쪽 200 step이며 명령은 차례로 `[0,0,0]`, `[0.4,0,0]`, `[0,0,0]`, `[-0.4,0,0]`이다.
+- 5° 결과는 최대 support-normal 상대 tilt `3.6857°`, 하방 이동 final/max `0.0780/0.0780 m`다. 15°는 `13.5774°`, `0.0909/0.2274 m`다. 두 실행 모두 `termination.fall=false`였다.
+- 25° stress 결과는 `termination.fall=false`였지만 최대 tilt `84.7832°`, 하방 이동 `2.3925 m`였다. termination flag만으로 통과시키지 않고 기존 G008 정책의 실패 경계로 기록했다.
+- 첫 세 캡처는 commit `da2963aa1cc8df6271483b8458ca579b9b8db179`에서 만들어졌지만 PhysX material readback `0.800000011920929/0.6000000238418579`와 JSON 설정 `0.8/0.6`을 exact equality로 비교해 builder가 중단됐다. bool, NaN, Inf는 계속 거부하면서 유한 float의 절대오차 `1e-6`만 허용하도록 수정했다. 이전 캡처는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\archive\pre_float_tolerance_da2963`로 옮기고 새 commit에서 세 편을 전부 다시 촬영했다.
+- 최종 원본 MP4 SHA-256은 5° `7bc3ac8feceeb9ce11d0162923efca157410403fe9f3c4e5371c2409c163d709`, 15° `5b65866997994b3f4523d242e4c9d1646aa3682dfccb15ad6fe5bf79a6001f99`, 25° `c72da025733933d7103792abdb8ba96986b43f5754e7a75f891de06486c211cd`다. 원본과 1440×430 합성 MP4는 로컬에만 보관한다.
+- 공개 GIF는 `docs/media/g009/S0/g009_s0_slopes.gif`, 접촉시트는 `docs/media/g009/S0/g009_s0_slopes_contact_sheet.png`다. `reports/runs/g009_s0_visual_summary.json`과 `reports/runs/g009_s0_visual_evidence.json`이 source commit, checkpoint, config, analytic report, physics readback, capture report, 미디어 SHA-256을 결합한다.
+- 재현 명령은 아래와 같다. `slope_05`를 `slope_15`, `slope_25_stress`로 바꾸고 report 경로도 같은 profile 이름으로 바꿔 세 프로세스를 순차 실행한다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+
+& "$HOME\IsaacLab\_isaac_sim\python.bat" .\scripts\record_g009_s0.py `
+  --profile slope_05 `
+  --checkpoint "$HOME\IsaacLab\logs\rsl_rl\unitree_go2_rough\2026-08-26_11-37-54_g008_friction_s1_finetune_command_s42_e1024_i300\model_2097.pt" `
+  --config .\configs\g009_s0.json `
+  --report .\reports\runs\g009_s0_slope_05_capture.json `
+  --headless
+
+py .\scripts\build_g009_s0_media.py --capture-reports `
+  .\reports\runs\g009_s0_slope_05_capture.json `
+  .\reports\runs\g009_s0_slope_15_capture.json `
+  .\reports\runs\g009_s0_slope_25_stress_capture.json `
+  --config .\configs\g009_s0.json
+```
+
+- 다음 실행은 `G009-5` R0 flat RECOVER를 scratch에서 학습하고, S0 nominal WALK와 R0 RECOVER의 torque·power·impact proxy를 calibration한 뒤 `G009-6` S1-low `5/10°` WALK를 여는 순서다. 각 stage는 별도 다중 seed 평가 JSON과 MP4·GIF·PNG·sidecar를 새로 만든다.

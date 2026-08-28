@@ -23,6 +23,7 @@
 | G008 링크 그룹 질량 민감도 | hip·thigh·calf·foot 중 한 그룹씩 `0.8~1.2`배, inertia 동비율 재계산, 25조건×2정책×4방향×4반복, 총 800환경·300 step | 두 정책 모두 전진·후진 25/25 조건 PASS, 전체 0 falls. command nominal 네 방향 PASS, leg-mass S1 nominal 우회전 yaw RMSE `0.44 rad/s`로 FAIL. leg-mass S2 미승인 유지 |
 | G008 세 정책 시각 비교 | command·friction S1·leg-mass S1을 평면·seed 42·같은 900-step 명령으로 별도 프로세스에서 추론하고 runtime 물성과 checkpoint hash를 촬영 보고서에 고정 | 3/3 촬영 exit 0, 정책당 H.264 899 frames. 1280×380 로컬 비교 MP4와 720×214 공개 GIF, 네 방향 접촉시트의 SHA-256·ffprobe·10 MiB 제한 검증 PASS |
 | G008 단계 변경 시각 증거 | 혼합 `0.8/0.6 ↔ 0.2/0.1` 마찰 한 편과 hip·thigh·calf·foot `1.2배` 질량 네 편을 seed 20260826·같은 900-step 명령으로 촬영, 원본 MP4 로컬 전용, GIF·PNG·물리 readback JSON 공개 | 5/5 원본 H.264 1280×720·50fps·899 frames·17.98초. 자막 MP4 2개는 로컬에 보관하고 공개 GIF `5.18/9.05 MB`, 네 방향 PNG `0.51/1.15 MB`의 파일 해시·checkpoint·friction/mass/inertia readback 검증 PASS |
+| G009 산 비탈 C0/S0 | 24-cell analytic slope·normal·material gate, Isaac `5/15/25°` USD geometry·friction·reset readback, 동일 checkpoint·seed·명령·카메라의 headless off-screen 캡처, source commit과 artifact SHA-256 결합 | C0/S0 PASS. analytic `24/24`, G009 순수 Python `68` tests, Isaac G009/G008 config `7/7·8/8`, 세 캡처·GIF·PNG·sidecar 검증 완료. 25°는 최대 tilt `84.7832°`, 하방 이동 `2.3925 m`로 stress 실패 경계이며 G009 PPO 학습·WALK 성공은 미주장 |
 | RBQ 외부 자산 호환성 사전조사 | source·8 blob·라이선스 근거 고정, fail-closed blocker 재현 | G007 gate 구현 완료; `license_scope_unresolved`, expect-blocked exit 0·require-ready exit 3, targeted 46 tests PASS·code review APPROVE. 자산·파생물 다운로드/변환/smoke 미실행 |
 
 ## 1차 근거
@@ -39,6 +40,8 @@
 - G008 병렬 PPO·terrain curriculum 근거: https://proceedings.mlr.press/v164/rudin22a.html
 - G008 velocity command 근거: https://proceedings.mlr.press/v205/margolis23a/margolis23a.pdf
 - G008 dynamics randomization 범위·비판 근거: https://arxiv.org/html/1804.10332, https://arxiv.org/html/2107.04034, https://arxiv.org/html/2011.02404
+- G009 산 비탈 설계·실행 기록: [`G009_MOUNTAIN_SLOPE_RECOVERY.md`](G009_MOUNTAIN_SLOPE_RECOVERY.md)
+- G009 S0 시각·물리 증거: [`../reports/runs/g009_s0_visual_evidence.json`](../reports/runs/g009_s0_visual_evidence.json)
 - RBQ v1.20.0 tag object API: https://api.github.com/repos/RainbowRobotics/RBQ/git/tags/741ce5733dcd7c0babec663bb7e1afbc02a776ca
 - RBQ 고정 commit URDF: https://raw.githubusercontent.com/RainbowRobotics/RBQ/68bc33b77719d357b4323fb88549efd905caf721/rbq_sdk/ros2/src/rbq_description/urdf/rbq.urdf
 - RBQ 고정 commit package.xml: https://raw.githubusercontent.com/RainbowRobotics/RBQ/68bc33b77719d357b4323fb88549efd905caf721/rbq_sdk/ros2/src/rbq_description/package.xml
