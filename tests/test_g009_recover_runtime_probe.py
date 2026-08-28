@@ -293,308 +293,225 @@ def test_solver_iteration_check_fails_closed(rows: list[dict[str, object]]) -> N
     }
 
 
-def test_rigid_body_max_depenetration_readback_covers_every_robot_body() -> None:
+GO2_BODY_NAMES = [
+    "base",
+    "FL_hip", "FL_thigh", "FL_calf",
+    "FR_hip", "FR_thigh", "FR_calf",
+    "RL_hip", "RL_thigh", "RL_calf",
+    "RR_hip", "RR_thigh", "RR_calf",
+]
+
+
+def _link_topology(num_envs: int = 2):
+    containers = [f"/World/envs/env_{index}/Robot" for index in range(num_envs)]
+    roots = [f"{container}/base" for container in containers]
+    groups = [
+        [f"{container}/{body_name}" for body_name in GO2_BODY_NAMES]
+        for container in containers
+    ]
+    return containers, roots, groups
+
+
+def _readback_for_topology(
+    containers,
+    roots,
+    groups,
+    *,
+    invalid_paths=(),
+    missing_usd_paths=(),
+    missing_physx_paths=(),
+    values=None,
+):
+    invalid_paths = set(invalid_paths)
+    missing_usd_paths = set(missing_usd_paths)
+    missing_physx_paths = set(missing_physx_paths)
+    values = values or {}
+
     class Attribute:
+        def __init__(self, value):
+            self.value = value
+
         def Get(self):
-            return 0.75
+            return self.value
 
     class Prim:
-        def __init__(self, path: str, *, rigid: bool, children=()):
+        def __init__(self, path):
             self.path = path
-            self.rigid = rigid
-            self.children = list(children)
 
         def IsValid(self):
-            return True
-
-        def GetChildren(self):
-            return self.children
-
-        def GetPath(self):
-            return self.path
+            return self.path not in invalid_paths
 
         def HasAPI(self, api_type):
-            return self.rigid
+            if api_type is UsdPhysics.RigidBodyAPI:
+                return self.path not in missing_usd_paths
+            return self.path not in missing_physx_paths
 
-    body_0 = Prim("/World/envs/env_0/Robot/base", rigid=True)
-    body_1 = Prim("/World/envs/env_0/Robot/FL_hip", rigid=True)
-    root = Prim("/World/envs/env_0/Robot", rigid=False, children=(body_0, body_1))
+        def GetChildren(self):
+            raise AssertionError("link_paths readback must not traverse a subtree")
 
     class Stage:
         def GetPrimAtPath(self, path):
-            assert path == root.path
-            return root
+            return Prim(path)
 
     class PhysxSchema:
         class PhysxRigidBodyAPI:
             def __init__(self, prim):
-                assert prim.rigid
+                self.prim = prim
 
             def GetMaxDepenetrationVelocityAttr(self):
-                return Attribute()
+                return Attribute(values.get(self.prim.path, 0.75))
 
     class UsdPhysics:
         class RigidBodyAPI:
             pass
 
-    result = PROBE.rigid_body_max_depenetration_velocity_readback(
-        Stage(), [root.path], PhysxSchema, UsdPhysics
+    return PROBE.rigid_body_max_depenetration_velocity_readback(
+        Stage(),
+        containers,
+        roots,
+        groups,
+        GO2_BODY_NAMES,
+        PhysxSchema,
+        UsdPhysics,
     )
 
-    assert result["rigid_body_count"] == 2
-    assert [row["prim_path"] for row in result["rigid_bodies"]] == [
-        body_0.path,
-        body_1.path,
-    ]
-    assert all(
-        row["max_depenetration_velocity_m_s"] == pytest.approx(0.75)
-        and row["error"] is None
-        for row in result["rigid_bodies"]
-    )
-    assert PROBE.rigid_body_max_depenetration_velocity_checks(
-        result,
+
+def _link_check(readback, *, expected_articulations=2):
+    return PROBE.rigid_body_max_depenetration_velocity_checks(
+        readback,
         expected_velocity_m_s=0.75,
-        expected_robot_count=1,
-        expected_rigid_bodies_per_robot=2,
-    ) == {"rigid_body_max_depenetration_velocity_matches_contract": True}
+        expected_articulation_count=expected_articulations,
+        expected_body_names=GO2_BODY_NAMES,
+    )["rigid_body_max_depenetration_velocity_matches_contract"]
 
 
-@pytest.mark.parametrize(
-    ("physx_api_present", "attribute_present", "raw_value", "expected_error"),
-    [
-        (False, True, 0.75, "missing_physx_rigid_body_api"),
-        (True, False, 0.75, "missing_or_non_numeric_max_depenetration_velocity"),
-        (True, True, None, "missing_or_non_numeric_max_depenetration_velocity"),
-        (True, True, "0.75", "missing_or_non_numeric_max_depenetration_velocity"),
-        (True, True, True, "missing_or_non_numeric_max_depenetration_velocity"),
-        (True, True, float("nan"), "non_finite_max_depenetration_velocity"),
-        (True, True, float("inf"), "non_finite_max_depenetration_velocity"),
-        (True, True, float("-inf"), "non_finite_max_depenetration_velocity"),
-    ],
-)
-def test_rigid_body_max_depenetration_readback_records_missing_or_invalid_values(
-    physx_api_present: bool,
-    attribute_present: bool,
-    raw_value: object,
-    expected_error: str,
-) -> None:
-    class Attribute:
-        def Get(self):
-            return raw_value
+def test_link_path_readback_covers_two_groups_of_thirteen_sibling_links() -> None:
+    containers, roots, groups = _link_topology()
 
-    class Api:
-        if attribute_present:
+    result = _readback_for_topology(containers, roots, groups)
 
-            def GetMaxDepenetrationVelocityAttr(self):
-                return Attribute()
+    assert result["articulation_group_count"] == 2
+    assert result["rigid_body_count"] == 26
+    assert result["articulations"][0]["articulation_prim_path"] == roots[0]
+    assert result["articulations"][0]["root_link_prim_path"] == roots[0]
+    assert result["articulations"][0]["authoritative_body_names"] == GO2_BODY_NAMES
+    assert result["articulations"][0]["authoritative_link_paths"] == groups[0]
+    assert groups[0][1] == "/World/envs/env_0/Robot/FL_hip"
+    assert not groups[0][1].startswith(roots[0] + "/")
+    assert _link_check(result) is True
 
-    class Prim:
-        def IsValid(self):
-            return True
 
-        def GetChildren(self):
-            return []
+def test_link_path_readback_locks_production_eight_by_thirteen_topology() -> None:
+    containers, roots, groups = _link_topology(num_envs=8)
 
-        def GetPath(self):
-            return "/World/envs/env_0/Robot/base"
+    result = _readback_for_topology(containers, roots, groups)
 
-        def HasAPI(self, api_type):
-            return api_type is UsdPhysics.RigidBodyAPI or physx_api_present
-
-    class Stage:
-        def GetPrimAtPath(self, path):
-            return Prim()
-
-    class PhysxSchema:
-        class PhysxRigidBodyAPI:
-            def __new__(cls, prim):
-                return Api()
-
-    class UsdPhysics:
-        class RigidBodyAPI:
-            pass
-
-    result = PROBE.rigid_body_max_depenetration_velocity_readback(
-        Stage(), ["/World/envs/env_0/Robot"], PhysxSchema, UsdPhysics
+    assert result["articulation_group_count"] == 8
+    assert result["rigid_body_count"] == 104
+    assert result["articulations"][7]["articulation_prim_path"] == roots[7]
+    assert result["articulations"][7]["authoritative_link_paths"][-1] == (
+        "/World/envs/env_7/Robot/RR_calf"
     )
-
-    assert result["rigid_bodies"][0]["max_depenetration_velocity_m_s"] is None
-    assert result["rigid_bodies"][0]["error"] == expected_error
-    assert PROBE.rigid_body_max_depenetration_velocity_checks(
-        result,
-        expected_velocity_m_s=0.75,
-        expected_robot_count=1,
-        expected_rigid_bodies_per_robot=1,
-    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
-
-
-def test_rigid_body_max_depenetration_readback_rejects_invalid_robot_root() -> None:
-    class InvalidPrim:
-        def IsValid(self):
-            return False
-
-    class Stage:
-        def GetPrimAtPath(self, path):
-            return InvalidPrim()
-
-    result = PROBE.rigid_body_max_depenetration_velocity_readback(
-        Stage(), ["/World/envs/env_0/Robot"], object(), object()
-    )
-
-    assert result["invalid_robot_prim_paths"] == ["/World/envs/env_0/Robot"]
-    assert result["rigid_body_count"] == 0
-    assert PROBE.rigid_body_max_depenetration_velocity_checks(
-        result,
-        expected_velocity_m_s=0.75,
-        expected_robot_count=1,
-        expected_rigid_bodies_per_robot=1,
-    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
+    assert result["articulations"][7]["links"][-1] == {
+        "body_index": 12,
+        "body_name": "RR_calf",
+        "prim_path": "/World/envs/env_7/Robot/RR_calf",
+        "prim_valid": True,
+        "usd_rigid_body_api": True,
+        "physx_rigid_body_api": True,
+        "max_depenetration_velocity_m_s": pytest.approx(0.75),
+        "error": None,
+    }
+    assert _link_check(result, expected_articulations=8) is True
 
 
 @pytest.mark.parametrize(
     "mutation",
     [
-        {"rigid_body_count": 0, "rigid_bodies": []},
-        {"invalid_robot_prim_paths": ["/World/envs/env_0/Robot"]},
-        {"robot_prim_paths": []},
-        {"rigid_bodies": [{"max_depenetration_velocity_m_s": None}]},
-        {
-            "rigid_bodies": [
-                {
-                    "robot_prim_path": "/World/envs/env_0/Robot",
-                    "prim_path": "/World/envs/env_0/Robot/base",
-                    "usd_rigid_body_api": True,
-                    "physx_rigid_body_api": True,
-                    "max_depenetration_velocity_m_s": 1.0,
-                    "error": None,
-                }
-            ]
-        },
+        "missing_group",
+        "missing_root",
+        "missing_container",
+        "wrong_order",
+        "wrong_body_name",
+        "wrong_root_link",
+        "wrong_container_order",
+        "outside_namespace",
+        "short_group",
     ],
 )
-def test_rigid_body_max_depenetration_check_fails_closed(
-    mutation: dict[str, object],
+def test_link_path_checker_fails_closed_on_group_shape_order_and_namespace(
+    mutation: str,
 ) -> None:
-    valid = {
-        "robot_prim_paths": ["/World/envs/env_0/Robot"],
-        "invalid_robot_prim_paths": [],
-        "rigid_body_count": 1,
-        "duplicate_rigid_body_prim_paths": [],
-        "rigid_bodies": [
-            {
-                "robot_prim_path": "/World/envs/env_0/Robot",
-                "prim_path": "/World/envs/env_0/Robot/base",
-                "usd_rigid_body_api": True,
-                "physx_rigid_body_api": True,
-                "max_depenetration_velocity_m_s": 0.75,
-                "error": None,
-            }
-        ],
-    }
-    valid.update(mutation)
+    containers, roots, groups = _link_topology()
+    if mutation == "missing_group":
+        groups = groups[:1]
+    elif mutation == "missing_root":
+        roots = roots[:1]
+    elif mutation == "missing_container":
+        containers = containers[:1]
+    elif mutation == "wrong_order":
+        groups[0][1], groups[0][2] = groups[0][2], groups[0][1]
+    elif mutation == "wrong_body_name":
+        groups[0][1] = f"{containers[0]}/unexpected"
+    elif mutation == "wrong_root_link":
+        roots[0] = f"{containers[0]}/FL_hip"
+    elif mutation == "wrong_container_order":
+        containers.reverse()
+    elif mutation == "outside_namespace":
+        groups[0][1] = "/World/envs/env_1/Robot/FL_hip"
+    else:
+        groups[0] = groups[0][:-1]
 
-    assert PROBE.rigid_body_max_depenetration_velocity_checks(
-        valid,
-        expected_velocity_m_s=0.75,
-        expected_robot_count=1,
-        expected_rigid_bodies_per_robot=1,
-    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
+    result = _readback_for_topology(containers, roots, groups)
 
-
-def _valid_rigid_body_row(root: str, suffix: str) -> dict[str, object]:
-    return {
-        "robot_prim_path": root,
-        "prim_path": f"{root}/{suffix}",
-        "usd_rigid_body_api": True,
-        "physx_rigid_body_api": True,
-        "max_depenetration_velocity_m_s": 0.75,
-        "error": None,
-    }
-
-
-def test_rigid_body_checker_rejects_root_level_three_plus_one_imbalance() -> None:
-    roots = ["/World/envs/env_0/Robot", "/World/envs/env_1/Robot"]
-    rows = [
-        _valid_rigid_body_row(roots[0], "base"),
-        _valid_rigid_body_row(roots[0], "FL_hip"),
-        _valid_rigid_body_row(roots[0], "FR_hip"),
-        _valid_rigid_body_row(roots[1], "base"),
-    ]
-    readback = {
-        "robot_prim_paths": roots,
-        "invalid_robot_prim_paths": [],
-        "rigid_body_count": 4,
-        "duplicate_rigid_body_prim_paths": [],
-        "rigid_bodies": rows,
-    }
-
-    assert PROBE.rigid_body_max_depenetration_velocity_checks(
-        readback,
-        expected_velocity_m_s=0.75,
-        expected_robot_count=2,
-        expected_rigid_bodies_per_robot=2,
-    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
-
-
-def test_rigid_body_checker_recomputes_duplicates_instead_of_trusting_metadata() -> None:
-    root = "/World/envs/env_0/Robot"
-    duplicate_row = _valid_rigid_body_row(root, "base")
-    duplicate_readback = {
-        "robot_prim_paths": [root],
-        "invalid_robot_prim_paths": [],
-        "rigid_body_count": 2,
-        "duplicate_rigid_body_prim_paths": [],
-        "rigid_bodies": [duplicate_row, dict(duplicate_row)],
-    }
-    assert PROBE.rigid_body_max_depenetration_velocity_checks(
-        duplicate_readback,
-        expected_velocity_m_s=0.75,
-        expected_robot_count=1,
-        expected_rigid_bodies_per_robot=2,
-    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
-
-    unique_readback = {
-        **duplicate_readback,
-        "duplicate_rigid_body_prim_paths": [f"{root}/fabricated"],
-        "rigid_bodies": [
-            _valid_rigid_body_row(root, "base"),
-            _valid_rigid_body_row(root, "FL_hip"),
-        ],
-    }
-    assert PROBE.rigid_body_max_depenetration_velocity_checks(
-        unique_readback,
-        expected_velocity_m_s=0.75,
-        expected_robot_count=1,
-        expected_rigid_bodies_per_robot=2,
-    ) == {"rigid_body_max_depenetration_velocity_matches_contract": True}
+    assert _link_check(result) is False
 
 
 @pytest.mark.parametrize(
-    ("row_root", "prim_path"),
+    ("fault", "value"),
     [
-        ("/World/envs/env_1/Robot", "/World/envs/env_1/Robot/base"),
-        ("/World/envs/env_0/Robot", "/World/envs/env_0/RobotSibling/base"),
+        ("invalid", None),
+        ("missing_usd", None),
+        ("missing_physx", None),
+        ("value", None),
+        ("value", True),
+        ("value", float("nan")),
+        ("value", float("inf")),
+        ("value", float("-inf")),
+        ("value", 1.0),
     ],
 )
-def test_rigid_body_checker_rejects_unknown_root_or_non_descendant_path(
-    row_root: str, prim_path: str
+def test_link_path_checker_fails_closed_on_prim_api_and_value_faults(
+    fault: str, value: object
 ) -> None:
-    root = "/World/envs/env_0/Robot"
-    row = _valid_rigid_body_row(root, "base")
-    row.update({"robot_prim_path": row_root, "prim_path": prim_path})
-    readback = {
-        "robot_prim_paths": [root],
-        "invalid_robot_prim_paths": [],
-        "rigid_body_count": 1,
-        "duplicate_rigid_body_prim_paths": [],
-        "rigid_bodies": [row],
-    }
-    assert PROBE.rigid_body_max_depenetration_velocity_checks(
-        readback,
-        expected_velocity_m_s=0.75,
-        expected_robot_count=1,
-        expected_rigid_bodies_per_robot=1,
-    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
+    containers, roots, groups = _link_topology()
+    target = groups[0][1]
+    kwargs = {}
+    if fault == "invalid":
+        kwargs["invalid_paths"] = [target]
+    elif fault == "missing_usd":
+        kwargs["missing_usd_paths"] = [target]
+    elif fault == "missing_physx":
+        kwargs["missing_physx_paths"] = [target]
+    else:
+        kwargs["values"] = {target: value}
+
+    result = _readback_for_topology(containers, roots, groups, **kwargs)
+
+    assert _link_check(result) is False
+
+
+def test_link_path_checker_recomputes_duplicates_instead_of_trusting_summary() -> None:
+    containers, roots, groups = _link_topology()
+    groups[0][1] = groups[0][0]
+    duplicate = _readback_for_topology(containers, roots, groups)
+    duplicate["duplicate_link_prim_paths"] = []
+    assert _link_check(duplicate) is False
+
+    containers, roots, groups = _link_topology()
+    unique = _readback_for_topology(containers, roots, groups)
+    unique["duplicate_link_prim_paths"] = ["/fabricated"]
+    assert _link_check(unique) is True
 
 
 def test_rev3_observation_schema_uses_explicit_actor_and_critic_indices() -> None:

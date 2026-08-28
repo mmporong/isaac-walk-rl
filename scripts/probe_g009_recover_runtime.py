@@ -1040,31 +1040,56 @@ def articulation_solver_iteration_checks(
 
 def rigid_body_max_depenetration_velocity_readback(
     stage,
-    robot_prim_paths: list[str],
+    robot_container_paths: list[str],
+    articulation_prim_paths: list[str],
+    link_path_groups: list[list[str]],
+    body_names: list[str],
     PhysxSchema,
     UsdPhysics,
 ) -> dict[str, Any]:
-    """Read max depenetration velocity from every USD rigid body under each robot."""
+    """Read each authoritative PhysX articulation link without subtree traversal."""
 
-    rows: list[dict[str, Any]] = []
-    invalid_robot_prim_paths: list[str] = []
-    for robot_prim_path in robot_prim_paths:
-        root_prim = stage.GetPrimAtPath(robot_prim_path)
-        if not root_prim.IsValid():
-            invalid_robot_prim_paths.append(robot_prim_path)
-            continue
-
-        pending = [root_prim]
-        while pending:
-            prim = pending.pop()
-            pending.extend(reversed(list(prim.GetChildren())))
-            if not prim.HasAPI(UsdPhysics.RigidBodyAPI):
-                continue
-
-            has_physx_api = bool(prim.HasAPI(PhysxSchema.PhysxRigidBodyAPI))
+    articulations: list[dict[str, Any]] = []
+    all_link_paths: list[str] = []
+    group_count = max(
+        len(robot_container_paths),
+        len(articulation_prim_paths),
+        len(link_path_groups),
+    )
+    for articulation_index in range(group_count):
+        container_path = (
+            robot_container_paths[articulation_index]
+            if articulation_index < len(robot_container_paths)
+            else None
+        )
+        articulation_path = (
+            articulation_prim_paths[articulation_index]
+            if articulation_index < len(articulation_prim_paths)
+            else None
+        )
+        link_paths = (
+            list(link_path_groups[articulation_index])
+            if articulation_index < len(link_path_groups)
+            else []
+        )
+        links: list[dict[str, Any]] = []
+        for body_index, link_path in enumerate(link_paths):
+            all_link_paths.append(link_path)
+            prim = stage.GetPrimAtPath(link_path)
+            prim_valid = bool(prim.IsValid())
+            has_usd_api = bool(
+                prim_valid and prim.HasAPI(UsdPhysics.RigidBodyAPI)
+            )
+            has_physx_api = bool(
+                prim_valid and prim.HasAPI(PhysxSchema.PhysxRigidBodyAPI)
+            )
             value: float | None = None
             error: str | None = None
-            if not has_physx_api:
+            if not prim_valid:
+                error = "invalid_link_prim"
+            elif not has_usd_api:
+                error = "missing_usd_rigid_body_api"
+            elif not has_physx_api:
                 error = "missing_physx_rigid_body_api"
             else:
                 api = PhysxSchema.PhysxRigidBodyAPI(prim)
@@ -1082,27 +1107,47 @@ def rigid_body_max_depenetration_velocity_readback(
                     if not math.isfinite(value):
                         value = None
                         error = "non_finite_max_depenetration_velocity"
-            rows.append(
+            links.append(
                 {
-                    "robot_prim_path": robot_prim_path,
-                    "prim_path": str(prim.GetPath()),
-                    "usd_rigid_body_api": True,
+                    "body_index": body_index,
+                    "body_name": (
+                        body_names[body_index]
+                        if body_index < len(body_names)
+                        else None
+                    ),
+                    "prim_path": link_path,
+                    "prim_valid": prim_valid,
+                    "usd_rigid_body_api": has_usd_api,
                     "physx_rigid_body_api": has_physx_api,
                     "max_depenetration_velocity_m_s": value,
                     "error": error,
                 }
             )
+        articulations.append(
+            {
+                "articulation_index": articulation_index,
+                "robot_container_prim_path": container_path,
+                "articulation_prim_path": articulation_path,
+                "root_link_prim_path": link_paths[0] if link_paths else None,
+                "authoritative_body_names": list(body_names),
+                "authoritative_link_paths": link_paths,
+                "links": links,
+            }
+        )
 
-    prim_path_counts = Counter(row["prim_path"] for row in rows)
+    prim_path_counts = Counter(all_link_paths)
     return {
-        "source": "USD RigidBodyAPI enumeration with PhysxRigidBodyAPI live-stage readback",
-        "robot_prim_paths": list(robot_prim_paths),
-        "invalid_robot_prim_paths": invalid_robot_prim_paths,
-        "rigid_body_count": len(rows),
-        "duplicate_rigid_body_prim_paths": sorted(
+        "source": "root_physx_view.link_paths direct USD/PhysX live-stage readback",
+        "robot_container_prim_paths": list(robot_container_paths),
+        "articulation_prim_paths": list(articulation_prim_paths),
+        "authoritative_body_names": list(body_names),
+        "authoritative_link_path_groups": [list(group) for group in link_path_groups],
+        "articulation_group_count": len(articulations),
+        "rigid_body_count": len(all_link_paths),
+        "duplicate_link_prim_paths": sorted(
             path for path, count in prim_path_counts.items() if count > 1
         ),
-        "rigid_bodies": rows,
+        "articulations": articulations,
     }
 
 
@@ -1110,75 +1155,101 @@ def rigid_body_max_depenetration_velocity_checks(
     readback: dict[str, Any],
     *,
     expected_velocity_m_s: float,
-    expected_robot_count: int,
-    expected_rigid_bodies_per_robot: int,
+    expected_articulation_count: int,
+    expected_body_names: list[str],
 ) -> dict[str, bool]:
-    """Fail closed unless every expected robot rigid body reports the contract value."""
+    """Fail closed unless authoritative link groups exactly match live readback."""
 
-    rows = readback.get("rigid_bodies")
-    robot_prim_paths = readback.get("robot_prim_paths")
-    invalid_roots = readback.get("invalid_robot_prim_paths")
-    expected_total = expected_robot_count * expected_rigid_bodies_per_robot
-    known_roots = (
-        set(robot_prim_paths)
-        if isinstance(robot_prim_paths, list)
-        and all(isinstance(path, str) and path for path in robot_prim_paths)
-        else set()
-    )
-    row_prim_paths = (
-        [
-            row.get("prim_path")
-            for row in rows
-            if isinstance(row, dict) and isinstance(row.get("prim_path"), str)
-        ]
-        if isinstance(rows, list)
-        else []
-    )
+    articulations = readback.get("articulations")
+    container_paths = readback.get("robot_container_prim_paths")
+    articulation_paths = readback.get("articulation_prim_paths")
+    link_path_groups = readback.get("authoritative_link_path_groups")
+    reported_body_names = readback.get("authoritative_body_names")
+    expected_total = expected_articulation_count * len(expected_body_names)
+    all_link_paths: list[str] = []
+    if isinstance(articulations, list):
+        for articulation in articulations:
+            if not isinstance(articulation, dict):
+                continue
+            links = articulation.get("links")
+            if isinstance(links, list):
+                for link in links:
+                    if not isinstance(link, dict):
+                        continue
+                    prim_path = link.get("prim_path")
+                    if isinstance(prim_path, str):
+                        all_link_paths.append(prim_path)
     duplicate_paths = {
-        path for path, count in Counter(row_prim_paths).items() if count > 1
+        path for path, count in Counter(all_link_paths).items() if count > 1
     }
-    per_root_counts = Counter(
-        row.get("robot_prim_path")
-        for row in rows or []
-        if isinstance(row, dict) and isinstance(row.get("robot_prim_path"), str)
-    )
     valid = (
-        expected_robot_count > 0
-        and expected_rigid_bodies_per_robot > 0
-        and isinstance(rows, list)
-        and isinstance(robot_prim_paths, list)
-        and len(robot_prim_paths) == expected_robot_count
-        and len(set(robot_prim_paths)) == expected_robot_count
-        and invalid_roots == []
-        and not duplicate_paths
-        and readback.get("rigid_body_count") == expected_total
-        and len(rows) == expected_total
+        expected_articulation_count > 0
+        and bool(expected_body_names)
+        and all(isinstance(name, str) and name for name in expected_body_names)
+        and len(set(expected_body_names)) == len(expected_body_names)
+        and isinstance(articulations, list)
+        and isinstance(container_paths, list)
+        and isinstance(articulation_paths, list)
+        and isinstance(link_path_groups, list)
+        and reported_body_names == expected_body_names
+        and len(articulations) == expected_articulation_count
+        and len(container_paths) == expected_articulation_count
+        and len(articulation_paths) == expected_articulation_count
+        and len(link_path_groups) == expected_articulation_count
+        and all(isinstance(path, str) and path for path in container_paths)
+        and all(isinstance(path, str) and path for path in articulation_paths)
         and all(
-            per_root_counts[root] == expected_rigid_bodies_per_robot
-            for root in known_roots
+            isinstance(group, list)
+            and all(isinstance(path, str) and path for path in group)
+            for group in link_path_groups
         )
+        and len(set(container_paths)) == expected_articulation_count
+        and len(set(articulation_paths)) == expected_articulation_count
+        and not duplicate_paths
+        and readback.get("articulation_group_count") == expected_articulation_count
+        and readback.get("rigid_body_count") == expected_total
         and all(
-            isinstance(row, dict)
-            and isinstance(row.get("robot_prim_path"), str)
-            and row["robot_prim_path"] in known_roots
-            and isinstance(row.get("prim_path"), str)
-            and (
-                row["prim_path"] == row["robot_prim_path"]
-                or row["prim_path"].startswith(
-                    row["robot_prim_path"].rstrip("/") + "/"
+            isinstance(articulation, dict)
+            and articulation.get("articulation_index") == articulation_index
+            and articulation.get("robot_container_prim_path")
+            == container_paths[articulation_index]
+            and articulation.get("articulation_prim_path")
+            == articulation_paths[articulation_index]
+            and articulation.get("root_link_prim_path")
+            == articulation_paths[articulation_index]
+            and articulation_paths[articulation_index].rsplit("/", 1)[0]
+            == container_paths[articulation_index]
+            and articulation.get("authoritative_body_names") == expected_body_names
+            and articulation.get("authoritative_link_paths")
+            == link_path_groups[articulation_index]
+            and isinstance(articulation.get("links"), list)
+            and len(articulation["links"]) == len(expected_body_names)
+            and len(link_path_groups[articulation_index]) == len(expected_body_names)
+            and all(
+                isinstance(link, dict)
+                and link.get("body_index") == body_index
+                and link.get("body_name") == expected_body_names[body_index]
+                and link.get("prim_path")
+                == link_path_groups[articulation_index][body_index]
+                and link["prim_path"].rsplit("/", 1)[-1] == expected_body_names[body_index]
+                and link["prim_path"].startswith(
+                    container_paths[articulation_index].rstrip("/") + "/"
                 )
+                and link.get("prim_valid") is True
+                and link.get("usd_rigid_body_api") is True
+                and link.get("physx_rigid_body_api") is True
+                and link.get("error") is None
+                and isinstance(link.get("max_depenetration_velocity_m_s"), float)
+                and math.isfinite(link["max_depenetration_velocity_m_s"])
+                and math.isclose(
+                    link["max_depenetration_velocity_m_s"],
+                    expected_velocity_m_s,
+                    rel_tol=0.0,
+                    abs_tol=1.0e-6,
+                )
+                for body_index, link in enumerate(articulation["links"])
             )
-            and row.get("usd_rigid_body_api") is True
-            and row.get("physx_rigid_body_api") is True
-            and row.get("error") is None
-            and isinstance(row.get("max_depenetration_velocity_m_s"), float)
-            and math.isclose(
-                row["max_depenetration_velocity_m_s"],
-                expected_velocity_m_s,
-                rel_tol=0.0,
-                abs_tol=1.0e-6,
-            )
-            for row in rows
+            for articulation_index, articulation in enumerate(articulations)
         )
     )
     return {"rigid_body_max_depenetration_velocity_matches_contract": bool(valid)}
@@ -1195,6 +1266,7 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
     import isaaclab_tasks  # noqa: F401
     from omni.physx import get_physx_simulation_interface
     from pxr import PhysicsSchemaTools, PhysxSchema, UsdPhysics
+    from isaaclab import sim as sim_utils
     from isaaclab.utils import math as math_utils
     from isaaclab_tasks.utils import parse_env_cfg
     from isaac_walk_g009 import register_tasks
@@ -1240,7 +1312,12 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
     )
     max_depenetration_velocity_readback = rigid_body_max_depenetration_velocity_readback(
         omni.usd.get_context().get_stage(),
+        sim_utils.find_matching_prim_paths(
+            robot.cfg.prim_path, omni.usd.get_context().get_stage()
+        ),
         list(robot.root_physx_view.prim_paths),
+        [list(group) for group in robot.root_physx_view.link_paths],
+        list(robot.body_names),
         PhysxSchema,
         UsdPhysics,
     )
@@ -1778,8 +1855,8 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
             **rigid_body_max_depenetration_velocity_checks(
                 max_depenetration_velocity_readback,
                 expected_velocity_m_s=MAX_DEPENETRATION_VELOCITY_M_S,
-                expected_robot_count=args.num_envs,
-                expected_rigid_bodies_per_robot=len(robot.body_names),
+                expected_articulation_count=args.num_envs,
+                expected_body_names=list(robot.body_names),
             ),
             "joint_action_type_matches_contract": (
                 type(action_term).__name__ == "EMAJointPositionToLimitsAction"

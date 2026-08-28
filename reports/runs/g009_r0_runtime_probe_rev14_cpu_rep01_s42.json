@@ -1,0 +1,2861 @@
+{
+  "schema_version": 3,
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "probe": "flat_recover_runtime_calibration",
+  "execution": {
+    "execution_id": "ede325919833411b99826960ea13849d",
+    "started_at_utc": "2026-08-28T12:54:59.108267Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_runtime_probe_rev14_cpu_rep01_s42.json",
+    "no_overwrite": true
+  },
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "contract_sha256": "744c53d3c8d1e608f849af405c7d0fad314b01234fc4cb9a4ab1000c69140506",
+  "source_bundle": {
+    "schema_version": 1,
+    "git_commit": "e52f2524483d137b012ed88f82f1f11d7ab0e1e4",
+    "git_commit_valid": true,
+    "source_binding_paths": [
+      "configs/g009_r0.json",
+      "scripts/bootstrap_train_g009.py",
+      "scripts/probe_g009_recover_runtime.py",
+      "scripts/run_training.ps1",
+      "scripts/sync_g009_r0_contract.py",
+      "scripts/synthesize_g009_r0_probe.py",
+      "src/isaac_walk_g009/agent_cfg.py",
+      "src/isaac_walk_g009/mdp/__init__.py",
+      "src/isaac_walk_g009/mdp/events.py",
+      "src/isaac_walk_g009/mdp/recover.py",
+      "src/isaac_walk_g009/recover_contracts.py",
+      "src/isaac_walk_g009/recover_env_cfg.py",
+      "src/isaac_walk_g009/registry.py"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0.json": "202bd44ab57c8def50acdc361f065603004814b198f73b622deed16e515e109f",
+      "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+      "scripts/probe_g009_recover_runtime.py": "b8ef1c39c5091c569fc842a422b923b590b4cc331325c34edfb7bf1d9aa16f2c",
+      "scripts/run_training.ps1": "b2910517adb83ac402eeda9389a67a844663d578247fae006483efa12b67a533",
+      "scripts/sync_g009_r0_contract.py": "387af5d8b9f0cc4e78dd4c81900a45cb453f4af63de73a7512160a9f179efc57",
+      "scripts/synthesize_g009_r0_probe.py": "0db36a73b153ddf27867a83b72c1577c6947b64f5d45762e4630f2fd3fa6984a",
+      "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+      "src/isaac_walk_g009/mdp/__init__.py": "c5e13ec110a341e974cd303d8e44bfadb696a97ea2db2185d7a01fece74ccfd5",
+      "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+      "src/isaac_walk_g009/mdp/recover.py": "a825707a076d02fb597f2e6a779170ad34dac54037c9ef535e9f54fbfc4f3599",
+      "src/isaac_walk_g009/recover_contracts.py": "5d0ed53f66a12c0fc03f743bcdabe3b208da7c9ae4bb0f4c019ce50ab4bebc7f",
+      "src/isaac_walk_g009/recover_env_cfg.py": "db548cf339d92243e2037951a8d6b475c4bff5f8458036d04568d67aee05dd81",
+      "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+    },
+    "source_bundle_sha256": "deb60f010bb8f1d49bc3cee1eed9898a3be31c4608ac101cf7ef957c4fd53106",
+    "all_files_present": true,
+    "missing_files": [],
+    "clean": true,
+    "dirty_source_paths": []
+  },
+  "seed": 42,
+  "device": "cpu",
+  "num_envs": 8,
+  "rollout_steps": 150,
+  "rollout_duration_s": 3.0,
+  "headless": true,
+  "pose_name_order": [
+    "prone",
+    "supine",
+    "left_side",
+    "right_side"
+  ],
+  "action_modes": [
+    "zero_normalized",
+    "reset_pose_hold"
+  ],
+  "observation_shapes": {
+    "policy": [
+      8,
+      83
+    ],
+    "critic": [
+      8,
+      107
+    ]
+  },
+  "observation_calibration": {
+    "critic_base_height_m": [
+      0.16500000655651093,
+      0.05999999865889549,
+      0.16300000250339508,
+      0.16300000250339508,
+      0.16500000655651093,
+      0.05999999865889549,
+      0.16300000250339508,
+      0.16300000250339508
+    ],
+    "flat_ground_height_error_m": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "critic_terrain_normal_base": [
+      [
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      [
+        0.0,
+        0.9999999403953552,
+        5.960464477539063e-08
+      ],
+      [
+        0.0,
+        -0.9999999403953552,
+        5.960464477539063e-08
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      [
+        0.0,
+        0.9999999403953552,
+        5.960464477539063e-08
+      ],
+      [
+        0.0,
+        -0.9999999403953552,
+        5.960464477539063e-08
+      ]
+    ],
+    "reset_actor_foot_load_bodyweights": [
+      [
+        0.09104904532432556,
+        0.039274174720048904,
+        0.0,
+        0.0
+      ],
+      [
+        0.09090583026409149,
+        0.03933890163898468,
+        0.0,
+        0.0
+      ],
+      [
+        0.0907011330127716,
+        0.03965606912970543,
+        0.0,
+        0.0
+      ],
+      [
+        0.0906020998954773,
+        0.03971432149410248,
+        0.0,
+        0.0
+      ],
+      [
+        0.09069012850522995,
+        0.03963227942585945,
+        0.0,
+        0.0
+      ],
+      [
+        0.09061747044324875,
+        0.039691343903541565,
+        0.0,
+        0.0
+      ],
+      [
+        0.09099192172288895,
+        0.03938598930835724,
+        0.0,
+        0.0
+      ],
+      [
+        0.09083997458219528,
+        0.03946609050035477,
+        0.0,
+        0.0
+      ]
+    ],
+    "reset_body_range_normalized": [
+      [
+        0.12345611304044724,
+        0.11845490336418152,
+        0.11674022674560547,
+        0.11845490336418152,
+        0.12345611304044724,
+        0.12181185930967331,
+        0.11674024164676666,
+        0.11500001698732376,
+        0.11674024164676666,
+        0.12181185930967331,
+        0.12345611304044724,
+        0.11845490336418152,
+        0.11674024164676666,
+        0.11845490336418152,
+        0.12345611304044724
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        0.9346252083778381,
+        0.44271689653396606,
+        1.0,
+        1.0,
+        1.0,
+        0.9838160872459412,
+        0.4427168369293213,
+        1.0,
+        1.0,
+        1.0,
+        0.9838157296180725,
+        0.49190765619277954
+      ],
+      [
+        0.4427166283130646,
+        0.9346235394477844,
+        1.0,
+        1.0,
+        1.0,
+        0.4427165687084198,
+        0.8362420797348022,
+        1.0,
+        1.0,
+        1.0,
+        0.442716509103775,
+        0.983814001083374,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.12345611304044724,
+        0.11845490336418152,
+        0.11674022674560547,
+        0.11845490336418152,
+        0.12345611304044724,
+        0.12181185930967331,
+        0.11674024164676666,
+        0.11500001698732376,
+        0.11674024164676666,
+        0.12181185930967331,
+        0.12345611304044724,
+        0.11845490336418152,
+        0.11674024164676666,
+        0.11845490336418152,
+        0.12345611304044724
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        0.9346252679824829,
+        0.541098415851593,
+        1.0,
+        1.0,
+        1.0,
+        0.9346252083778381,
+        0.4427168369293213,
+        1.0,
+        1.0,
+        1.0,
+        0.9346249103546143,
+        0.541098415851593
+      ],
+      [
+        0.4427166283130646,
+        0.9838142395019531,
+        1.0,
+        1.0,
+        1.0,
+        0.4427165389060974,
+        0.9346235394477844,
+        1.0,
+        1.0,
+        1.0,
+        0.39352577924728394,
+        0.9346233606338501,
+        1.0,
+        1.0,
+        1.0
+      ]
+    ],
+    "reset_body_range_hit_mask": [
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "reset_body_range_hit_count": [
+      15,
+      0,
+      6,
+      6,
+      15,
+      0,
+      6,
+      6
+    ],
+    "body_range_camera_config": {
+      "prim_path": "/World/envs/env_.*/Robot/base",
+      "mesh_prim_paths": [
+        "/World/ground"
+      ],
+      "data_types": [
+        "distance_to_camera"
+      ],
+      "max_distance_m": 1.0,
+      "offset_position_m": [
+        0.0,
+        0.0,
+        -0.05
+      ],
+      "offset_rotation_wxyz": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476,
+        0.0
+      ],
+      "offset_convention": "world",
+      "pattern": {
+        "width": 5,
+        "height": 3,
+        "focal_length": 24.0,
+        "horizontal_aperture": 20.955
+      },
+      "checks": {
+        "body_range_camera_attached_to_base": true,
+        "body_range_camera_targets_ground": true,
+        "body_range_camera_distance_output": true,
+        "body_range_camera_pattern_5x3": true,
+        "body_range_camera_max_distance_1m": true,
+        "body_range_camera_offset_matches_contract": true,
+        "body_range_camera_rotation_matches_contract": true
+      }
+    },
+    "body_range_camera_world_position_m": [
+      [
+        3.75,
+        -1.25,
+        0.11500002443790436
+      ],
+      [
+        3.75,
+        1.25,
+        0.11000002920627594
+      ],
+      [
+        1.25,
+        -1.2000001668930054,
+        0.16300001740455627
+      ],
+      [
+        1.25,
+        1.2000000476837158,
+        0.16300000250339508
+      ],
+      [
+        -1.25,
+        -1.25,
+        0.11500002443790436
+      ],
+      [
+        -1.25,
+        1.25,
+        0.11000002920627594
+      ],
+      [
+        -3.75,
+        -1.2000001668930054,
+        0.16300001740455627
+      ],
+      [
+        -3.75,
+        1.2000000476837158,
+        0.16300000250339508
+      ]
+    ],
+    "body_range_camera_world_quaternion_wxyz": [
+      [
+        0.7071068286895752,
+        0.0,
+        0.7071068286895752,
+        0.0
+      ],
+      [
+        -2.946247135149349e-10,
+        0.7071068286895752,
+        0.0,
+        0.7071068286895752
+      ],
+      [
+        0.4999999403953552,
+        0.5,
+        0.49999991059303284,
+        0.5
+      ],
+      [
+        0.5000000596046448,
+        -0.4999999701976776,
+        0.5,
+        -0.5
+      ],
+      [
+        0.7071068286895752,
+        0.0,
+        0.7071068286895752,
+        0.0
+      ],
+      [
+        -2.946247135149349e-10,
+        0.7071068286895752,
+        0.0,
+        0.7071068286895752
+      ],
+      [
+        0.4999999403953552,
+        0.5,
+        0.49999991059303284,
+        0.5
+      ],
+      [
+        0.5000000596046448,
+        -0.4999999701976776,
+        0.5,
+        -0.5
+      ]
+    ],
+    "body_range_camera_position_error_m": [
+      1.4901161193847656e-08,
+      2.9802322387695312e-08,
+      1.2013700256829907e-07,
+      0.0,
+      1.4901161193847656e-08,
+      2.9802322387695312e-08,
+      1.2013700256829907e-07,
+      0.0
+    ],
+    "body_range_camera_quaternion_error_l2": [
+      8.429369557916289e-08,
+      8.429420716993263e-08,
+      7.300048565639372e-08,
+      9.884312390795458e-08,
+      8.429369557916289e-08,
+      8.429420716993263e-08,
+      7.300048565639372e-08,
+      9.884312390795458e-08
+    ],
+    "foot_load_range_independence": {
+      "foot_load_max_abs_change_under_forced_no_hit": 0.0,
+      "foot_load_unchanged_under_forced_no_hit": true,
+      "forced_no_hit_range_is_one": true,
+      "forced_no_hit_mask_is_zero": true,
+      "forced_no_hit_does_not_mark_actor_invalid": true
+    },
+    "privilege_isolation": {
+      "actor_max_abs_change": 0.0,
+      "critic_max_abs_change": 1.0,
+      "actor_unchanged": true,
+      "critic_perturbation_exercised": true,
+      "actor_call_succeeds_without_live_mass_read": true,
+      "actor_mass_read_error": null
+    }
+  },
+  "physics_readback": {
+    "nominal_total_mass_kg": [
+      15.018999099731445,
+      15.018999099731445,
+      15.018999099731445,
+      15.018999099731445,
+      15.018999099731445,
+      15.018999099731445,
+      15.018999099731445,
+      15.018999099731445
+    ],
+    "foot_material_static_dynamic": [
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ]
+    ],
+    "effective_friction_static_dynamic": [
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ]
+    ],
+    "articulation_solver_iterations": {
+      "source": "USD PhysxArticulationAPI live-stage readback",
+      "articulations": [
+        {
+          "prim_path": "/World/envs/env_0/Robot/base",
+          "solver_position_iteration_count": 8,
+          "solver_velocity_iteration_count": 1
+        },
+        {
+          "prim_path": "/World/envs/env_1/Robot/base",
+          "solver_position_iteration_count": 8,
+          "solver_velocity_iteration_count": 1
+        },
+        {
+          "prim_path": "/World/envs/env_2/Robot/base",
+          "solver_position_iteration_count": 8,
+          "solver_velocity_iteration_count": 1
+        },
+        {
+          "prim_path": "/World/envs/env_3/Robot/base",
+          "solver_position_iteration_count": 8,
+          "solver_velocity_iteration_count": 1
+        },
+        {
+          "prim_path": "/World/envs/env_4/Robot/base",
+          "solver_position_iteration_count": 8,
+          "solver_velocity_iteration_count": 1
+        },
+        {
+          "prim_path": "/World/envs/env_5/Robot/base",
+          "solver_position_iteration_count": 8,
+          "solver_velocity_iteration_count": 1
+        },
+        {
+          "prim_path": "/World/envs/env_6/Robot/base",
+          "solver_position_iteration_count": 8,
+          "solver_velocity_iteration_count": 1
+        },
+        {
+          "prim_path": "/World/envs/env_7/Robot/base",
+          "solver_position_iteration_count": 8,
+          "solver_velocity_iteration_count": 1
+        }
+      ]
+    },
+    "rigid_body_max_depenetration_velocity": {
+      "source": "USD RigidBodyAPI enumeration with PhysxRigidBodyAPI live-stage readback",
+      "robot_prim_paths": [
+        "/World/envs/env_0/Robot/base",
+        "/World/envs/env_1/Robot/base",
+        "/World/envs/env_2/Robot/base",
+        "/World/envs/env_3/Robot/base",
+        "/World/envs/env_4/Robot/base",
+        "/World/envs/env_5/Robot/base",
+        "/World/envs/env_6/Robot/base",
+        "/World/envs/env_7/Robot/base"
+      ],
+      "invalid_robot_prim_paths": [],
+      "rigid_body_count": 8,
+      "duplicate_rigid_body_prim_paths": [],
+      "rigid_bodies": [
+        {
+          "robot_prim_path": "/World/envs/env_0/Robot/base",
+          "prim_path": "/World/envs/env_0/Robot/base",
+          "usd_rigid_body_api": true,
+          "physx_rigid_body_api": true,
+          "max_depenetration_velocity_m_s": 0.75,
+          "error": null
+        },
+        {
+          "robot_prim_path": "/World/envs/env_1/Robot/base",
+          "prim_path": "/World/envs/env_1/Robot/base",
+          "usd_rigid_body_api": true,
+          "physx_rigid_body_api": true,
+          "max_depenetration_velocity_m_s": 0.75,
+          "error": null
+        },
+        {
+          "robot_prim_path": "/World/envs/env_2/Robot/base",
+          "prim_path": "/World/envs/env_2/Robot/base",
+          "usd_rigid_body_api": true,
+          "physx_rigid_body_api": true,
+          "max_depenetration_velocity_m_s": 0.75,
+          "error": null
+        },
+        {
+          "robot_prim_path": "/World/envs/env_3/Robot/base",
+          "prim_path": "/World/envs/env_3/Robot/base",
+          "usd_rigid_body_api": true,
+          "physx_rigid_body_api": true,
+          "max_depenetration_velocity_m_s": 0.75,
+          "error": null
+        },
+        {
+          "robot_prim_path": "/World/envs/env_4/Robot/base",
+          "prim_path": "/World/envs/env_4/Robot/base",
+          "usd_rigid_body_api": true,
+          "physx_rigid_body_api": true,
+          "max_depenetration_velocity_m_s": 0.75,
+          "error": null
+        },
+        {
+          "robot_prim_path": "/World/envs/env_5/Robot/base",
+          "prim_path": "/World/envs/env_5/Robot/base",
+          "usd_rigid_body_api": true,
+          "physx_rigid_body_api": true,
+          "max_depenetration_velocity_m_s": 0.75,
+          "error": null
+        },
+        {
+          "robot_prim_path": "/World/envs/env_6/Robot/base",
+          "prim_path": "/World/envs/env_6/Robot/base",
+          "usd_rigid_body_api": true,
+          "physx_rigid_body_api": true,
+          "max_depenetration_velocity_m_s": 0.75,
+          "error": null
+        },
+        {
+          "robot_prim_path": "/World/envs/env_7/Robot/base",
+          "prim_path": "/World/envs/env_7/Robot/base",
+          "usd_rigid_body_api": true,
+          "physx_rigid_body_api": true,
+          "max_depenetration_velocity_m_s": 0.75,
+          "error": null
+        }
+      ]
+    },
+    "contact_separation_method": "PhysX per-physics-step contact report event without GPU filter",
+    "contact_separation_api_available": true,
+    "contact_separation_error": null,
+    "contact_report_event_count": 600,
+    "contact_report_expected_physics_steps": 600,
+    "contact_report_headers_seen": 20640,
+    "robot_ground_headers_seen": 20640,
+    "contact_force_history_steps": 4,
+    "contact_force_sampling_dt_s": 0.005,
+    "separation_point_count_per_env": [
+      2392,
+      7392,
+      5907,
+      5907,
+      2940,
+      9524,
+      8037,
+      8024
+    ],
+    "minimum_separation_provenance_per_env": [
+      {
+        "separation_m": -0.0006400793790817261,
+        "actor0_path": "/World/envs/env_0/Robot/RR_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_0/Robot/RR_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 1,
+        "time_s": 0.005
+      },
+      {
+        "separation_m": -2.117455005645752e-05,
+        "actor0_path": "/World/envs/env_1/Robot/RR_thigh",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_1/Robot/RR_thigh/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 28,
+        "time_s": 0.14
+      },
+      {
+        "separation_m": -0.010988160967826843,
+        "actor0_path": "/World/envs/env_2/Robot/RR_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_2/Robot/RR_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 2,
+        "time_s": 0.01
+      },
+      {
+        "separation_m": -0.010990187525749207,
+        "actor0_path": "/World/envs/env_3/Robot/RL_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_3/Robot/RL_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 2,
+        "time_s": 0.01
+      },
+      {
+        "separation_m": -2.0548701286315918e-05,
+        "actor0_path": "/World/envs/env_4/Robot/FR_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_4/Robot/FR_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 57,
+        "time_s": 0.28500000000000003
+      },
+      {
+        "separation_m": -3.766268491744995e-06,
+        "actor0_path": "/World/envs/env_5/Robot/base",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_5/Robot/base/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 6,
+        "time_s": 0.03
+      },
+      {
+        "separation_m": -0.01098625361919403,
+        "actor0_path": "/World/envs/env_6/Robot/RR_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_6/Robot/RR_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 2,
+        "time_s": 0.01
+      },
+      {
+        "separation_m": -0.010987207293510437,
+        "actor0_path": "/World/envs/env_7/Robot/RL_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_7/Robot/RL_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 2,
+        "time_s": 0.01
+      }
+    ]
+  },
+  "device_capability_diagnostics": {
+    "ground_contact_separation_available": true,
+    "ground_contact_separation_above_minus_1cm": false
+  },
+  "required_crosschecks": {
+    "cpu_contact_separation": {
+      "name": "cpu_contact_separation",
+      "authority_device": "cpu",
+      "required_for_final_synthesis": true,
+      "this_run_is_authority": true,
+      "data_available": true,
+      "threshold_m": -0.01,
+      "threshold_passed": false,
+      "status": "observed",
+      "passed": false
+    }
+  },
+  "final_synthesis": {
+    "status": "not_run",
+    "passed": null,
+    "reason": "combine GPU blocking dynamics with the authoritative CPU contact-separation crosscheck"
+  },
+  "reward_manager_calibration": {
+    "expected": {
+      "step_dt_s": 0.02,
+      "terminal_raw_pulse": 50.0,
+      "terminal_weight": 10.0,
+      "terminal_contribution": 10.0,
+      "potential_delta": 0.2475,
+      "potential_raw_rate": 12.375,
+      "potential_weight": 2.0,
+      "potential_contribution": 0.495
+    },
+    "observed": {
+      "required_consecutive_steps": 25,
+      "pretrigger_steps_clear": true,
+      "trigger_on_required_step": true,
+      "repeated_step_has_no_pulse": true,
+      "success_contribution": [
+        10.0,
+        0.0,
+        0.0,
+        10.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "success_contribution_exact_10": true,
+      "partial_reset_clears_only_selected": true,
+      "partial_reset_retriggers_only_selected": true,
+      "configured_min_foot_support_ratio": 0.6,
+      "body_supported_nonfoot_contact_did_not_latch": true,
+      "low_foot_load_did_not_latch": true,
+      "potential_contribution": [
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492
+      ],
+      "potential_contribution_exact_0_495": true
+    }
+  },
+  "action_readback": {
+    "type": "EMAJointPositionToLimitsAction",
+    "scale": 0.7,
+    "ema_alpha": 0.2,
+    "ema_reset_target_max_error_rad_per_env": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "asset_soft_joint_limit_factor": 0.9,
+    "effective_target_hard_limit_range_fraction": 0.63
+  },
+  "action_dim": 12,
+  "active_terminations": [
+    "time_out",
+    "stable_success",
+    "numeric_invalid",
+    "hard_joint_limit"
+  ],
+  "reset": {
+    "source_class_ids": [
+      0,
+      1,
+      2,
+      3,
+      0,
+      1,
+      2,
+      3
+    ],
+    "source_class_one_hot": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "root_position_local_m": [
+      [
+        0.0,
+        0.0,
+        0.16500000655651093
+      ],
+      [
+        0.0,
+        0.0,
+        0.05999999865889549
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ],
+      [
+        0.0,
+        0.0,
+        0.16500000655651093
+      ],
+      [
+        0.0,
+        0.0,
+        0.05999999865889549
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ]
+    ],
+    "root_quaternion_wxyz": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        0.7071067690849304,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        -0.7071067690849304,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        0.7071067690849304,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        -0.7071067690849304,
+        0.0,
+        0.0
+      ]
+    ],
+    "body_up_error_l2": [
+      0.0,
+      0.0,
+      8.429369557916289e-08,
+      8.429369557916289e-08,
+      0.0,
+      0.0,
+      8.429369557916289e-08,
+      8.429369557916289e-08
+    ],
+    "joint_position_rad": [
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ]
+    ],
+    "joint_hard_limits_rad": [
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.5707999467849731,
+        3.4906997680664062
+      ],
+      [
+        -1.5707999467849731,
+        3.4906997680664062
+      ],
+      [
+        -0.5235999226570129,
+        4.537899494171143
+      ],
+      [
+        -0.5235999226570129,
+        4.537899494171143
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ]
+    ],
+    "hold_normalized_action": [
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ]
+    ],
+    "hold_unclamped_normalized_action": [
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ]
+    ],
+    "hold_reachable_processed_joint_target_rad": [
+      [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ]
+    ],
+    "hold_reachable_target_error_rad": [
+      [
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        0.0,
+        0.0,
+        1.1920928955078125e-07,
+        1.1920928955078125e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        0.0,
+        0.0,
+        1.1920928955078125e-07,
+        1.1920928955078125e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        0.0,
+        0.0,
+        1.1920928955078125e-07,
+        1.1920928955078125e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        0.0,
+        0.0,
+        1.1920928955078125e-07,
+        1.1920928955078125e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ]
+  },
+  "calibration_thresholds": {
+    "solver_joint_limit_tolerance_rad": 0.01,
+    "min_root_height_m": 0.02,
+    "min_contact_separation_m": -0.01,
+    "max_nonfoot_force_bodyweights": 15.0,
+    "reset_hold_target_tolerance_rad": 1e-06,
+    "max_excess_contact_delta_v_m_s": 3.0,
+    "tail_window_steps": 25,
+    "max_tail_horizontal_speed_m_s": 0.5,
+    "max_tail_vertical_speed_m_s": 0.25,
+    "max_tail_angular_speed_rad_s": 2.0
+  },
+  "pose_mode_metrics": [
+    {
+      "env_index": 0,
+      "pose_id": "prone",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.09104904532432556,
+        0.039274174720048904,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.12345611304044724,
+        0.11845490336418152,
+        0.11674022674560547,
+        0.11845490336418152,
+        0.12345611304044724,
+        0.12181185930967331,
+        0.11674024164676666,
+        0.11500001698732376,
+        0.11674024164676666,
+        0.12181185930967331,
+        0.12345611304044724,
+        0.11845490336418152,
+        0.11674024164676666,
+        0.11845490336418152,
+        0.12345611304044724
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 15,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.5784630179405212,
+      "max_root_angular_speed_rad_s": 1.3149163722991943,
+      "min_root_height_m": 0.15994739532470703,
+      "max_root_height_m": 0.22864213585853577,
+      "max_joint_speed_rad_s": 6.792217254638672,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 11.51548957824707,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": false,
+      "max_nonfoot_force_bodyweights": 0.0,
+      "max_nonfoot_force_physics_step": -1,
+      "max_nonfoot_force_body_index": -1,
+      "max_nonfoot_force_body_name": null,
+      "max_nonfoot_force_time_s": null,
+      "excess_contact_delta_v_m_s": 0.0,
+      "peak_step_excess_contact_delta_v_m_s": 0.0,
+      "peak_step_excess_contact_impulse_control_step": -1,
+      "peak_step_excess_contact_impulse_time_s": null,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 0.4664323329925537,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "reset_pose_hold_normalized_action_saturated": null,
+      "reset_pose_hold_saturated_joint_count": null,
+      "reset_pose_hold_saturated_joint_names": null,
+      "reset_pose_hold_reachable_processed_joint_target_rad": null,
+      "reset_pose_hold_reachable_target_max_error_rad": null,
+      "reset_pose_hold_reachable_target_max_error_joint_index": null,
+      "reset_pose_hold_reachable_target_max_error_joint_name": null,
+      "min_contact_separation_m": -0.0006400793790817261,
+      "min_contact_separation_provenance": {
+        "separation_m": -0.0006400793790817261,
+        "actor0_path": "/World/envs/env_0/Robot/RR_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_0/Robot/RR_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 1,
+        "time_s": 0.005
+      },
+      "tail_horizontal_speed_p95_m_s": 0.009823420085012913,
+      "tail_vertical_speed_p95_m_s": 0.004878464620560408,
+      "tail_angular_speed_p95_rad_s": 0.01138734258711338,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 1,
+      "pose_id": "supine",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.09090583026409149,
+        0.03933890163898468,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 0,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.10696722567081451,
+      "max_root_angular_speed_rad_s": 0.561573326587677,
+      "min_root_height_m": 0.05699516087770462,
+      "max_root_height_m": 0.05956336110830307,
+      "max_joint_speed_rad_s": 5.4691853523254395,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 4.838113307952881,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": false,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 2.549241065979004,
+      "max_nonfoot_force_physics_step": 5,
+      "max_nonfoot_force_body_index": 0,
+      "max_nonfoot_force_body_name": "base",
+      "max_nonfoot_force_time_s": 0.025,
+      "excess_contact_delta_v_m_s": 0.11494700610637665,
+      "peak_step_excess_contact_delta_v_m_s": 0.07291919738054276,
+      "peak_step_excess_contact_impulse_control_step": 2,
+      "peak_step_excess_contact_impulse_time_s": 0.04,
+      "first_contact_physics_step": 4,
+      "first_contact_time_s": 0.02,
+      "first_contact_force_bodyweights": 1.979932188987732,
+      "first_contact_excess_delta_v_m_s": 0.023540666326880455,
+      "reset_pose_hold_normalized_action_saturated": null,
+      "reset_pose_hold_saturated_joint_count": null,
+      "reset_pose_hold_saturated_joint_names": null,
+      "reset_pose_hold_reachable_processed_joint_target_rad": null,
+      "reset_pose_hold_reachable_target_max_error_rad": null,
+      "reset_pose_hold_reachable_target_max_error_joint_index": null,
+      "reset_pose_hold_reachable_target_max_error_joint_name": null,
+      "min_contact_separation_m": -2.117455005645752e-05,
+      "min_contact_separation_provenance": {
+        "separation_m": -2.117455005645752e-05,
+        "actor0_path": "/World/envs/env_1/Robot/RR_thigh",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_1/Robot/RR_thigh/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 28,
+        "time_s": 0.14
+      },
+      "tail_horizontal_speed_p95_m_s": 0.0008611041121184826,
+      "tail_vertical_speed_p95_m_s": 0.0020622480660676956,
+      "tail_angular_speed_p95_rad_s": 0.0076421890407800674,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 2,
+      "pose_id": "left_side",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0907011330127716,
+        0.03965606912970543,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        0.9346252083778381,
+        0.44271689653396606,
+        1.0,
+        1.0,
+        1.0,
+        0.9838160872459412,
+        0.4427168369293213,
+        1.0,
+        1.0,
+        1.0,
+        0.9838157296180725,
+        0.49190765619277954
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.28579241037368774,
+      "max_root_angular_speed_rad_s": 1.7817021608352661,
+      "min_root_height_m": 0.1550595760345459,
+      "max_root_height_m": 0.161892831325531,
+      "max_joint_speed_rad_s": 7.485305309295654,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 4.34852933883667,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 4.610599994659424,
+      "max_nonfoot_force_physics_step": 11,
+      "max_nonfoot_force_body_index": 6,
+      "max_nonfoot_force_body_name": "FR_thigh",
+      "max_nonfoot_force_time_s": 0.055,
+      "excess_contact_delta_v_m_s": 0.1922403872013092,
+      "peak_step_excess_contact_delta_v_m_s": 0.1922403872013092,
+      "peak_step_excess_contact_impulse_control_step": 3,
+      "peak_step_excess_contact_impulse_time_s": 0.06,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 0.265130877494812,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "reset_pose_hold_normalized_action_saturated": null,
+      "reset_pose_hold_saturated_joint_count": null,
+      "reset_pose_hold_saturated_joint_names": null,
+      "reset_pose_hold_reachable_processed_joint_target_rad": null,
+      "reset_pose_hold_reachable_target_max_error_rad": null,
+      "reset_pose_hold_reachable_target_max_error_joint_index": null,
+      "reset_pose_hold_reachable_target_max_error_joint_name": null,
+      "min_contact_separation_m": -0.010988160967826843,
+      "min_contact_separation_provenance": {
+        "separation_m": -0.010988160967826843,
+        "actor0_path": "/World/envs/env_2/Robot/RR_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_2/Robot/RR_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 2,
+        "time_s": 0.01
+      },
+      "tail_horizontal_speed_p95_m_s": 0.00392712140455842,
+      "tail_vertical_speed_p95_m_s": 0.0038114553317427635,
+      "tail_angular_speed_p95_rad_s": 0.06641761213541031,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 3,
+      "pose_id": "right_side",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0906020998954773,
+        0.03971432149410248,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.4427166283130646,
+        0.9346235394477844,
+        1.0,
+        1.0,
+        1.0,
+        0.4427165687084198,
+        0.8362420797348022,
+        1.0,
+        1.0,
+        1.0,
+        0.442716509103775,
+        0.983814001083374,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.28577566146850586,
+      "max_root_angular_speed_rad_s": 1.7822339534759521,
+      "min_root_height_m": 0.15505999326705933,
+      "max_root_height_m": 0.16189227998256683,
+      "max_joint_speed_rad_s": 7.485957622528076,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 4.345631122589111,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 4.611482620239258,
+      "max_nonfoot_force_physics_step": 11,
+      "max_nonfoot_force_body_index": 2,
+      "max_nonfoot_force_body_name": "FL_thigh",
+      "max_nonfoot_force_time_s": 0.055,
+      "excess_contact_delta_v_m_s": 0.1923193335533142,
+      "peak_step_excess_contact_delta_v_m_s": 0.1923193335533142,
+      "peak_step_excess_contact_impulse_control_step": 3,
+      "peak_step_excess_contact_impulse_time_s": 0.06,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 0.2654464840888977,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "reset_pose_hold_normalized_action_saturated": null,
+      "reset_pose_hold_saturated_joint_count": null,
+      "reset_pose_hold_saturated_joint_names": null,
+      "reset_pose_hold_reachable_processed_joint_target_rad": null,
+      "reset_pose_hold_reachable_target_max_error_rad": null,
+      "reset_pose_hold_reachable_target_max_error_joint_index": null,
+      "reset_pose_hold_reachable_target_max_error_joint_name": null,
+      "min_contact_separation_m": -0.010990187525749207,
+      "min_contact_separation_provenance": {
+        "separation_m": -0.010990187525749207,
+        "actor0_path": "/World/envs/env_3/Robot/RL_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_3/Robot/RL_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 2,
+        "time_s": 0.01
+      },
+      "tail_horizontal_speed_p95_m_s": 0.0025096486788243055,
+      "tail_vertical_speed_p95_m_s": 0.002718693111091852,
+      "tail_angular_speed_p95_rad_s": 0.058261338621377945,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 4,
+      "pose_id": "prone",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.09069012850522995,
+        0.03963227942585945,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.12345611304044724,
+        0.11845490336418152,
+        0.11674022674560547,
+        0.11845490336418152,
+        0.12345611304044724,
+        0.12181185930967331,
+        0.11674024164676666,
+        0.11500001698732376,
+        0.11674024164676666,
+        0.12181185930967331,
+        0.12345611304044724,
+        0.11845490336418152,
+        0.11674024164676666,
+        0.11845490336418152,
+        0.12345611304044724
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 15,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0033826828002929688,
+      "max_hard_joint_limit_violation_control_step": 16,
+      "max_hard_joint_limit_violation_time_s": 0.32,
+      "max_hard_joint_limit_violation_joint": "RL_calf_joint",
+      "max_root_linear_speed_m_s": 0.5405861735343933,
+      "max_root_angular_speed_rad_s": 1.1312918663024902,
+      "min_root_height_m": 0.10043156892061234,
+      "max_root_height_m": 0.16259203851222992,
+      "max_joint_speed_rad_s": 3.0153679847717285,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 9.235679626464844,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 3.066824436187744,
+      "max_nonfoot_force_physics_step": 23,
+      "max_nonfoot_force_body_index": 10,
+      "max_nonfoot_force_body_name": "Head_lower",
+      "max_nonfoot_force_time_s": 0.115,
+      "excess_contact_delta_v_m_s": 0.07685273140668869,
+      "peak_step_excess_contact_delta_v_m_s": 0.07685273140668869,
+      "peak_step_excess_contact_impulse_control_step": 6,
+      "peak_step_excess_contact_impulse_time_s": 0.12,
+      "first_contact_physics_step": 2,
+      "first_contact_time_s": 0.01,
+      "first_contact_force_bodyweights": 0.18688948452472687,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "reset_pose_hold_normalized_action_saturated": false,
+      "reset_pose_hold_saturated_joint_count": 0,
+      "reset_pose_hold_saturated_joint_names": [],
+      "reset_pose_hold_reachable_processed_joint_target_rad": [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      "reset_pose_hold_reachable_target_max_error_rad": 1.1920928955078125e-07,
+      "reset_pose_hold_reachable_target_max_error_joint_index": 6,
+      "reset_pose_hold_reachable_target_max_error_joint_name": "RL_thigh_joint",
+      "min_contact_separation_m": -2.0548701286315918e-05,
+      "min_contact_separation_provenance": {
+        "separation_m": -2.0548701286315918e-05,
+        "actor0_path": "/World/envs/env_4/Robot/FR_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_4/Robot/FR_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 57,
+        "time_s": 0.28500000000000003
+      },
+      "tail_horizontal_speed_p95_m_s": 0.0003374922089278698,
+      "tail_vertical_speed_p95_m_s": 0.000460669252788648,
+      "tail_angular_speed_p95_rad_s": 0.0017648187931627035,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 5,
+      "pose_id": "supine",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.09061747044324875,
+        0.039691343903541565,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 0,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.19620005786418915,
+      "max_root_angular_speed_rad_s": 0.01340619195252657,
+      "min_root_height_m": 0.05700002238154411,
+      "max_root_height_m": 0.057547494769096375,
+      "max_joint_speed_rad_s": 1.1425544023513794,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 1.0098885297775269,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": false,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 3.6645920276641846,
+      "max_nonfoot_force_physics_step": 5,
+      "max_nonfoot_force_body_index": 0,
+      "max_nonfoot_force_body_name": "base",
+      "max_nonfoot_force_time_s": 0.025,
+      "excess_contact_delta_v_m_s": 0.10913128405809402,
+      "peak_step_excess_contact_delta_v_m_s": 0.10913128405809402,
+      "peak_step_excess_contact_impulse_control_step": 2,
+      "peak_step_excess_contact_impulse_time_s": 0.04,
+      "first_contact_physics_step": 5,
+      "first_contact_time_s": 0.025,
+      "first_contact_force_bodyweights": 3.6645920276641846,
+      "first_contact_excess_delta_v_m_s": 0.10617323219776154,
+      "reset_pose_hold_normalized_action_saturated": false,
+      "reset_pose_hold_saturated_joint_count": 0,
+      "reset_pose_hold_saturated_joint_names": [],
+      "reset_pose_hold_reachable_processed_joint_target_rad": [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      "reset_pose_hold_reachable_target_max_error_rad": 1.1920928955078125e-07,
+      "reset_pose_hold_reachable_target_max_error_joint_index": 6,
+      "reset_pose_hold_reachable_target_max_error_joint_name": "RL_thigh_joint",
+      "min_contact_separation_m": -3.766268491744995e-06,
+      "min_contact_separation_provenance": {
+        "separation_m": -3.766268491744995e-06,
+        "actor0_path": "/World/envs/env_5/Robot/base",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_5/Robot/base/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 6,
+        "time_s": 0.03
+      },
+      "tail_horizontal_speed_p95_m_s": 0.00014536251546815038,
+      "tail_vertical_speed_p95_m_s": 0.00021069005015306175,
+      "tail_angular_speed_p95_rad_s": 0.0015955151757225394,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 6,
+      "pose_id": "left_side",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.09099192172288895,
+        0.03938598930835724,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        0.9346252679824829,
+        0.541098415851593,
+        1.0,
+        1.0,
+        1.0,
+        0.9346252083778381,
+        0.4427168369293213,
+        1.0,
+        1.0,
+        1.0,
+        0.9346249103546143,
+        0.541098415851593
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 1.0434722900390625,
+      "max_root_angular_speed_rad_s": 10.536346435546875,
+      "min_root_height_m": 0.05700019374489784,
+      "max_root_height_m": 0.16168659925460815,
+      "max_joint_speed_rad_s": 9.960007667541504,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 5.103178977966309,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 13.943856239318848,
+      "max_nonfoot_force_physics_step": 129,
+      "max_nonfoot_force_body_index": 0,
+      "max_nonfoot_force_body_name": "base",
+      "max_nonfoot_force_time_s": 0.645,
+      "excess_contact_delta_v_m_s": 1.0472577810287476,
+      "peak_step_excess_contact_delta_v_m_s": 0.8192560076713562,
+      "peak_step_excess_contact_impulse_control_step": 33,
+      "peak_step_excess_contact_impulse_time_s": 0.66,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 0.16383330523967743,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "reset_pose_hold_normalized_action_saturated": false,
+      "reset_pose_hold_saturated_joint_count": 0,
+      "reset_pose_hold_saturated_joint_names": [],
+      "reset_pose_hold_reachable_processed_joint_target_rad": [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      "reset_pose_hold_reachable_target_max_error_rad": 1.1920928955078125e-07,
+      "reset_pose_hold_reachable_target_max_error_joint_index": 6,
+      "reset_pose_hold_reachable_target_max_error_joint_name": "RL_thigh_joint",
+      "min_contact_separation_m": -0.01098625361919403,
+      "min_contact_separation_provenance": {
+        "separation_m": -0.01098625361919403,
+        "actor0_path": "/World/envs/env_6/Robot/RR_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_6/Robot/RR_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 2,
+        "time_s": 0.01
+      },
+      "tail_horizontal_speed_p95_m_s": 0.0006865181494504213,
+      "tail_vertical_speed_p95_m_s": 0.0006119522731751204,
+      "tail_angular_speed_p95_rad_s": 0.00667831813916564,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 7,
+      "pose_id": "right_side",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.09083997458219528,
+        0.03946609050035477,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.4427166283130646,
+        0.9838142395019531,
+        1.0,
+        1.0,
+        1.0,
+        0.4427165389060974,
+        0.9346235394477844,
+        1.0,
+        1.0,
+        1.0,
+        0.39352577924728394,
+        0.9346233606338501,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 1.1506606340408325,
+      "max_root_angular_speed_rad_s": 6.981120586395264,
+      "min_root_height_m": 0.05699768662452698,
+      "max_root_height_m": 0.16168765723705292,
+      "max_joint_speed_rad_s": 5.877931118011475,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 5.476951599121094,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 8.50235366821289,
+      "max_nonfoot_force_physics_step": 129,
+      "max_nonfoot_force_body_index": 0,
+      "max_nonfoot_force_body_name": "base",
+      "max_nonfoot_force_time_s": 0.645,
+      "excess_contact_delta_v_m_s": 1.0526645183563232,
+      "peak_step_excess_contact_delta_v_m_s": 0.9191251993179321,
+      "peak_step_excess_contact_impulse_control_step": 33,
+      "peak_step_excess_contact_impulse_time_s": 0.66,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 0.16565023362636566,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "reset_pose_hold_normalized_action_saturated": false,
+      "reset_pose_hold_saturated_joint_count": 0,
+      "reset_pose_hold_saturated_joint_names": [],
+      "reset_pose_hold_reachable_processed_joint_target_rad": [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      "reset_pose_hold_reachable_target_max_error_rad": 1.1920928955078125e-07,
+      "reset_pose_hold_reachable_target_max_error_joint_index": 6,
+      "reset_pose_hold_reachable_target_max_error_joint_name": "RL_thigh_joint",
+      "min_contact_separation_m": -0.010987207293510437,
+      "min_contact_separation_provenance": {
+        "separation_m": -0.010987207293510437,
+        "actor0_path": "/World/envs/env_7/Robot/RL_foot",
+        "actor1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "collider0_path": "/World/envs/env_7/Robot/RL_foot/collisions/mesh_0",
+        "collider1_path": "/World/ground/terrain/GroundPlane/CollisionPlane",
+        "physics_step": 2,
+        "time_s": 0.01
+      },
+      "tail_horizontal_speed_p95_m_s": 0.0010472106514498591,
+      "tail_vertical_speed_p95_m_s": 0.0005455914651975036,
+      "tail_angular_speed_p95_rad_s": 0.0077414847910404205,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    }
+  ],
+  "checks": {
+    "articulation_solver_iteration_counts_match_contract": true,
+    "rigid_body_max_depenetration_velocity_matches_contract": false,
+    "joint_action_type_matches_contract": true,
+    "joint_action_scale_matches_contract": true,
+    "joint_action_ema_alpha_matches_contract": true,
+    "joint_action_ema_history_matches_reset_joint_positions": true,
+    "soft_joint_limit_factor_matches_contract": true,
+    "policy_observation_dim_83": true,
+    "critic_observation_dim_107": true,
+    "action_dim_12": true,
+    "eight_env_pose_mode_stratification": true,
+    "eight_env_pose_one_hot": true,
+    "pose_orientation_matches_contract": true,
+    "observations_finite_at_reset": true,
+    "critic_base_height_matches_root_height": true,
+    "critic_terrain_normal_finite_unit_length": true,
+    "body_range_camera_world_pose_matches_base_offset": true,
+    "body_range_camera_attached_to_base": true,
+    "body_range_camera_targets_ground": true,
+    "body_range_camera_distance_output": true,
+    "body_range_camera_pattern_5x3": true,
+    "body_range_camera_max_distance_1m": true,
+    "body_range_camera_offset_matches_contract": true,
+    "body_range_camera_rotation_matches_contract": true,
+    "actor_foot_load_finite_nonnegative": true,
+    "body_range_finite_unit_interval": true,
+    "body_range_mask_binary": true,
+    "body_range_no_hit_is_one": true,
+    "prone_has_at_least_one_camera_hit_both_modes": true,
+    "supine_has_zero_camera_hits_both_modes": true,
+    "actor_foot_load_valid_through_rollout": true,
+    "body_range_valid_through_rollout": true,
+    "body_range_mask_valid_through_rollout": true,
+    "body_range_no_hit_is_one_through_rollout": true,
+    "actor_foot_load_independent_of_ray_no_hit": true,
+    "forced_ray_no_hit_maps_to_valid_actor_observation": true,
+    "foot_material_readback_matches_startup": true,
+    "effective_friction_matches_multiply_combine": true,
+    "nominal_mass_readback_matches_contract": true,
+    "actor_privileged_perturbation_invariant": true,
+    "actor_call_path_avoids_live_mass_read": true,
+    "reward_terminal_contribution_exact_10": true,
+    "reward_potential_contribution_exact_0_495": true,
+    "stable_success_25_step_one_shot": true,
+    "stable_success_partial_reset_isolated": true,
+    "stable_success_uses_60pct_foot_load_gate": true,
+    "body_supported_state_does_not_latch_success": true,
+    "low_foot_load_state_does_not_latch_success": true,
+    "rollout_state_finite_all_pose_modes": true,
+    "no_numeric_invalid_termination": true,
+    "no_hard_joint_limit_termination": true,
+    "joint_positions_within_hard_limit_margin": true,
+    "torque_within_runtime_limit": true,
+    "joint_speed_within_runtime_limit": true,
+    "root_height_above_2cm": true,
+    "at_least_one_contact_type_exercised_per_pose_mode": true,
+    "foot_contact_exercised_globally": true,
+    "nonfoot_contact_exercised_globally": true,
+    "nonfoot_peak_force_bounded": true,
+    "nonfoot_peak_force_body_attribution_complete": true,
+    "nonfoot_excess_impulse_bounded": true,
+    "tail_horizontal_speed_settled": true,
+    "tail_vertical_speed_settled": true,
+    "tail_angular_speed_settled": true,
+    "reset_pose_hold_actions_bounded": true,
+    "reset_pose_hold_action_diagnostics_finite": true,
+    "reset_pose_hold_actions_unsaturated": true,
+    "reset_pose_hold_reachable_targets_match_reset_positions": true,
+    "zero_normalized_actions_are_zero": true,
+    "base_contact_not_a_termination": true,
+    "source_binding_files_present": true,
+    "source_binding_git_commit_valid": true,
+    "source_binding_clean": true
+  },
+  "run_health": {
+    "passed": true,
+    "check_names": [
+      "observations_finite_at_reset",
+      "rollout_state_finite_all_pose_modes",
+      "no_numeric_invalid_termination"
+    ]
+  },
+  "runtime_contract": {
+    "passed": false,
+    "blocking_checks": [
+      "articulation_solver_iteration_counts_match_contract",
+      "rigid_body_max_depenetration_velocity_matches_contract",
+      "joint_action_type_matches_contract",
+      "joint_action_scale_matches_contract",
+      "joint_action_ema_alpha_matches_contract",
+      "joint_action_ema_history_matches_reset_joint_positions",
+      "soft_joint_limit_factor_matches_contract",
+      "policy_observation_dim_83",
+      "critic_observation_dim_107",
+      "action_dim_12",
+      "eight_env_pose_mode_stratification",
+      "eight_env_pose_one_hot",
+      "pose_orientation_matches_contract",
+      "observations_finite_at_reset",
+      "critic_base_height_matches_root_height",
+      "critic_terrain_normal_finite_unit_length",
+      "body_range_camera_world_pose_matches_base_offset",
+      "body_range_camera_attached_to_base",
+      "body_range_camera_targets_ground",
+      "body_range_camera_distance_output",
+      "body_range_camera_pattern_5x3",
+      "body_range_camera_max_distance_1m",
+      "body_range_camera_offset_matches_contract",
+      "body_range_camera_rotation_matches_contract",
+      "actor_foot_load_finite_nonnegative",
+      "body_range_finite_unit_interval",
+      "body_range_mask_binary",
+      "body_range_no_hit_is_one",
+      "prone_has_at_least_one_camera_hit_both_modes",
+      "supine_has_zero_camera_hits_both_modes",
+      "actor_foot_load_valid_through_rollout",
+      "body_range_valid_through_rollout",
+      "body_range_mask_valid_through_rollout",
+      "body_range_no_hit_is_one_through_rollout",
+      "actor_foot_load_independent_of_ray_no_hit",
+      "forced_ray_no_hit_maps_to_valid_actor_observation",
+      "foot_material_readback_matches_startup",
+      "effective_friction_matches_multiply_combine",
+      "nominal_mass_readback_matches_contract",
+      "actor_privileged_perturbation_invariant",
+      "actor_call_path_avoids_live_mass_read",
+      "reward_terminal_contribution_exact_10",
+      "reward_potential_contribution_exact_0_495",
+      "stable_success_25_step_one_shot",
+      "stable_success_partial_reset_isolated",
+      "stable_success_uses_60pct_foot_load_gate",
+      "body_supported_state_does_not_latch_success",
+      "low_foot_load_state_does_not_latch_success",
+      "rollout_state_finite_all_pose_modes",
+      "no_numeric_invalid_termination",
+      "no_hard_joint_limit_termination",
+      "joint_positions_within_hard_limit_margin",
+      "torque_within_runtime_limit",
+      "joint_speed_within_runtime_limit",
+      "root_height_above_2cm",
+      "at_least_one_contact_type_exercised_per_pose_mode",
+      "foot_contact_exercised_globally",
+      "nonfoot_contact_exercised_globally",
+      "nonfoot_peak_force_bounded",
+      "nonfoot_peak_force_body_attribution_complete",
+      "nonfoot_excess_impulse_bounded",
+      "tail_horizontal_speed_settled",
+      "tail_vertical_speed_settled",
+      "tail_angular_speed_settled",
+      "reset_pose_hold_actions_bounded",
+      "reset_pose_hold_action_diagnostics_finite",
+      "reset_pose_hold_actions_unsaturated",
+      "reset_pose_hold_reachable_targets_match_reset_positions",
+      "zero_normalized_actions_are_zero",
+      "base_contact_not_a_termination",
+      "source_binding_files_present",
+      "source_binding_git_commit_valid",
+      "source_binding_clean"
+    ]
+  },
+  "qualification": {
+    "status": "not_run",
+    "passed": null,
+    "reason": "runtime calibration does not evaluate a learned checkpoint"
+  },
+  "passed_semantics": "runtime_contract_only_not_policy_qualification",
+  "passed": false
+}
