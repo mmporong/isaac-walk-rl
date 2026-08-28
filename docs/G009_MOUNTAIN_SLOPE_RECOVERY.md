@@ -952,6 +952,17 @@ rejection synthesis는 증거 합성 자체가 유효하다는 `evidence_synthes
 
 다음 revision은 position iteration이나 contact offset을 바로 다시 바꾸지 않는다. 먼저 승인된 rev12와 기각된 rev15에서 동일한 pose/action 경로를 CPU와 GPU로 재생하고, physics step별 normal force·contact impulse·contact pair, root pose/velocity, joint state, solver readback을 같은 키로 저장해 최초 divergence step을 찾는다. backend 차이가 readback·접촉 순서·누적 impulse 중 어디서 시작하는지 분리한 뒤 한 가설만 바꾼 새 scratch 후보를 만든다. 그 후보가 CPU·GPU 각각 독립 `3/3`에서 force·separation·numeric/hard safety를 모두 통과하기 전에는 Gate01과 PPO를 열지 않는다.
 
+rev16의 사전 가설은 “position iteration 16이 GPU의 right-side/reset-hold base 접촉 impulse를 CPU와 rev12 position iteration 8보다 더 이르고 좁게 집중시킨다” 하나로 제한한다. rev16은 `diagnostic_protocol`이며 `qualification_eligible=false`다.
+
+| arm | solver | 실행 순서 | 다음 arm을 여는 조건 |
+| --- | --- | --- | --- |
+| A baseline | `8/0`, max depenetration `1.0m/s` | CPU 3회 → GPU 3회 | 역사적 rev12 force·separation·safety 재현, 새 telemetry 완전성 `3/3` |
+| B reenactment | `16/0`, max depenetration `1.0m/s` | CPU 3회 → GPU 3회 | CPU가 rev15 force·separation·env7 사건 계보를 재현할 때만 GPU 실행 |
+
+각 physics substep은 env 7의 19 body contact-force XYZ와 magnitude, base force/BW, foot·non-foot total, `force × 0.005s` impulse, history slot과 physics/control step을 기록한다. 각 control step은 root pose·linear/angular velocity, 19 link velocity, 12 joint position·velocity·applied torque, raw action, processed target와 EMA target을 저장한다. peak 전후 최소 ±8 physics step에서 `5/10/15 BW` 초과 지속시간, 적분 impulse, `peak/window impulse` concentration index, first-contact-to-peak 시간과 같은 window의 root/joint speed를 계산한다. CPU contact callback의 point·body pair·position·normal·separation은 CPU authority로만 기록하고 GPU에서 비어 있으면 `unavailable`로 남긴다.
+
+Arm A의 CPU 또는 GPU가 rev12 기준을 `3/3` 재현하지 못하거나 force-history slot 대응이 틀리면 계측기 교란 또는 baseline 실패로 즉시 중단한다. Arm B GPU 가설은 세 실행 모두 env 7/right-side/reset-hold/base에서 `>15 BW`, CPU보다 최소 한 physics substep 이른 peak, CPU보다 concentration index `20% 이상` 증가, action·EMA trace 오차 `≤1e-6`, 같은 peak window의 force와 root/joint speed 상승을 만족할 때만 지지한다. 한 번이라도 다른 결과가 나오거나 필드가 빠지면 다수결로 통과시키지 않고 `inconclusive`로 판정한다. 가설이 지지돼도 PPO로 진행하지 않고 position 16을 기각해 rev12 position 8을 유지한다.
+
 ![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
 
 ![rev12 gate10 full-state 사건별 GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.gif)
