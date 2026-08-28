@@ -295,10 +295,10 @@ def test_solver_iteration_check_fails_closed(rows: list[dict[str, object]]) -> N
 
 GO2_BODY_NAMES = [
     "base",
-    "FL_hip", "FL_thigh", "FL_calf",
-    "FR_hip", "FR_thigh", "FR_calf",
-    "RL_hip", "RL_thigh", "RL_calf",
-    "RR_hip", "RR_thigh", "RR_calf",
+    "FL_hip", "FR_hip", "Head_upper", "RL_hip", "RR_hip",
+    "FL_thigh", "FR_thigh", "Head_lower", "RL_thigh", "RR_thigh",
+    "FL_calf", "FR_calf", "RL_calf", "RR_calf",
+    "FL_foot", "FR_foot", "RL_foot", "RR_foot",
 ]
 
 
@@ -385,13 +385,13 @@ def _link_check(readback, *, expected_articulations=2):
     )["rigid_body_max_depenetration_velocity_matches_contract"]
 
 
-def test_link_path_readback_covers_two_groups_of_thirteen_sibling_links() -> None:
+def test_link_path_readback_covers_two_groups_of_nineteen_sibling_links() -> None:
     containers, roots, groups = _link_topology()
 
     result = _readback_for_topology(containers, roots, groups)
 
     assert result["articulation_group_count"] == 2
-    assert result["rigid_body_count"] == 26
+    assert result["rigid_body_count"] == 38
     assert result["articulations"][0]["articulation_prim_path"] == roots[0]
     assert result["articulations"][0]["root_link_prim_path"] == roots[0]
     assert result["articulations"][0]["authoritative_body_names"] == GO2_BODY_NAMES
@@ -401,21 +401,21 @@ def test_link_path_readback_covers_two_groups_of_thirteen_sibling_links() -> Non
     assert _link_check(result) is True
 
 
-def test_link_path_readback_locks_production_eight_by_thirteen_topology() -> None:
+def test_link_path_readback_locks_production_eight_by_nineteen_topology() -> None:
     containers, roots, groups = _link_topology(num_envs=8)
 
     result = _readback_for_topology(containers, roots, groups)
 
     assert result["articulation_group_count"] == 8
-    assert result["rigid_body_count"] == 104
+    assert result["rigid_body_count"] == 152
     assert result["articulations"][7]["articulation_prim_path"] == roots[7]
     assert result["articulations"][7]["authoritative_link_paths"][-1] == (
-        "/World/envs/env_7/Robot/RR_calf"
+        "/World/envs/env_7/Robot/RR_foot"
     )
     assert result["articulations"][7]["links"][-1] == {
-        "body_index": 12,
-        "body_name": "RR_calf",
-        "prim_path": "/World/envs/env_7/Robot/RR_calf",
+        "body_index": 18,
+        "body_name": "RR_foot",
+        "prim_path": "/World/envs/env_7/Robot/RR_foot",
         "prim_valid": True,
         "usd_rigid_body_api": True,
         "physx_rigid_body_api": True,
