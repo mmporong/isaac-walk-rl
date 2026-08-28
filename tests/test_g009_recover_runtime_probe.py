@@ -207,7 +207,7 @@ def test_physics_thresholds_are_blocking_calibration_values() -> None:
     assert PROBE.MAX_TAIL_ANGULAR_SPEED_RAD_S == pytest.approx(2.0)
 
 
-def test_solver_position_iteration_readback_records_each_live_articulation() -> None:
+def test_solver_iteration_readback_records_each_live_articulation() -> None:
     class Attribute:
         def Get(self):
             return 8
@@ -219,7 +219,7 @@ def test_solver_position_iteration_readback_records_each_live_articulation() -> 
         def GetSolverVelocityIterationCountAttr(self):
             class VelocityAttribute:
                 def Get(self):
-                    return 0
+                    return 1
 
             return VelocityAttribute()
 
@@ -250,19 +250,19 @@ def test_solver_position_iteration_readback_records_each_live_articulation() -> 
             {
                 "prim_path": "/World/envs/env_0/Robot",
                 "solver_position_iteration_count": 8,
-                "solver_velocity_iteration_count": 0,
+                "solver_velocity_iteration_count": 1,
             },
             {
                 "prim_path": "/World/envs/env_1/Robot",
                 "solver_position_iteration_count": 8,
-                "solver_velocity_iteration_count": 0,
+                "solver_velocity_iteration_count": 1,
             },
         ],
     }
     assert PROBE.articulation_solver_iteration_checks(
         result,
         expected_position_count=8,
-        expected_velocity_count=0,
+        expected_velocity_count=1,
         expected_articulations=2,
     ) == {
         "articulation_solver_iteration_counts_match_contract": True
@@ -273,17 +273,18 @@ def test_solver_position_iteration_readback_records_each_live_articulation() -> 
     "rows",
     [
         [],
-        [{"solver_position_iteration_count": 4, "solver_velocity_iteration_count": 0}],
+        [{"solver_position_iteration_count": 4, "solver_velocity_iteration_count": 1}],
+        [{"solver_position_iteration_count": 8, "solver_velocity_iteration_count": 0}],
         [{"solver_position_iteration_count": 8, "solver_velocity_iteration_count": 4}],
-        [{"solver_position_iteration_count": None, "solver_velocity_iteration_count": 0}],
+        [{"solver_position_iteration_count": None, "solver_velocity_iteration_count": 1}],
         [{"solver_position_iteration_count": 8, "solver_velocity_iteration_count": None}],
     ],
 )
-def test_solver_position_iteration_check_fails_closed(rows: list[dict[str, object]]) -> None:
+def test_solver_iteration_check_fails_closed(rows: list[dict[str, object]]) -> None:
     checks = PROBE.articulation_solver_iteration_checks(
         {"articulations": rows},
         expected_position_count=8,
-        expected_velocity_count=0,
+        expected_velocity_count=1,
         expected_articulations=1,
     )
 

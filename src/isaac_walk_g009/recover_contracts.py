@@ -43,6 +43,7 @@ CONTROL_DECIMATION = 4
 CONTROL_DT_S = PHYSICS_DT_S * CONTROL_DECIMATION
 EPISODE_LENGTH_S = 8.0
 ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 8
+ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT = 1
 
 ACTION_SCALE = 0.70
 ACTION_EMA_ALPHA = 0.2
@@ -299,7 +300,7 @@ def recover_contract() -> dict[str, Any]:
         for pose in RECOVER_POSES.values()
     ]
     return {
-        "contract_id": "g009_r0_recover_rev12",
+        "contract_id": "g009_r0_recover_rev13",
         "stage_id": "R0",
         "policy_schema": "P-RECOVER-83/C-RECOVER-107",
         "poses": poses,
@@ -314,12 +315,16 @@ def recover_contract() -> dict[str, Any]:
             "articulation_solver_position_iteration_count": (
                 ARTICULATION_SOLVER_POSITION_ITERATION_COUNT
             ),
-            "articulation_solver_velocity_iteration_count": 0,
+            "articulation_solver_velocity_iteration_count": (
+                ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT
+            ),
             "rev11_baseline_articulation_solver_position_iteration_count": 4,
+            "rev12_baseline_articulation_solver_velocity_iteration_count": 0,
             "single_variable_change": (
-                "increase only the Go2 articulation position-solver iteration count "
-                "from 4 to 8; retain action, reset, reward, curriculum, torque, joint-limit "
-                "tolerance, and observation-noise contracts"
+                "increase only the Go2 articulation velocity-solver iteration count "
+                "from 0 to 1; retain the position-solver iteration count at 8 and retain "
+                "action, reset, reward, curriculum, torque, joint-limit tolerance, and "
+                "observation-noise contracts"
             ),
         },
         "reset": {
@@ -662,6 +667,7 @@ __all__ = [
     "ACTION_EMA_ALPHA",
     "ACTION_SCALE",
     "ARTICULATION_SOLVER_POSITION_ITERATION_COUNT",
+    "ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT",
     "ACTOR_OBSERVATION_DIM",
     "ACTOR_OBSERVATION_METADATA",
     "ACTOR_OBSERVATION_TERMS",

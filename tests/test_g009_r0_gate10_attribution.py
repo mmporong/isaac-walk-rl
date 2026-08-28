@@ -112,12 +112,22 @@ def test_protocol_constants_pin_full_gate10_training() -> None:
     assert ATTRIBUTION.parse_prelaunch_output(["--help"]).name == "_gate10_attribution_help_only.json"
 
 
-def test_training_core_hashes_and_aggregate_are_exact() -> None:
+def test_historical_rev12_training_core_hashes_reject_rev13_source() -> None:
     provenance = ATTRIBUTION.training_core_provenance()
     assert len(ATTRIBUTION.TRAINING_CORE_SHA256) == 10
-    assert provenance["actual_files"] == ATTRIBUTION.TRAINING_CORE_SHA256
-    assert provenance["sha256"] == ATTRIBUTION.EXPECTED_TRAINING_CORE_SHA256
-    assert provenance["exact_match"] is True
+    assert provenance["expected_files"] == ATTRIBUTION.TRAINING_CORE_SHA256
+    assert set(provenance["actual_files"]) == set(ATTRIBUTION.TRAINING_CORE_SHA256)
+    assert {
+        path
+        for path, expected_sha256 in ATTRIBUTION.TRAINING_CORE_SHA256.items()
+        if provenance["actual_files"][path] != expected_sha256
+    } == {
+        "configs/g009_r0.json",
+        "src/isaac_walk_g009/recover_contracts.py",
+        "src/isaac_walk_g009/recover_env_cfg.py",
+    }
+    assert provenance["sha256"] != ATTRIBUTION.EXPECTED_TRAINING_CORE_SHA256
+    assert provenance["exact_match"] is False
 
 
 def test_protocol_rejects_any_noncanonical_execution_argument() -> None:

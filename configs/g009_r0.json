@@ -2,9 +2,9 @@
   "schema_version": 2,
   "goal_id": "g009",
   "stage_id": "R0",
-  "contract_sha256": "d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0",
+  "contract_sha256": "ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558",
   "contract": {
-    "contract_id": "g009_r0_recover_rev12",
+    "contract_id": "g009_r0_recover_rev13",
     "stage_id": "R0",
     "policy_schema": "P-RECOVER-83/C-RECOVER-107",
     "poses": [
@@ -106,9 +106,10 @@
     },
     "physics": {
       "articulation_solver_position_iteration_count": 8,
-      "articulation_solver_velocity_iteration_count": 0,
+      "articulation_solver_velocity_iteration_count": 1,
       "rev11_baseline_articulation_solver_position_iteration_count": 4,
-      "single_variable_change": "increase only the Go2 articulation position-solver iteration count from 4 to 8; retain action, reset, reward, curriculum, torque, joint-limit tolerance, and observation-noise contracts"
+      "rev12_baseline_articulation_solver_velocity_iteration_count": 0,
+      "single_variable_change": "increase only the Go2 articulation velocity-solver iteration count from 0 to 1; retain the position-solver iteration count at 8 and retain action, reset, reward, curriculum, torque, joint-limit tolerance, and observation-noise contracts"
     },
     "reset": {
       "assignment_mode": "random",

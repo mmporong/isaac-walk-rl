@@ -1056,6 +1056,7 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
         ACTION_EMA_ALPHA,
         ACTION_SCALE,
         ARTICULATION_SOLVER_POSITION_ITERATION_COUNT,
+        ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT,
         ACTOR_OBSERVATION_DIM,
         CRITIC_OBSERVATION_DIM,
         FOOT_DYNAMIC_FRICTION,
@@ -1617,7 +1618,7 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
             **articulation_solver_iteration_checks(
                 solver_iteration_readback,
                 expected_position_count=ARTICULATION_SOLVER_POSITION_ITERATION_COUNT,
-                expected_velocity_count=0,
+                expected_velocity_count=ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT,
                 expected_articulations=args.num_envs,
             ),
             "joint_action_type_matches_contract": (

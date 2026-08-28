@@ -371,6 +371,15 @@ clean source commit `9da3e87e4be9142035d24e8a4a22e204f8b229d5`에서 CPU·GPU �
 - termination `(iteration, rollout_step, env)` multiset과 attribution multiset, 원 hard-limit predicate 재계산이 정확히 같아야 한다. hard series `[0,1/24,1/24,1/24,0,0,0,0,0,0]`, `model_0.pt` SHA `52f45ef5ae9d3c98ced51132e7fb6b5e8d78d0721a7efd9657f3fdc46ea17017`, `model_9.pt` SHA `b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2`까지 같을 때만 원 Gate10 trajectory identity를 강하게 확인한다. 하나라도 다르면 동일 조건 fresh reproduction으로만 기록한다.
 - 새 프로세스 3회에서 사건 topology가 반복되는지 본다. 모든 사건이 calf lower, limit 안쪽 EMA target, 복원 방향 torque, 직전 calf/thigh/base contact 또는 lower 방향 관성, reset 과도구간과의 연결을 함께 보일 때만 rev13 calf reset `-2.37 → -2.34rad` 단일변수를 승인한다. non-calf 또는 policy target이 limit 방향인 사건이 하나라도 있으면 reset 변경은 보류한다.
 
+#### rev13 velocity solver 단일변수 구현 gate
+
+- rev13 계약 ID는 `g009_r0_recover_rev13`, canonical SHA-256은 `ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558`이다. articulation position iteration은 `8`로 유지하고 velocity iteration만 rev12의 `0`에서 `1`로 바꿨다.
+- `recover_contracts.py`의 상수와 canonical manifest, `recover_env_cfg.py`의 Isaac articulation 설정, runtime probe의 live USD readback 기대값을 같은 상수에 묶었다. calf reset `-2.37rad`, timestep `0.005/0.02s`, action scale/EMA `0.70/0.2`, PPO noise `0.5`, torque `23.5Nm`, hard-limit tolerance `0.01rad`, reward·curriculum·termination·observation noise는 변경하지 않았다.
+- `py scripts/sync_g009_r0_contract.py --check`는 PASS였다. rev12 manifest와 rev13 manifest의 의미 diff는 contract ID·contract hash·변경 설명, velocity `0 → 1`, rev12 baseline velocity 메타데이터 추가뿐이었다. 이 허용 필드를 제거한 전체 계약 투영은 rev12 고정 SHA-256 `1f26f58655091a86af5a1da73be12562667f4573dfc3841b79162b3c899959f6`와 같아야 하며 회귀 테스트가 이를 직접 검사한다.
+- Isaac 의존 테스트 두 파일을 제외한 전체 G009 순수 Python 검사는 `382 passed`, Isaac Sim 번들 Python의 `tests/test_g009_recover_config.py`는 `7 passed`였다. 변경 Python 파일의 `py_compile`은 PASS, import-light 변경 파일의 Pyright는 `0 errors`였다.
+- rev12 Gate10 attribution 스크립트의 고정 hash는 수정하지 않았다. rev13 소스에서 과거 진단을 재실행하려 하면 config·contract·env cfg 세 경로의 mismatch를 감지해 fail-closed로 거부하는 테스트를 추가했다.
+- 현재 상태는 `implemented_not_runtime_validated`이고 `learned_policy_qualified=false`다. 다음 실행은 clean source commit에서 CPU probe 3회, GPU probe 3회, strict synthesis 순서다. 여섯 runtime에서 실제 articulation `position=8 / velocity=1`, hard-limit·numeric-invalid `0`을 모두 확인하기 전에는 scratch Gate01을 열지 않는다.
+
 #### 단계별 영상·공개 정책
 
 - 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0` 아래에만 보관하고 Git에 넣지 않는다. 사용자가 확인할 원본과 합성 MP4도 `local_only`다.

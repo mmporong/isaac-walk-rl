@@ -28,6 +28,7 @@ from .recover_contracts import (
     ACTION_EMA_ALPHA,
     ACTION_SCALE,
     ARTICULATION_SOLVER_POSITION_ITERATION_COUNT,
+    ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT,
     CONTACT_FORCE_THRESHOLD_N,
     CONTROL_DECIMATION,
     EPISODE_LENGTH_S,
@@ -309,6 +310,9 @@ class G009FlatRecoverEnvCfg(G008CommandEnvCfg):
         self.commands.base_velocity = None
         self.scene.robot.spawn.articulation_props.solver_position_iteration_count = (
             ARTICULATION_SOLVER_POSITION_ITERATION_COUNT
+        )
+        self.scene.robot.spawn.articulation_props.solver_velocity_iteration_count = (
+            ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT
         )
         self.scene.robot.soft_joint_pos_limit_factor = GO2_SOFT_JOINT_LIMIT_FACTOR
         self.actions.joint_pos = base_mdp.EMAJointPositionToLimitsActionCfg(
