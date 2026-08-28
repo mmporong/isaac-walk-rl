@@ -88,6 +88,8 @@ def test_diagnostic_identity_and_local_only_filename() -> None:
     assert diagnostic.DEFAULT_OUTPUT_DIR.parts[-2:] == ("R0", "diagnostic")
     assert diagnostic.DEFAULT_REPORT_PATH.name == "g009_r0_diag_rev9_01_prone_capture_s42.json"
     assert "--/app/vulkan=false" in diagnostic.WINDOWS_KIT_ARGS
+    assert diagnostic.CAPTURE_NUM_ENVS == 1
+    assert diagnostic.CAMERA_EYE == (2.2, 2.2, 1.25)
     assert diagnostic.validate_output_dir(diagnostic.DEFAULT_OUTPUT_DIR) == diagnostic.DEFAULT_OUTPUT_DIR.resolve()
     with pytest.raises(ValueError, match="local-only"):
         diagnostic.validate_output_dir(ROOT / "docs" / "media" / "g009" / "R0")

@@ -24,6 +24,9 @@ DEFAULT_TASK = "Isaac-G009-Recover-Flat-Go2-R0-v0"
 POSE = "prone"
 POSE_INDEX = 1
 SOURCE_CLASS_ID = 0
+CAPTURE_NUM_ENVS = 1
+CAMERA_EYE = (2.2, 2.2, 1.25)
+CAMERA_LOOKAT = (0.0, 0.0, 0.24)
 DEFAULT_OUTPUT_DIR = Path.home() / "IsaacLab" / "logs" / "visual_evidence" / "g009" / "R0" / "diagnostic"
 DEFAULT_REPORT_PATH = REPO_ROOT / "reports" / "runs" / "g009_r0_diag_rev9_01_prone_capture_s42.json"
 OUTPUT_FILENAME = "g009_5_r0_diag_rev9_01_prone_s42.mp4"
@@ -257,7 +260,7 @@ def _trim_capture(source: Path, destination: Path, frame_count: int, ffmpeg: str
 def _configure_environment(args: argparse.Namespace) -> Any:
     from isaaclab_tasks.utils import parse_env_cfg
 
-    env_cfg: Any = parse_env_cfg(args.task, device=args.device, num_envs=4)
+    env_cfg: Any = parse_env_cfg(args.task, device=args.device, num_envs=CAPTURE_NUM_ENVS)
     env_cfg.seed = args.seed
     env_cfg.observations.policy.enable_corruption = False
     env_cfg.events.reset_base.params.update(
@@ -265,8 +268,8 @@ def _configure_environment(args: argparse.Namespace) -> Any:
     )
     env_cfg.viewer.origin_type = "env"
     env_cfg.viewer.env_index = SOURCE_CLASS_ID
-    env_cfg.viewer.eye = (3.2, 3.2, 1.8)
-    env_cfg.viewer.lookat = (0.0, 0.0, 0.30)
+    env_cfg.viewer.eye = CAMERA_EYE
+    env_cfg.viewer.lookat = CAMERA_LOOKAT
     return env_cfg
 
 
@@ -300,7 +303,7 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
     controller = raw_env.unwrapped.viewport_camera_controller
     if controller is not None:
         controller.update_view_to_asset_root("robot")
-        controller.update_view_location(eye=(3.2, 3.2, 1.8), lookat=(0.0, 0.0, 0.30))
+        controller.update_view_location(eye=CAMERA_EYE, lookat=CAMERA_LOOKAT)
     prefix = "g009-5-r0-diag-rev9-pilot-01-prone"
     recorded_env: Any = gym.wrappers.RecordVideo(
         raw_env,
@@ -357,7 +360,7 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
                 raise RuntimeError("diagnostic foot/effective friction readback provenance is unavailable")
             materials = materials.detach().cpu()
             effective = effective.detach().cpu()
-            if materials.shape != (4, 4, 2) or effective.shape != (4, 4, 2):
+            if materials.shape != (CAPTURE_NUM_ENVS, 4, 2) or effective.shape != (CAPTURE_NUM_ENVS, 4, 2):
                 raise RuntimeError("diagnostic foot/effective friction readback shape mismatch")
             if not bool(friction_valid.all().item()) or not torch.isfinite(materials).all() or not torch.isfinite(effective).all():
                 raise RuntimeError("diagnostic foot/effective friction readback is invalid")
@@ -420,7 +423,7 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
         "seed": args.seed,
         "headless": bool(args.headless),
         "offscreen": True,
-        "camera": {"resolution": [1280, 720], "eye": [3.2, 3.2, 1.8], "lookat": [0.0, 0.0, 0.30]},
+        "camera": {"resolution": [1280, 720], "eye": list(CAMERA_EYE), "lookat": list(CAMERA_LOOKAT)},
         "step_dt_s": step_dt_s,
         "elapsed_steps": elapsed_steps,
         "recorded_frames": recorded_frames,
