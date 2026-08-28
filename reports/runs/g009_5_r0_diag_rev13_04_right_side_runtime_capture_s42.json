@@ -1,0 +1,187 @@
+{
+  "schema_version": "g009.r0.rev13.camera_capture.v1",
+  "capture_id": "764b018f646941978028525fc3a207a2",
+  "captured_at_utc": "2026-08-28T12:06:44Z",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev13",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "camera_footage": true,
+  "telemetry_animation": false,
+  "qualification_status": "not_run",
+  "public_claim_eligible": false,
+  "learned": false,
+  "ppo_checkpoint_used": false,
+  "labels": [
+    "DIAGNOSTIC",
+    "NOT QUALIFIED",
+    "NO PPO",
+    "RIGHT_SIDE",
+    "RESET_POSE_HOLD",
+    "REV13 REJECTED"
+  ],
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "seed": 42,
+  "device": "cpu",
+  "num_envs": 8,
+  "source_env_index": 7,
+  "pose_id": "right_side",
+  "action_mode": "reset_pose_hold",
+  "headless": true,
+  "offscreen": true,
+  "camera": {
+    "resolution": [
+      1280,
+      720
+    ],
+    "eye_world": [
+      -2.2,
+      2.8,
+      0.95
+    ],
+    "lookat_world": [
+      -3.75,
+      1.25,
+      0.22
+    ]
+  },
+  "timing": {
+    "physics_dt_s": 0.005,
+    "control_dt_s": 0.02,
+    "rollout_steps": 150
+  },
+  "source": {
+    "original_runtime_binding": {
+      "commit": "e3734b728fcf546fea4ee05b9c8733800d6ab536",
+      "bundle_sha256": "df6c6aa46181ca033791fb11ccfa76d9eab8643822da1c6cdc2e288409cabe3d",
+      "contract_sha256": "ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558"
+    },
+    "current_capture_binding": {
+      "capture_commit": "2c6cd014ebad03973de449ac96d16d297e74d42b",
+      "source_bundle": {
+        "schema_version": 1,
+        "git_commit": "2c6cd014ebad03973de449ac96d16d297e74d42b",
+        "git_commit_valid": true,
+        "source_binding_paths": [
+          "configs/g009_r0.json",
+          "scripts/bootstrap_train_g009.py",
+          "scripts/probe_g009_recover_runtime.py",
+          "scripts/run_training.ps1",
+          "scripts/sync_g009_r0_contract.py",
+          "scripts/synthesize_g009_r0_probe.py",
+          "src/isaac_walk_g009/agent_cfg.py",
+          "src/isaac_walk_g009/mdp/__init__.py",
+          "src/isaac_walk_g009/mdp/events.py",
+          "src/isaac_walk_g009/mdp/recover.py",
+          "src/isaac_walk_g009/recover_contracts.py",
+          "src/isaac_walk_g009/recover_env_cfg.py",
+          "src/isaac_walk_g009/registry.py"
+        ],
+        "source_binding_files": {
+          "configs/g009_r0.json": "bdd10ebeb6e5bd64f1201125a1d490f784eb5f9961c913b021dab7e329e7e0a5",
+          "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+          "scripts/probe_g009_recover_runtime.py": "e0d8cc3d83d45f3216bd2f37824d8bead76aef2c47d3c45e6849a56b16390b97",
+          "scripts/run_training.ps1": "b2910517adb83ac402eeda9389a67a844663d578247fae006483efa12b67a533",
+          "scripts/sync_g009_r0_contract.py": "387af5d8b9f0cc4e78dd4c81900a45cb453f4af63de73a7512160a9f179efc57",
+          "scripts/synthesize_g009_r0_probe.py": "9cd9e479ba3e685894813b030876e10b0489090de9db47a68d6e2e3724e3669a",
+          "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+          "src/isaac_walk_g009/mdp/__init__.py": "c5e13ec110a341e974cd303d8e44bfadb696a97ea2db2185d7a01fece74ccfd5",
+          "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+          "src/isaac_walk_g009/mdp/recover.py": "a825707a076d02fb597f2e6a779170ad34dac54037c9ef535e9f54fbfc4f3599",
+          "src/isaac_walk_g009/recover_contracts.py": "dfa415d31c0654236b2d455f94a7078cfa43bb88b985ba8d766e10743a1e089e",
+          "src/isaac_walk_g009/recover_env_cfg.py": "1bd8ff95aa7945524ebccfab6ed5a015808583c3b7d7e4842e08af85be590f58",
+          "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+        },
+        "source_bundle_sha256": "df6c6aa46181ca033791fb11ccfa76d9eab8643822da1c6cdc2e288409cabe3d",
+        "all_files_present": true,
+        "missing_files": [],
+        "clean": true,
+        "dirty_source_paths": []
+      },
+      "contract_sha256": "ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558"
+    }
+  },
+  "solver_live_readback": {
+    "source": "USD PhysxArticulationAPI live-stage readback",
+    "articulations": [
+      {
+        "prim_path": "/World/envs/env_0/Robot/base",
+        "solver_position_iteration_count": 8,
+        "solver_velocity_iteration_count": 1
+      },
+      {
+        "prim_path": "/World/envs/env_1/Robot/base",
+        "solver_position_iteration_count": 8,
+        "solver_velocity_iteration_count": 1
+      },
+      {
+        "prim_path": "/World/envs/env_2/Robot/base",
+        "solver_position_iteration_count": 8,
+        "solver_velocity_iteration_count": 1
+      },
+      {
+        "prim_path": "/World/envs/env_3/Robot/base",
+        "solver_position_iteration_count": 8,
+        "solver_velocity_iteration_count": 1
+      },
+      {
+        "prim_path": "/World/envs/env_4/Robot/base",
+        "solver_position_iteration_count": 8,
+        "solver_velocity_iteration_count": 1
+      },
+      {
+        "prim_path": "/World/envs/env_5/Robot/base",
+        "solver_position_iteration_count": 8,
+        "solver_velocity_iteration_count": 1
+      },
+      {
+        "prim_path": "/World/envs/env_6/Robot/base",
+        "solver_position_iteration_count": 8,
+        "solver_velocity_iteration_count": 1
+      },
+      {
+        "prim_path": "/World/envs/env_7/Robot/base",
+        "solver_position_iteration_count": 8,
+        "solver_velocity_iteration_count": 1
+      }
+    ]
+  },
+  "action_generation": {
+    "implementation": "probe_g009_recover_runtime.reset_pose_hold_action_diagnostics",
+    "same_eight_env_stratified_path_as_runtime_probe": true,
+    "normalized_action_saturated": false,
+    "target_max_error_rad": 1.1920928955078125e-07
+  },
+  "original_rev13_report_binding": {
+    "path": "reports/runs/g009_r0_runtime_probe_rev13_cpu_rep01_s42.json",
+    "sha256": "c4ffa272f3974f059e7b281452c40d4685ade6ef2dcfd626496f9f4e67ff38a3",
+    "execution_id": "9e66cca532f64a7eaba06b615f38f37d",
+    "failure_cell": {
+      "env_index": 7,
+      "pose_id": "right_side",
+      "action_mode": "reset_pose_hold",
+      "max_nonfoot_force_bodyweights": 15.97161865234375,
+      "max_nonfoot_force_physics_step": 129,
+      "max_nonfoot_force_body_name": "base"
+    }
+  },
+  "evidence_scope": "condition-matched visual playback; it does not claim direct reproduction of the report peak",
+  "blocked_stages": {
+    "gpu_runtime": true,
+    "gate01": true,
+    "gate10": true,
+    "ppo_training": true
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev13_04_right_side_runtime_s42.mp4",
+    "sha256": "7783b28d449874bb3a5dbb5c4d28916a0bd3e350c6e786c0c23aefc070c5eb95",
+    "bytes": 265344,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 720,
+    "frame_rate": "50/1",
+    "duration_s": 3.02
+  }
+}

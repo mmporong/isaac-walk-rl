@@ -122,6 +122,8 @@ def test_required_labels_are_explicit() -> None:
         "DIAGNOSTIC", "NOT QUALIFIED", "NO PPO", "RIGHT_SIDE",
         "RESET_POSE_HOLD", "REV13 REJECTED",
     )
+    assert MEDIA.OVERLAY_TOP == "G009-5 | REV13 | DIAGNOSTIC | NOT QUALIFIED | NO PPO"
+    assert MEDIA.OVERLAY_BOTTOM == "04 RIGHT_SIDE | RESET_POSE_HOLD | REJECTED"
 
 
 def test_png_probe_does_not_require_duration_or_frame_rate(monkeypatch, tmp_path: Path) -> None:
@@ -194,3 +196,10 @@ def test_evidence_scope_does_not_claim_peak_reproduction() -> None:
     source = (ROOT / "scripts/record_g009_r0_rev13_right_side.py").read_text(encoding="utf-8")
     assert "condition-matched visual playback" in source
     assert "does not claim direct reproduction of the report peak" in source
+
+
+def test_visual_sidecar_binds_numbered_overlay_and_builder_source() -> None:
+    source = (ROOT / "scripts/build_g009_r0_rev13_camera_media.py").read_text(encoding="utf-8")
+    assert '"overlay_labels": {"top": OVERLAY_TOP, "bottom": OVERLAY_BOTTOM}' in source
+    assert '"source_builder"' in source
+    assert 'file_sha256(Path(__file__))' in source

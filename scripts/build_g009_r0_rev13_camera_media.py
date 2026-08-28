@@ -23,6 +23,8 @@ EXPECTED_LOCAL = PureWindowsPath(
     f"{OUTPUT_STEM}_s42.mp4"
 )
 REQUIRED_LABELS = ("DIAGNOSTIC", "NOT QUALIFIED", "NO PPO", "RIGHT_SIDE", "RESET_POSE_HOLD", "REV13 REJECTED")
+OVERLAY_TOP = "G009-5 | REV13 | DIAGNOSTIC | NOT QUALIFIED | NO PPO"
+OVERLAY_BOTTOM = "04 RIGHT_SIDE | RESET_POSE_HOLD | REJECTED"
 MAX_PUBLIC_BYTES = 10 * 1024 * 1024
 
 
@@ -111,13 +113,13 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     args.gif.parent.mkdir(parents=True, exist_ok=True)
     args.visual.parent.mkdir(parents=True, exist_ok=True)
     font = str(args.font).replace("\\", "/").replace(":", "\\:")
-    top = "DIAGNOSTIC | NOT QUALIFIED | NO PPO"
-    bottom = "RIGHT_SIDE | RESET_POSE_HOLD | REV13 REJECTED"
     overlay = (
-        f"drawbox=x=0:y=0:w=iw:h=58:color=black@0.72:t=fill,"
-        f"drawtext=fontfile='{font}':text='{top}':fontcolor=white:fontsize=26:x=(w-text_w)/2:y=14,"
+        f"drawbox=x=0:y=0:w=iw:h=58:color=yellow@0.92:t=fill,"
+        f"drawtext=fontfile='{font}':text='{OVERLAY_TOP}':fontcolor=black:fontsize=26:"
+        f"x=(w-text_w)/2:y=14,"
         f"drawbox=x=0:y=h-58:w=iw:h=58:color=black@0.72:t=fill,"
-        f"drawtext=fontfile='{font}':text='{bottom}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=h-44"
+        f"drawtext=fontfile='{font}':text='{OVERLAY_BOTTOM}':fontcolor=white:fontsize=24:"
+        f"borderw=2:bordercolor=black:x=(w-text_w)/2:y=h-44"
     )
     with tempfile.TemporaryDirectory(prefix="g009-rev13-camera-") as directory:
         temp = Path(directory)
@@ -137,8 +139,13 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "camera_footage": True, "telemetry_animation": False,
         "qualification_status": "not_run", "learned": False,
         "labels": list(REQUIRED_LABELS),
+        "overlay_labels": {"top": OVERLAY_TOP, "bottom": OVERLAY_BOTTOM},
         "pose_id": "right_side", "action_mode": "reset_pose_hold",
         "source_capture": {"path": repo_path(args.capture), "sha256": file_sha256(args.capture)},
+        "source_builder": {
+            "path": repo_path(Path(__file__)),
+            "sha256": file_sha256(Path(__file__)),
+        },
         "source": capture["source"], "solver_live_readback": capture["solver_live_readback"],
         "original_rev13_report_binding": capture["original_rev13_report_binding"],
         "headless": True, "offscreen": True,

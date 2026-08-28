@@ -5,7 +5,7 @@
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0·S0 완료, G009-5 R0 rev9 진단 미디어 완료, rev10 CPU 안전 실패 재현, rev11 scratch `gate01` 안전 실패·fresh attribution `3/3` 완료, rev12 solver A/B runtime `6/6`·gate01 안전 통과 후 gate10 hard-limit 재발, full-state GPU fresh attribution `3/3` 완료, rev13 velocity solver CPU runtime `3/3` 동일 접촉 상한 초과로 기각
+- 현재 단계: C0·S0 완료, G009-5 R0 rev9 진단 미디어 완료, rev10 CPU 안전 실패 재현, rev11 scratch `gate01` 안전 실패·fresh attribution `3/3` 완료, rev12 solver A/B runtime `6/6`·gate01 안전 통과 후 gate10 hard-limit 재발, full-state GPU fresh attribution `3/3` 완료, rev13 velocity solver CPU runtime `3/3` 동일 접촉 상한 초과로 기각·`04 right_side` 실제 카메라 증거 완료
 - 현재 한계: rev12 gate10은 iterations `1/2/3`에서 hard-limit 종료가 각각 한 건 상당 발생했고 stable support·upright hold·strict success도 전 구간 `0`이다. rev13은 live solver `8/1`을 확인했지만 오른쪽 옆면 base 접촉이 `15.97161865234375 BW > 15 BW`여서 CPU 관문에서 멈췄다. GPU·Gate01·Gate10·PPO는 실행하지 않았고 gate50은 닫혀 있다. `learned_policy_qualified=false`이므로 전복 복구 성능은 주장하지 않는다.
 
 ## 작업 순번
@@ -873,6 +873,21 @@ clean source commit `e3734b728fcf546fea4ee05b9c8733800d6ab536`에서 seed `42`, 
 
 원본 MP4는 Git에 추적하지 않고 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev13_cpu_runtime_failure_s42.mp4`에만 둔다. H.264 `1280×720`, `30fps`, `5.4초`, SHA-256은 `2e6c38bc9ce2df3b6f50113985433d23f3f06645371e13d8cf9f0dc44940fcd0`다.
 
+#### rev13 04 right-side 실제 카메라 동작 증거
+
+텔레메트리 차트는 동작 영상이 아니므로 같은 실패 cell의 actual camera footage를 별도로 만들었다. clean capture commit `2c6cd014ebad03973de449ac96d16d297e74d42b`에서 seed `42`, CPU, `8 env`, stratified pose, source env `7`, `right_side / reset_pose_hold`, physics/control timestep `0.005/0.02s`, solver live `8/1`을 다시 확인했다. headless off-screen으로 `151 frames`를 기록했으며 PPO checkpoint와 PPO update는 사용하지 않았다.
+
+이 영상은 원 runtime report와 설정·pose·action 경로가 같은 시각 재생이다. 원 report의 `15.97161865234375 BW` peak를 영상 실행이 직접 재현했다고 주장하지 않는다. 공개 파생물에도 `DIAGNOSTIC`, `NOT QUALIFIED`, `NO PPO`, `RIGHT_SIDE`, `RESET_POSE_HOLD`, `REV13 REJECTED`를 고정했다.
+
+![rev13 04 right-side 실제 camera footage 대표 프레임](media/g009/R0/diagnostic/g009_5_r0_diag_rev13_04_right_side_runtime.png)
+
+![rev13 04 right-side 실제 camera footage GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev13_04_right_side_runtime.gif)
+
+- [rev13 04 right-side camera capture](../reports/runs/g009_5_r0_diag_rev13_04_right_side_runtime_capture_s42.json)
+- [rev13 04 right-side camera visual sidecar](../reports/runs/g009_5_r0_diag_rev13_04_right_side_runtime_visual_evidence.json)
+
+로컬 전용 원본은 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev13_04_right_side_runtime_s42.mp4`다. H.264 `1280×720`, `50fps`, `3.02초`, SHA-256은 `7783b28d449874bb3a5dbb5c4d28916a0bd3e350c6e786c0c23aefc070c5eb95`다. 공개 GIF는 `960×540`, 30 frames, `3.0초`, `2,230,203 bytes`, SHA-256 `ef8e57a519d3e9ce91cb0ce54bfe35b32ebd6b4418c52a71a6d34f27b6236da8`이고 대표 PNG는 `1280×720`, `435,646 bytes`, SHA-256 `087c87ce4479962f7fe2084b3dca8d7e9f54c8cd900a565a9e90bc9b2e91457f`다.
+
 다음 rev14는 rev13의 solver `8/1`을 유지하고 Go2 rigid link 전체의 `max_depenetration_velocity`만 `1.0 → 0.75m/s`로 줄이는 단일변수 실험이다. [Isaac Lab schema](https://isaac-sim.github.io/IsaacLab/v2.0.0/source/api/lab/isaaclab.sim.schemas.html)는 이 값을 solver가 penetration을 보정하며 도입할 수 있는 최대 속도로 정의한다. 첫 CPU 3회 primary gate는 각 실행의 같은 오른쪽 옆면 cell이 rev12 `9.332860946655273 BW` 이하인 것이다. 기존 JSON predicate `no_numeric_invalid_termination`, `no_hard_joint_limit_termination`, `root_height_above_2cm`도 모두 true이고 전체 false-check 목록이 비어야 한다. 이 조건을 통과하기 전에는 GPU와 PPO를 열지 않는다. 동일 유효질량을 가정한 correction-velocity 제곱비 `0.75²/1.0²=0.5625`는 탐색 직관일 뿐 로봇 운동에너지·충격량·접촉력의 상한이나 force 감소율 예측이 아니다. `max_contact_impulse`는 peak를 직접 잘라 문제를 숨길 수 있어 사용하지 않고, stabilization·contact/rest offset은 영향 범위가 넓어 이번 revision에서 제외한다.
 
 ![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
@@ -1040,7 +1055,7 @@ G009 R0에서는 scratch PPO smoke와 50회 진단 pilot을 실제로 실행했�
 6. **R0 gate01 attribution — 완료**: 같은 core source·seed·초기 학습 경로의 fresh 24-step rollout 세 번에서 같은 `FR_calf_joint` lower-limit 사건을 reset 직전에 귀속했다. 과거 사건과의 bitwise identity는 주장하지 않으며 safety·qualification은 계속 FAIL이다.
 7. **R0 rev12 solver A/B — gate10 기각**: hard-limit tolerance, torque, reward, curriculum, PPO noise를 유지하고 articulation solver position iteration만 `4 → 8`로 바꿨다. CPU/GPU 각 3회 runtime과 새 scratch gate01은 통과했지만 gate10 iterations `1/2/3`에서 hard-limit이 각 한 건 상당 재발했다. gate50은 닫았다.
 8. **R0 rev12 Gate10 full-state attribution — 완료**: preliminary GPU fresh 3회로 historical identity를 고정하고, target·torque·contact 16-step 이력을 보강한 full-state GPU fresh 3회에서 동일 사건 topology와 canonical full-event payload를 재현했다. policy 직접 명령 가설은 배제했지만 reset 영향 자체는 배제하지 않았으며, 직접 연결이 없어 reset `-2.34rad` 변경을 다음 revision으로 승인하지 않았다. impact·inertia·constraint-resolution overshoot를 다음 검사 대상으로 좁혔고 safety와 qualification은 FAIL을 유지한다.
-9. **R0 rev13 velocity solver A/B — CPU gate 기각**: position iteration `8`과 나머지 계약을 유지하고 velocity iteration만 `0 → 1`로 바꿨다. CPU 독립 실행 `3/3`에서 live `8/1`은 확인했지만 오른쪽 옆면 base 접촉이 동일하게 `15.97161865234375 BW > 15 BW`였다. GPU·Gate01·Gate10·PPO는 실행하지 않았다.
+9. **R0 rev13 velocity solver A/B — CPU gate 기각·미디어 완료**: position iteration `8`과 나머지 계약을 유지하고 velocity iteration만 `0 → 1`로 바꿨다. CPU 독립 실행 `3/3`에서 live `8/1`은 확인했지만 오른쪽 옆면 base 접촉이 동일하게 `15.97161865234375 BW > 15 BW`였다. GPU·Gate01·Gate10·PPO는 실행하지 않았다. 실패 텔레메트리와 번호 `04 right_side` 실제 off-screen camera footage를 분리해 남겼다.
 10. **R0 rev14 depenetration clamp A/B — 다음 실행**: rev13의 solver `8/1`을 유지하고 rigid-body `max_depenetration_velocity`만 `1.0 → 0.75m/s`로 바꾼다. CPU `3/3`에서 같은 cell `≤9.332860946655273 BW`, numeric/hard 종료 `0`, `root_height_above_2cm=true`, false-check `0`을 먼저 요구하고 통과 뒤에만 GPU·scratch gate를 연다.
 11. **R0 qualification**: 모든 안전 gate를 통과한 revision에서 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch로 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
 12. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
