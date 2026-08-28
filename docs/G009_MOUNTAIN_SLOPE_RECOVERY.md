@@ -5,8 +5,8 @@
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0·S0 완료, G009-5 R0 rev9 진단 미디어 완료, rev10 CPU 안전 실패 재현, rev11 scratch `gate01` 안전 실패·fresh attribution `3/3` 완료, rev12 solver A/B runtime `6/6`·gate01 안전 통과 후 gate10 hard-limit 재발, full-state GPU fresh attribution `3/3` 완료, rev13 velocity solver CPU runtime `3/3` 동일 접촉 상한 초과로 기각·`04 right_side` 실제 카메라 증거 완료
-- 현재 한계: rev12 gate10은 iterations `1/2/3`에서 hard-limit 종료가 각각 한 건 상당 발생했고 stable support·upright hold·strict success도 전 구간 `0`이다. rev13은 live solver `8/1`을 확인했지만 오른쪽 옆면 base 접촉이 `15.97161865234375 BW > 15 BW`여서 CPU 관문에서 멈췄다. GPU·Gate01·Gate10·PPO는 실행하지 않았고 gate50은 닫혀 있다. `learned_policy_qualified=false`이므로 전복 복구 성능은 주장하지 않는다.
+- 현재 단계: C0·S0 완료, G009-5 R0 rev9 진단 미디어 완료, rev10 CPU 안전 실패 재현, rev11 scratch `gate01` 안전 실패·fresh attribution `3/3` 완료, rev12 solver A/B runtime `6/6`·gate01 안전 통과 후 gate10 hard-limit 재발, full-state GPU fresh attribution `3/3` 완료, rev13 velocity solver CPU runtime `3/3` 기각, rev14 max-depenetration CPU·GPU runtime 각 `3/3`과 `04` 카메라·`05` 텔레메트리 증거 완료
+- 현재 한계: rev14는 force gate와 numeric/hard-limit safety를 통과했지만 CPU 접촉 separation이 `-0.0109901875m`로 `-0.01m` 기준보다 `0.9901875mm` 깊어 strict synthesis에서 기각됐다. CPU·GPU runtime은 모두 완료했지만 scratch Gate01·Gate10·PPO는 실행하지 않았고 qualification은 `not_run`이다. `learned_policy_qualified=false`이므로 전복 복구 성능은 주장하지 않는다.
 
 ## 작업 순번
 
@@ -18,7 +18,7 @@
 | `G009-2` | `S0` | 6개 경사 × 4개 방위 analytic gate | `24/24` 통과 |
 | `G009-3` | `S0` | collision mesh, material, support-normal reset의 Isaac runtime readback | 완료 |
 | `G009-4` | `S0` | 5°·15°·25° 동일 조건 headless 재생 | 완료, 25°는 실패 경계 |
-| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | rev12 gate10 기각·full-state 귀속 완료, rev13 CPU runtime `3/3` 동일 접촉 상한 초과로 기각, GPU·PPO 미실행 |
+| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | rev12 gate10 기각·full-state 귀속 완료, rev13 기각, rev14 CPU·GPU runtime 각 `3/3` 완료 후 separation strict 기각, Gate01·Gate10·PPO 미실행 |
 | `G009-6` | `S1-low` | 5°·10° 횡경사 WALK PPO | R0·calibration 뒤 실행 |
 
 이후 `S1-high`, 외란, residual terrain, 발별·공간 마찰, 경사 RECOVER와 link-mass를 순차적으로 연다. 전체 stage 순서는 [다음 학습과 검증 순서](#다음-학습과-검증-순서)에 있다.
@@ -32,7 +32,7 @@ G009는 산 비탈에서 보행 영상을 만드는 작업이 아니라, 경사�
 3. 네 발이 서로 다른 마찰을 받거나 공간 마찰 지도가 이동 경로에 따라 바뀌어도 복구한다.
 4. 외란을 버틴 경우와 실제 낙상 뒤 RECOVER 정책으로 전환한 경우를 구분해 평가한다.
 
-현재 C0·S0와 R0 rev12 학습 전 runtime calibration을 완료하고 첫 scratch safety gate까지 열었지만 gate10에서 중단했다. 경사 `0/5/10/15/20/25°`와 방위 `0/90/180/270°`를 교차한 24개 analytic cell이 모두 통과했다. R0는 네 canonical 전복 자세, P-RECOVER-83/C-RECOVER-107 관측, EMA action, 엄격 성공 latch, 할인 호환 잠재 보상, pose curriculum을 코드와 manifest로 고정했다. rev12 canonical 계약 SHA-256은 `d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0`이다. CPU·GPU runtime `6/6`과 `1,024×1` scratch gate01은 통과했지만 `1,024×10` gate10에서 hard-limit이 세 번 상당 재발했다. 이후 같은 10-iteration 경로를 fresh GPU 프로세스 세 번으로 다시 실행한 full-state attribution에서 사건 topology와 canonical full-event payload가 모두 재현됐다. rev13은 position iteration `8`과 나머지 역학·학습 계약을 유지하고 velocity iteration만 `0 → 1`로 바꾼 canonical 계약 `ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558`을 구현했다. 정적·구성 검증은 통과했지만 CPU runtime 세 번에서 같은 `15 BW` 접촉 상한을 초과해 기각했다. 다음 rev14는 rigid-body max depenetration velocity만 `1.0 → 0.75m/s`로 바꾸는 사전등록 단계다.
+현재 C0·S0와 R0 rev12 학습 전 runtime calibration을 완료하고 첫 scratch safety gate까지 열었지만 gate10에서 중단했다. 경사 `0/5/10/15/20/25°`와 방위 `0/90/180/270°`를 교차한 24개 analytic cell이 모두 통과했다. 여기서 `25°`는 로봇이나 시뮬레이터가 갈 수 있는 최대 경사가 아니라 현재 protocol이 배치한 가장 높은 stress cell이다. 더 높은 경사는 낮은 각도의 안전·성능 gate를 통과한 뒤 별도 curriculum과 held-out stress로 확장한다. R0는 네 canonical 전복 자세, P-RECOVER-83/C-RECOVER-107 관측, EMA action, 엄격 성공 latch, 할인 호환 잠재 보상, pose curriculum을 코드와 manifest로 고정했다. rev12 canonical 계약 SHA-256은 `d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0`이다. CPU·GPU runtime `6/6`과 `1,024×1` scratch gate01은 통과했지만 `1,024×10` gate10에서 hard-limit이 세 번 상당 재발했다. 이후 같은 10-iteration 경로를 fresh GPU 프로세스 세 번으로 다시 실행한 full-state attribution에서 사건 topology와 canonical full-event payload가 모두 재현됐다. rev13은 velocity iteration `0 → 1`에서 접촉력 상한을 넘겨 기각했다. rev14는 그 기각 후보의 solver `8/1` 위에서 rigid-body max depenetration velocity만 `1.0 → 0.75m/s`로 낮췄다. CPU·GPU runtime 각 3회와 force gate는 통과했지만 CPU separation strict gate를 넘지 못해 학습 전에 기각했다.
 
 이 결과는 지형 생성·계측 수학과 R0 실행 계약이 맞는다는 뜻이다. G009 정책이 경사에서 걷거나 전복 뒤 일어난다는 뜻은 아니다. 기존 G008 checkpoint는 S0 지형과 카메라 연결을 확인하는 시각 재생용이며, R0 rev1~rev8 체크포인트는 성공 경험이 없어 전부 기각했다.
 
@@ -888,7 +888,38 @@ clean source commit `e3734b728fcf546fea4ee05b9c8733800d6ab536`에서 seed `42`, 
 
 로컬 전용 원본은 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev13_04_right_side_runtime_s42.mp4`다. H.264 `1280×720`, `50fps`, `3.02초`, SHA-256은 `7783b28d449874bb3a5dbb5c4d28916a0bd3e350c6e786c0c23aefc070c5eb95`다. 공개 GIF는 `960×540`, 30 frames, `3.0초`, `2,230,203 bytes`, SHA-256 `ef8e57a519d3e9ce91cb0ce54bfe35b32ebd6b4418c52a71a6d34f27b6236da8`이고 대표 PNG는 `1280×720`, `435,646 bytes`, SHA-256 `087c87ce4479962f7fe2084b3dca8d7e9f54c8cd900a565a9e90bc9b2e91457f`다.
 
-다음 rev14는 rev13의 solver `8/1`을 유지하고 Go2 rigid link 전체의 `max_depenetration_velocity`만 `1.0 → 0.75m/s`로 줄이는 단일변수 실험이다. [Isaac Lab schema](https://isaac-sim.github.io/IsaacLab/v2.0.0/source/api/lab/isaaclab.sim.schemas.html)는 이 값을 solver가 penetration을 보정하며 도입할 수 있는 최대 속도로 정의한다. 첫 CPU 3회 primary gate는 각 실행의 같은 오른쪽 옆면 cell이 rev12 `9.332860946655273 BW` 이하인 것이다. 기존 JSON predicate `no_numeric_invalid_termination`, `no_hard_joint_limit_termination`, `root_height_above_2cm`도 모두 true이고 전체 false-check 목록이 비어야 한다. 이 조건을 통과하기 전에는 GPU와 PPO를 열지 않는다. 동일 유효질량을 가정한 correction-velocity 제곱비 `0.75²/1.0²=0.5625`는 탐색 직관일 뿐 로봇 운동에너지·충격량·접촉력의 상한이나 force 감소율 예측이 아니다. `max_contact_impulse`는 peak를 직접 잘라 문제를 숨길 수 있어 사용하지 않고, stabilization·contact/rest offset은 영향 범위가 넓어 이번 revision에서 제외한다.
+#### rev14 depenetration clamp 실제 결과와 strict 기각
+
+rev14는 rev13에서 기각된 articulation solver `position=8 / velocity=1` 위에 만든 진단 후보다. Go2 rigid body의 `max_depenetration_velocity`만 `1.0 → 0.75m/s`로 낮췄다. [Isaac Lab schema](https://isaac-sim.github.io/IsaacLab/v2.0.0/source/api/lab/isaaclab.sim.schemas.html)는 이 값을 solver가 penetration을 보정하며 도입할 수 있는 최대 속도로 정의한다. source commit은 `e9c1eff15bb2679c67e325546a749dbe7f98b07c`, 계약 SHA-256은 `744c53d3c8d1e608f849af405c7d0fad314b01234fc4cb9a4ab1000c69140506`이다.
+
+초기 계측은 링크 수를 13개로 잘못 가정해 기각했다. 실제 live stage를 `root_physx_view.link_paths`로 다시 읽은 결과 Go2 한 articulation에는 head와 foot을 포함한 rigid body가 19개 있었다. 수정한 probe는 8 articulation × 19 body = `152`개 prim에서 USD `RigidBodyAPI`, PhysX `RigidBodyAPI`, `max_depenetration_velocity=0.75m/s`를 모두 확인했다.
+
+같은 seed `42`, `8 env × 150 control step`, physics/control timestep `0.005/0.02s`, stratified pose와 zero-normalized/reset-hold action으로 CPU와 GPU를 각각 독립 프로세스 3회 실행했다. 여섯 실행은 서로 다른 execution ID를 가지며 각 device 안에서 정량 결과가 동일했다.
+
+| 관문 | CPU `3/3` | GPU `3/3` | 판정 |
+| --- | ---: | ---: | --- |
+| right-side reset-hold primary force | `8.5023536682 BW` | `12.6103706360 BW` | CPU의 rev12 기준 `9.3328609467 BW` 이하 PASS |
+| device global force | `13.9438562393 BW` | `12.6103706360 BW` | `15 BW` 이하 PASS |
+| numeric-invalid termination | `0` | `0` | PASS |
+| hard-joint-limit termination | `0` | `0` | PASS |
+| authoritative contact separation | `-0.0109901875m` | GPU 비권위 계측 | `-0.01m` 기준보다 `0.9901875mm` 깊어 FAIL |
+
+force만 보면 rev14 CPU primary는 rev12보다 `0.8305072784 BW` 낮아졌다. 그러나 CPU의 최악 접촉 separation이 허용 기준을 넘었다. max depenetration velocity를 낮추면 순간 보정 속도를 제한할 수 있지만 잔류 침투가 더 깊거나 오래 남을 수 있으므로 force 감소만으로 안전 개선을 판정할 수 없다. strict 3×3 synthesis는 이 trade-off를 이유로 rev14를 `rejected_before_gate01`로 판정했다. CPU runtime `3/3`, GPU runtime `3/3`, strict trade-off synthesis는 완료했으며, 그 아래 단계인 scratch Gate01·Gate10·PPO 학습은 실행하지 않았다. qualification은 `not_run`, `learned=false`, safety numeric/hard termination은 모두 `0`이다.
+
+- [rev14 CPU rep01](../reports/runs/g009_r0_runtime_probe_rev14_actualtopology_cpu_rep01_s42.json), [rep02](../reports/runs/g009_r0_runtime_probe_rev14_actualtopology_cpu_rep02_s42.json), [rep03](../reports/runs/g009_r0_runtime_probe_rev14_actualtopology_cpu_rep03_s42.json)
+- [rev14 GPU rep01](../reports/runs/g009_r0_runtime_probe_rev14_actualtopology_gpu_rep01_s42.json), [rep02](../reports/runs/g009_r0_runtime_probe_rev14_actualtopology_gpu_rep02_s42.json), [rep03](../reports/runs/g009_r0_runtime_probe_rev14_actualtopology_gpu_rep03_s42.json)
+- [rev14 CPU·GPU 3×3 trade-off synthesis](../reports/runs/g009_r0_runtime_probe_rev14_tradeoff_synthesis_3x3_s42.json)
+- [rev14 04 camera capture](../reports/runs/g009_5_r0_diag_rev14_04_right_side_tradeoff_capture_s42.json)
+- [rev14 04 camera visual sidecar](../reports/runs/g009_5_r0_diag_rev14_04_right_side_tradeoff_visual_evidence.json)
+- [rev14 05 telemetry visual sidecar](../reports/runs/g009_5_r0_diag_rev14_05_cpu_tradeoff_visual_evidence.json)
+
+`04`는 right-side/zero-normalized 조건의 실제 Isaac Sim headless off-screen 카메라 영상이다. 접촉 separation을 영상에서 직접 측정했다는 뜻은 아니다. capture commit은 `0463dc69297b6c52b546ec40670f20038a766285`, 공개 media commit은 `68fddd2`다. 로컬 전용 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev14_04_right_side_tradeoff_s42.mp4`이며 SHA-256은 `0bebba8177d48357a743a9a00b93a6ed9ae403a1a53813dc71bff59c027cb865`다. `05`는 force PASS와 separation FAIL을 함께 표시한 텔레메트리 애니메이션이며 카메라 영상이 아니다.
+
+![rev14 04 right-side 실제 camera footage](media/g009/R0/diagnostic/g009_5_r0_diag_rev14_04_right_side_tradeoff.gif)
+
+![rev14 05 force·separation 텔레메트리](media/g009/R0/diagnostic/g009_5_r0_diag_rev14_05_cpu_tradeoff.gif)
+
+다음 rev15는 rev14 위에 누적하지 않는다. 마지막 승인 runtime인 rev12의 articulation `position=8 / velocity=0`, `max_depenetration_velocity=1.0m/s`로 돌아가 position iteration만 `8 → 16`으로 바꾸는 새 scratch 단일변수 실험으로 시작한다. velocity iteration, max depenetration velocity, calf reset, timestep, action·motor·reward·curriculum 계약은 rev12 값을 유지한다. contact offset과 rest offset은 접촉 시작·정지 형상 자체를 바꾸므로 rev15에서 건드리지 않는다. CPU separation을 progression gate에 포함해 CPU `3/3` strict 통과 전에 GPU와 PPO를 열지 않는다.
 
 ![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
 
@@ -1056,25 +1087,26 @@ G009 R0에서는 scratch PPO smoke와 50회 진단 pilot을 실제로 실행했�
 7. **R0 rev12 solver A/B — gate10 기각**: hard-limit tolerance, torque, reward, curriculum, PPO noise를 유지하고 articulation solver position iteration만 `4 → 8`로 바꿨다. CPU/GPU 각 3회 runtime과 새 scratch gate01은 통과했지만 gate10 iterations `1/2/3`에서 hard-limit이 각 한 건 상당 재발했다. gate50은 닫았다.
 8. **R0 rev12 Gate10 full-state attribution — 완료**: preliminary GPU fresh 3회로 historical identity를 고정하고, target·torque·contact 16-step 이력을 보강한 full-state GPU fresh 3회에서 동일 사건 topology와 canonical full-event payload를 재현했다. policy 직접 명령 가설은 배제했지만 reset 영향 자체는 배제하지 않았으며, 직접 연결이 없어 reset `-2.34rad` 변경을 다음 revision으로 승인하지 않았다. impact·inertia·constraint-resolution overshoot를 다음 검사 대상으로 좁혔고 safety와 qualification은 FAIL을 유지한다.
 9. **R0 rev13 velocity solver A/B — CPU gate 기각·미디어 완료**: position iteration `8`과 나머지 계약을 유지하고 velocity iteration만 `0 → 1`로 바꿨다. CPU 독립 실행 `3/3`에서 live `8/1`은 확인했지만 오른쪽 옆면 base 접촉이 동일하게 `15.97161865234375 BW > 15 BW`였다. GPU·Gate01·Gate10·PPO는 실행하지 않았다. 실패 텔레메트리와 번호 `04 right_side` 실제 off-screen camera footage를 분리해 남겼다.
-10. **R0 rev14 depenetration clamp A/B — 다음 실행**: rev13의 solver `8/1`을 유지하고 rigid-body `max_depenetration_velocity`만 `1.0 → 0.75m/s`로 바꾼다. CPU `3/3`에서 같은 cell `≤9.332860946655273 BW`, numeric/hard 종료 `0`, `root_height_above_2cm=true`, false-check `0`을 먼저 요구하고 통과 뒤에만 GPU·scratch gate를 연다.
-11. **R0 qualification**: 모든 안전 gate를 통과한 revision에서 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch로 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
-12. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
-13. **S1-low WALK**: `5/10°` contour-left/right를 G008 WALK parent에서 seed별 독립 lineage로 학습한다.
-14. **S1-high WALK**: `15/20°`를 순차적으로 연다. `25°`는 stress로 유지한다.
-15. **D0A/D0B/D0C**: G006 exact 회귀, G009 0도 transfer, 통과한 경사별 delta-velocity를 분리한다.
-16. **D1 external wrench**: 힘·시간·충격량 pulse를 mild에서 strong 순서로 추가한다.
-17. **S2 residual height**: nominal friction에서 base slope에 G008 도로 residual만 더한다.
-18. **S3-controlled**: 발별 비대칭 마찰을 통제한다.
-19. **S3-spatial**: 비주기 공간 마찰 mosaic로 옮긴다.
-20. **F0A와 R0B**: 실제 WALK 낙상 snapshot을 수집하고 curated/replay `50/50` reset으로 RECOVER를 다시 학습한다.
-21. **R1/R2**: 낮은 경사, 높은 경사 self-righting을 차례로 연다.
-22. **R3-controlled/R3-spatial**: controlled 마찰 뒤 spatial 마찰 복구를 연다.
-23. **D2**: 외란이 만든 live fall을 RECOVER로 넘겨 `push -> fall -> recover -> stand -> command resume`를 평가한다.
-24. **F0B-TV와 R4**: training/validation natural-fall inventory로 최종 bridge를 학습한다.
-25. **I0**: 세 WALK/RECOVER seed pair의 live·snapshot validation을 통과한 뒤 checkpoint, gate, trigger, component SHA를 동결한다.
-26. **F0B-FINAL과 I1**: sealed final-heldout을 처음 열어 한 번만 평가한다.
-27. **D3**: `25°`, physical-limit friction, strong wrench를 결합한 stress 평가를 수행한다.
-28. **M1 link-mass**: G009 final-heldout을 고정한 뒤 hip, thigh, calf, foot 질량·관성을 한 그룹씩 바꾸는 별도 goal로 연다.
+10. **R0 rev14 depenetration clamp A/B — strict 기각·미디어 완료**: source `e9c1eff`, contract `744c53d3...`에서 solver `8/1`, rigid-body max depenetration `0.75m/s`를 8 articulation × 19 body = 152개에 확인했다. CPU·GPU runtime 각 `3/3`, force와 numeric/hard safety는 통과했지만 CPU separation `-0.0109901875m`가 `-0.01m` 기준을 `0.9901875mm` 넘겨 Gate01 전에 기각했다. GPU runtime은 완료 단계이며 Gate01·Gate10·PPO만 차단 단계다.
+11. **R0 rev15 position solver A/B — 다음 실행**: rev14를 이어받지 않고 마지막 승인 runtime인 rev12의 solver `8/0`, max depenetration `1.0m/s`에서 position iteration만 `8 → 16`으로 바꾸는 새 scratch 단일변수를 사전등록한다. CPU separation을 progression gate에 포함하고 contact/rest offset은 유지한다.
+12. **R0 qualification**: 모든 안전 gate를 통과한 revision에서 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch로 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
+13. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
+14. **S1-low WALK**: `5/10°` contour-left/right를 G008 WALK parent에서 seed별 독립 lineage로 학습한다.
+15. **S1-high WALK**: `15/20°`를 순차적으로 연다. `25°`는 stress로 유지한다.
+16. **D0A/D0B/D0C**: G006 exact 회귀, G009 0도 transfer, 통과한 경사별 delta-velocity를 분리한다.
+17. **D1 external wrench**: 힘·시간·충격량 pulse를 mild에서 strong 순서로 추가한다.
+18. **S2 residual height**: nominal friction에서 base slope에 G008 도로 residual만 더한다.
+19. **S3-controlled**: 발별 비대칭 마찰을 통제한다.
+20. **S3-spatial**: 비주기 공간 마찰 mosaic로 옮긴다.
+21. **F0A와 R0B**: 실제 WALK 낙상 snapshot을 수집하고 curated/replay `50/50` reset으로 RECOVER를 다시 학습한다.
+22. **R1/R2**: 낮은 경사, 높은 경사 self-righting을 차례로 연다.
+23. **R3-controlled/R3-spatial**: controlled 마찰 뒤 spatial 마찰 복구를 연다.
+24. **D2**: 외란이 만든 live fall을 RECOVER로 넘겨 `push -> fall -> recover -> stand -> command resume`를 평가한다.
+25. **F0B-TV와 R4**: training/validation natural-fall inventory로 최종 bridge를 학습한다.
+26. **I0**: 세 WALK/RECOVER seed pair의 live·snapshot validation을 통과한 뒤 checkpoint, gate, trigger, component SHA를 동결한다.
+27. **F0B-FINAL과 I1**: sealed final-heldout을 처음 열어 한 번만 평가한다.
+28. **D3**: `25°`, physical-limit friction, strong wrench를 결합한 stress 평가를 수행한다.
+29. **M1 link-mass**: G009 final-heldout을 고정한 뒤 hip, thigh, calf, foot 질량·관성을 한 그룹씩 바꾸는 별도 goal로 연다.
 
 각 stage는 새 평가 JSON과 미디어 세트를 가져야 한다. 한 방향, 한 자세, 한 friction pattern의 blocking cell이 실패하면 평균 성능이 높아도 다음 stage를 열지 않는다.
 
@@ -1129,7 +1161,7 @@ G009를 포트폴리오에 넣을 때 핵심은 “Isaac Sim에서 로봇을 걸
 9. Gate10 aggregate 실패를 pre-reset full-state로 재계측해 policy 명령, 접촉, 관성, constraint 해석을 분리했다.
 10. 실패를 숨기지 않고 preliminary identity 증거와 보강된 causal evidence를 따로 보존해 다음 단일변수 실험을 선택했다.
 
-현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생, R0의 actor privilege 경계·보상/성공 계약, rev1~rev9 실패 진단, rev10 CPU 실패 재현, rev11·rev12 runtime 및 safety gate, rev12 Gate10 full-state GPU fresh `3/3` 귀속, rev13 CPU `3/3` 동일 실패 재현이다. 세 calf 사건에서 policy 직접 명령 가설을 배제한 뒤 solver velocity iteration `0 → 1`을 검사했고, live 설정은 맞았지만 접촉 peak가 rev12 대비 `71.13%` 증가해 GPU와 PPO 전에 후보를 기각했다. 다음 가설도 rigid-body depenetration velocity 하나로 좁혀 사전 판정식을 먼저 고정했다. 25°에서 기존 정책이 크게 기울고 아래로 밀린 결과, R0 strict success `0`, hard-joint-limit 실패를 경계 조건으로 함께 공개한다. 성공한 전복 복구 영상은 향후 revision이 네 자세별 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`의 qualification gate를 통과한 뒤 별도로 추가한다.
+현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생, R0의 actor privilege 경계·보상/성공 계약, rev1~rev9 실패 진단, rev10 CPU 실패 재현, rev11·rev12 runtime 및 safety gate, rev12 Gate10 full-state GPU fresh `3/3` 귀속, rev13 CPU `3/3` 기각, rev14 CPU·GPU 각 `3/3`의 force/separation trade-off 계측이다. rev14는 실제 152개 rigid-body readback과 force gate를 통과했지만 separation이 기준보다 `0.9901875mm` 깊어 PPO 전에 기각했다. 이 결과는 solver 보정 속도를 낮춘 후보가 접촉력을 줄이더라도 침투 안전을 동시에 만족한다고 볼 수 없음을 보여준다. 다음 rev15는 기각된 후보를 누적하지 않고 마지막 승인 runtime rev12에서 position iteration 하나만 바꾸는 scratch 실험이다. `25°`는 최대 주행 가능 경사가 아니라 현재 stress cell이며, 기존 정책이 크게 기울고 아래로 밀린 실패 결과로 공개한다. R0 strict success `0`과 hard-joint-limit 실패도 경계 조건으로 함께 남긴다. 성공한 전복 복구 영상은 향후 revision이 네 자세별 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`의 qualification gate를 통과한 뒤 별도로 추가한다.
 
 ## 실물 로봇과 Mini Pupper에 대한 범위 제한
 

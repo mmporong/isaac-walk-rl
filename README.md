@@ -62,7 +62,7 @@ G008-1 command smoke -> G008-2 command PPO
 | `G009-2` | 6개 경사 × 4개 방위 analytic gate (`S0`) | 지형 검증 | `24/24` 통과 |
 | `G009-3` | collision mesh·마찰·support-normal reset (`S0`) | Isaac runtime 검증 | 완료 |
 | `G009-4` | 5°·15°·25° 동일 조건 재생 (`S0`) | 시각 증거 | 완료, 25°는 실패 경계 |
-| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전 귀속 | rev12 gate10 기각·full-state 귀속 완료, rev13 solver velocity `0 → 1` CPU runtime `3/3` 동일 접촉 상한 초과로 기각, GPU·PPO 미실행 |
+| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전 귀속 | rev12 gate10 기각·full-state 귀속 완료, rev13 기각, rev14 CPU·GPU runtime 각 `3/3` 완료 후 separation strict 기각, Gate01·Gate10·PPO 미실행 |
 | `G009-6` | 5°·10° 횡경사 WALK (`S1-low`) | 다음 강화학습 | R0·calibration 뒤 실행 |
 
 G008의 상세 번호표는 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md), G009의 전체 후속 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에서 이어집니다.
@@ -182,11 +182,25 @@ cd "$HOME\isaac-walk-rl"
 
 G009는 경사 횡단 WALK와 전복 RECOVER를 별도 PPO로 학습하기 전에 경사 지형과 계측 기준부터 고정하는 단계입니다. `0/5/10/15/20/25° × 0/90/180/270°` 24개 analytic cell을 통과했고, Isaac runtime에서 5°·15°·25°의 단일 collision mesh, `0.8/0.6` ground material과 support-normal 정렬을 다시 읽어 확인했습니다.
 
-같은 G008 checkpoint, seed, 명령, 카메라로 525-step headless off-screen 재생도 촬영했습니다. 5°와 15°는 낙상 termination 없이 시퀀스를 마쳤습니다. 25°에서는 최대 기울기 `84.78°`, 하방 이동 `2.39 m`가 기록돼 성공이 아닌 stress 실패 경계로 판정했습니다. 이 단계에서는 G009 PPO update를 수행하지 않았습니다.
+같은 G008 checkpoint, seed, 명령, 카메라로 525-step headless off-screen 재생도 촬영했습니다. 5°와 15°는 낙상 termination 없이 시퀀스를 마쳤습니다. 25°에서는 최대 기울기 `84.78°`, 하방 이동 `2.39 m`가 기록돼 성공이 아닌 stress 실패 경계로 판정했습니다. `25°`는 로봇이나 시뮬레이터의 최대 경사가 아니라 현재 protocol의 가장 높은 stress cell입니다. 이 단계에서는 G009 PPO update를 수행하지 않았습니다.
 
 ![G009 S0 경사별 동기 재생](docs/media/g009/S0/g009_s0_slopes.gif)
 
 설계한 보상 함수, actor/critic 관측, PPO batch·epoch, WALK/RECOVER 분리, 단계별 학습 budget과 다음 실행 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에 정리했습니다. 캡처의 source commit·checkpoint·물리 readback·파일 해시는 [`reports/runs/g009_s0_visual_evidence.json`](reports/runs/g009_s0_visual_evidence.json)에서 확인할 수 있습니다. 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\S0`에만 보관합니다.
+
+## G009-5 R0 rev14 접촉 trade-off
+
+rev14는 rev13에서 기각된 solver `position=8 / velocity=1` 위에서 rigid-body `max_depenetration_velocity`만 `1.0 → 0.75m/s`로 낮춘 진단 후보입니다. source commit은 `e9c1eff15bb2679c67e325546a749dbe7f98b07c`, 계약 SHA-256은 `744c53d3c8d1e608f849af405c7d0fad314b01234fc4cb9a4ab1000c69140506`입니다. 실제 live stage의 8 articulation × 19 rigid body = `152`개에서 `0.75m/s`를 확인했습니다.
+
+CPU·GPU runtime을 각각 세 번 실행했습니다. CPU right-side reset-hold primary force는 `8.5023536682 BW`, CPU global peak는 `13.9438562393 BW`, GPU global peak는 `12.6103706360 BW`로 force gate를 통과했고 numeric-invalid와 hard-joint-limit termination도 `0`이었습니다. 그러나 CPU contact separation은 `-0.0109901875m`로 `-0.01m` 기준보다 `0.9901875mm` 깊었습니다. strict synthesis에서 `rejected_before_gate01`로 기각했으며 qualification은 `not_run`입니다. CPU·GPU runtime은 완료 단계이고 Gate01·Gate10·PPO만 차단 단계입니다.
+
+![G009-5 rev14 04 right-side 카메라 진단](docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev14_04_right_side_tradeoff.gif)
+
+![G009-5 rev14 05 force·separation 텔레메트리](docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev14_05_cpu_tradeoff.gif)
+
+`04`는 실제 headless off-screen camera footage이고, `05`는 `TELEMETRY ANIMATION · NOT CAMERA FOOTAGE`로 표시한 정량 애니메이션입니다. 로컬 전용 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev14_04_right_side_tradeoff_s42.mp4`, SHA-256은 `0bebba8177d48357a743a9a00b93a6ed9ae403a1a53813dc71bff59c027cb865`입니다. capture commit은 `0463dc69297b6c52b546ec40670f20038a766285`, media commit은 `68fddd2`입니다. 정량 결론은 [`rev14 3×3 trade-off synthesis`](reports/runs/g009_r0_runtime_probe_rev14_tradeoff_synthesis_3x3_s42.json)에 있습니다.
+
+다음 rev15는 rev14에서 이어서 학습하지 않습니다. 마지막 승인 runtime인 rev12의 solver `8/0`, max depenetration `1.0m/s`에서 position iteration만 `8 → 16`으로 바꾸는 새 scratch 단일변수 실험입니다. contact offset과 rest offset은 유지합니다.
 
 ## RBQ 외부 자산 호환성 게이트
 
