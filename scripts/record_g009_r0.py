@@ -72,6 +72,12 @@ def validate_output_dir(path: Path) -> Path:
     return resolved
 
 
+def recorded_frame_count(elapsed_steps: int, terminated: bool) -> int:
+    if elapsed_steps <= 0:
+        raise ValueError("capture elapsed_steps must be positive")
+    return elapsed_steps if terminated else elapsed_steps + 1
+
+
 def _validate_quantitative_report(path: Path, checkpoint: Path, training_binding: Mapping[str, Any]) -> dict[str, Any]:
     report = _read_json(path)
     if report.get("status") != "pass" or report.get("protocol_mode") != "official_qualification":
@@ -132,7 +138,7 @@ def _write_json_atomic(path: Path, value: Mapping[str, Any]) -> None:
 def _configure_environment(args: argparse.Namespace) -> Any:
     from isaaclab_tasks.utils import parse_env_cfg
 
-    env_cfg = parse_env_cfg(args.task, device=args.device, num_envs=len(POSE_NAMES))
+    env_cfg: Any = parse_env_cfg(args.task, device=args.device, num_envs=len(POSE_NAMES))
     env_cfg.seed = args.seed
     env_cfg.observations.policy.enable_corruption = False
     env_cfg.events.reset_base.params.update(
@@ -169,38 +175,41 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
     destination = output_dir / output_name(args.pose, args.seed)
     if destination.exists():
         raise FileExistsError(destination)
-    env_cfg = _configure_environment(args)
-    agent_cfg = load_cfg_from_registry(args.task, "rsl_rl_cfg_entry_point")
+    env_cfg: Any = _configure_environment(args)
+    agent_cfg: Any = load_cfg_from_registry(args.task, "rsl_rl_cfg_entry_point")
     agent_cfg.seed = args.seed
     agent_cfg.device = args.device
-    raw_env = gym.make(args.task, cfg=env_cfg, render_mode="rgb_array")
+    raw_env: Any = gym.make(args.task, cfg=env_cfg, render_mode="rgb_array")
     controller = raw_env.unwrapped.viewport_camera_controller
     if controller is not None:
         controller.update_view_to_asset_root("robot")
         controller.update_view_location(eye=(3.2, 3.2, 1.8), lookat=(0.0, 0.0, 0.30))
 
     prefix = f"g009-5-r0-{POSE_NAMES.index(args.pose) + 1:02d}-{args.pose}"
-    recorded_env = gym.wrappers.RecordVideo(
+    recorded_env: Any = gym.wrappers.RecordVideo(
         raw_env,
         video_folder=str(output_dir),
-        step_trigger=lambda step: step == 0,
-        video_length=args.horizon_steps,
+        episode_trigger=lambda episode: False,
+        video_length=args.horizon_steps + 1,
         disable_logger=True,
         name_prefix=prefix,
     )
-    env = RslRlVecEnvWrapper(recorded_env, clip_actions=agent_cfg.clip_actions)
-    runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=args.device)
+    env: Any = RslRlVecEnvWrapper(recorded_env, clip_actions=agent_cfg.clip_actions)
+    runner: Any = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=args.device)
     runner.load(str(checkpoint))
-    policy = runner.get_inference_policy(device=env.unwrapped.device)
-    robot = env.unwrapped.scene["robot"]
+    policy: Any = runner.get_inference_policy(device=env.unwrapped.device)
+    robot: Any = env.unwrapped.scene["robot"]
     observations, _ = env.get_observations()
     class_ids = env.unwrapped._g009_recover_fall_class.detach().clone()
     selected_index = POSE_NAMES.index(args.pose)
     if int(class_ids[selected_index].item()) != selected_index:
         raise RuntimeError("selected pose does not match stratified reset readback")
+    recorded_env.start_recording(prefix)
+    recorded_env._capture_frame()
 
     step_dt_s = float(env_cfg.sim.dt * env_cfg.decimation)
     success = False
+    terminated = False
     termination_reason = "capture_horizon"
     elapsed_steps = 0
     materials = None
@@ -213,6 +222,7 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
                 observations, _, dones, _ = env.step(actions)
             elapsed_steps = step + 1
             if bool(dones[selected_index].item()):
+                terminated = True
                 active = {
                     name: bool(env.unwrapped.termination_manager.get_term(name)[selected_index].item())
                     for name in env.unwrapped.termination_manager.active_terms
@@ -250,7 +260,7 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
         candidates[0].unlink(missing_ok=True)
         raise RuntimeError(f"capture pose did not reach stable_success: {args.pose} ({termination_reason})")
     recorded_frames = _trim_terminal_reset_frame(
-        candidates[0], destination, elapsed_steps, args.ffmpeg, args.ffprobe
+        candidates[0], destination, recorded_frame_count(elapsed_steps, terminated), args.ffmpeg, args.ffprobe
     )
     candidates[0].unlink(missing_ok=True)
     source_state_after = git_source_state()
@@ -317,7 +327,8 @@ def _record(args: argparse.Namespace) -> dict[str, Any]:
             "stable_success": success,
             "termination_reason": termination_reason,
             "recovery_time_s": elapsed_steps * step_dt_s if success else None,
-            "terminal_reset_frame_policy": "initial through last pre-terminal frame; terminal auto-reset frame excluded",
+            "terminal_reset_frame_excluded": terminated,
+            "recorded_frame_policy": "initial frame plus post-step frames; terminal auto-reset frame removed when termination occurs",
         },
         "local_video": {
             "path": portable_path(destination),

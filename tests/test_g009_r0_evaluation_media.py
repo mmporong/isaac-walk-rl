@@ -142,6 +142,12 @@ def test_local_video_names_keep_stage_and_pose_numbering() -> None:
         recorder.validate_output_dir(ROOT / "docs" / "media" / "g009" / "R0")
 
 
+def test_official_recorder_keeps_initial_frame_and_removes_terminal_reset() -> None:
+    assert recorder.recorded_frame_count(25, terminated=True) == 25
+    assert recorder.recorded_frame_count(25, terminated=False) == 26
+    assert recorder.recorded_frame_count(1, terminated=True) == 1
+
+
 def test_media_paths_follow_r0_contract_and_mp4_stays_local_only() -> None:
     assert media.LOCAL_MP4_PATH.startswith(
         "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\"

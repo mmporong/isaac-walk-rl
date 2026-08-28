@@ -1,0 +1,265 @@
+{
+  "schema_version": "g009.r0.pilot_analysis.v2",
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "public_claim_eligible": false,
+  "qualification_allowed": false,
+  "qualification_status": "not_run",
+  "qualification_block_reasons": [
+    "diagnostic_pilot_never_qualifies",
+    "hard_joint_limit_nonzero",
+    "strict_success_zero",
+    "prone_curriculum_boundary_leak"
+  ],
+  "analysis_source": {
+    "path": "scripts/analyze_g009_r0_pilot.py",
+    "sha256": "577dbce7a564ee306216697ee4233ff6476f633811058a70a8dccd25b40a3d64"
+  },
+  "training_report": {
+    "path": "reports/runs/go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json",
+    "sha256": "4728a712a763e3f4857f54b97519c8cf7e350ac21f1d9ec8268b70e1694911e5",
+    "run_name": "go2_flat_recover_rev9_prone_pilot_s42_20260828-1421",
+    "source_commit": "030d6b4471848f538a28a8649e2d5b4e615df568",
+    "source_bundle_sha256": "45a1b4cc9ccf73b8dedd63d69ab8e8163addb5b6cb0297daa89861a9a72abd55"
+  },
+  "tensorboard": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_14-21-32_go2_flat_recover_rev9_prone_pilot_s42_20260828-1421",
+    "event_bundle_sha256": "6ebdb0d0a0be26ccb0606f401920d434c359640ef8853c8d61251b19a686ee5d",
+    "event_files": {
+      "events.out.tfevents.1787894497.DESKTOP-991BNBV.46332.0": "50547927cfd2e9281c2bd1117a47664691849876dda1258b108b17e67aee3071"
+    },
+    "sample_count_per_tag": 50
+  },
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_14-21-32_go2_flat_recover_rev9_prone_pilot_s42_20260828-1421\\model_49.pt",
+    "sha256": "18e87baf43351d5e36aae5cabc608666099e7460a20d2606610607bfc35b3bf1"
+  },
+  "pilot": {
+    "num_envs": 1024,
+    "iterations": 50,
+    "seed": 42,
+    "headless": true,
+    "scratch": true
+  },
+  "observations": {
+    "hard_joint_limit": {
+      "sample_count": 50,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.4583333432674408,
+      "mean": 0.03500000074505806,
+      "nonzero_sample_count": 23
+    },
+    "numeric_invalid": {
+      "sample_count": 50,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "stable_support": {
+      "sample_count": 50,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.00014322917559184134,
+      "mean": 1.4516369410557673e-05,
+      "nonzero_sample_count": 21
+    },
+    "upright_hold": {
+      "sample_count": 50,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0014174196403473616,
+      "mean": 0.00014350452605867758,
+      "nonzero_sample_count": 21
+    },
+    "strict_stable_success": {
+      "sample_count": 50,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "strict_success_reward": {
+      "sample_count": 50,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "curriculum_boundary_leak": {
+      "detected": true,
+      "phase_index_maximum": 0.0416666679084301,
+      "prone_probability_minimum": 0.9791666865348816,
+      "left_side_probability_maximum": 0.010416666977107525,
+      "right_side_probability_maximum": 0.010416666977107525
+    },
+    "policy_mean_noise_std": {
+      "sample_count": 50,
+      "latest": 0.5398955345153809,
+      "minimum": 0.5017448663711548,
+      "maximum": 0.5398955345153809,
+      "mean": 0.5228723073005677,
+      "nonzero_sample_count": 50
+    }
+  },
+  "tail_10_iterations": [
+    {
+      "iteration": 40,
+      "mean_reward": 1.1678876876831055,
+      "stable_support": 2.604166729724966e-05,
+      "upright_hold": 0.00025466480292379856,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5329134464263916
+    },
+    {
+      "iteration": 41,
+      "mean_reward": 1.3848540782928467,
+      "stable_support": 2.604166729724966e-05,
+      "upright_hold": 0.0002521566639188677,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5345480442047119
+    },
+    {
+      "iteration": 42,
+      "mean_reward": 1.1567538976669312,
+      "stable_support": 2.604166729724966e-05,
+      "upright_hold": 0.0002584108733572066,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5356029272079468
+    },
+    {
+      "iteration": 43,
+      "mean_reward": 1.1967376470565796,
+      "stable_support": 2.604166729724966e-05,
+      "upright_hold": 0.0002591292723082006,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.53622967004776
+    },
+    {
+      "iteration": 44,
+      "mean_reward": 1.4555037021636963,
+      "stable_support": 2.7777778086601757e-05,
+      "upright_hold": 0.0002742403594311327,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5367261171340942
+    },
+    {
+      "iteration": 45,
+      "mean_reward": 1.3806639909744263,
+      "stable_support": 5.208333459449932e-05,
+      "upright_hold": 0.0005166829796507955,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5372157692909241
+    },
+    {
+      "iteration": 46,
+      "mean_reward": 1.3456261157989502,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0416666679084301,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5377271771430969
+    },
+    {
+      "iteration": 47,
+      "mean_reward": 1.2695114612579346,
+      "stable_support": 2.604166729724966e-05,
+      "upright_hold": 0.0002587092749308795,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5380951166152954
+    },
+    {
+      "iteration": 48,
+      "mean_reward": 0.8467603325843811,
+      "stable_support": 1.7361111531499773e-05,
+      "upright_hold": 0.00017268501687794924,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5387358069419861
+    },
+    {
+      "iteration": 49,
+      "mean_reward": 0.30241265892982483,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0416666679084301,
+      "probability_prone": 0.9791666865348816,
+      "probability_left_side": 0.010416666977107525,
+      "probability_right_side": 0.010416666977107525,
+      "policy_mean_noise_std": 0.5398955345153809
+    }
+  ],
+  "interpretation": "부분 자세 회복 신호는 관측됐지만 엄격 성공은 없었고 관절 한계 종료와 prone 경계 누수가 있어 다음 리비전은 scratch로 진행해야 한다."
+}
