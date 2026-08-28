@@ -1,0 +1,201 @@
+{
+  "schema_version": 3,
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "synthesis": "gpu_dynamics_cpu_separation_runtime_calibration",
+  "synthesis_mode": "strict_repeated_3x_gpu_3x_cpu",
+  "verified_identity": {
+    "contract_sha256": "d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0",
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+    "seed": 42,
+    "headless": true,
+    "num_envs": 8,
+    "rollout_steps": 150,
+    "pose_name_order": [
+      "prone",
+      "supine",
+      "left_side",
+      "right_side"
+    ],
+    "source_bundle": {
+      "schema_version": 1,
+      "git_commit": "9da3e87e4be9142035d24e8a4a22e204f8b229d5",
+      "git_commit_valid": true,
+      "source_binding_paths": [
+        "configs/g009_r0.json",
+        "scripts/bootstrap_train_g009.py",
+        "scripts/probe_g009_recover_runtime.py",
+        "scripts/run_training.ps1",
+        "scripts/sync_g009_r0_contract.py",
+        "scripts/synthesize_g009_r0_probe.py",
+        "src/isaac_walk_g009/agent_cfg.py",
+        "src/isaac_walk_g009/mdp/__init__.py",
+        "src/isaac_walk_g009/mdp/events.py",
+        "src/isaac_walk_g009/mdp/recover.py",
+        "src/isaac_walk_g009/recover_contracts.py",
+        "src/isaac_walk_g009/recover_env_cfg.py",
+        "src/isaac_walk_g009/registry.py"
+      ],
+      "source_binding_files": {
+        "configs/g009_r0.json": "87355a5e927b2025d9cead696bf3be1a0fd07cad53ca1cd1e9b7867b3d01eaac",
+        "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+        "scripts/probe_g009_recover_runtime.py": "dfc3dbf3b9862140d467137da1103c223cf2145318f3e4a575b34b670b137005",
+        "scripts/run_training.ps1": "b2910517adb83ac402eeda9389a67a844663d578247fae006483efa12b67a533",
+        "scripts/sync_g009_r0_contract.py": "387af5d8b9f0cc4e78dd4c81900a45cb453f4af63de73a7512160a9f179efc57",
+        "scripts/synthesize_g009_r0_probe.py": "9cd9e479ba3e685894813b030876e10b0489090de9db47a68d6e2e3724e3669a",
+        "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+        "src/isaac_walk_g009/mdp/__init__.py": "c5e13ec110a341e974cd303d8e44bfadb696a97ea2db2185d7a01fece74ccfd5",
+        "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+        "src/isaac_walk_g009/mdp/recover.py": "a825707a076d02fb597f2e6a779170ad34dac54037c9ef535e9f54fbfc4f3599",
+        "src/isaac_walk_g009/recover_contracts.py": "26eabe7661e980caae7684e5383e6da88d3b183b657d8d9a2d8482f052ced360",
+        "src/isaac_walk_g009/recover_env_cfg.py": "dadf6ff10f20aebd216eb0a004e51aab119b38ef61e2c782d7bc23ad6a14d73a",
+        "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+      },
+      "source_bundle_sha256": "55e6eabbde30930b89d386b8a7533beccb903fc95934fcf6c3f2f1110ba5c0b4",
+      "all_files_present": true,
+      "missing_files": [],
+      "clean": true,
+      "dirty_source_paths": []
+    }
+  },
+  "inputs": {
+    "gpu": [
+      {
+        "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_gpu_rep01_s42.json",
+        "sha256": "e485a3fcab5d8f8e6a793d30f76fb0a3ce346e27ed89a158409862e3e32414d1"
+      },
+      {
+        "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_gpu_rep02_s42.json",
+        "sha256": "b0574c9d9d156951720888a163f91320a7cfb909a6e284748c08236c9fc3ca97"
+      },
+      {
+        "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_gpu_rep03_s42.json",
+        "sha256": "cb24705917a1136ae9a75c6e1499c88f1645587e9d26c910f2b9fe23fd5818c8"
+      }
+    ],
+    "cpu": [
+      {
+        "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_cpu_rep01_s42.json",
+        "sha256": "fb8bad2190389c3e964d1807a0f54ea700ddfd6919765105c04b93bfa8c7dd75"
+      },
+      {
+        "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_cpu_rep02_s42.json",
+        "sha256": "abd58070a0175b8776f7d8838b3a0c3d7cbdb3c6d806c1b5da460b1d9b1e2788"
+      },
+      {
+        "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_cpu_rep03_s42.json",
+        "sha256": "787a65cb3c39d903e0b47aa964194ad811ee54835a4ce474a9a4ec4d1e996628"
+      }
+    ]
+  },
+  "execution_lineage": {
+    "gpu": [
+      {
+        "execution_id": "806a71f0d75a4af9bb83f8f952844918",
+        "started_at_utc": "2026-08-28T09:08:31.763027Z",
+        "no_overwrite": true,
+        "output_path_repo_relative": "reports/runs/g009_r0_runtime_probe_rev12_gpu_rep01_s42.json",
+        "input": {
+          "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_gpu_rep01_s42.json",
+          "sha256": "e485a3fcab5d8f8e6a793d30f76fb0a3ce346e27ed89a158409862e3e32414d1"
+        }
+      },
+      {
+        "execution_id": "d4e5ffddd5dd43dfbe671ad2f80f70f3",
+        "started_at_utc": "2026-08-28T09:12:25.983434Z",
+        "no_overwrite": true,
+        "output_path_repo_relative": "reports/runs/g009_r0_runtime_probe_rev12_gpu_rep02_s42.json",
+        "input": {
+          "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_gpu_rep02_s42.json",
+          "sha256": "b0574c9d9d156951720888a163f91320a7cfb909a6e284748c08236c9fc3ca97"
+        }
+      },
+      {
+        "execution_id": "b077540f7e494238bc926bf6254c853f",
+        "started_at_utc": "2026-08-28T09:12:55.707456Z",
+        "no_overwrite": true,
+        "output_path_repo_relative": "reports/runs/g009_r0_runtime_probe_rev12_gpu_rep03_s42.json",
+        "input": {
+          "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_gpu_rep03_s42.json",
+          "sha256": "cb24705917a1136ae9a75c6e1499c88f1645587e9d26c910f2b9fe23fd5818c8"
+        }
+      }
+    ],
+    "cpu": [
+      {
+        "execution_id": "7189215bbed042cb8392f545b75e49cb",
+        "started_at_utc": "2026-08-28T09:09:29.129209Z",
+        "no_overwrite": true,
+        "output_path_repo_relative": "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep01_s42.json",
+        "input": {
+          "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_cpu_rep01_s42.json",
+          "sha256": "fb8bad2190389c3e964d1807a0f54ea700ddfd6919765105c04b93bfa8c7dd75"
+        }
+      },
+      {
+        "execution_id": "c53876920b2d4f57bbc2ba7a72348ce6",
+        "started_at_utc": "2026-08-28T09:13:25.160229Z",
+        "no_overwrite": true,
+        "output_path_repo_relative": "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep02_s42.json",
+        "input": {
+          "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_cpu_rep02_s42.json",
+          "sha256": "abd58070a0175b8776f7d8838b3a0c3d7cbdb3c6d806c1b5da460b1d9b1e2788"
+        }
+      },
+      {
+        "execution_id": "5aab88c3290a410e80a0728047d51575",
+        "started_at_utc": "2026-08-28T09:13:48.918513Z",
+        "no_overwrite": true,
+        "output_path_repo_relative": "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep03_s42.json",
+        "input": {
+          "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_cpu_rep03_s42.json",
+          "sha256": "787a65cb3c39d903e0b47aa964194ad811ee54835a4ce474a9a4ec4d1e996628"
+        }
+      }
+    ]
+  },
+  "device_pass_counts": {
+    "gpu": {
+      "passed": 3,
+      "required": 3
+    },
+    "cpu": {
+      "passed": 3,
+      "required": 3
+    }
+  },
+  "force_verification": {
+    "threshold_bodyweights": 15.0,
+    "all_runs_bounded": true,
+    "worst_case": {
+      "device": "cpu",
+      "run_index": 1,
+      "bodyweights": 9.408609390258789,
+      "env_index": 6,
+      "pose_id": "left_side",
+      "action_mode": "reset_pose_hold",
+      "body_index": 0,
+      "body_name": "base",
+      "physics_step": 131,
+      "input": {
+        "absolute_path": "C:\\Users\\LIMMM\\isaac-walk-rl\\reports\\runs\\g009_r0_runtime_probe_rev12_cpu_rep01_s42.json",
+        "sha256": "fb8bad2190389c3e964d1807a0f54ea700ddfd6919765105c04b93bfa8c7dd75"
+      }
+    }
+  },
+  "evidence_verdicts": {
+    "gpu_run_health_passed_3_of_3": true,
+    "gpu_runtime_contract_passed_3_of_3": true,
+    "cpu_run_health_passed_3_of_3": true,
+    "cpu_runtime_contract_passed_3_of_3": true,
+    "cpu_authoritative_separation_passed_3_of_3": true,
+    "all_runs_nonfoot_peak_force_bounded": true
+  },
+  "runtime_calibration_passed": true,
+  "learned_policy_qualified": false,
+  "learned_policy_qualification": {
+    "status": "not_run",
+    "passed": false,
+    "reason": "runtime calibration does not evaluate a learned checkpoint"
+  }
+}

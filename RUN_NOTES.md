@@ -334,6 +334,13 @@ clean source commit `12caebe523ae0a414630216e30d100302f693a0d`에서 GPU fresh r
 - 먼저 runtime probe가 실제 PhysX articulation readback `position=8 / velocity=0`, numeric-invalid·hard-limit `0`, torque/contact/tail-settle 상한을 통과해야 한다. prone reset-hold raw penetration은 rev11 GPU `0.007208rad`보다 작아야 solver 가설이 지지된다. 감소하지 않으면 rev12를 기각하고 다른 변수를 겹치지 않는다.
 - runtime gate를 통과한 뒤에만 새 source commit에서 seed 42, headless, `1,024 env × 24 step × 1 iteration` scratch gate01을 실행한다. hard-limit 하나라도 재발하면 gate10을 열지 않는다.
 
+clean source commit `9da3e87e4be9142035d24e8a4a22e204f8b229d5`에서 CPU·GPU 새 프로세스를 각각 세 번 실행했다. 여섯 실행은 서로 다른 execution ID를 가졌고, source bundle SHA-256 `55e6eabbde30930b89d386b8a7533beccb903fc95934fcf6c3f2f1110ba5c0b4`와 contract SHA-256 `d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0`은 같았다.
+
+- 여섯 report 모두 live articulation 8개에서 solver `position=8 / velocity=0`, runtime contract PASS, run health PASS, boolean check 실패 `0`이었다. 엄격 합성도 GPU `3/3`, CPU `3/3`, CPU contact-separation `3/3` PASS다.
+- prone reset-pose-hold raw hard-limit crossing은 GPU 세 번 모두 `0.0019140244rad`, CPU 세 번 모두 `0.0028049946rad`였다. rev11 대비 각각 `73.45%`, `57.41%` 감소해 solver 가설을 지지한다. tolerance `0.01rad`는 바꾸지 않았다.
+- 최악의 non-foot contact는 CPU `left_side / reset_pose_hold / base`의 `9.4086094 BW`였다. `15 BW` 상한 이내이며 rev11 CPU `13.9706669 BW`보다 `32.65%` 낮다. GPU 최악값도 `9.4003544 BW`로 rev11보다 `14.88%` 낮다.
+- 이 결과는 3초 deterministic runtime calibration이며 learned checkpoint 평가가 아니다. [strict 3×3 synthesis](reports/runs/g009_r0_runtime_probe_rev12_synthesis_3x3_s42.json)는 `runtime_calibration_passed=true`, `learned_policy_qualified=false`로 기록한다. 다음 판정은 resume 없는 rev12 scratch gate01이다.
+
 #### 단계별 영상·공개 정책
 
 - 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0` 아래에만 보관하고 Git에 넣지 않는다. 사용자가 확인할 원본과 합성 MP4도 `local_only`다.
