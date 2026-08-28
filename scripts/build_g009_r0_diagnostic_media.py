@@ -215,7 +215,7 @@ def _overlay_filter(font: Path, strict_success: int) -> str:
         "drawbox=x=0:y=0:w=iw:h=72:color=0x8B0000@0.92:t=fill,"
         f"drawtext={font_expr}:text='{headline}':"
         "x=(w-text_w)/2:y=18:fontsize=26:fontcolor=white:borderw=1:bordercolor=black,"
-        "drawbox=x=0:y=h-48:w=iw:h=48:color=black@0.78:t=fill,"
+        "drawbox=x=0:y=ih-48:w=iw:h=48:color=black@0.78:t=fill,"
         f"drawtext={font_expr}:text='{footer}':"
         "x=(w-text_w)/2:y=h-37:fontsize=22:fontcolor=yellow"
     )
