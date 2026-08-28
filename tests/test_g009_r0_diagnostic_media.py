@@ -464,6 +464,38 @@ def test_rev10_gate_cli_derives_all_outputs_and_rejects_partial_identity() -> No
         diagnostic.parse_args(["--revision", "rev10"])
 
 
+@pytest.mark.parametrize("gate_label", ["gate01", "gate10", "gate50"])
+def test_rev11_gate_cli_derives_exact_numbered_outputs(gate_label: str) -> None:
+    stem = f"g009_5_r0_diag_rev11_{gate_label}_01_prone"
+    run_name = f"go2_flat_recover_rev11_prone_{gate_label}_s42_fixture"
+    args = diagnostic.parse_args(
+        [
+            "--revision", "rev11", "--gate-label", gate_label, "--output-stem", stem,
+            "--expected-run-name", run_name,
+        ]
+    )
+    diagnostic.validate_fixed_paths(args)
+    expected = diagnostic.expected_paths(stem)
+    assert args.capture_report == expected["capture_report"]
+    assert args.analysis_report == expected["analysis_report"]
+    assert args.gif == expected["gif"]
+    assert args.png == expected["png"]
+    assert args.summary == expected["summary"]
+    assert args.sidecar == expected["sidecar"]
+
+
+def test_rev11_media_rejects_run_name_with_only_substring_identity() -> None:
+    stem = "g009_5_r0_diag_rev11_gate01_01_prone"
+    args = diagnostic.parse_args(
+        [
+            "--revision", "rev11", "--gate-label", "gate01", "--output-stem", stem,
+            "--expected-run-name", "prefix_go2_flat_recover_rev11_prone_gate01_s42_fixture",
+        ]
+    )
+    with pytest.raises(ValueError, match="identity is not canonical"):
+        diagnostic.validate_fixed_paths(args)
+
+
 @pytest.mark.parametrize(
     "bad_stem",
     [

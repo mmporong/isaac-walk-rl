@@ -58,7 +58,7 @@ FOLDED_JOINT_ANGLES_RAD = {
     "left_hip": 0.1,
     "right_hip": -0.1,
     "thigh": 1.5,
-    "calf": -2.4,
+    "calf": -2.37,
 }
 
 UPRIGHT_ANGLE_DEG = 20.0
@@ -298,7 +298,7 @@ def recover_contract() -> dict[str, Any]:
         for pose in RECOVER_POSES.values()
     ]
     return {
-        "contract_id": "g009_r0_recover_rev10",
+        "contract_id": "g009_r0_recover_rev11",
         "stage_id": "R0",
         "policy_schema": "P-RECOVER-83/C-RECOVER-107",
         "poses": poses,
@@ -316,6 +316,9 @@ def recover_contract() -> dict[str, Any]:
             "root_and_joint_state_written_atomically": True,
             "root_velocity_m_s_and_rad_s": [0.0] * 6,
             "folded_joint_angles_rad": FOLDED_JOINT_ANGLES_RAD,
+            "action_envelope_requirement": (
+                "every folded reset joint target must be reachable without normalized-action saturation"
+            ),
             "pose_curriculum": {
                 "clock": "env.common_step_counter",
                 "control_steps_per_ppo_iteration": 24,
@@ -364,8 +367,12 @@ def recover_contract() -> dict[str, Any]:
                 "64-env rev5 smoke, but rev6 still measured 0.0416667 in the 1024-env stress smoke; "
                 "reducing PPO initial noise to 0.5 produced zero in the rev7 1024-env stress smoke; "
                 "rev9 prone pilot returned hard-limit terminations in 23 of 50 iterations with a "
-                "maximum rate of 0.4583333, so rev10 reduces only the action scale to 0.70 while "
-                "retaining EMA alpha 0.2, PPO initial noise 0.5, and the 0.01 rad solver tolerance; "
+                "maximum rate of 0.4583333, so rev10 reduced only the action scale to 0.70; "
+                "rev10 then reproduced a 16.066175 body-weight CPU non-foot contact peak while the "
+                "-2.40 rad calf reset independently saturated the normalized hold action and shifted "
+                "its reachable target by 0.026014 rad; rev11 tests this mechanical hypothesis by moving "
+                "only that reset seed to -2.37 rad inside the scale-0.70 action envelope while retaining "
+                "EMA alpha 0.2, PPO initial noise 0.5, and the 0.01 rad solver tolerance; "
                 "stochastic-training terminations remain diagnostic and the official deterministic "
                 "evaluation still requires zero; rev9 numeric-invalid terminations remained zero "
                 "throughout the pilot"

@@ -42,7 +42,7 @@ WINDOWS_KIT_ARGS = (
 )
 SUPPORTED_GATE_ITERATIONS = {"gate01": 1, "gate10": 10, "gate50": 50}
 OUTPUT_STEM_PATTERN = re.compile(r"^g009_5_r0_diag_rev[0-9]+_gate(?:01|10|50)_01_prone$")
-RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+RUN_NAME_SUFFIX_PATTERN = r"[A-Za-z0-9][A-Za-z0-9._-]*"
 REQUIRED_SOURCE_BUNDLE_PATHS = frozenset(
     {
         "configs/g009_r0.json",
@@ -143,6 +143,11 @@ def source_bundle_sha256(files: Mapping[str, str]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def canonical_dynamic_run_name(revision: str, gate_label: str, run_name: str) -> bool:
+    prefix = f"go2_flat_recover_{revision}_prone_{gate_label}_s42_"
+    return re.fullmatch(re.escape(prefix) + RUN_NAME_SUFFIX_PATTERN, run_name) is not None
+
+
 def validate_source_bundle(bundle: Mapping[str, Any], *, git_commit: str | None = None) -> dict[str, Any]:
     files = bundle.get("files")
     if not isinstance(files, Mapping) or not files:
@@ -184,10 +189,8 @@ def _dynamic_identity(
         raise ValueError("diagnostic output_stem must use the numbered G009 R0 prone pattern")
     if f"_{revision}_" not in f"_{output_stem}_" or f"_{gate_label}_" not in f"_{output_stem}_":
         raise ValueError("diagnostic output_stem revision/gate mismatch")
-    if not RUN_NAME_PATTERN.fullmatch(expected_run_name):
-        raise ValueError("diagnostic expected_run_name is not canonical")
-    if f"_{revision}_" not in f"_{expected_run_name}_" or f"_{gate_label}_" not in f"_{expected_run_name}_":
-        raise ValueError("diagnostic training run_name revision/gate mismatch")
+    if not canonical_dynamic_run_name(revision, gate_label, expected_run_name):
+        raise ValueError("diagnostic revision/gate mismatch: expected_run_name identity is not canonical")
     if report.get("run_name") != expected_run_name:
         raise ValueError("diagnostic training run_name does not match expected_run_name")
     return {

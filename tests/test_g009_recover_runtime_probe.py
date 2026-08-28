@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import re
 from pathlib import Path
 
 import pytest
@@ -14,6 +15,118 @@ SPEC = importlib.util.spec_from_file_location(
 assert SPEC is not None and SPEC.loader is not None
 PROBE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PROBE)
+
+
+def _canonical_output(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, name: str) -> Path:
+    monkeypatch.setattr(PROBE, "REPO_ROOT", tmp_path)
+    output = tmp_path / "reports" / "runs" / name
+    output.parent.mkdir(parents=True, exist_ok=True)
+    return output
+
+
+def test_prepare_execution_generates_uuid4_utc_time_and_exact_output_binding(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    output = _canonical_output(monkeypatch, tmp_path, "rev11_cpu_attempt1.json")
+
+    resolved, execution = PROBE.prepare_execution(output)
+
+    assert resolved == output.resolve()
+    assert re.fullmatch(r"[0-9a-f]{32}", execution["execution_id"])
+    assert execution["started_at_utc"].endswith("Z")
+    assert execution["output_path_repo_relative"] == "reports/runs/rev11_cpu_attempt1.json"
+    assert execution["no_overwrite"] is True
+    assert PROBE.validate_execution_metadata(execution, output) == execution
+
+
+@pytest.mark.parametrize("name", ["rev11_cpu.txt", ".json"])
+def test_prepare_execution_rejects_invalid_report_suffix_or_empty_name(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, name: str
+) -> None:
+    output = _canonical_output(monkeypatch, tmp_path, name)
+
+    with pytest.raises(ValueError, match=".json"):
+        PROBE.prepare_execution(output)
+
+
+def test_prepare_execution_rejects_path_escape_and_existing_target(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    canonical = _canonical_output(monkeypatch, tmp_path, "existing.json")
+    canonical.write_text("existing", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="canonical reports/runs"):
+        PROBE.prepare_execution(tmp_path / "reports" / "escaped.json")
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        PROBE.prepare_execution(canonical)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("execution_id", "0" * 32, "UUID4"),
+        ("started_at_utc", "2026-08-28T12:00:00+09:00", "UTC timestamp"),
+        ("output_path_repo_relative", "reports/runs/other.json", "output binding"),
+        ("no_overwrite", False, "no_overwrite"),
+    ],
+)
+def test_execution_metadata_rejects_invalid_uuid_time_and_output_binding(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    field: str,
+    value: object,
+    message: str,
+) -> None:
+    output = _canonical_output(monkeypatch, tmp_path, "bound.json")
+    _, execution = PROBE.prepare_execution(output)
+    invalid = {**execution, field: value}
+
+    with pytest.raises(ValueError, match=message):
+        PROBE.validate_execution_metadata(invalid, output)
+
+
+def test_atomic_json_write_never_overwrites_target_or_existing_temp(tmp_path: Path) -> None:
+    target = tmp_path / "report.json"
+    target.write_text("original", encoding="utf-8")
+    with pytest.raises(FileExistsError, match="existing report"):
+        PROBE._write_json_atomic(target, {"new": True})
+    assert target.read_text(encoding="utf-8") == "original"
+
+    target.unlink()
+    temporary = target.with_suffix(".json.tmp")
+    temporary.write_text("in-progress", encoding="utf-8")
+    with pytest.raises(FileExistsError, match="temporary report"):
+        PROBE._write_json_atomic(target, {"new": True})
+    assert temporary.read_text(encoding="utf-8") == "in-progress"
+    assert not target.exists()
+
+
+def test_atomic_json_write_creates_one_complete_target_without_temp(tmp_path: Path) -> None:
+    target = tmp_path / "report.json"
+
+    PROBE._write_json_atomic(target, {"execution": {"no_overwrite": True}})
+
+    assert target.read_text(encoding="utf-8").endswith("\n")
+    assert not target.with_suffix(".json.tmp").exists()
+
+
+def test_main_rejects_existing_output_before_importing_app_launcher(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    output = _canonical_output(monkeypatch, tmp_path, "existing.json")
+    output.write_text("existing", encoding="utf-8")
+    parse_args_called = False
+
+    def unexpected_parse_args(_: list[str] | None = None) -> None:
+        nonlocal parse_args_called
+        parse_args_called = True
+        raise AssertionError("parse_args must not run for an existing prelaunch output")
+
+    monkeypatch.setattr(PROBE, "parse_args", unexpected_parse_args)
+
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        PROBE.main(["--output", str(output)])
+    assert parse_args_called is False
 
 
 def test_calibration_budget_requires_eight_environments_and_three_seconds() -> None:
@@ -227,6 +340,115 @@ def test_inverse_mapping_round_trips_joint_targets_inside_soft_limits() -> None:
 
     torch.testing.assert_close(reconstructed, target)
     assert bool((normalized.abs() <= 1.0).all())
+
+
+def test_reset_pose_hold_diagnostics_attribute_saturation_and_reachable_error() -> None:
+    limits = torch.tensor([[[-2.0, 2.0], [-3.0, 1.0]]])
+    target = torch.tensor([[1.8, -1.0]])
+
+    result = PROBE.reset_pose_hold_action_diagnostics(
+        target,
+        limits,
+        ["hip", "knee"],
+        action_scale=0.7,
+    )
+
+    torch.testing.assert_close(result["normalized_action"], torch.tensor([[1.0, 0.0]]))
+    torch.testing.assert_close(result["reachable_target"], torch.tensor([[1.4, -1.0]]))
+    torch.testing.assert_close(result["target_error"], torch.tensor([[0.4, 0.0]]))
+    assert result["saturated_mask"].tolist() == [[True, False]]
+    assert result["saturated_joint_names"] == [["hip"]]
+    assert result["max_target_error_joint_index"].tolist() == [0]
+    assert result["max_target_error_joint_name"] == ["hip"]
+
+
+def test_reset_pose_hold_diagnostics_round_trip_unsaturated_target() -> None:
+    limits = torch.tensor([[[-2.0, 2.0], [-3.0, 1.0]]])
+    target = torch.tensor([[1.0, -1.8]])
+
+    result = PROBE.reset_pose_hold_action_diagnostics(
+        target,
+        limits,
+        ["hip", "knee"],
+        action_scale=0.7,
+    )
+
+    assert not bool(result["saturated_mask"].any().item())
+    torch.testing.assert_close(result["reachable_target"], target)
+    assert bool(
+        (result["max_target_error"] <= PROBE.RESET_HOLD_TARGET_TOLERANCE_RAD)
+        .all()
+        .item()
+    )
+    assert PROBE.reset_pose_hold_checks(result) == {
+        "reset_pose_hold_action_diagnostics_finite": True,
+        "reset_pose_hold_actions_unsaturated": True,
+        "reset_pose_hold_reachable_targets_match_reset_positions": True,
+    }
+
+
+def test_reset_pose_hold_checks_fail_closed_for_saturation_and_nonfinite_data() -> None:
+    limits = torch.tensor([[[-2.0, 2.0]]])
+    saturated = PROBE.reset_pose_hold_action_diagnostics(
+        torch.tensor([[1.8]]), limits, ["hip"], action_scale=0.7
+    )
+    nonfinite = PROBE.reset_pose_hold_action_diagnostics(
+        torch.tensor([[float("nan")]]), limits, ["hip"], action_scale=0.7
+    )
+
+    assert PROBE.reset_pose_hold_checks(saturated) == {
+        "reset_pose_hold_action_diagnostics_finite": True,
+        "reset_pose_hold_actions_unsaturated": False,
+        "reset_pose_hold_reachable_targets_match_reset_positions": False,
+    }
+    assert PROBE.reset_pose_hold_checks(nonfinite) == {
+        "reset_pose_hold_action_diagnostics_finite": False,
+        "reset_pose_hold_actions_unsaturated": False,
+        "reset_pose_hold_reachable_targets_match_reset_positions": False,
+    }
+
+
+def test_peak_body_attribution_requires_valid_nonfoot_body_for_observed_force() -> None:
+    assert PROBE.peak_body_attribution_complete(
+        torch.tensor([0.0, 12.0]),
+        torch.tensor([-1, 11]),
+        torch.tensor([-1, 3]),
+        nonfoot_ids=[0, 3, 4],
+        body_count=5,
+    )
+    assert not PROBE.peak_body_attribution_complete(
+        torch.tensor([12.0]),
+        torch.tensor([11]),
+        torch.tensor([2]),
+        nonfoot_ids=[0, 3, 4],
+        body_count=5,
+    )
+
+
+def test_nonfoot_peak_flat_indices_decode_exact_sensor_body_ids() -> None:
+    result = PROBE.nonfoot_body_indices_from_flat(
+        torch.tensor([0, 2, 3, 8]),
+        [0, 3, 4],
+    )
+
+    assert result.tolist() == [0, 4, 0, 4]
+
+
+def test_peak_body_attribution_rejects_missing_or_spurious_peak_metadata() -> None:
+    assert not PROBE.peak_body_attribution_complete(
+        torch.tensor([12.0]),
+        torch.tensor([-1]),
+        torch.tensor([-1]),
+        nonfoot_ids=[0, 3],
+        body_count=4,
+    )
+    assert not PROBE.peak_body_attribution_complete(
+        torch.tensor([0.0]),
+        torch.tensor([1]),
+        torch.tensor([3]),
+        nonfoot_ids=[0, 3],
+        body_count=4,
+    )
 
 
 @pytest.mark.parametrize("action_scale", [0.0, -0.1, 1.01, float("inf")])

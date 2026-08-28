@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev10",
+  "evidence_kind": "runtime_calibration_failure_reproduction",
+  "source_commit": "8b12192e0b6824076d40668b5ada69d7ec3071f1",
+  "contract_sha256": "b5499b4a8c111788c3c601fd983bb03907cb3779106821ce2a0be6ef447d5912",
+  "source_bundle_sha256": "91cffd30fb3c924ab9cd24e5eaf4c14fd4fdd752939c4e043812ea76b476acec",
+  "verdict": {
+    "runtime_calibration_passed": false,
+    "training_gate_open": false,
+    "learned_policy_qualified": false,
+    "qualification_status": "not_run",
+    "blocking_check": "nonfoot_peak_force_bounded"
+  },
+  "cpu_reproduction": {
+    "attempt_count": 2,
+    "byte_identical": true,
+    "sha256": "4f072ca2f5bc65813bbec5f036d6ae556cf247fa60b07a639df4104528d5dbd4",
+    "files": [
+      "reports/runs/g009_r0_runtime_probe_rev10_cpu_attempt1_force_spike.json",
+      "reports/runs/g009_r0_runtime_probe_rev10_cpu_attempt2_s42.json"
+    ],
+    "device": "cpu",
+    "seed": 42,
+    "env_index": 6,
+    "pose_id": "left_side",
+    "action_mode": "reset_pose_hold",
+    "max_nonfoot_force_bodyweights": 16.06617546081543,
+    "limit_bodyweights": 15.0,
+    "excess_percent": 7.107836405436199,
+    "physics_step": 131,
+    "time_s": 0.655,
+    "excess_contact_delta_v_m_s": 1.2967939376831055,
+    "peak_step_excess_contact_delta_v_m_s": 1.0987874269485474
+  },
+  "gpu_comparison": {
+    "file": "reports/runs/g009_r0_runtime_probe_rev10_gpu.json",
+    "sha256": "3cc223ff5644f70b55ccd512f42e92030845c1a3037a5c83d8ce5ef3d0964a6d",
+    "runtime_contract_passed": true,
+    "max_nonfoot_force_bodyweights": 13.937536239624023
+  },
+  "mechanical_hypothesis": {
+    "status": "action_mismatch_confirmed_peak_causality_unverified",
+    "reset_calf_angle_rad": -2.4,
+    "action_scale": 0.7,
+    "hold_normalized_action": -1.0,
+    "reachable_calf_target_rad": -2.373986,
+    "target_shift_rad": 0.026014,
+    "target_shift_deg": 1.490489,
+    "confirmed_mechanism": "the inverse-mapped calf hold action clips at -1.0, so EMA converges from the reset state toward a different reachable target",
+    "unverified_causal_claim": "whether this target mismatch caused the 16.066175 body-weight CPU contact peak"
+  },
+  "next_revision": {
+    "revision": "rev11",
+    "single_dynamics_change": "folded calf reset -2.40 rad to -2.37 rad",
+    "unchanged": [
+      "15 body-weight non-foot peak limit",
+      "action scale 0.70",
+      "EMA alpha 0.20",
+      "PPO initial noise 0.50",
+      "reward terms and weights",
+      "0.01 rad hard-limit tolerance",
+      "pose curriculum"
+    ],
+    "required_gate": "three fresh GPU and three fresh CPU runtime reports must all pass"
+  }
+}

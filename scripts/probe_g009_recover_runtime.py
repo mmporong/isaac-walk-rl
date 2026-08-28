@@ -11,9 +11,12 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import re
 import subprocess
 import sys
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +48,7 @@ MAX_TAIL_HORIZONTAL_SPEED_M_S = 0.50
 MAX_TAIL_VERTICAL_SPEED_M_S = 0.25
 MAX_TAIL_ANGULAR_SPEED_RAD_S = 2.0
 CONTACT_EXERCISE_THRESHOLD_N = 1.0
+RESET_HOLD_TARGET_TOLERANCE_RAD = 1.0e-6
 
 SOURCE_BINDING_PATHS = (
     "configs/g009_r0.json",
@@ -70,8 +74,101 @@ def _progress(stage: str) -> None:
 def _write_json_atomic(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    temporary.replace(path)
+    if path.exists():
+        raise FileExistsError(f"refusing to overwrite existing report: {path}")
+    if temporary.exists():
+        raise FileExistsError(f"refusing to overwrite existing temporary report: {temporary}")
+
+    created_temporary = False
+    try:
+        with temporary.open("x", encoding="utf-8", newline="\n") as stream:
+            created_temporary = True
+            stream.write(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(temporary, path)
+    finally:
+        if created_temporary and temporary.exists():
+            temporary.unlink()
+
+
+def canonical_report_output(output: Path) -> tuple[Path, str]:
+    """Resolve one new direct-child JSON report under the canonical run folder."""
+
+    reports_root = (REPO_ROOT / "reports" / "runs").resolve()
+    resolved = output.expanduser().resolve()
+    if resolved.parent != reports_root:
+        raise ValueError("output must be a direct child of the canonical reports/runs directory")
+    if resolved.suffix != ".json" or resolved.name == ".json":
+        raise ValueError("output must use a non-empty .json filename")
+    if resolved.exists():
+        raise FileExistsError(f"refusing to overwrite existing report: {resolved}")
+    return resolved, resolved.relative_to(REPO_ROOT.resolve()).as_posix()
+
+
+def validate_execution_metadata(
+    execution: dict[str, Any], output: Path
+) -> dict[str, Any]:
+    """Validate fresh-run identity and its exact canonical output binding."""
+
+    expected_keys = {
+        "execution_id",
+        "started_at_utc",
+        "output_path_repo_relative",
+        "no_overwrite",
+    }
+    if set(execution) != expected_keys:
+        raise ValueError("execution metadata keys do not match the provenance contract")
+    execution_id = execution["execution_id"]
+    if not isinstance(execution_id, str):
+        raise ValueError("execution_id must be a UUID4 hex string")
+    try:
+        parsed_uuid = uuid.UUID(hex=execution_id)
+    except (ValueError, AttributeError) as error:
+        raise ValueError("execution_id must be a UUID4 hex string") from error
+    if parsed_uuid.version != 4 or parsed_uuid.hex != execution_id:
+        raise ValueError("execution_id must be a lowercase UUID4 hex string")
+
+    started_at_utc = execution["started_at_utc"]
+    if not isinstance(started_at_utc, str) or not started_at_utc.endswith("Z"):
+        raise ValueError("started_at_utc must be an ISO-8601 UTC timestamp")
+    try:
+        parsed_time = datetime.fromisoformat(started_at_utc.removesuffix("Z") + "+00:00")
+    except ValueError as error:
+        raise ValueError("started_at_utc must be an ISO-8601 UTC timestamp") from error
+    if parsed_time.utcoffset() != timezone.utc.utcoffset(parsed_time):
+        raise ValueError("started_at_utc must use UTC")
+
+    resolved, expected_relative = canonical_report_output(output)
+    if execution["output_path_repo_relative"] != expected_relative:
+        raise ValueError("execution output binding does not match the requested report path")
+    if execution["no_overwrite"] is not True:
+        raise ValueError("execution must declare no_overwrite=true")
+    return execution
+
+
+def prepare_execution(output: Path) -> tuple[Path, dict[str, Any]]:
+    """Create fresh provenance before Isaac Sim or AppLauncher is initialized."""
+
+    resolved, relative = canonical_report_output(output)
+    execution = {
+        "execution_id": uuid.uuid4().hex,
+        "started_at_utc": datetime.now(timezone.utc)
+        .isoformat(timespec="microseconds")
+        .replace("+00:00", "Z"),
+        "output_path_repo_relative": relative,
+        "no_overwrite": True,
+    }
+    return resolved, validate_execution_metadata(execution, resolved)
+
+
+def parse_prelaunch_output(argv: list[str] | None = None) -> Path:
+    """Read only --output so provenance rejection precedes AppLauncher creation."""
+
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--output", required=True, type=Path)
+    args, _ = parser.parse_known_args(argv)
+    return args.output
 
 
 def source_bundle_provenance() -> dict[str, Any]:
@@ -165,6 +262,118 @@ def _inverse_map_position_targets(target, soft_limits, *, action_scale: float = 
         raise RuntimeError("soft joint position limits must have positive span")
     scaled_action = 2.0 * (target - soft_limits[..., 0]) / span - 1.0
     return (scaled_action / action_scale).clamp(-1.0, 1.0)
+
+
+def reset_pose_hold_action_diagnostics(
+    target,
+    soft_limits,
+    joint_names: list[str],
+    *,
+    action_scale: float,
+):
+    """Describe inverse-map clipping and the target that the action term can reach."""
+
+    if target.ndim != 2 or soft_limits.shape != (*target.shape, 2):
+        raise ValueError("target and soft_limits must have shapes (N, J) and (N, J, 2)")
+    if len(joint_names) != target.shape[1]:
+        raise ValueError("joint_names must match the target joint dimension")
+    if not math.isfinite(action_scale) or not 0.0 < action_scale <= 1.0:
+        raise ValueError("action_scale must be finite and in (0, 1]")
+    span = soft_limits[..., 1] - soft_limits[..., 0]
+    if bool((span <= 0.0).any().item()):
+        raise RuntimeError("soft joint position limits must have positive span")
+
+    scaled_action = 2.0 * (target - soft_limits[..., 0]) / span - 1.0
+    unclamped_normalized_action = scaled_action / action_scale
+    normalized_action = unclamped_normalized_action.clamp(-1.0, 1.0)
+    saturated_mask = unclamped_normalized_action.abs() > 1.0
+    reachable_scaled_action = (normalized_action * action_scale).clamp(-1.0, 1.0)
+    reachable_target = soft_limits[..., 0] + (reachable_scaled_action + 1.0) * 0.5 * span
+    target_error = (reachable_target - target).abs()
+    max_target_error, max_target_error_joint_index = target_error.max(dim=1)
+
+    return {
+        "unclamped_normalized_action": unclamped_normalized_action,
+        "normalized_action": normalized_action,
+        "saturated_mask": saturated_mask,
+        "reachable_target": reachable_target,
+        "target_error": target_error,
+        "max_target_error": max_target_error,
+        "max_target_error_joint_index": max_target_error_joint_index,
+        "max_target_error_joint_name": [
+            joint_names[index]
+            for index in max_target_error_joint_index.detach().cpu().tolist()
+        ],
+        "saturated_joint_names": [
+            [joint_names[index] for index in row.nonzero(as_tuple=False).flatten().cpu().tolist()]
+            for row in saturated_mask
+        ],
+    }
+
+
+def reset_pose_hold_checks(diagnostics: dict[str, Any]) -> dict[str, bool]:
+    """Return blocking checks for hold-action reachability diagnostics."""
+
+    required_tensors = (
+        "unclamped_normalized_action",
+        "normalized_action",
+        "reachable_target",
+        "target_error",
+        "max_target_error",
+    )
+    finite = all(
+        bool(diagnostics[name].isfinite().all().item()) for name in required_tensors
+    )
+    return {
+        "reset_pose_hold_action_diagnostics_finite": finite,
+        "reset_pose_hold_actions_unsaturated": finite
+        and bool((~diagnostics["saturated_mask"]).all().item()),
+        "reset_pose_hold_reachable_targets_match_reset_positions": finite
+        and bool(
+            (
+                diagnostics["max_target_error"]
+                <= RESET_HOLD_TARGET_TOLERANCE_RAD
+            ).all().item()
+        ),
+    }
+
+
+def peak_body_attribution_complete(
+    max_force,
+    physics_step,
+    body_index,
+    *,
+    nonfoot_ids: list[int],
+    body_count: int,
+) -> bool:
+    """Fail closed unless every observed peak names a valid non-foot sensor body."""
+
+    if max_force.shape != physics_step.shape or max_force.shape != body_index.shape:
+        raise ValueError("peak attribution tensors must have identical shapes")
+    valid_nonfoot_ids = set(nonfoot_ids)
+    for force, step, index in zip(
+        max_force.detach().cpu().tolist(),
+        physics_step.detach().cpu().tolist(),
+        body_index.detach().cpu().tolist(),
+    ):
+        if not math.isfinite(force) or force < 0.0:
+            return False
+        if force == 0.0:
+            if step != -1 or index != -1:
+                return False
+            continue
+        if step < 1 or index < 0 or index >= body_count or index not in valid_nonfoot_ids:
+            return False
+    return True
+
+
+def nonfoot_body_indices_from_flat(flat_indices, nonfoot_ids: list[int]):
+    """Decode flattened ``(history, non-foot body)`` maxima to sensor body ids."""
+
+    if not nonfoot_ids:
+        raise ValueError("nonfoot_ids must not be empty")
+    lookup = flat_indices.new_tensor(nonfoot_ids)
+    return lookup[flat_indices % len(nonfoot_ids)]
 
 
 def _actuator_joint_limits(robot, attribute: str, torch):
@@ -772,7 +981,8 @@ def _startup_readback(raw_env, torch, constants: dict[str, float]) -> tuple[dict
     }, checks
 
 
-def probe(args: argparse.Namespace) -> dict[str, Any]:
+def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]:
+    execution = validate_execution_metadata(execution, args.output.resolve())
     source_bundle = source_bundle_provenance()
     _progress("import_runtime_dependencies")
     import gymnasium as gym
@@ -937,12 +1147,14 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
         ema_reset_target_error = torch.abs(
             ema_previous_targets.detach() - robot.data.joint_pos.detach()
         ).amax(dim=1)
-        actions = torch.zeros((args.num_envs, action_dim), device=raw_env.device)
-        actions[POSE_COUNT:] = _inverse_map_position_targets(
+        reset_pose_hold_diagnostics = reset_pose_hold_action_diagnostics(
             robot.data.joint_pos[POSE_COUNT:].detach(),
             soft_limits[POSE_COUNT:],
+            list(robot.joint_names),
             action_scale=runtime_action_scale,
         )
+        actions = torch.zeros((args.num_envs, action_dim), device=raw_env.device)
+        actions[POSE_COUNT:] = reset_pose_hold_diagnostics["normalized_action"]
         terms = list(raw_env.termination_manager.active_terms)
         term_counts = {name: torch.zeros(args.num_envs, dtype=torch.long, device=raw_env.device) for name in terms}
         finite = torch.ones(args.num_envs, dtype=torch.bool, device=raw_env.device)
@@ -964,6 +1176,7 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
         )
         max_nonfoot_force = torch.zeros_like(max_lin)
         max_nonfoot_force_step = torch.full_like(max_hard_violation_step, -1)
+        max_nonfoot_force_body_index = torch.full_like(max_hard_violation_step, -1)
         excess_delta_v = torch.zeros_like(max_lin)
         max_step_excess_delta_v = torch.zeros_like(max_lin)
         max_step_excess_delta_v_step = torch.full_like(max_hard_violation_step, -1)
@@ -1114,6 +1327,9 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
             force_history_index = (
                 step_nonfoot_flat_index // len(nonfoot_ids)
             )
+            step_nonfoot_body_index = nonfoot_body_indices_from_flat(
+                step_nonfoot_flat_index, nonfoot_ids
+            )
             force_physics_step = (
                 step * raw_env.cfg.decimation
                 + raw_env.cfg.decimation
@@ -1123,6 +1339,11 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
                 new_max_force,
                 force_physics_step,
                 max_nonfoot_force_step,
+            )
+            max_nonfoot_force_body_index = torch.where(
+                new_max_force,
+                step_nonfoot_body_index,
+                max_nonfoot_force_body_index,
             )
             excess_delta_v += step_excess_delta_v
             new_max_step_impulse = step_excess_delta_v > max_step_excess_delta_v
@@ -1222,6 +1443,14 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
                     "max_nonfoot_force_physics_step": int(
                         max_nonfoot_force_step[i].item()
                     ),
+                    "max_nonfoot_force_body_index": int(
+                        max_nonfoot_force_body_index[i].item()
+                    ),
+                    "max_nonfoot_force_body_name": (
+                        sensor.body_names[max_nonfoot_force_body_index[i].item()]
+                        if max_nonfoot_force_body_index[i].item() >= 0
+                        else None
+                    ),
                     "max_nonfoot_force_time_s": (
                         float(
                             max_nonfoot_force_step[i].item()
@@ -1256,6 +1485,59 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
                     ),
                     "first_contact_excess_delta_v_m_s": float(
                         first_contact_excess_delta_v[i].item()
+                    ),
+                    "reset_pose_hold_normalized_action_saturated": (
+                        bool(
+                            reset_pose_hold_diagnostics["saturated_mask"][
+                                i - POSE_COUNT
+                            ].any().item()
+                        )
+                        if i >= POSE_COUNT
+                        else None
+                    ),
+                    "reset_pose_hold_saturated_joint_count": (
+                        int(
+                            reset_pose_hold_diagnostics["saturated_mask"][
+                                i - POSE_COUNT
+                            ].sum().item()
+                        )
+                        if i >= POSE_COUNT
+                        else None
+                    ),
+                    "reset_pose_hold_saturated_joint_names": (
+                        reset_pose_hold_diagnostics["saturated_joint_names"][i - POSE_COUNT]
+                        if i >= POSE_COUNT
+                        else None
+                    ),
+                    "reset_pose_hold_reachable_processed_joint_target_rad": (
+                        _tensor_list(
+                            reset_pose_hold_diagnostics["reachable_target"][i - POSE_COUNT]
+                        )
+                        if i >= POSE_COUNT
+                        else None
+                    ),
+                    "reset_pose_hold_reachable_target_max_error_rad": (
+                        float(
+                            reset_pose_hold_diagnostics["max_target_error"][
+                                i - POSE_COUNT
+                            ].item()
+                        )
+                        if i >= POSE_COUNT
+                        else None
+                    ),
+                    "reset_pose_hold_reachable_target_max_error_joint_index": (
+                        int(
+                            reset_pose_hold_diagnostics["max_target_error_joint_index"][
+                                i - POSE_COUNT
+                            ].item()
+                        )
+                        if i >= POSE_COUNT
+                        else None
+                    ),
+                    "reset_pose_hold_reachable_target_max_error_joint_name": (
+                        reset_pose_hold_diagnostics["max_target_error_joint_name"][i - POSE_COUNT]
+                        if i >= POSE_COUNT
+                        else None
                     ),
                     "min_contact_separation_m": float(min_separation[i].item()) if torch.isfinite(min_separation[i]) else None,
                     "min_contact_separation_provenance": separation_report[
@@ -1360,11 +1642,19 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
                 contact_exercised, nonfoot_contact_exercised
             ),
             "nonfoot_peak_force_bounded": bool((max_nonfoot_force / (total_mass * 9.81) <= MAX_NON_FOOT_FORCE_BODYWEIGHTS).all().item()),
+            "nonfoot_peak_force_body_attribution_complete": peak_body_attribution_complete(
+                max_nonfoot_force,
+                max_nonfoot_force_step,
+                max_nonfoot_force_body_index,
+                nonfoot_ids=nonfoot_ids,
+                body_count=len(sensor.body_names),
+            ),
             "nonfoot_excess_impulse_bounded": bool((excess_delta_v <= MAX_EXCESS_CONTACT_DELTA_V_M_S).all().item()),
             "tail_horizontal_speed_settled": bool((tail_h <= MAX_TAIL_HORIZONTAL_SPEED_M_S).all().item()),
             "tail_vertical_speed_settled": bool((tail_v <= MAX_TAIL_VERTICAL_SPEED_M_S).all().item()),
             "tail_angular_speed_settled": bool((tail_a <= MAX_TAIL_ANGULAR_SPEED_RAD_S).all().item()),
             "reset_pose_hold_actions_bounded": bool((torch.abs(actions[POSE_COUNT:]) <= 1.0).all().item()),
+            **reset_pose_hold_checks(reset_pose_hold_diagnostics),
             "zero_normalized_actions_are_zero": bool(
                 torch.equal(actions[:POSE_COUNT], torch.zeros_like(actions[:POSE_COUNT]))
             ),
@@ -1405,6 +1695,7 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
             "goal_id": "g009",
             "stage_id": "R0",
             "probe": "flat_recover_runtime_calibration",
+            "execution": execution,
             "task": args.task,
             "contract_sha256": canonical_sha256(recover_contract()),
             "source_bundle": source_bundle,
@@ -1494,12 +1785,22 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
                 "joint_position_rad": _tensor_list(joint_position),
                 "joint_hard_limits_rad": _tensor_list(joint_limits[0]),
                 "hold_normalized_action": _tensor_list(actions[POSE_COUNT:]),
+                "hold_unclamped_normalized_action": _tensor_list(
+                    reset_pose_hold_diagnostics["unclamped_normalized_action"]
+                ),
+                "hold_reachable_processed_joint_target_rad": _tensor_list(
+                    reset_pose_hold_diagnostics["reachable_target"]
+                ),
+                "hold_reachable_target_error_rad": _tensor_list(
+                    reset_pose_hold_diagnostics["target_error"]
+                ),
             },
             "calibration_thresholds": {
                 "solver_joint_limit_tolerance_rad": SOLVER_JOINT_LIMIT_TOLERANCE_RAD,
                 "min_root_height_m": MIN_ROOT_HEIGHT_M,
                 "min_contact_separation_m": MIN_CONTACT_SEPARATION_M,
                 "max_nonfoot_force_bodyweights": MAX_NON_FOOT_FORCE_BODYWEIGHTS,
+                "reset_hold_target_tolerance_rad": RESET_HOLD_TARGET_TOLERANCE_RAD,
                 "max_excess_contact_delta_v_m_s": MAX_EXCESS_CONTACT_DELTA_V_M_S,
                 "tail_window_steps": TAIL_STEPS,
                 "max_tail_horizontal_speed_m_s": MAX_TAIL_HORIZONTAL_SPEED_M_S,
@@ -1515,7 +1816,7 @@ def probe(args: argparse.Namespace) -> dict[str, Any]:
         env.close()
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     from isaaclab.app import AppLauncher
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -1525,26 +1826,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--rollout-steps", type=int, default=EXPECTED_ROLLOUT_STEPS)
     parser.add_argument("--output", required=True, type=Path)
     AppLauncher.add_app_launcher_args(parser)
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main() -> int:
-    from isaaclab.app import AppLauncher
-
-    args = parse_args()
+def main(argv: list[str] | None = None) -> int:
+    output, execution = prepare_execution(parse_prelaunch_output(argv))
+    args = parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(line_buffering=True)
     if hasattr(sys.stderr, "reconfigure"):
         sys.stderr.reconfigure(line_buffering=True)
+    from isaaclab.app import AppLauncher
+
     app_launcher = AppLauncher(args)
     simulation_app = app_launcher.app
     try:
-        report = probe(args)
-        _write_json_atomic(args.output.resolve(), report)
+        report = probe(args, execution)
+        _write_json_atomic(output, report)
         print(
             json.dumps(
                 {
-                    "output": str(args.output.resolve()),
+                    "output": str(output),
                     "run_health_passed": report["run_health"]["passed"],
                     "runtime_contract_passed": report["runtime_contract"]["passed"],
                     "qualification_status": report["qualification"]["status"],

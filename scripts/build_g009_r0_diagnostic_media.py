@@ -21,7 +21,7 @@ SCRIPT_ROOT = Path(__file__).resolve().parent
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
-from record_g009_r0_diagnostic import validate_diagnostic_training_report
+from record_g009_r0_diagnostic import canonical_dynamic_run_name, validate_diagnostic_training_report
 EXPECTED_LOCAL_NAME = "g009_5_r0_diag_rev9_01_prone_s42.mp4"
 EXPECTED_LOCAL_PARENT = PureWindowsPath("%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic")
 DEFAULT_CAPTURE = REPO_ROOT / "reports/runs/g009_r0_diag_rev9_01_prone_capture_s42.json"
@@ -35,7 +35,6 @@ EXPECTED_RECORD_SOURCE = "scripts/record_g009_r0_diagnostic.py"
 EXPECTED_ANALYSIS_SOURCE = "scripts/analyze_g009_r0_pilot.py"
 EXPECTED_CONFIG_SOURCE = "configs/g009_r0.json"
 OUTPUT_STEM_PATTERN = re.compile(r"^g009_5_r0_diag_rev[0-9]+_gate(?:01|10|50)_01_prone$")
-RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 MAX_PUBLIC_MEDIA_BYTES = 10 * 1024 * 1024
 GIF_SIGNATURES = (b"GIF87a", b"GIF89a")
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
@@ -124,8 +123,10 @@ def validate_fixed_paths(args: argparse.Namespace) -> None:
         assert isinstance(expected_run_name, str)
         _require(OUTPUT_STEM_PATTERN.fullmatch(output_stem) is not None, "output stem is not canonical")
         _require(output_stem == f"g009_5_r0_diag_{revision}_{gate_label}_01_prone", "output stem revision/gate mismatch")
-        _require(RUN_NAME_PATTERN.fullmatch(expected_run_name) is not None, "expected run name is not canonical")
-        _require(f"_{revision}_" in f"_{expected_run_name}_" and f"_{gate_label}_" in f"_{expected_run_name}_", "expected run name revision/gate mismatch")
+        _require(
+            canonical_dynamic_run_name(revision, gate_label, expected_run_name),
+            "expected run name revision/gate mismatch: identity is not canonical",
+        )
     expected = expected_paths(output_stem)
     mismatches = [name for name, path in expected.items() if Path(getattr(args, name)).resolve() != path.resolve()]
     _require(not mismatches, "diagnostic media paths are fixed: " + ", ".join(mismatches))

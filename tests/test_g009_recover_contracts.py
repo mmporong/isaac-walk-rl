@@ -154,7 +154,7 @@ def test_r0_reward_and_ppo_contract_match_the_frozen_document_revision() -> None
 
 def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     contract = recover_contract()
-    assert contract["contract_id"] == "g009_r0_recover_rev10"
+    assert contract["contract_id"] == "g009_r0_recover_rev11"
     assert contract["timing"] == {
         "physics_dt_s": 0.005,
         "control_decimation": 4,
@@ -178,8 +178,11 @@ def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
         "left_hip": 0.1,
         "right_hip": -0.1,
         "thigh": 1.5,
-        "calf": -2.4,
+        "calf": -2.37,
     }
+    assert contract["reset"]["action_envelope_requirement"] == (
+        "every folded reset joint target must be reachable without normalized-action saturation"
+    )
     assert contract["materials"]["effective_foot_ground_friction"]["missing_value_policy"] == "fail_closed"
     assert contract["action"]["normalized_clip"] == [-1.0, 1.0]
     assert contract["action"]["type"] == "EMAJointPositionToLimitsAction"

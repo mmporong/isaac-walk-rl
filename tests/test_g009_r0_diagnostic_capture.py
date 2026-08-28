@@ -91,9 +91,10 @@ def _install_dynamic_fixture(
     monkeypatch: pytest.MonkeyPatch,
     gate_label: str,
     iterations: int,
+    revision: str = "rev10",
 ) -> tuple[Path, Path, dict, str]:
     commit = "a" * 40
-    run_name = f"go2_flat_recover_rev10_prone_{gate_label}_s42_fixture"
+    run_name = f"go2_flat_recover_{revision}_prone_{gate_label}_s42_fixture"
     files: dict[str, str] = {}
     for relative in diagnostic.REQUIRED_SOURCE_BUNDLE_PATHS:
         source = tmp_path / relative
@@ -295,6 +296,60 @@ def test_each_rev10_gate_accepts_its_exact_iteration_and_checkpoint(
         expected_run_name=run_name,
     )
     assert binding["protocol"]["max_iterations"] == iterations
+
+
+@pytest.mark.parametrize(("gate_label", "iterations"), [("gate01", 1), ("gate10", 10), ("gate50", 50)])
+def test_each_rev11_gate_accepts_its_exact_identity_and_checkpoint(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    gate_label: str,
+    iterations: int,
+) -> None:
+    report_path, checkpoint, _, run_name = _install_dynamic_fixture(
+        tmp_path, monkeypatch, gate_label, iterations, revision="rev11"
+    )
+    stem = f"g009_5_r0_diag_rev11_{gate_label}_01_prone"
+    binding = diagnostic.validate_diagnostic_training_report(
+        report_path,
+        checkpoint,
+        revision="rev11",
+        gate_label=gate_label,
+        output_stem=stem,
+        expected_run_name=run_name,
+    )
+    assert binding["run_name"] == run_name
+    assert binding["protocol"]["max_iterations"] == iterations
+    assert binding["checkpoint_sha256"] == diagnostic.file_sha256(checkpoint)
+
+
+@pytest.mark.parametrize(
+    "run_name",
+    [
+        "prefix_go2_flat_recover_rev11_prone_gate01_s42_fixture",
+        "go2_flat_recover_rev11_prone_gate01_s42_fixture_suffix/escape",
+        "go2_flat_recover_rev11_prone_gate01_s42_",
+    ],
+)
+def test_rev11_gate_rejects_noncanonical_run_name(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    run_name: str,
+) -> None:
+    report_path, checkpoint, report, _ = _install_dynamic_fixture(
+        tmp_path, monkeypatch, "gate01", 1, revision="rev11"
+    )
+    report["run_name"] = run_name
+    bad_path = report_path.parent / f"{run_name.replace('/', '-')}.json"
+    bad_path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ValueError, match="identity is not canonical"):
+        diagnostic.validate_diagnostic_training_report(
+            bad_path,
+            checkpoint,
+            revision="rev11",
+            gate_label="gate01",
+            output_stem="g009_5_r0_diag_rev11_gate01_01_prone",
+            expected_run_name=run_name,
+        )
 
 
 @pytest.mark.parametrize(
