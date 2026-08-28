@@ -5,8 +5,8 @@
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0·S0 완료, G009-5 R0 계약·actor/critic 경계·GPU/CPU runtime calibration 완료
-- 현재 한계: R0 진단 학습 rev1~rev8은 엄격 성공 `0`이라 모두 기각. rev9 scratch pilot과 공식 pose별 평가는 아직 실행 전
+- 현재 단계: C0·S0 완료, G009-5 R0 rev9 prone scratch pilot과 GPU/CPU runtime calibration 완료
+- 현재 한계: rev9에서 stable support·upright hold 신호는 나타났지만 엄격 성공은 `0`이고 hard-joint-limit이 50개 기록 중 23개에서 발생했다. rev9 checkpoint는 기각했으며 rev10 안전 revision과 공식 pose별 평가는 아직 실행 전
 
 ## 작업 순번
 
@@ -18,7 +18,7 @@
 | `G009-2` | `S0` | 6개 경사 × 4개 방위 analytic gate | `24/24` 통과 |
 | `G009-3` | `S0` | collision mesh, material, support-normal reset의 Isaac runtime readback | 완료 |
 | `G009-4` | `S0` | 5°·15°·25° 동일 조건 headless 재생 | 완료, 25°는 실패 경계 |
-| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | 계약·runtime PASS, rev9 scratch pilot 대기 |
+| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | rev9 prone pilot 진단 완료·안전 gate 실패, rev10 준비 |
 | `G009-6` | `S1-low` | 5°·10° 횡경사 WALK PPO | R0·calibration 뒤 실행 |
 
 이후 `S1-high`, 외란, residual terrain, 발별·공간 마찰, 경사 RECOVER와 link-mass를 순차적으로 연다. 전체 stage 순서는 [다음 학습과 검증 순서](#다음-학습과-검증-순서)에 있다.
@@ -508,9 +508,29 @@ rev1~rev8 report는 당시 dirty working tree에서 생성돼 `source_bundle.mat
 | rev6 | `64×1`, `1024×1` | 1,024환경 hard-limit `0.0417` | 확률적 한계 노출 |
 | rev7 | `1024×1`, `1024×50` | stress hard-limit `0`, 50회 success/support/hold `0`, final reward `-1.0981` | sparse signal로 기각 |
 | rev8 | `1024×50` | EMA alpha `0.1`, success/support/hold `0`, final reward `-0.1903` | 덜 움직여 손실만 감소, 기각 |
-| rev9 | 신규 scratch 계약 | soft-stand potential, 상태 게이트 규제, prone-first curriculum | 1,024×50 pilot 대기 |
+| rev9 | `1024×50` prone pilot | support/hold 각각 21개 scalar에서 nonzero, strict success `0`, hard-limit 23/50, 마지막 step curriculum 누출 | 부분 신호 확인·안전 gate 실패로 기각 |
 
-rev9는 rev8 checkpoint를 이어 쓰지 않는다. rev8의 reward 개선처럼 보이는 수치는 복구 향상이 아니라 action smoothing으로 움직임과 페널티가 함께 줄어든 결과이므로 성공 근거로 사용하지 않는다.
+rev9는 rev8 checkpoint를 이어 쓰지 않았다. rev8의 reward 개선처럼 보이는 수치는 복구 향상이 아니라 action smoothing으로 움직임과 페널티가 함께 줄어든 결과이므로 성공 근거로 사용하지 않는다.
+
+### rev9 prone pilot 결과
+
+rev9는 clean source에서 `1,024 env × 24 steps × 50 iterations`, seed `42`를 scratch로 실행했다. 총 transition은 `1,228,800`, optimizer mini-batch update는 `1,000회`다. 실행 시간은 `115.616초`, 평균/중앙 처리량은 `12,895.5/13,018 steps/s`, peak VRAM은 `4,376 MiB`였다. 학습 source commit은 `030d6b4471848f538a28a8649e2d5b4e615df568`, source bundle SHA-256은 `45a1b4cc9ccf73b8dedd63d69ab8e8163addb5b6cb0297daa89861a9a72abd55`다. 생성한 `model_49.pt`의 SHA-256은 `18e87baf43351d5e36aae5cabc608666099e7460a20d2606610607bfc35b3bf1`이다.
+
+| 관측 | rev9 결과 | 해석 |
+| --- | ---: | --- |
+| 최종 mean reward | `0.3024127` | reward 상승만으로 복구 성공을 판정하지 않음 |
+| `stable_support` | 50개 중 `21`개 scalar nonzero, 최대 `0.0001432292` | strict-stable 영역에 일부 trajectory가 진입 |
+| `upright_hold` | 50개 중 `21`개 scalar nonzero, 최대 `0.001417420` | 순간적인 upright 유지 경험이 생김 |
+| `stable_success_once` | 전 구간 `0` | 0.5초 연속 엄격 성공은 발견하지 못함 |
+| `numeric_invalid` | 전 구간 `0` | 수치 폭주는 없음 |
+| `hard_joint_limit` | 50개 중 `23`개 scalar nonzero, 최대 `0.4583333` | qualification 안전 조건 위반 |
+| policy mean noise std | `0.5017449 → 0.5398955` | 탐색 분산이 학습 중 증가 |
+
+마지막 10 iteration에서는 stable support와 upright hold가 각각 8회 nonzero였지만 strict success는 10회 모두 `0`이었다. partial recovery signal은 확인했으나 hard-limit 최대값이 `0`이어야 한다는 안전 gate를 통과하지 못했으므로 300-iteration qualification은 열지 않는다.
+
+또한 50회 pilot의 마지막 rollout에서 pose curriculum 경계가 한 control step 먼저 열렸다. 마지막 scalar가 prone `0.9791667`, left/right `0.0104167`로 기록됐다. 이는 `<1,200 step` 경계에서 정확히 1,200번째 step이 다음 phase로 넘어간 결과다. rev10에서는 50회 안전 pilot 전체가 prone `1.0`이 되도록 경계를 수정하고 이전 checkpoint를 resume하지 않는다.
+
+근거: [rev9 학습 보고서](../reports/runs/go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json)
 
 ### actor/critic, action, 성공 gate
 
@@ -589,7 +609,7 @@ cd "$HOME\isaac-walk-rl"
 
 ### 4. R0 계약·보상·runtime 검사
 
-rev9 구현 뒤 G009 순수 Python 검사에서 `172 passed`, Isaac 번들 Python의 RECOVER 구성 검사에서 `6 passed`, 기존 G009 구성 diff에서 `7 passed`를 확인했다. 할인 잠재 보상의 episode telescope, success one-shot latch, actor privilege 경계, pose curriculum, source-bundle provenance, 평가·미디어 fail-closed 계약, qualification 실행 조건을 포함한다.
+rev9 구현 뒤 G009 순수 Python 검사에서 `172 passed`, Isaac 번들 Python의 RECOVER 구성 검사에서 `6 passed`, 기존 G009 구성 diff에서 `7 passed`를 확인했다. 할인 잠재 보상의 episode telescope, success one-shot latch, actor privilege 경계, pose curriculum, source-bundle provenance, 평가·미디어 fail-closed 계약, qualification 실행 조건을 포함한다. rev9 pilot은 실행 자체와 provenance는 통과했지만 학습 안전 gate는 실패했다.
 
 runtime 근거:
 
@@ -598,7 +618,7 @@ runtime 근거:
 - [CPU runtime probe](../reports/runs/g009_r0_runtime_probe_cpu.json)
 - [GPU/CPU synthesis](../reports/runs/g009_r0_runtime_probe_synthesis.json)
 
-세 report가 모두 같은 계약 SHA를 가리키며 `runtime_calibration_passed=true`다. 학습된 checkpoint 평가는 아직 실행 전이므로 `learned_policy_qualified=false`다.
+세 report가 모두 같은 계약 SHA를 가리키며 `runtime_calibration_passed=true`다. rev9 학습 checkpoint는 생성됐지만 안전 gate 실패로 기각했으므로 `learned_policy_qualified=false`다.
 
 ### 5. S0 headless off-screen 재생
 
@@ -648,31 +668,33 @@ S0의 parent는 기존 friction S1 checkpoint다.
 
 이 checkpoint는 G009 경사에서 새로 학습한 정책이 아니다. 경사 WALK 성공, RECOVER 성공, 비대칭 마찰 복구 능력을 증명하지 않는다. G008에서도 불규칙 도로 추가 PPO가 기존 정책보다 좋아지지 않아 새 checkpoint를 기각한 기록이 있다. 자세한 근거는 [G008 불규칙 도로·공간 마찰 강화학습](G008_IRREGULAR_ROAD.md)과 [G008 시각 증거](G008_VISUAL_EVIDENCE.md)에 있다.
 
-G009 R0에서는 scratch PPO smoke와 50회 진단 pilot을 실제로 실행했다. 다만 rev1~rev8은 strict success 신호가 0이어서 전부 기각했다. 따라서 현재 정확한 표현은 “강화학습 파이프라인과 실패 원인 진단을 수행했고 rev9를 준비했다”이며, “자가복구를 학습했다”는 표현은 qualification gate를 통과한 뒤에만 사용한다.
+G009 R0에서는 scratch PPO smoke와 50회 진단 pilot을 실제로 실행했다. rev1~rev8은 strict success 신호가 0이어서 전부 기각했고, rev9는 support/hold 신호를 처음 확인했지만 strict success `0`과 hard-limit 23/50 때문에 기각했다. 따라서 현재 정확한 표현은 “강화학습으로 복구 동작의 부분 신호를 찾고 안전 실패 원인을 분리했다”이며, “자가복구를 학습했다”는 표현은 qualification gate를 통과한 뒤에만 사용한다.
 
 ## 다음 학습과 검증 순서
 
 한 번에 경사·요철·마찰·외란·전복을 모두 섞지 않는다. 아래 순서를 지켜 새 물리 축을 하나씩 연다.
 
-1. **R0 rev9 pilot**: prone 100%로 `1,024 env × 24 steps × 50 iterations`, seed 42를 scratch에서 실행한다. 마지막 10 iteration에 stable support·upright hold·strict success 중 실제 회복 신호가 나타나고 numeric-invalid가 0인 경우에만 qualification을 연다.
-2. **R0 qualification**: Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 새 scratch lineage로 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
-3. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
-4. **S1-low WALK**: `5/10°` contour-left/right를 G008 WALK parent에서 seed별 독립 lineage로 학습한다.
-5. **S1-high WALK**: `15/20°`를 순차적으로 연다. `25°`는 stress로 유지한다.
-6. **D0A/D0B/D0C**: G006 exact 회귀, G009 0도 transfer, 통과한 경사별 delta-velocity를 분리한다.
-7. **D1 external wrench**: 힘·시간·충격량 pulse를 mild에서 strong 순서로 추가한다.
-8. **S2 residual height**: nominal friction에서 base slope에 G008 도로 residual만 더한다.
-9. **S3-controlled**: 발별 비대칭 마찰을 통제한다.
-10. **S3-spatial**: 비주기 공간 마찰 mosaic로 옮긴다.
-11. **F0A와 R0B**: 실제 WALK 낙상 snapshot을 수집하고 curated/replay `50/50` reset으로 RECOVER를 다시 학습한다.
-12. **R1/R2**: 낮은 경사, 높은 경사 self-righting을 차례로 연다.
-13. **R3-controlled/R3-spatial**: controlled 마찰 뒤 spatial 마찰 복구를 연다.
-14. **D2**: 외란이 만든 live fall을 RECOVER로 넘겨 `push -> fall -> recover -> stand -> command resume`를 평가한다.
-15. **F0B-TV와 R4**: training/validation natural-fall inventory로 최종 bridge를 학습한다.
-16. **I0**: 세 WALK/RECOVER seed pair의 live·snapshot validation을 통과한 뒤 checkpoint, gate, trigger, component SHA를 동결한다.
-17. **F0B-FINAL과 I1**: sealed final-heldout을 처음 열어 한 번만 평가한다.
-18. **D3**: `25°`, physical-limit friction, strong wrench를 결합한 stress 평가를 수행한다.
-19. **M1 link-mass**: G009 final-heldout을 고정한 뒤 hip, thigh, calf, foot 질량·관성을 한 그룹씩 바꾸는 별도 goal로 연다.
+1. **R0 rev9 diagnostic media**: 기각한 prone pilot을 성공 영상과 분리해 로컬 MP4와 `DIAGNOSTIC / NOT QUALIFIED` 표시가 있는 공개 GIF·PNG·정량 JSON으로 남긴다.
+2. **R0 rev10 safety revision**: action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, PPO 초기 noise `0.5`, reward, hard tolerance `0.01rad`는 유지한다. prone phase 경계를 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
+3. **R0 rev10 safety gates**: 새 scratch lineage에서 `1,024×1 → 1,024×10 → 1,024×50` 순서로 실행한다. 각 단계의 `numeric_invalid=0`, `hard_joint_limit=0`을 확인한 뒤에만 다음 단계로 넘어간다. 50회에서는 stable support와 upright hold가 최소 한 번은 nonzero여야 한다.
+4. **R0 qualification**: rev10 안전 gate를 통과한 뒤 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch에서 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
+5. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
+6. **S1-low WALK**: `5/10°` contour-left/right를 G008 WALK parent에서 seed별 독립 lineage로 학습한다.
+7. **S1-high WALK**: `15/20°`를 순차적으로 연다. `25°`는 stress로 유지한다.
+8. **D0A/D0B/D0C**: G006 exact 회귀, G009 0도 transfer, 통과한 경사별 delta-velocity를 분리한다.
+9. **D1 external wrench**: 힘·시간·충격량 pulse를 mild에서 strong 순서로 추가한다.
+10. **S2 residual height**: nominal friction에서 base slope에 G008 도로 residual만 더한다.
+11. **S3-controlled**: 발별 비대칭 마찰을 통제한다.
+12. **S3-spatial**: 비주기 공간 마찰 mosaic로 옮긴다.
+13. **F0A와 R0B**: 실제 WALK 낙상 snapshot을 수집하고 curated/replay `50/50` reset으로 RECOVER를 다시 학습한다.
+14. **R1/R2**: 낮은 경사, 높은 경사 self-righting을 차례로 연다.
+15. **R3-controlled/R3-spatial**: controlled 마찰 뒤 spatial 마찰 복구를 연다.
+16. **D2**: 외란이 만든 live fall을 RECOVER로 넘겨 `push -> fall -> recover -> stand -> command resume`를 평가한다.
+17. **F0B-TV와 R4**: training/validation natural-fall inventory로 최종 bridge를 학습한다.
+18. **I0**: 세 WALK/RECOVER seed pair의 live·snapshot validation을 통과한 뒤 checkpoint, gate, trigger, component SHA를 동결한다.
+19. **F0B-FINAL과 I1**: sealed final-heldout을 처음 열어 한 번만 평가한다.
+20. **D3**: `25°`, physical-limit friction, strong wrench를 결합한 stress 평가를 수행한다.
+21. **M1 link-mass**: G009 final-heldout을 고정한 뒤 hip, thigh, calf, foot 질량·관성을 한 그룹씩 바꾸는 별도 goal로 연다.
 
 각 stage는 새 평가 JSON과 미디어 세트를 가져야 한다. 한 방향, 한 자세, 한 friction pattern의 blocking cell이 실패하면 평균 성능이 높아도 다음 stage를 열지 않는다.
 

@@ -255,10 +255,23 @@ pose curriculum clock은 `env.common_step_counter`이며 PPO iteration당 `24` c
 
 #### 다음 실행과 qualification gate
 
-1. 먼저 rev9를 `1,024 env × 50 iterations × seed 42`로 scratch pilot한다. 총 rollout transition은 `1,024 × 24 × 50 = 1,228,800`, optimizer update는 `50 × 20 = 1,000`이다.
-2. pilot 마지막 10 iteration에서 `stable_support`, `upright_hold`, `stable_success_once` 중 최소 한 신호가 `0`보다 크고, numeric-invalid는 `0`, hard-limit 안전 지표는 공식 조건을 만족하는지 확인한다. 이 gate가 실패하면 300-iteration run으로 늘리지 않고 reward·reset·exploration 가설을 새 revision으로 분리한다.
-3. pilot gate를 통과한 revision만 `1,024 env × 300 iterations × seed 42` scratch qualification으로 실행한다. 총 transition은 `7,372,800`, optimizer update는 `6,000`이다. qualification은 clean source commit, canonical entrypoint, 계약에 등록한 source binding, resume 금지, Hydra override 금지, 정확한 budget을 모두 요구한다.
-4. 학습 보고서의 `numeric_invalid`와 `hard_joint_limit` reset-batch count 최대값이 모두 `0`이어야 한다. 이후 deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.
+rev9 prone pilot은 clean source에서 `1,024 env × 50 iterations × seed 42`로 scratch 실행했다. 총 rollout transition은 `1,228,800`, optimizer update는 `1,000`, wall time은 `115.616초`, 평균/중앙 처리량은 `12,895.5/13,018 steps/s`, peak VRAM은 `4,376 MiB`다. 최종 mean reward는 `0.3024127`, final episode length는 `400`이었다.
+
+- stable support와 upright hold는 각각 50개 scalar 중 `21`개에서 nonzero였고 마지막 10개에서는 각각 `8`개가 nonzero였다.
+- strict `stable_success_once`는 50개 전부 `0`이었다.
+- numeric-invalid는 전 구간 `0`이지만 hard-joint-limit은 50개 중 `23`개에서 nonzero, 최대 `0.4583333`이었다.
+- 마지막 rollout에서 prone `0.9791667`, left/right `0.0104167`이 기록돼 `<1,200` curriculum 경계의 one-step leak을 확인했다.
+- source commit은 `030d6b4471848f538a28a8649e2d5b4e615df568`, source bundle은 `45a1b4cc9ccf73b8dedd63d69ab8e8163addb5b6cb0297daa89861a9a72abd55`, checkpoint SHA-256은 `18e87baf43351d5e36aae5cabc608666099e7460a20d2606610607bfc35b3bf1`이다.
+
+근거는 [rev9 prone pilot report](reports/runs/go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json)다. partial recovery signal은 확인했지만 strict success와 안전 gate를 통과하지 못했으므로 rev9 checkpoint를 기각하며 300-iteration qualification으로 확장하지 않는다.
+
+다음 revision은 rev9를 resume하지 않고 scratch로 시작한다.
+
+1. rev9 checkpoint 동작을 diagnostic-only 로컬 MP4와 `NOT QUALIFIED` 오버레이가 있는 공개 GIF·PNG·JSON으로 고정한다.
+2. rev10에서 action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, 초기 noise `0.5`, reward, hard tolerance는 유지한다. curriculum 경계를 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
+3. `1,024×1 → 1,024×10 → 1,024×50` scratch 안전 gate를 순서대로 실행한다. 각 단계에서 numeric-invalid와 hard-joint-limit 최대값이 모두 `0`이어야 다음 단계로 간다.
+4. 50회 안전 pilot은 stable support와 upright hold가 최소 한 번은 nonzero여야 한다. 통과한 revision만 `1,024×300`, seed 42 scratch qualification으로 연다.
+5. deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.
 
 #### 단계별 영상·공개 정책
 
