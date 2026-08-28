@@ -12,6 +12,7 @@ import hashlib
 import json
 import math
 import re
+import struct
 import subprocess
 import sys
 import uuid
@@ -38,6 +39,7 @@ PHYSICS_DT_S = 0.005
 CONTROL_DECIMATION = 4
 VELOCITY_SOLVER_ITERATIONS = 0
 MAX_DEPENETRATION_VELOCITY_M_S = 1.0
+CALLBACK_DT_ABS_TOLERANCE_S = 2.5e-10
 ARM_POSITION_ITERATIONS = {"A": 8, "B": 16}
 HISTORICAL_REFERENCES = {
     "A": {
@@ -277,31 +279,92 @@ def _vector3(value: Any) -> list[float] | None:
     return result if all(math.isfinite(item) for item in result) else None
 
 
-class PhysicsStepClock:
-    """Authoritative physics-step counter driven by the pre-step callback."""
+def _float32(value: float) -> float:
+    return struct.unpack("f", struct.pack("f", value))[0]
 
-    def __init__(self, expected_dt_s: float = PHYSICS_DT_S) -> None:
-        self.expected_dt_s = expected_dt_s
+
+class PhysicsStepClock:
+    """Count pre-step notifications and audit their C++ float32 dt values."""
+
+    def __init__(self, contract_expected_dt_s: float) -> None:
+        require(
+            math.isfinite(contract_expected_dt_s) and contract_expected_dt_s > 0.0,
+            "physics dt contract must be finite and positive",
+        )
+        self.contract_expected_dt_s = float(contract_expected_dt_s)
+        self.callback_expected_float32_dt_s = _float32(self.contract_expected_dt_s)
+        self.callback_dt_abs_tolerance_s = CALLBACK_DT_ABS_TOLERANCE_S
         self.current_step = 0
         self.dt_mismatch_count = 0
+        self.nonfinite_count = 0
+        self.observed_dt_min_s: float | None = None
+        self.observed_dt_max_s: float | None = None
+        self.max_abs_error_s = 0.0
+        self.first_mismatch: dict[str, Any] | None = None
 
     def __call__(self, dt_s: float) -> None:
         self.current_step += 1
-        if not math.isfinite(float(dt_s)) or not math.isclose(
-            float(dt_s), self.expected_dt_s, rel_tol=0.0, abs_tol=1.0e-12
-        ):
+        observed = float(dt_s)
+        if not math.isfinite(observed):
+            self.nonfinite_count += 1
             self.dt_mismatch_count += 1
+            if self.first_mismatch is None:
+                self.first_mismatch = {
+                    "callback_index": self.current_step,
+                    "observed_dt_s": None,
+                    "abs_error_s": None,
+                    "reason": "nonfinite",
+                }
+            return
+        self.observed_dt_min_s = (
+            observed
+            if self.observed_dt_min_s is None
+            else min(self.observed_dt_min_s, observed)
+        )
+        self.observed_dt_max_s = (
+            observed
+            if self.observed_dt_max_s is None
+            else max(self.observed_dt_max_s, observed)
+        )
+        error = abs(observed - self.callback_expected_float32_dt_s)
+        self.max_abs_error_s = max(self.max_abs_error_s, error)
+        if error > self.callback_dt_abs_tolerance_s:
+            self.dt_mismatch_count += 1
+            if self.first_mismatch is None:
+                self.first_mismatch = {
+                    "callback_index": self.current_step,
+                    "observed_dt_s": observed,
+                    "abs_error_s": error,
+                    "reason": "outside_float32_boundary_tolerance",
+                }
 
     def snapshot(self) -> dict[str, Any]:
         return {
             "source": "subscribe_physics_on_step_events(pre_step=true,order=0)",
-            "current_step": self.current_step,
-            "expected_steps": ROLLOUT_STEPS * CONTROL_DECIMATION,
-            "expected_dt_s": self.expected_dt_s,
-            "dt_mismatch_count": self.dt_mismatch_count,
+            "evidence_kind": "pre_step_notification_count",
+            "contract_expected_dt_s": self.contract_expected_dt_s,
+            "callback_expected_float32_dt_s": self.callback_expected_float32_dt_s,
+            "callback_dt_abs_tolerance_s": self.callback_dt_abs_tolerance_s,
+            "observed_dt_min_s": self.observed_dt_min_s,
+            "observed_dt_max_s": self.observed_dt_max_s,
+            "max_abs_error_s": self.max_abs_error_s,
+            "mismatch_count": self.dt_mismatch_count,
+            "nonfinite_count": self.nonfinite_count,
+            "first_mismatch": self.first_mismatch,
+            "callback_count": self.current_step,
+            "expected_callback_count": ROLLOUT_STEPS * CONTROL_DECIMATION,
             "passed": self.current_step == ROLLOUT_STEPS * CONTROL_DECIMATION
-            and self.dt_mismatch_count == 0,
+            and self.dt_mismatch_count == 0
+            and self.nonfinite_count == 0,
         }
+
+
+class PhysicsStepClockEvidenceError(RuntimeError):
+    """Carry partial clock evidence into the fail-closed report."""
+
+    def __init__(self, evidence: dict[str, Any]) -> None:
+        super().__init__("physics pre-step notification clock validation failed")
+        self.evidence = evidence
 
 
 def _contact_event_name(value: Any, contact_event_types: Any | None) -> str:
@@ -787,6 +850,7 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
     )
     timing = report.get("telemetry_timing")
     require(isinstance(timing, dict), "telemetry timing is required")
+    timing = cast(dict[str, Any], timing)
     require(
         timing
         == {
@@ -1032,6 +1096,155 @@ def validate_control_telemetry(report: dict[str, Any]) -> None:
             and all(type(value) is bool for value in flags.values()),
             "control termination flags mismatch",
         )
+
+
+def validate_physics_step_clock(report: dict[str, Any]) -> None:
+    clock = report.get("physics_step_clock")
+    require(isinstance(clock, dict), "physics step clock evidence is required")
+    clock = cast(dict[str, Any], clock)
+    require(
+        set(clock)
+        == {
+            "source",
+            "evidence_kind",
+            "contract_expected_dt_s",
+            "callback_expected_float32_dt_s",
+            "callback_dt_abs_tolerance_s",
+            "observed_dt_min_s",
+            "observed_dt_max_s",
+            "max_abs_error_s",
+            "mismatch_count",
+            "nonfinite_count",
+            "first_mismatch",
+            "callback_count",
+            "expected_callback_count",
+            "passed",
+        },
+        "physics step clock keys mismatch",
+    )
+    require(
+        clock["source"] == "subscribe_physics_on_step_events(pre_step=true,order=0)"
+        and clock["evidence_kind"] == "pre_step_notification_count",
+        "physics step clock authority naming mismatch",
+    )
+    contract_dt = _finite_number(clock["contract_expected_dt_s"], "clock contract dt")
+    _close(contract_dt, PHYSICS_DT_S, "clock contract dt", 1.0e-12)
+    timing = report.get("telemetry_timing")
+    require(isinstance(timing, dict), "telemetry timing is required")
+    timing = cast(dict[str, Any], timing)
+    _close(
+        contract_dt,
+        _finite_number(timing.get("physics_dt_s"), "telemetry physics dt"),
+        "clock/telemetry physics dt",
+        1.0e-12,
+    )
+    callback_expected = _finite_number(
+        clock["callback_expected_float32_dt_s"], "clock callback float32 dt"
+    )
+    _close(
+        callback_expected,
+        _float32(contract_dt),
+        "clock callback float32 dt",
+        0.0,
+    )
+    tolerance = _finite_number(
+        clock["callback_dt_abs_tolerance_s"], "clock callback dt tolerance"
+    )
+    _close(tolerance, CALLBACK_DT_ABS_TOLERANCE_S, "clock callback dt tolerance", 0.0)
+    require(tolerance > 0.0, "clock callback dt tolerance must be positive")
+    callback_count = clock["callback_count"]
+    expected_count = clock["expected_callback_count"]
+    mismatch_count = clock["mismatch_count"]
+    nonfinite_count = clock["nonfinite_count"]
+    require(
+        type(callback_count) is int
+        and type(expected_count) is int
+        and type(mismatch_count) is int
+        and type(nonfinite_count) is int
+        and callback_count >= 0
+        and expected_count == ROLLOUT_STEPS * CONTROL_DECIMATION
+        and 0 <= nonfinite_count <= mismatch_count <= callback_count,
+        "physics step clock count types or ranges mismatch",
+    )
+    observed_min = clock["observed_dt_min_s"]
+    observed_max = clock["observed_dt_max_s"]
+    finite_callback_count = callback_count - nonfinite_count
+    if finite_callback_count > 0:
+        observed_min = _finite_number(observed_min, "observed callback dt min")
+        observed_max = _finite_number(observed_max, "observed callback dt max")
+        require(
+            observed_min > 0.0 and observed_min <= observed_max,
+            "observed callback dt range mismatch",
+        )
+        derived_max_error = max(
+            abs(observed_min - callback_expected),
+            abs(observed_max - callback_expected),
+        )
+    else:
+        require(
+            observed_min is None and observed_max is None,
+            "empty callback dt range must be null",
+        )
+        derived_max_error = 0.0
+    max_error = _finite_number(clock["max_abs_error_s"], "clock max dt error")
+    require(max_error >= 0.0, "clock max dt error must be nonnegative")
+    _close(max_error, derived_max_error, "clock max dt error", 1.0e-18)
+    first_mismatch = clock["first_mismatch"]
+    if mismatch_count == 0:
+        require(
+            first_mismatch is None and nonfinite_count == 0 and max_error <= tolerance,
+            "zero-mismatch clock evidence is inconsistent",
+        )
+    else:
+        require(
+            isinstance(first_mismatch, dict)
+            and set(first_mismatch)
+            == {"callback_index", "observed_dt_s", "abs_error_s", "reason"}
+            and type(first_mismatch.get("callback_index")) is int
+            and 1 <= first_mismatch["callback_index"] <= callback_count
+            and first_mismatch.get("reason")
+            in {"nonfinite", "outside_float32_boundary_tolerance"},
+            "first clock mismatch evidence is invalid",
+        )
+        if first_mismatch["reason"] == "nonfinite":
+            require(
+                first_mismatch["observed_dt_s"] is None
+                and first_mismatch["abs_error_s"] is None
+                and nonfinite_count > 0,
+                "nonfinite clock mismatch evidence is invalid",
+            )
+        else:
+            mismatch_observed = _finite_number(
+                first_mismatch["observed_dt_s"], "first mismatch observed dt"
+            )
+            mismatch_error = _finite_number(
+                first_mismatch["abs_error_s"], "first mismatch dt error"
+            )
+            _close(
+                mismatch_error,
+                abs(mismatch_observed - callback_expected),
+                "first mismatch dt error",
+                1.0e-18,
+            )
+            require(
+                mismatch_error > tolerance,
+                "first mismatch must exceed callback dt tolerance",
+            )
+    derived_passed = (
+        callback_count == expected_count
+        and mismatch_count == 0
+        and nonfinite_count == 0
+        and finite_callback_count == callback_count
+        and max_error <= tolerance
+    )
+    require(
+        type(clock["passed"]) is bool and clock["passed"] is derived_passed,
+        "physics step clock passed derivation mismatch",
+    )
+    require(
+        derived_passed,
+        "physics step clock must prove exactly 600 pre-step notifications",
+    )
 
 
 def validate_contact_authority(report: dict[str, Any]) -> None:
@@ -1693,20 +1906,7 @@ def validate_report_contract(report: dict[str, Any]) -> None:
         validate_physics_telemetry(report)
         validate_control_telemetry(report)
         validate_historical_runtime_summary(report)
-        clock = report.get("physics_step_clock")
-        require(
-            isinstance(clock, dict)
-            and clock
-            == {
-                "source": "subscribe_physics_on_step_events(pre_step=true,order=0)",
-                "current_step": 600,
-                "expected_steps": 600,
-                "expected_dt_s": PHYSICS_DT_S,
-                "dt_mismatch_count": 0,
-                "passed": True,
-            },
-            "physics step clock must prove exactly 600 pre-step callbacks",
-        )
+        validate_physics_step_clock(report)
         require(
             report.get("safety_termination_counts")
             == {"numeric_invalid": 0, "hard_joint_limit": 0},
@@ -1811,7 +2011,13 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         expected_articulation_count=NUM_ENVS,
         expected_body_names=list(robot.body_names),
     )
-    physics_clock = PhysicsStepClock()
+    require(
+        math.isclose(
+            float(raw_env.physics_dt), PHYSICS_DT_S, rel_tol=0.0, abs_tol=1.0e-12
+        ),
+        "runtime physics dt contract changed",
+    )
+    physics_clock = PhysicsStepClock(float(raw_env.physics_dt))
     authority = CpuContactAuthorityAccumulator(
         SOURCE_ENV_INDEX,
         NUM_ENVS,
@@ -1981,10 +2187,8 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
             )
         contact_authority = authority.snapshot(args.device)
         clock_snapshot = physics_clock.snapshot()
-        require(
-            clock_snapshot["passed"] is True,
-            f"physics pre-step clock incomplete: {clock_snapshot}",
-        )
+        if clock_snapshot["passed"] is not True:
+            raise PhysicsStepClockEvidenceError(clock_snapshot)
         if normalized_device == "cpu":
             require(
                 contact_authority["error"] is None,
@@ -2176,6 +2380,9 @@ def failure_envelope(
             "clean": False,
             "error": f"{type(envelope_error).__name__}: {envelope_error}",
         }
+    clock_evidence = (
+        error.evidence if isinstance(error, PhysicsStepClockEvidenceError) else None
+    )
     return {
         "schema_version": "g009.r0.rev16.backend_divergence_failure.v1",
         "goal_id": "g009",
@@ -2202,6 +2409,7 @@ def failure_envelope(
         "predecessor_synthesis": None,
         "governance": governance(),
         "diagnostic_capture_complete": False,
+        "physics_step_clock": clock_evidence,
         "error": {"type": type(error).__name__, "message": str(error)},
         "failure_envelope_errors": envelope_errors,
     }

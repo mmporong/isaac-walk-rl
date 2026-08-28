@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import math
 import uuid
 from pathlib import Path
 from types import SimpleNamespace
@@ -195,7 +196,7 @@ def test_cpu_contact_authority_fails_closed_and_gpu_never_claims_it() -> None:
         3: "/World/envs/env_7/Robot/base/collider",
         4: "/World/ground/collider",
     }
-    clock = PROBE.PhysicsStepClock()
+    clock = PROBE.PhysicsStepClock(0.005)
     for _ in range(600):
         clock(0.005)
     accumulator = PROBE.CpuContactAuthorityAccumulator(
@@ -213,7 +214,7 @@ def test_cpu_contact_authority_fails_closed_and_gpu_never_claims_it() -> None:
 
 
 def test_contact_authority_preserves_first_error_and_counts_later_errors() -> None:
-    clock = PROBE.PhysicsStepClock()
+    clock = PROBE.PhysicsStepClock(0.005)
     accumulator = PROBE.CpuContactAuthorityAccumulator(
         7, 8, lambda value: str(value), clock, _EventTypes
     )
@@ -244,7 +245,7 @@ def test_contact_lost_with_zero_data_is_valid_and_stamped_by_physics_clock() -> 
         3: "/World/envs/env_7/Robot/base/collider",
         4: "/World/ground/collider",
     }
-    clock = PROBE.PhysicsStepClock()
+    clock = PROBE.PhysicsStepClock(0.005)
     clock(0.005)
     accumulator = PROBE.CpuContactAuthorityAccumulator(
         7, 8, paths.__getitem__, clock, _EventTypes
@@ -416,6 +417,13 @@ def _zero_control_rows(link_body_names: list[str] | None = None) -> list[dict]:
     ]
 
 
+def _valid_clock_snapshot(dt_s: float = 0.005) -> dict:
+    clock = PROBE.PhysicsStepClock(0.005)
+    for _ in range(600):
+        clock(dt_s)
+    return clock.snapshot()
+
+
 def _complete_report(
     device: str = "cpu",
     arm: str = "A",
@@ -501,14 +509,7 @@ def _complete_report(
             "numeric_invalid",
             "hard_joint_limit",
         ],
-        "physics_step_clock": {
-            "source": "subscribe_physics_on_step_events(pre_step=true,order=0)",
-            "current_step": 600,
-            "expected_steps": 600,
-            "expected_dt_s": 0.005,
-            "dt_mismatch_count": 0,
-            "passed": True,
-        },
+        "physics_step_clock": _valid_clock_snapshot(),
         "safety_termination_counts": {
             "numeric_invalid": 0,
             "hard_joint_limit": 0,
@@ -522,14 +523,7 @@ def _complete_report(
             "subsequent_error_count": 0,
             "passed": True if device == "cpu" else None,
             "callback_event_count": 1 if device == "cpu" else 0,
-            "physics_step_clock": {
-                "source": "subscribe_physics_on_step_events(pre_step=true,order=0)",
-                "current_step": 600,
-                "expected_steps": 600,
-                "expected_dt_s": 0.005,
-                "dt_mismatch_count": 0,
-                "passed": True,
-            },
+            "physics_step_clock": _valid_clock_snapshot(),
             "events": [
                 {
                     "physics_step": 1,
@@ -965,13 +959,93 @@ def test_historical_summary_rejects_reference_fingerprint_mutation() -> None:
         PROBE.validate_report_contract(report)
 
 
+@pytest.mark.parametrize("callback_dt", [0.004999999888241291, 0.005])
+def test_physics_clock_accepts_float32_and_double_contract_values(
+    callback_dt: float,
+) -> None:
+    snapshot = _valid_clock_snapshot(callback_dt)
+
+    assert snapshot["evidence_kind"] == "pre_step_notification_count"
+    assert snapshot["contract_expected_dt_s"] == 0.005
+    assert snapshot["callback_expected_float32_dt_s"] == 0.004999999888241291
+    assert snapshot["callback_dt_abs_tolerance_s"] == 2.5e-10
+    assert snapshot["callback_count"] == 600
+    assert snapshot["mismatch_count"] == 0
+    assert snapshot["nonfinite_count"] == 0
+    assert snapshot["first_mismatch"] is None
+    assert snapshot["passed"] is True
+
+
+@pytest.mark.parametrize("callback_dt", [0.005000000353902578, float("nan")])
+def test_physics_clock_rejects_outside_boundary_and_nonfinite_dt(
+    callback_dt: float,
+) -> None:
+    clock = PROBE.PhysicsStepClock(0.005)
+    for _ in range(600):
+        clock(callback_dt)
+    snapshot = clock.snapshot()
+
+    assert snapshot["mismatch_count"] == 600
+    assert snapshot["nonfinite_count"] == (600 if math.isnan(callback_dt) else 0)
+    assert snapshot["first_mismatch"]["callback_index"] == 1
+    assert snapshot["passed"] is False
+
+
 def test_physics_clock_rejects_callback_count_drift() -> None:
     report = _complete_report()
-    report["physics_step_clock"]["current_step"] = 599
+    report["physics_step_clock"]["callback_count"] = 599
     report["physics_step_clock"]["passed"] = False
 
-    with pytest.raises(ValueError, match="600 pre-step callbacks"):
+    with pytest.raises(ValueError, match="600 pre-step notifications"):
         PROBE.validate_report_contract(report)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("callback_count", True, "count types"),
+        ("mismatch_count", True, "count types"),
+        ("max_abs_error_s", float("nan"), "finite"),
+        ("max_abs_error_s", 1.0e-9, "derivation"),
+    ],
+)
+def test_physics_clock_validator_rejects_type_nonfinite_and_derived_mutations(
+    field: str, value: object, message: str
+) -> None:
+    report = _complete_report()
+    report["physics_step_clock"][field] = value
+
+    with pytest.raises(ValueError, match=message):
+        PROBE.validate_report_contract(report)
+
+
+def test_failure_envelope_keeps_structured_partial_clock_evidence() -> None:
+    clock = PROBE.PhysicsStepClock(0.005)
+    for _ in range(599):
+        clock(0.004999999888241291)
+    evidence = clock.snapshot()
+    args = SimpleNamespace(
+        arm="A",
+        replicate_index=1,
+        headless=True,
+        device="cpu",
+        seed=42,
+        task=PROBE.DEFAULT_TASK,
+    )
+
+    report = PROBE.failure_envelope(
+        args,
+        {"execution_id": "fresh", "no_overwrite": True},
+        PROBE.PhysicsStepClockEvidenceError(evidence),
+    )
+
+    assert report["status"] == "failed_closed"
+    assert report["physics_step_clock"] == evidence
+    assert report["physics_step_clock"]["callback_count"] == 599
+    assert report["error"] == {
+        "type": "PhysicsStepClockEvidenceError",
+        "message": "physics pre-step notification clock validation failed",
+    }
 
 
 def test_contact_event_rejects_callback_stamp_and_lost_data_mutations() -> None:

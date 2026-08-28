@@ -140,14 +140,7 @@ def _report(arm: str, device: str, replicate: int) -> tuple[dict, dict[str, str]
     peak_step, peak_bw, neighbor_bw, speed = group_values[(arm, device)]
     contract = _contract(arm, device)
     path = f"reports/runs/rev16_{arm}_{device.replace(':', '_')}_{replicate}.json"
-    physics_clock = {
-        "source": "subscribe_physics_on_step_events(pre_step=true,order=0)",
-        "current_step": 600,
-        "expected_steps": 600,
-        "expected_dt_s": 0.005,
-        "dt_mismatch_count": 0,
-        "passed": True,
-    }
+    physics_clock = RAW_TEST._valid_clock_snapshot()
     predecessor_requirement = SUMMARY.PREDECESSOR_REQUIREMENTS[(arm, device)]
     predecessor = None
     if predecessor_requirement is not None:
@@ -499,7 +492,7 @@ def test_only_complete_sequential_group_counts_are_allowed(count: int) -> None:
             "readback",
         ),
         (
-            lambda report: report["physics_step_clock"].update(current_step=599),
+            lambda report: report["physics_step_clock"].update(callback_count=599),
             "physics step clock",
         ),
         (

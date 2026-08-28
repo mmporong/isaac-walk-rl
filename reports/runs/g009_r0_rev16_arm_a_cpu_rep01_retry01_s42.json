@@ -1,0 +1,179 @@
+{
+  "schema_version": "g009.r0.rev16.backend_divergence_failure.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev16",
+  "status": "failed_closed",
+  "diagnostic_only": true,
+  "qualification_eligible": false,
+  "replicate_index": 1,
+  "headless": true,
+  "device": "cpu",
+  "runtime_device": null,
+  "seed": 42,
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "num_envs": 8,
+  "rollout_steps": 150,
+  "finished_at_utc": "2026-08-28T17:38:43.837845Z",
+  "execution": {
+    "execution_id": "1480d27e764f4e07bb94f6a5e4ee9e76",
+    "started_at_utc": "2026-08-28T17:38:30.214159Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry01_s42.json",
+    "no_overwrite": true
+  },
+  "contract": {
+    "schema_version": "g009.r0.rev16.backend_divergence_contract.v1",
+    "goal_id": "g009",
+    "stage_id": "R0",
+    "revision": "rev16",
+    "experiment": "cpu_gpu_backend_divergence",
+    "diagnostic_only": true,
+    "qualification_eligible": false,
+    "execution_conditions": {
+      "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+      "seed": 42,
+      "headless": true,
+      "device": "cpu",
+      "runtime_device": "cpu",
+      "num_envs": 8
+    },
+    "training_and_gate_policy": {
+      "ppo_allowed": false,
+      "gate01_allowed": false,
+      "gate10_allowed": false
+    },
+    "arm": {
+      "id": "A",
+      "meaning": "accepted_rev12_solver_baseline",
+      "articulation_solver_position_iteration_count": 8,
+      "articulation_solver_velocity_iteration_count": 0,
+      "max_depenetration_velocity_m_s": 1.0
+    },
+    "historical_reference": {
+      "contract_id": "g009_r0_recover_rev12",
+      "canonical_sha256": "d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0",
+      "role": "accepted_baseline_parameter_reference",
+      "reference_scope": "contract_identity_and_physics_tuple_only",
+      "historical_checkpoint_loaded": false,
+      "historical_training_resumed": false,
+      "current_rev16_execution_is_fresh": true
+    },
+    "controlled_cell": {
+      "num_envs": 8,
+      "source_env_index": 7,
+      "pose_id": "right_side",
+      "action_mode": "reset_pose_hold",
+      "assignment_mode": "stratified",
+      "pose_xy_range_m": [
+        0.0,
+        0.0
+      ],
+      "yaw_range_rad": [
+        0.0,
+        0.0
+      ]
+    },
+    "timing": {
+      "physics_dt_s": 0.005,
+      "control_decimation": 4,
+      "control_dt_s": 0.02,
+      "control_steps": 150,
+      "physics_steps": 600
+    },
+    "required_evidence": {
+      "physics_substeps": [
+        "contact_force_history_slot",
+        "per_body_force_vector_n",
+        "per_body_impulse_vector_n_s",
+        "nonfoot_total_force_n",
+        "nonfoot_impulse_n_s"
+      ],
+      "control_steps": [
+        "root_state_w",
+        "link_state_w",
+        "joint_position_rad",
+        "joint_velocity_rad_s",
+        "applied_torque_nm",
+        "input_action",
+        "raw_action",
+        "processed_ema_target_rad",
+        "ema_previous_before_rad",
+        "ema_previous_after_rad"
+      ],
+      "cpu_authority": [
+        "robot_ground_contact_pair",
+        "contact_position_w_m",
+        "contact_normal",
+        "contact_separation_m"
+      ]
+    }
+  },
+  "contract_sha256": "f463e9e8d18f63fe35081bc099e907ec01a49e91fc43f86e987ba2b6fb455815",
+  "source_bundle": {
+    "schema_version": 1,
+    "git_commit": "085343f8928956fc0351ac1f3e2a4028c1a47040",
+    "git_commit_valid": true,
+    "source_binding_paths": [
+      "configs/g009_r0.json",
+      "scripts/probe_g009_recover_runtime.py",
+      "scripts/probe_g009_r0_rev16_backend_divergence.py",
+      "scripts/summarize_g009_r0_rev16_backend_divergence.py",
+      "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep01_s42.json",
+      "reports/runs/g009_r0_runtime_probe_rev12_gpu_rep01_s42.json",
+      "reports/runs/g009_r0_runtime_probe_rev15_cpu_rep01_s42.json",
+      "reports/runs/g009_r0_runtime_probe_rev15_gpu_rep01_s42.json",
+      "src/isaac_walk_g009/mdp/events.py",
+      "src/isaac_walk_g009/recover_contracts.py",
+      "src/isaac_walk_g009/recover_env_cfg.py",
+      "src/isaac_walk_g009/registry.py"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0.json": "88f9d5e7f7c4025fce4ee921fcee690a771e042a6861ab19975514757b774eb1",
+      "scripts/probe_g009_recover_runtime.py": "48d66ef07da8e38ca1d327363838f5cc352e4de1a355c568bce8322b3dd4d8dd",
+      "scripts/probe_g009_r0_rev16_backend_divergence.py": "db57e8079f8da454aa49859e6a5d88f3e972ac0fc3136ad19a5f675fd32acfee",
+      "scripts/summarize_g009_r0_rev16_backend_divergence.py": "bf9d69b30bbac0d62e2fa01be1d625748147d00519d3a7e8b8127135955849b2",
+      "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep01_s42.json": "fb8bad2190389c3e964d1807a0f54ea700ddfd6919765105c04b93bfa8c7dd75",
+      "reports/runs/g009_r0_runtime_probe_rev12_gpu_rep01_s42.json": "e485a3fcab5d8f8e6a793d30f76fb0a3ce346e27ed89a158409862e3e32414d1",
+      "reports/runs/g009_r0_runtime_probe_rev15_cpu_rep01_s42.json": "426f4fe1085aeddad52c77d98fc74a55907dcc90d7084ebe8b4fde736b60e9d5",
+      "reports/runs/g009_r0_runtime_probe_rev15_gpu_rep01_s42.json": "e24674a1ed33c38fbe5f12d19dc068167b9787e75323efbe55629bf059839b91",
+      "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+      "src/isaac_walk_g009/recover_contracts.py": "a55dddd8d245d06b20c3cd943c6f8d53949657b229bb63cfdcdea7eb0a787546",
+      "src/isaac_walk_g009/recover_env_cfg.py": "db548cf339d92243e2037951a8d6b475c4bff5f8458036d04568d67aee05dd81",
+      "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+    },
+    "source_bundle_sha256": "19f88cf2373e63d73a7705f6bca1d2a3536174e911211071878a31eac8f29485",
+    "all_files_present": true,
+    "missing_files": [],
+    "clean": true,
+    "dirty_source_paths": []
+  },
+  "predecessor_synthesis": null,
+  "governance": {
+    "diagnostic_only": true,
+    "qualification_eligible": false,
+    "learned": false,
+    "ppo": {
+      "allowed": false,
+      "status": "not_run"
+    },
+    "gate01": {
+      "allowed": false,
+      "status": "forbidden"
+    },
+    "gate10": {
+      "allowed": false,
+      "status": "forbidden"
+    },
+    "qualification": {
+      "eligible": false,
+      "status": "not_run",
+      "passed": null
+    }
+  },
+  "diagnostic_capture_complete": false,
+  "error": {
+    "type": "ValueError",
+    "message": "physics pre-step clock incomplete: {'source': 'subscribe_physics_on_step_events(pre_step=true,order=0)', 'current_step': 600, 'expected_steps': 600, 'expected_dt_s': 0.005, 'dt_mismatch_count': 600, 'passed': False}"
+  },
+  "failure_envelope_errors": []
+}

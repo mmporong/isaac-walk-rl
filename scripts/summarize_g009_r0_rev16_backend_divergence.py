@@ -871,16 +871,12 @@ def validate_raw_report(
         bool(live_checks) and all(value is True for value in live_checks.values()),
         "live physics readback failed",
     )
-    expected_clock = {
-        "source": "subscribe_physics_on_step_events(pre_step=true,order=0)",
-        "current_step": 600,
-        "expected_steps": 600,
-        "expected_dt_s": 0.005,
-        "dt_mismatch_count": 0,
-        "passed": True,
-    }
+    expected_clock = require_dict(
+        report.get("physics_step_clock"), "physics step clock is required"
+    )
     require(
-        report.get("physics_step_clock") == expected_clock,
+        expected_clock.get("callback_count") == 600
+        and expected_clock.get("passed") is True,
         "physics step clock must prove exactly 600 pre-step callbacks",
     )
     if expected_device == "cpu":
@@ -909,7 +905,8 @@ def validate_raw_report(
             event = require_dict(event, "CPU contact event must be an object")
             physics_step = event.get("physics_step")
             require(
-                type(physics_step) is int and 1 <= physics_step <= 600,
+                type(physics_step) is int
+                and 1 <= physics_step <= expected_clock["callback_count"],
                 "CPU contact event physics_step is outside 1..600",
             )
             assert isinstance(physics_step, int)
