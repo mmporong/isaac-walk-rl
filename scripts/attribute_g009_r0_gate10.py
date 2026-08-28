@@ -539,6 +539,8 @@ def validate_attribution_result(
                 terminal_frame.get("episode_control_step") == event["episode_control_step"]
                 and terminal_frame.get("sim_step_counter") == event["sim_step_counter"]
                 and _close_vectors(terminal_frame.get("action_post_wrapper_clip", []), event["action_term_raw_post_wrapper_clip"])
+                and _close_vectors(terminal_frame.get("processed_ema_target_rad", []), event["processed_ema_target_rad"])
+                and _close_vectors(terminal_frame.get("applied_torque_nm", []), event["applied_torque_nm"])
                 and _close_vectors(terminal_frame.get("joint_position_rad", []), event["joint_position_rad"])
                 and _close_vectors(terminal_frame.get("joint_velocity_rad_s", []), event["joint_velocity_rad_s"])
                 and _close_vectors(terminal_frame.get("root_pose", {}).get("position_w_m", []), event["root_pose"]["position_w_m"])
@@ -563,6 +565,8 @@ def validate_attribution_result(
                     and frame["rollout_control_step"] == (frame["global_action_step"] - 1) % EXPECTED_ROLLOUT_STEPS + 1
                     and frame["env_index"] == event["env_index"]
                     and len(frame["action_post_wrapper_clip"]) == joint_count
+                    and len(frame["processed_ema_target_rad"]) == joint_count
+                    and len(frame["applied_torque_nm"]) == joint_count
                     and len(frame["joint_position_rad"]) == joint_count
                     and len(frame["joint_velocity_rad_s"]) == joint_count
                     and len(frame["root_pose"]["position_w_m"]) == 3
@@ -726,6 +730,8 @@ class Gate10PreResetObserver:
             "tag": dict(self.collector_state["current_tag"]),
             "phase": phase,
             "action": (action_term.raw_actions if action_override is None else action_override).detach().clone(),
+            "processed_ema_target": action_term.processed_actions.detach().clone(),
+            "applied_torque": robot.data.applied_torque[:, action_term._joint_ids].detach().clone(),
             "episode_control_step": self.env.episode_length_buf.detach().clone(),
             "sim_step_counter": int(self.env._sim_step_counter),
             "joint_position": robot.data.joint_pos[:, action_term._joint_ids].detach().clone(),
@@ -755,6 +761,8 @@ class Gate10PreResetObserver:
             "episode_control_step": int(frame["episode_control_step"][env_index].item()),
             "sim_step_counter": int(frame["sim_step_counter"]),
             "action_post_wrapper_clip": frame["action"][env_index].cpu().tolist(),
+            "processed_ema_target_rad": frame["processed_ema_target"][env_index].cpu().tolist(),
+            "applied_torque_nm": frame["applied_torque"][env_index].cpu().tolist(),
             "joint_position_rad": frame["joint_position"][env_index].cpu().tolist(),
             "joint_velocity_rad_s": frame["joint_velocity"][env_index].cpu().tolist(),
             "root_pose": {

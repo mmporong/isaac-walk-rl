@@ -40,6 +40,8 @@ def _event() -> dict:
             "episode_control_step": 62 + global_step,
             "sim_step_counter": global_step * 4,
             "action_post_wrapper_clip": action,
+            "processed_ema_target_rad": [0.035] * 12,
+            "applied_torque_nm": [0.0] * 12,
             "joint_position_rad": position,
             "joint_velocity_rad_s": [0.0] * 12,
             "root_pose": {"position_w_m": [0.0, 0.0, 0.2], "quaternion_wxyz": [1.0, 0.0, 0.0, 0.0]},
@@ -167,6 +169,8 @@ def test_exact_event_is_accepted_with_three_tuple_multiset() -> None:
         lambda event: event["contact_sensor_history"]["net_forces_w_history_n"][0].pop(),
         lambda event: event["preceding_control_step_ring"].clear(),
         lambda event: event["preceding_control_step_ring"][0].update(global_action_step=31),
+        lambda event: event["preceding_control_step_ring"][0]["processed_ema_target_rad"].pop(),
+        lambda event: event["preceding_control_step_ring"][0]["applied_torque_nm"].__setitem__(0, float("nan")),
         lambda event: event["preceding_control_step_ring"][0]["body_force_summary"].update(dominant_force_bw=9.0),
         lambda event: event["root_pose"]["position_w_m"].__setitem__(0, float("nan")),
     ],
@@ -240,6 +244,14 @@ def test_global_step_31_requires_full_16_frame_ring() -> None:
         (
             "terminal_counter_mismatch",
             lambda event: event["preceding_control_step_ring"][-1].update(sim_step_counter=999),
+        ),
+        (
+            "terminal_ema_target_mismatch",
+            lambda event: event["preceding_control_step_ring"][-1]["processed_ema_target_rad"].__setitem__(0, 0.03),
+        ),
+        (
+            "terminal_torque_mismatch",
+            lambda event: event["preceding_control_step_ring"][-1]["applied_torque_nm"].__setitem__(0, 1.0),
         ),
     ],
     ids=lambda value: value if isinstance(value, str) else None,
