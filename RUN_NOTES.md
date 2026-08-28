@@ -291,13 +291,16 @@ rev9 prone pilot은 clean source에서 `1,024 env × 50 iterations × seed 42`�
 - rev11은 이 역학 가설을 한 변수로 검사하며 힘 상한을 완화하지 않는다. action scale `0.70`, EMA `0.2`, PPO initial noise `0.5`, reward, curriculum, hard-limit tolerance `0.01 rad`는 그대로 두고 calf reset만 `-2.40 → -2.37 rad`로 옮긴다. 모든 reset target이 normalized action 포화 없이 도달 가능해야 한다는 fail-closed runtime check와 비발 peak link attribution도 함께 기록한다.
 - 기존 rev10 실패본은 `reports/runs/g009_r0_runtime_probe_rev10_cpu_attempt1_force_spike.json`과 `g009_r0_runtime_probe_rev10_cpu_attempt2_s42.json`으로 보존한다. rev11은 CPU/GPU 각각 독립 프로세스 3회가 모두 runtime contract를 통과할 때만 학습 gate를 연다. 한 번이라도 실패하면 1024환경 학습을 시작하지 않는다.
 - rev11 probe는 AppLauncher 시작 전에 기존 output을 거부하고 각 프로세스에 UUID4 execution ID, UTC 시작시각, canonical `reports/runs/<file>.json` binding을 기록한다. strict synthesis는 서로 다른 여섯 execution ID와 실제 입력 경로 binding을 요구하므로 같은 JSON을 이름만 바꿔 3회 실행으로 셀 수 없다. probe와 synthesis output은 target·temporary 파일을 모두 덮어쓰지 않는다.
+- clean source commit `0e43426a94acf34ca6b0346bd30729c486213d5f`, source bundle SHA-256 `22dac2899e6a709bddb9544318a8b8a3b4514c54f4c7732d7b62220a3b3f203f`에서 rev11 CPU 3회와 GPU 3회를 새 프로세스로 실행했다. 여섯 report의 execution ID와 파일 SHA-256은 모두 달랐고, 각 report의 전체 boolean check와 runtime contract가 모두 PASS였다.
+- CPU 3회 worst cell은 모두 `left_side / reset_pose_hold / base / physics step 131`에서 `13.9706669 BW`, GPU 3회 worst cell은 모두 `right_side / reset_pose_hold / base / physics step 128`에서 `11.0431929 BW`였다. hold action은 전부 비포화였고 reachable target 최대 오차는 `1.1920929e-7 rad`로 `1e-6 rad` 기준 안에 들었다.
+- rev10과 rev11의 통제된 한 변수 A/B에서 CPU peak는 `16.066175 → 13.970667 BW`, 약 `13.04%` 감소했고 세 번 반복됐다. 이는 reset/action 불일치 제거가 peak 감소 원인이라는 가설을 지지하지만, 한 backend·한 seed·한 짧은 probe의 결과이므로 보편적 인과로 확대하지 않는다. 이 runtime gate는 학습 환경의 안전 계약만 검증하며 `learned_policy_qualified=false`, `status=not_run`이다.
 
 다음 revision은 rev9를 resume하지 않고 scratch로 시작한다.
 
 1. `[완료]` rev9 checkpoint 동작을 diagnostic-only 로컬 MP4와 `NOT QUALIFIED` 오버레이가 있는 공개 GIF·PNG·JSON으로 고정했다.
 2. `[완료]` rev10에서 action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, 초기 noise `0.5`, reward, hard tolerance를 유지했다. curriculum 경계를 `(1201,2401)`로 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
-3. `[진행 중]` rev11에서 calf reset을 action envelope 안으로 옮기고 CPU/GPU runtime probe를 각각 3회 실행한다. 여섯 실행 모두 hold action 비포화, reset-target 오차 없음, 비발 접촉력 `≤15 BW`, numeric-invalid·hard-joint-limit `0`이어야 한다.
-4. `1,024×1 → 1,024×10 → 1,024×50` scratch 안전 gate를 순서대로 실행한다. 각 단계에서 numeric-invalid와 hard-joint-limit 최대값이 모두 `0`이어야 다음 단계로 간다.
+3. `[완료]` rev11에서 calf reset을 action envelope 안으로 옮긴 뒤 CPU/GPU runtime probe를 각각 3회 실행했다. 여섯 실행 모두 hold action 비포화, reset-target 오차 `≤1e-6 rad`, 비발 접촉력 `≤15 BW`, numeric-invalid·hard-joint-limit `0`을 통과했다.
+4. `[진행 중]` `1,024×1 → 1,024×10 → 1,024×50` scratch 안전 gate를 순서대로 실행한다. 각 단계에서 numeric-invalid와 hard-joint-limit 최대값이 모두 `0`이어야 다음 단계로 간다.
 5. 50회 안전 pilot은 stable support와 upright hold가 최소 한 번은 nonzero여야 한다. 통과한 revision만 `1,024×300`, seed 42 scratch qualification으로 연다.
 6. deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.
 
