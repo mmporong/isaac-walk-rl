@@ -40,6 +40,7 @@ CONTROL_DECIMATION = 4
 VELOCITY_SOLVER_ITERATIONS = 0
 MAX_DEPENETRATION_VELOCITY_M_S = 1.0
 CALLBACK_DT_ABS_TOLERANCE_S = 2.5e-10
+PHYSICS_ROW_DERIVATION = "torch.float32_source_to_python_float_then_math_fsum_sqrt"
 MASS_ACCUMULATION_CONTRACT = {
     "component_source": "event_readback:_g009_r0_body_mass",
     "component_storage_dtype": "torch.float32",
@@ -429,11 +430,22 @@ class DiagnosticEvidenceError(RuntimeError):
         *,
         physics_step_clock: dict[str, Any],
         mass_evidence: dict[str, Any],
+        validation_failure: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(str(original_error))
         self.original_error = original_error
         self.physics_step_clock = physics_step_clock
         self.mass_evidence = mass_evidence
+        self.validation_failure = validation_failure
+
+
+class ValidationStageError(ValueError):
+    """Identify a rejected validation stage without copying raw telemetry."""
+
+    def __init__(self, stage: str, original_error: BaseException) -> None:
+        super().__init__(str(original_error))
+        self.stage = stage
+        self.original_error = original_error
 
 
 def build_mass_evidence(body_mass_tensor: Any, source_env_index: int) -> dict[str, Any]:
@@ -700,6 +712,8 @@ def physics_history_rows(
 ) -> list[dict[str, Any]]:
     """Serialize native newest-first sensor history with derived impulse."""
 
+    if str(force_history.dtype) != "torch.float32":
+        raise ValueError("force history source dtype must be torch.float32")
     if force_history.ndim != 3 or force_history.shape[0] != CONTROL_DECIMATION:
         raise ValueError("env force history must be [decimation, body, xyz]")
     if force_history.shape[1] != len(body_names) or force_history.shape[2] != 3:
@@ -721,13 +735,30 @@ def physics_history_rows(
         physics_step = (
             control_step * CONTROL_DECIMATION - history_slot
         )  # Isaac sensor history is newest first.
-        forces = force_history[history_slot]
-        impulses = forces * physics_dt_s
-        force_magnitudes = forces.norm(dim=1)
+        forces = [
+            [float(component) for component in vector]
+            for vector in force_history[history_slot].detach().cpu().tolist()
+        ]
+        force_magnitudes = [
+            math.sqrt(math.fsum(component * component for component in force))
+            for force in forces
+        ]
+        impulses = [
+            [component * physics_dt_s for component in force] for force in forces
+        ]
         base_force_magnitude = force_magnitudes[base_body_id]
-        foot_force_magnitude_sum = force_magnitudes[foot_ids].sum()
-        nonfoot_force_vector = forces[nonfoot_ids].sum(dim=0)
-        nonfoot_force_magnitude_sum = force_magnitudes[nonfoot_ids].sum()
+        foot_force_magnitude_sum = math.fsum(
+            force_magnitudes[index] for index in foot_ids
+        )
+        nonfoot_force_vector = [
+            math.fsum(forces[index][axis] for index in nonfoot_ids) for axis in range(3)
+        ]
+        nonfoot_force_magnitude_sum = math.fsum(
+            force_magnitudes[index] for index in nonfoot_ids
+        )
+        nonfoot_resultant = math.sqrt(
+            math.fsum(component * component for component in nonfoot_force_vector)
+        )
         rows.append(
             {
                 "physics_step": physics_step,
@@ -736,34 +767,117 @@ def physics_history_rows(
                 "contact_force_history_slot": history_slot,
                 "history_slot_order": "newest_first",
                 "body_names": body_names,
-                "per_body_force_vector_n": forces.detach().cpu().tolist(),
-                "per_body_force_magnitude_n": (
-                    force_magnitudes.detach().cpu().tolist()
-                ),
-                "per_body_impulse_vector_n_s": impulses.detach().cpu().tolist(),
-                "base_force_magnitude_n": float(base_force_magnitude.item()),
-                "base_force_bodyweights": float(base_force_magnitude.item())
-                / body_weight_n,
-                "base_impulse_n_s": float((base_force_magnitude * physics_dt_s).item()),
-                "foot_total_force_n": float(foot_force_magnitude_sum.item()),
-                "foot_impulse_n_s": float(
-                    (foot_force_magnitude_sum * physics_dt_s).item()
-                ),
-                "nonfoot_resultant_force_vector_n": (
-                    nonfoot_force_vector.detach().cpu().tolist()
-                ),
-                "nonfoot_resultant_force_n": float(nonfoot_force_vector.norm().item()),
-                "nonfoot_total_force_n": float(nonfoot_force_magnitude_sum.item()),
-                "nonfoot_impulse_vector_n_s": (nonfoot_force_vector * physics_dt_s)
-                .detach()
-                .cpu()
-                .tolist(),
-                "nonfoot_impulse_n_s": float(
-                    (nonfoot_force_magnitude_sum * physics_dt_s).item()
-                ),
+                "per_body_force_vector_n": forces,
+                "per_body_force_magnitude_n": force_magnitudes,
+                "per_body_impulse_vector_n_s": impulses,
+                "base_force_magnitude_n": base_force_magnitude,
+                "base_force_bodyweights": base_force_magnitude / body_weight_n,
+                "base_impulse_n_s": base_force_magnitude * physics_dt_s,
+                "foot_total_force_n": foot_force_magnitude_sum,
+                "foot_impulse_n_s": foot_force_magnitude_sum * physics_dt_s,
+                "nonfoot_resultant_force_vector_n": nonfoot_force_vector,
+                "nonfoot_resultant_force_n": nonfoot_resultant,
+                "nonfoot_total_force_n": nonfoot_force_magnitude_sum,
+                "nonfoot_impulse_vector_n_s": [
+                    value * physics_dt_s for value in nonfoot_force_vector
+                ],
+                "nonfoot_impulse_n_s": nonfoot_force_magnitude_sum * physics_dt_s,
             }
         )
     return rows
+
+
+def serialize_all_env_force_history(force_history: Any) -> list[Any]:
+    """Fail closed on source tensor dtype/shape/finite state before serialization."""
+
+    require(
+        str(force_history.dtype) == "torch.float32",
+        "all-env force history source dtype must be torch.float32",
+    )
+    require(
+        force_history.ndim == 4
+        and tuple(force_history.shape) == (NUM_ENVS, CONTROL_DECIMATION, 19, 3),
+        "all-env force history tensor shape mismatch",
+    )
+    require(
+        bool(force_history.isfinite().all().item()),
+        "all-env force history tensor must be finite",
+    )
+    return cast(list[Any], force_history.detach().cpu().tolist())
+
+
+def canonical_all_env_nonfoot_force_candidates(
+    serialized_force_components: Any,
+    *,
+    nonfoot_ids: list[int],
+    all_env_total_mass_kg: list[float],
+    control_step: int,
+) -> list[dict[str, Any]]:
+    """Validate every serialized component, then find each env's canonical peak."""
+
+    require(
+        isinstance(serialized_force_components, list)
+        and len(serialized_force_components) == NUM_ENVS,
+        "all-env force history shape mismatch",
+    )
+    require(
+        len(all_env_total_mass_kg) == NUM_ENVS
+        and all(
+            type(value) is float and math.isfinite(value) and value > 0.0
+            for value in all_env_total_mass_kg
+        ),
+        "all-env canonical mass totals are invalid",
+    )
+    require(
+        len(nonfoot_ids) == 15
+        and all(type(index) is int and 0 <= index < 19 for index in nonfoot_ids)
+        and len(set(nonfoot_ids)) == 15,
+        "all-env nonfoot topology mismatch",
+    )
+    validated: list[list[list[list[float]]]] = []
+    for env_history in serialized_force_components:
+        require(
+            isinstance(env_history, list) and len(env_history) == CONTROL_DECIMATION,
+            "all-env force history shape mismatch",
+        )
+        validated_history: list[list[list[float]]] = []
+        for slot_forces in env_history:
+            require(
+                isinstance(slot_forces, list) and len(slot_forces) == 19,
+                "all-env force body shape mismatch",
+            )
+            validated_slot: list[list[float]] = []
+            for vector in slot_forces:
+                force = _finite_vector(vector, 3, "all-env force component")
+                require(
+                    all(_is_exact_float32(value) for value in force),
+                    "all-env force components must be exact float32 values",
+                )
+                validated_slot.append(force)
+            validated_history.append(validated_slot)
+        validated.append(validated_history)
+    candidates: list[dict[str, Any]] = []
+    for env_index, env_history in enumerate(validated):
+        best_bw = -1.0
+        best_step = -1
+        best_body = -1
+        for history_slot, slot_forces in enumerate(env_history):
+            for body_index in nonfoot_ids:
+                force = slot_forces[body_index]
+                magnitude = math.sqrt(math.fsum(value * value for value in force))
+                force_bw = magnitude / (all_env_total_mass_kg[env_index] * 9.81)
+                if force_bw > best_bw:
+                    best_bw = force_bw
+                    best_step = control_step * CONTROL_DECIMATION - history_slot
+                    best_body = body_index
+        candidates.append(
+            {
+                "force_bodyweights": best_bw,
+                "physics_step": best_step,
+                "body_index": best_body,
+            }
+        )
+    return candidates
 
 
 def control_step_row(
@@ -1023,6 +1137,7 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
             "control_decimation": CONTROL_DECIMATION,
             "history_order": "newest_to_oldest",
             "peak_window_radius_physics_steps": 8,
+            "physics_row_derivation": PHYSICS_ROW_DERIVATION,
         },
         "telemetry timing contract changed",
     )
@@ -1098,48 +1213,64 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
             zip(forces, impulses, strict=True)
         ):
             force = _finite_vector(force_value, 3, "body force")
+            require(
+                all(_is_exact_float32(value) for value in force),
+                "body force components must be exact float32 values",
+            )
             impulse = _finite_vector(impulse_value, 3, "body impulse")
             for axis in range(3):
-                _close(impulse[axis], force[axis] * PHYSICS_DT_S, "body impulse")
+                _close(
+                    impulse[axis],
+                    force[axis] * PHYSICS_DT_S,
+                    "body impulse",
+                    1.0e-12,
+                )
             magnitudes.append(
-                math.sqrt(sum(component * component for component in force))
+                math.sqrt(math.fsum(component * component for component in force))
             )
         reported_magnitudes = _finite_vector(
             row["per_body_force_magnitude_n"], 19, "body force magnitude"
         )
         for observed, expected in zip(reported_magnitudes, magnitudes, strict=True):
-            _close(observed, expected, "body force magnitude")
+            _close(observed, expected, "body force magnitude", 1.0e-12)
         base_force = magnitudes[base_id]
         _close(
             _finite_number(row["base_force_magnitude_n"], "base force"),
             base_force,
             "base force",
+            1.0e-12,
         )
         _close(
             _finite_number(row["base_force_bodyweights"], "base BW"),
             base_force / body_weight,
             "base BW",
+            1.0e-12,
         )
         _close(
             _finite_number(row["base_impulse_n_s"], "base impulse"),
             base_force * PHYSICS_DT_S,
             "base impulse",
+            1.0e-12,
         )
-        foot_total = sum(magnitudes[index] for index in foot_ids)
-        nonfoot_total = sum(magnitudes[index] for index in nonfoot_ids)
+        foot_total = math.fsum(magnitudes[index] for index in foot_ids)
+        nonfoot_total = math.fsum(magnitudes[index] for index in nonfoot_ids)
         nonfoot_vector = [
-            sum(forces[index][axis] for index in nonfoot_ids) for axis in range(3)
+            math.fsum(forces[index][axis] for index in nonfoot_ids) for axis in range(3)
         ]
-        nonfoot_resultant = math.sqrt(sum(value * value for value in nonfoot_vector))
+        nonfoot_resultant = math.sqrt(
+            math.fsum(value * value for value in nonfoot_vector)
+        )
         _close(
             _finite_number(row["foot_total_force_n"], "foot force"),
             foot_total,
             "foot force",
+            1.0e-12,
         )
         _close(
             _finite_number(row["foot_impulse_n_s"], "foot impulse"),
             foot_total * PHYSICS_DT_S,
             "foot impulse",
+            1.0e-12,
         )
         for observed, expected in zip(
             _finite_vector(
@@ -1148,16 +1279,18 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
             nonfoot_vector,
             strict=True,
         ):
-            _close(observed, expected, "nonfoot force vector")
+            _close(observed, expected, "nonfoot force vector", 1.0e-12)
         _close(
             _finite_number(row["nonfoot_resultant_force_n"], "nonfoot resultant"),
             nonfoot_resultant,
             "nonfoot resultant",
+            1.0e-12,
         )
         _close(
             _finite_number(row["nonfoot_total_force_n"], "nonfoot total"),
             nonfoot_total,
             "nonfoot total",
+            1.0e-12,
         )
         for observed, expected in zip(
             _finite_vector(
@@ -1166,11 +1299,12 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
             [value * PHYSICS_DT_S for value in nonfoot_vector],
             strict=True,
         ):
-            _close(observed, expected, "nonfoot impulse vector")
+            _close(observed, expected, "nonfoot impulse vector", 1.0e-12)
         _close(
             _finite_number(row["nonfoot_impulse_n_s"], "nonfoot impulse"),
             nonfoot_total * PHYSICS_DT_S,
             "nonfoot impulse",
+            1.0e-12,
         )
 
 
@@ -2067,7 +2201,10 @@ def validate_report_contract(report: dict[str, Any]) -> None:
             report.get("diagnostic_capture_complete") is True,
             "complete report must pass every diagnostic capture check",
         )
-        validate_physics_telemetry(report)
+        try:
+            validate_physics_telemetry(report)
+        except Exception as error:
+            raise ValidationStageError("physics_substep_telemetry", error) from error
         validate_control_telemetry(report)
         validate_historical_runtime_summary(report)
         validate_physics_step_clock(report)
@@ -2264,18 +2401,12 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         except Exception as error:
             raise MassEvidenceError(mass_evidence, error) from error
         total_mass_kg = float(mass_evidence["total_mass_kg"])
-        all_env_total_mass_kg = torch.tensor(
-            mass_evidence["all_env_total_mass_kg"],
-            dtype=torch.float64,
-            device=raw_env.device,
-        )
-        max_nonfoot_force_bw = torch.zeros(
-            NUM_ENVS, dtype=torch.float64, device=raw_env.device
-        )
-        max_nonfoot_force_step = torch.full(
-            (NUM_ENVS,), -1, dtype=torch.long, device=raw_env.device
-        )
-        max_nonfoot_body_index = torch.full_like(max_nonfoot_force_step, -1)
+        all_env_total_mass_kg = [
+            float(value) for value in mass_evidence["all_env_total_mass_kg"]
+        ]
+        max_nonfoot_force_bw = [0.0] * NUM_ENVS
+        max_nonfoot_force_step = [-1] * NUM_ENVS
+        max_nonfoot_body_index = [-1] * NUM_ENVS
         max_root_angular_speed = torch.zeros(NUM_ENVS, device=raw_env.device)
         max_joint_speed = torch.zeros(NUM_ENVS, device=raw_env.device)
         all_env_termination_counts = {
@@ -2305,27 +2436,18 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
             history = sensor.data.net_forces_w_history
             if history is None:
                 raise RuntimeError("contact force history unavailable")
-            all_force_magnitudes = history.norm(dim=-1)
-            nonfoot_history = all_force_magnitudes[:, :, nonfoot_ids]
-            step_force_n, flat_index = nonfoot_history.reshape(NUM_ENVS, -1).max(dim=1)
-            step_force_bw = step_force_n.to(torch.float64) / (
-                all_env_total_mass_kg * 9.81
+            force_candidates = canonical_all_env_nonfoot_force_candidates(
+                serialize_all_env_force_history(history),
+                nonfoot_ids=nonfoot_ids,
+                all_env_total_mass_kg=all_env_total_mass_kg,
+                control_step=control_step,
             )
-            new_force_max = step_force_bw > max_nonfoot_force_bw
-            history_slot = flat_index // len(nonfoot_ids)
-            nonfoot_offset = flat_index % len(nonfoot_ids)
-            body_index_lookup = torch.tensor(
-                nonfoot_ids, dtype=torch.long, device=raw_env.device
-            )
-            step_body_index = body_index_lookup[nonfoot_offset]
-            step_physics_index = control_step * CONTROL_DECIMATION - history_slot
-            max_nonfoot_force_bw = torch.maximum(max_nonfoot_force_bw, step_force_bw)
-            max_nonfoot_force_step = torch.where(
-                new_force_max, step_physics_index, max_nonfoot_force_step
-            )
-            max_nonfoot_body_index = torch.where(
-                new_force_max, step_body_index, max_nonfoot_body_index
-            )
+            for env_index, candidate in enumerate(force_candidates):
+                force_bw = candidate["force_bodyweights"]
+                if force_bw > max_nonfoot_force_bw[env_index]:
+                    max_nonfoot_force_bw[env_index] = force_bw
+                    max_nonfoot_force_step[env_index] = candidate["physics_step"]
+                    max_nonfoot_body_index[env_index] = candidate["body_index"]
             max_root_angular_speed = torch.maximum(
                 max_root_angular_speed,
                 robot.data.root_ang_vel_b.norm(dim=1),
@@ -2375,7 +2497,7 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         observed_pose_metrics: list[dict[str, Any]] = []
         pose_names = ("prone", "supine", "left_side", "right_side")
         for env_index in range(NUM_ENVS):
-            body_index = int(max_nonfoot_body_index[env_index].item())
+            body_index = max_nonfoot_body_index[env_index]
             observed_pose_metrics.append(
                 {
                     "env_index": env_index,
@@ -2383,12 +2505,8 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
                     "action_mode": (
                         "zero_normalized" if env_index < 4 else "reset_pose_hold"
                     ),
-                    "max_nonfoot_force_bodyweights": float(
-                        max_nonfoot_force_bw[env_index].item()
-                    ),
-                    "max_nonfoot_force_physics_step": int(
-                        max_nonfoot_force_step[env_index].item()
-                    ),
+                    "max_nonfoot_force_bodyweights": max_nonfoot_force_bw[env_index],
+                    "max_nonfoot_force_physics_step": max_nonfoot_force_step[env_index],
                     "max_nonfoot_force_body_index": body_index,
                     "max_nonfoot_force_body_name": (
                         body_names[body_index] if body_index >= 0 else None
@@ -2475,6 +2593,7 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
                 "control_decimation": CONTROL_DECIMATION,
                 "history_order": "newest_to_oldest",
                 "peak_window_radius_physics_steps": 8,
+                "physics_row_derivation": PHYSICS_ROW_DERIVATION,
             },
             "physics_substep_telemetry": sorted(
                 physics_rows, key=lambda row: row["physics_step"]
@@ -2505,10 +2624,29 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         try:
             validate_report_contract(report)
         except Exception as error:
+            validation_failure = (
+                {
+                    "stage": error.stage,
+                    "error_type": type(error.original_error).__name__,
+                    "message": str(error.original_error),
+                }
+                if isinstance(error, ValidationStageError)
+                else {
+                    "stage": "full_report_validation",
+                    "error_type": type(error).__name__,
+                    "message": str(error),
+                }
+            )
+            original_error = (
+                error.original_error
+                if isinstance(error, ValidationStageError)
+                else error
+            )
             raise DiagnosticEvidenceError(
-                error,
+                original_error,
                 physics_step_clock=clock_snapshot,
                 mass_evidence=mass_evidence,
+                validation_failure=validation_failure,
             ) from error
         return report
     finally:
@@ -2578,6 +2716,16 @@ def failure_envelope(
     )
     clock_evidence = _allowlisted_evidence(clock_evidence, CLOCK_EVIDENCE_FIELDS)
     mass_evidence = _allowlisted_evidence(mass_evidence, MASS_EVIDENCE_FIELDS)
+    validation_failure = (
+        {
+            "stage": error.validation_failure.get("stage"),
+            "error_type": error.validation_failure.get("error_type"),
+            "message": error.validation_failure.get("message"),
+        }
+        if isinstance(error, DiagnosticEvidenceError)
+        and isinstance(error.validation_failure, dict)
+        else None
+    )
     return {
         "schema_version": "g009.r0.rev16.backend_divergence_failure.v1",
         "goal_id": "g009",
@@ -2606,6 +2754,7 @@ def failure_envelope(
         "diagnostic_capture_complete": False,
         "physics_step_clock": clock_evidence,
         "mass_evidence": mass_evidence,
+        "validation_failure": validation_failure,
         "error": {
             "type": type(original_error).__name__,
             "message": str(original_error),

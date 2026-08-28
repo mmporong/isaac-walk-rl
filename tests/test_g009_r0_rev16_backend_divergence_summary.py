@@ -131,8 +131,9 @@ def _physics_rows(
 ) -> list[dict]:
     rows = RAW_TEST._zero_physics_rows()
     for row in rows:
-        base_bw = peak_bw if row["physics_step"] == peak_step else neighbor_bw
-        force = base_bw * body_weight
+        requested_bw = peak_bw if row["physics_step"] == peak_step else neighbor_bw
+        force = SUMMARY.raw_probe._float32(requested_bw * body_weight)
+        base_bw = force / body_weight
         impulse = force * 0.005
         row["per_body_force_vector_n"][0] = [force, 0.0, 0.0]
         row["per_body_force_magnitude_n"][0] = force
@@ -283,6 +284,7 @@ def _report(arm: str, device: str, replicate: int) -> tuple[dict, dict[str, str]
             "control_decimation": 4,
             "history_order": "newest_to_oldest",
             "peak_window_radius_physics_steps": 8,
+            "physics_row_derivation": SUMMARY.raw_probe.PHYSICS_ROW_DERIVATION,
         },
         "physics_substep_telemetry": _physics_rows(
             peak_step, peak_bw, neighbor_bw, mass_evidence["body_weight_n"]

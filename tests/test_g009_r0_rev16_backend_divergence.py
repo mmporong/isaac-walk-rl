@@ -98,7 +98,7 @@ def test_source_binding_includes_new_probe_and_existing_runtime_contract() -> No
 
 
 def test_physics_history_rows_preserve_newest_first_slot_and_impulse() -> None:
-    history = torch.zeros((4, 3, 3), dtype=torch.float64)
+    history = torch.zeros((4, 3, 3), dtype=torch.float32)
     history[0, 1] = torch.tensor([3.0, 4.0, 0.0])
     history[3, 2] = torch.tensor([0.0, 0.0, 10.0])
 
@@ -140,6 +140,29 @@ def test_physics_history_rows_reject_nonfinite_force() -> None:
             base_body_id=0,
             total_mass_kg=10.0,
         )
+
+
+def test_force_serializers_reject_float64_source_even_for_exact_zero_one_values() -> (
+    None
+):
+    selected = torch.zeros((4, 1, 3), dtype=torch.float64)
+    selected[0, 0, 0] = 1.0
+    with pytest.raises(ValueError, match="source dtype must be torch.float32"):
+        PROBE.physics_history_rows(
+            selected,
+            control_step=1,
+            physics_dt_s=0.005,
+            body_names=["base"],
+            nonfoot_ids=[0],
+            foot_ids=[],
+            base_body_id=0,
+            total_mass_kg=10.0,
+        )
+
+    all_env = torch.zeros((8, 4, 19, 3), dtype=torch.float64)
+    all_env[0, 0, 0, 0] = 1.0
+    with pytest.raises(ValueError, match="source dtype must be torch.float32"):
+        PROBE.serialize_all_env_force_history(all_env)
 
 
 class _Header:
@@ -369,7 +392,7 @@ def _zero_physics_rows() -> list[dict]:
     for control_step in range(1, 151):
         rows.extend(
             PROBE.physics_history_rows(
-                torch.zeros((4, 19, 3), dtype=torch.float64),
+                torch.zeros((4, 19, 3), dtype=torch.float32),
                 control_step=control_step,
                 physics_dt_s=0.005,
                 body_names=body_names,
@@ -501,6 +524,7 @@ def _complete_report(
             "control_decimation": 4,
             "history_order": "newest_to_oldest",
             "peak_window_radius_physics_steps": 8,
+            "physics_row_derivation": PROBE.PHYSICS_ROW_DERIVATION,
         },
         "physics_substep_telemetry": _zero_physics_rows(),
         "control_step_telemetry": _zero_control_rows(link_body_names),
@@ -695,6 +719,110 @@ def test_report_contract_accepts_complete_diagnostic_and_rejects_progression() -
     }
     with pytest.raises(ValueError, match="governance"):
         PROBE.validate_report_contract(report)
+
+
+def _report_with_nonassociative_force_row() -> dict:
+    report = _complete_report()
+    topology = report["runtime_topology"]
+    force_history = torch.zeros((4, 19, 3), dtype=torch.float32)
+    force_history[:, 0, 0] = 1.0e8
+    force_history[:, 1, 0] = 1.0
+    force_history[:, 2, 0] = -1.0e8
+    rows = PROBE.physics_history_rows(
+        force_history,
+        control_step=1,
+        physics_dt_s=0.005,
+        body_names=topology["force_body_names"],
+        nonfoot_ids=topology["nonfoot_force_body_ids"],
+        foot_ids=topology["foot_force_body_ids"],
+        base_body_id=topology["base_force_body_id"],
+        total_mass_kg=topology["total_mass_kg"],
+    )
+    report["physics_substep_telemetry"][:4] = sorted(
+        rows, key=lambda row: row["physics_step"]
+    )
+    return report
+
+
+def test_physics_rows_use_canonical_serialized_force_derivations() -> None:
+    report = _report_with_nonassociative_force_row()
+
+    PROBE.validate_report_contract(report)
+
+    row = report["physics_substep_telemetry"][0]
+    native_sum = torch.tensor([1.0e8, 1.0, -1.0e8], dtype=torch.float32).sum()
+    assert float(native_sum.item()) == 0.0
+    assert row["nonfoot_resultant_force_vector_n"][0] == 1.0
+    assert abs(row["nonfoot_resultant_force_vector_n"][0] - native_sum.item()) > 1e-6
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda row: row["per_body_force_vector_n"][0].__setitem__(0, 1.0e8 - 8.0),
+        lambda row: row["nonfoot_resultant_force_vector_n"].__setitem__(0, 0.0),
+        lambda row: row.__setitem__("nonfoot_total_force_n", 0.0),
+        lambda row: row["nonfoot_impulse_vector_n_s"].__setitem__(0, 0.0),
+        lambda row: row.__setitem__("base_force_bodyweights", 0.0),
+    ],
+)
+def test_physics_rows_reject_forged_canonical_derivations(mutation) -> None:
+    report = _report_with_nonassociative_force_row()
+    mutation(report["physics_substep_telemetry"][0])
+
+    with pytest.raises(PROBE.ValidationStageError):
+        PROBE.validate_report_contract(report)
+
+
+def test_physics_row_rejects_consistently_rederived_non_float32_force() -> None:
+    report = _complete_report()
+    row = report["physics_substep_telemetry"][0]
+    value = 1.000000000000001e-6
+    row["per_body_force_vector_n"][1][0] = value
+    row["per_body_force_magnitude_n"][1] = value
+    row["per_body_impulse_vector_n_s"][1][0] = value * 0.005
+    row["nonfoot_resultant_force_vector_n"][0] = value
+    row["nonfoot_resultant_force_n"] = value
+    row["nonfoot_total_force_n"] = value
+    row["nonfoot_impulse_vector_n_s"][0] = value * 0.005
+    row["nonfoot_impulse_n_s"] = value * 0.005
+
+    with pytest.raises(PROBE.ValidationStageError, match="exact float32 values"):
+        PROBE.validate_report_contract(report)
+
+
+@pytest.mark.parametrize("forged_value", [float("nan"), 1.000000000000001e-6])
+def test_all_env_force_preflight_rejects_hidden_non_source_nonpeak_component(
+    forged_value: float,
+) -> None:
+    components = torch.zeros((8, 4, 19, 3), dtype=torch.float32).tolist()
+    components[3][3][18][2] = forged_value
+
+    with pytest.raises(ValueError, match="finite|exact float32"):
+        PROBE.canonical_all_env_nonfoot_force_candidates(
+            components,
+            nonfoot_ids=list(range(15)),
+            all_env_total_mass_kg=[19.0] * 8,
+            control_step=1,
+        )
+
+
+def test_all_env_force_preflight_returns_canonical_candidate() -> None:
+    components = torch.zeros((8, 4, 19, 3), dtype=torch.float32).tolist()
+    components[7][2][1][0] = 1.0
+
+    candidates = PROBE.canonical_all_env_nonfoot_force_candidates(
+        components,
+        nonfoot_ids=list(range(15)),
+        all_env_total_mass_kg=[19.0] * 8,
+        control_step=2,
+    )
+
+    assert candidates[7] == {
+        "force_bodyweights": 1.0 / (19.0 * 9.81),
+        "physics_step": 6,
+        "body_index": 1,
+    }
 
 
 def test_report_contract_accepts_distinct_sensor_and_robot_body_orders() -> None:
@@ -1178,6 +1306,11 @@ def test_failure_envelope_preserves_completed_clock_and_mass_without_telemetry()
             ValueError("final report rejected"),
             physics_step_clock=clock,
             mass_evidence=mass,
+            validation_failure={
+                "stage": "physics_substep_telemetry",
+                "error_type": "ValueError",
+                "message": "final report rejected",
+            },
         ),
     )
 
@@ -1185,6 +1318,11 @@ def test_failure_envelope_preserves_completed_clock_and_mass_without_telemetry()
     assert report["mass_evidence"] == mass
     assert report["error"] == {
         "type": "ValueError",
+        "message": "final report rejected",
+    }
+    assert report["validation_failure"] == {
+        "stage": "physics_substep_telemetry",
+        "error_type": "ValueError",
         "message": "final report rejected",
     }
     assert "physics_substep_telemetry" not in report
