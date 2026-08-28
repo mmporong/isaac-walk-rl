@@ -720,6 +720,45 @@ cd "$HOME\IsaacLab"
 - [fresh attribution rep02](../reports/runs/g009_r0_gate01_hard_limit_attribution_rev11_gpu_rep02_s42.json)
 - [fresh attribution rep03](../reports/runs/g009_r0_gate01_hard_limit_attribution_rev11_gpu_rep03_s42.json)
 
+### rev12: solver position iteration 단일변수 A/B
+
+rev12 계약 ID는 `g009_r0_recover_rev12`, canonical SHA-256은 `d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0`이다. 이 hash는 solver `8/0`과 아래 불변 조건을 함께 묶는다.
+
+Go2 DC motor 모델은 position error에 `Kp=25`, velocity에 `Kd=0.5`를 적용하고 effort를 `±23.5Nm`로 제한한다. 귀속 표본에 이를 대입하면 비포화 요구 토크는 다음과 같다.
+
+```text
+25 × (-1.6222125 - -2.7339249) - 0.5 × (-0.1714629)
+≈ +27.88 Nm
+```
+
+실제 readback `+23.5Nm`는 limit 안쪽으로 되돌리는 방향의 torque saturation과 일치한다. 또한 rev11 deterministic reset-pose-hold에서도 prone `RR_calf_joint`의 raw hard-lower crossing이 GPU `0.007208rad`, CPU `0.006586rad`까지 나타났다. tolerance `0.01rad` 안이라 종료되지 않았고 hold action도 포화되지 않았다. stochastic PPO action이 없어도 prone 접촉 자세가 calf를 hard limit 근처로 보낼 수 있다는 별도 관측이다.
+
+rev12는 이 가설을 다음 한 변수로만 검사한다.
+
+| 항목 | rev11 | rev12 | 상태 |
+| --- | ---: | ---: | --- |
+| PhysX articulation solver position iterations | `4` | `8` | 유일한 변경 |
+| solver velocity iterations | `0` | `0` | 유지 |
+| physics / control timestep | `0.005 / 0.02s` | 동일 | 유지 |
+| calf reset | `-2.37rad` | 동일 | 유지 |
+| action scale / EMA | `0.70 / 0.2` | 동일 | 유지 |
+| PPO initial noise | `0.5` | 동일 | 유지 |
+| motor effort limit | `23.5Nm` | 동일 | 유지 |
+| hard-limit tolerance | `0.01rad` | 동일 | 유지 |
+| reward / curriculum | rev11 | 동일 | 유지 |
+
+position iteration 증가는 한 physics step 안에서 articulation position constraint를 반복 해석하는 횟수를 늘린다. 예상 효과는 접촉·joint constraint의 잔류 위치 오차 감소이고, 비용은 physics 계산량 증가와 접촉 궤적 변화다. 이는 아직 해결책으로 승인된 값이 아니라 판별할 가설이다.
+
+검증 순서는 다음과 같다.
+
+1. CPU/GPU runtime probe에서 실제 USD PhysX articulation readback이 `position=8`, `velocity=0`인지 확인한다.
+2. 네 pose × `zero_normalized`, `reset_pose_hold` 두 action mode × 150 control step에서 numeric-invalid·hard-limit `0`, torque·joint speed·contact peak·tail settling 기존 상한을 유지한다.
+3. prone reset-pose-hold raw crossing이 rev11 GPU `0.007208rad`보다 감소해야 solver 가설을 지지한다. 감소하지 않으면 gate01 전에 rev12를 기각한다.
+4. runtime gate 통과 뒤 seed 42, headless, `1,024 env × 24 step × 1 iteration`을 resume 없이 scratch로 실행한다.
+5. gate01 hard-limit이 하나라도 재발하면 gate10을 열지 않는다. 통과할 때만 `gate10 → gate50`과 각 단계 미디어를 생성한다.
+
+solver A/B가 실패하면 다음 revision에서 calf reset `-2.37 → -2.34rad`를 별도 한 변수로 검사한다. 이를 rev12에 같이 넣지 않는 이유는 초기 자세를 쉽게 만드는 효과와 solver 수렴 효과를 분리하기 위해서다. torque 상한이나 hard-limit tolerance 확대는 실물 타당성과 안전 판정을 약화하므로 후보에서 제외한다.
+
 ### rev9 actor/critic, action, 성공 gate
 
 - actor `P-RECOVER-83`: proprioception·joint·이전 action·발 접촉/하중 53차원과 body-fixed 5×3 range 15차원, hit mask 15차원

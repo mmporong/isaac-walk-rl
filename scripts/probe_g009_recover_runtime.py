@@ -981,6 +981,62 @@ def _startup_readback(raw_env, torch, constants: dict[str, float]) -> tuple[dict
     }, checks
 
 
+def articulation_solver_iteration_readback(
+    stage, articulation_prim_paths: list[str], PhysxSchema
+) -> dict[str, Any]:
+    """Read authored PhysX solver counts from every live articulation root."""
+
+    rows: list[dict[str, Any]] = []
+    for prim_path in articulation_prim_paths:
+        prim = stage.GetPrimAtPath(prim_path)
+        api = PhysxSchema.PhysxArticulationAPI(prim) if prim.IsValid() else None
+        position_value = api.GetSolverPositionIterationCountAttr().Get() if api else None
+        velocity_value = api.GetSolverVelocityIterationCountAttr().Get() if api else None
+        rows.append(
+            {
+                "prim_path": prim_path,
+                "solver_position_iteration_count": (
+                    int(position_value) if position_value is not None else None
+                ),
+                "solver_velocity_iteration_count": (
+                    int(velocity_value) if velocity_value is not None else None
+                ),
+            }
+        )
+    return {
+        "source": "USD PhysxArticulationAPI live-stage readback",
+        "articulations": rows,
+    }
+
+
+def articulation_solver_iteration_checks(
+    readback: dict[str, Any],
+    *,
+    expected_position_count: int,
+    expected_velocity_count: int,
+    expected_articulations: int,
+) -> dict[str, bool]:
+    """Fail closed unless every live articulation reports both contract values."""
+
+    rows = readback.get("articulations")
+    if not isinstance(rows, list) or len(rows) != expected_articulations:
+        return {
+            "articulation_solver_iteration_counts_match_contract": False
+        }
+    return {
+        "articulation_solver_iteration_counts_match_contract": bool(
+            all(
+                isinstance(row, dict)
+                and row.get("solver_position_iteration_count")
+                == expected_position_count
+                and row.get("solver_velocity_iteration_count")
+                == expected_velocity_count
+                for row in rows
+            )
+        )
+    }
+
+
 def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]:
     execution = validate_execution_metadata(execution, args.output.resolve())
     source_bundle = source_bundle_provenance()
@@ -988,9 +1044,10 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
     import gymnasium as gym
     import torch
 
+    import omni.usd
     import isaaclab_tasks  # noqa: F401
     from omni.physx import get_physx_simulation_interface
-    from pxr import PhysicsSchemaTools
+    from pxr import PhysicsSchemaTools, PhysxSchema
     from isaaclab.utils import math as math_utils
     from isaaclab_tasks.utils import parse_env_cfg
     from isaac_walk_g009 import register_tasks
@@ -998,6 +1055,7 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
     from isaac_walk_g009.recover_contracts import (
         ACTION_EMA_ALPHA,
         ACTION_SCALE,
+        ARTICULATION_SOLVER_POSITION_ITERATION_COUNT,
         ACTOR_OBSERVATION_DIM,
         CRITIC_OBSERVATION_DIM,
         FOOT_DYNAMIC_FRICTION,
@@ -1026,6 +1084,11 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
     env = gym.make(args.task, cfg=env_cfg)
     raw_env = env.unwrapped
     robot = raw_env.scene["robot"]
+    solver_iteration_readback = articulation_solver_iteration_readback(
+        omni.usd.get_context().get_stage(),
+        list(robot.root_physx_view.prim_paths),
+        PhysxSchema,
+    )
     action_term = raw_env.action_manager.get_term("joint_pos")
     runtime_action_scale = float(action_term.cfg.scale)
     runtime_soft_limit_factor = float(robot.cfg.soft_joint_pos_limit_factor)
@@ -1551,6 +1614,12 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
             )
 
         checks = {
+            **articulation_solver_iteration_checks(
+                solver_iteration_readback,
+                expected_position_count=ARTICULATION_SOLVER_POSITION_ITERATION_COUNT,
+                expected_velocity_count=0,
+                expected_articulations=args.num_envs,
+            ),
             "joint_action_type_matches_contract": (
                 type(action_term).__name__ == "EMAJointPositionToLimitsAction"
             ),
@@ -1671,6 +1740,9 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
         status = summarize_status(checks, health_names)
         startup.update(
             {
+                "articulation_solver_iterations": (
+                    solver_iteration_readback
+                ),
                 "contact_separation_method": "PhysX per-physics-step contact report event without GPU filter",
                 "contact_separation_api_available": separation_available,
                 "contact_separation_error": separation_error,

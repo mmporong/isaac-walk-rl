@@ -325,6 +325,15 @@ clean source commit `12caebe523ae0a414630216e30d100302f693a0d`에서 GPU fresh r
 - 같은 순간 FR calf의 PPO·clip 후 action은 `+0.1681439`, EMA target은 `-1.6222125rad`로 hard lower보다 약 `1.10049rad` 안쪽이었다. joint velocity는 `-0.1714629rad/s`, applied torque는 lower 방향과 반대인 `+23.5Nm`로 actuator 상한에 걸렸다.
 - 따라서 새 rollout의 직접 관측은 사건 순간 policy target이 lower limit을 요구했다는 설명을 배제한다. actuator가 limit 안쪽으로 최대 토크를 내는데도 actual joint가 lower를 넘었으므로 이전 step의 관성, 외부 접촉력, joint/contact constraint 오차 중 하나 이상의 비명령 요인이 필요하다. event 이전 history와 body별 contact force를 아직 저장하지 않았으므로 특정 충돌 링크나 solver iteration 부족을 직접 원인으로 확정하지 않는다. rev12의 solver A/B는 이 가설을 판별하는 다음 실험이다.
 
+#### rev12 단일변수 solver A/B
+
+- 계약 ID는 `g009_r0_recover_rev12`, canonical SHA-256은 `d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0`이다.
+- Go2 DC motor는 `Kp=25`, `Kd=0.5`, effort/saturation limit `23.5Nm`다. 귀속 표본의 비포화 요구 토크는 `25×(-1.6222125+2.7339249)-0.5×(-0.1714629) ≈ +27.88Nm`라 실제 `+23.5Nm`는 limit 안쪽 복원 방향 포화와 일치한다.
+- rev11 deterministic reset-pose-hold에서도 prone `RR_calf_joint`가 hard lower를 GPU `0.007208rad`, CPU `0.006586rad` 넘어갔다. `0.01rad` tolerance 안이라 종료되지 않았고 hold action은 비포화였으므로 stochastic policy 없이도 접촉 자세에서 calf가 hard limit 근처로 밀리는 현상이 있다.
+- rev12는 articulation `solver_position_iteration_count`만 `4 → 8`로 올린다. `solver_velocity_iteration_count=0`, physics/control timestep, calf reset `-2.37rad`, action scale `0.70`, EMA `0.2`, PPO noise `0.5`, motor torque, reward, curriculum, hard-limit tolerance `0.01rad`는 유지한다.
+- 먼저 runtime probe가 실제 PhysX articulation readback `position=8 / velocity=0`, numeric-invalid·hard-limit `0`, torque/contact/tail-settle 상한을 통과해야 한다. prone reset-hold raw penetration은 rev11 GPU `0.007208rad`보다 작아야 solver 가설이 지지된다. 감소하지 않으면 rev12를 기각하고 다른 변수를 겹치지 않는다.
+- runtime gate를 통과한 뒤에만 새 source commit에서 seed 42, headless, `1,024 env × 24 step × 1 iteration` scratch gate01을 실행한다. hard-limit 하나라도 재발하면 gate10을 열지 않는다.
+
 #### 단계별 영상·공개 정책
 
 - 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0` 아래에만 보관하고 Git에 넣지 않는다. 사용자가 확인할 원본과 합성 MP4도 `local_only`다.

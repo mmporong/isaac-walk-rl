@@ -207,6 +207,91 @@ def test_physics_thresholds_are_blocking_calibration_values() -> None:
     assert PROBE.MAX_TAIL_ANGULAR_SPEED_RAD_S == pytest.approx(2.0)
 
 
+def test_solver_position_iteration_readback_records_each_live_articulation() -> None:
+    class Attribute:
+        def Get(self):
+            return 8
+
+    class Api:
+        def GetSolverPositionIterationCountAttr(self):
+            return Attribute()
+
+        def GetSolverVelocityIterationCountAttr(self):
+            class VelocityAttribute:
+                def Get(self):
+                    return 0
+
+            return VelocityAttribute()
+
+    class Prim:
+        def IsValid(self):
+            return True
+
+    class Stage:
+        def GetPrimAtPath(self, path):
+            assert path in {"/World/envs/env_0/Robot", "/World/envs/env_1/Robot"}
+            return Prim()
+
+    class PhysxSchema:
+        @staticmethod
+        def PhysxArticulationAPI(prim):
+            assert prim.IsValid()
+            return Api()
+
+    result = PROBE.articulation_solver_iteration_readback(
+        Stage(),
+        ["/World/envs/env_0/Robot", "/World/envs/env_1/Robot"],
+        PhysxSchema,
+    )
+
+    assert result == {
+        "source": "USD PhysxArticulationAPI live-stage readback",
+        "articulations": [
+            {
+                "prim_path": "/World/envs/env_0/Robot",
+                "solver_position_iteration_count": 8,
+                "solver_velocity_iteration_count": 0,
+            },
+            {
+                "prim_path": "/World/envs/env_1/Robot",
+                "solver_position_iteration_count": 8,
+                "solver_velocity_iteration_count": 0,
+            },
+        ],
+    }
+    assert PROBE.articulation_solver_iteration_checks(
+        result,
+        expected_position_count=8,
+        expected_velocity_count=0,
+        expected_articulations=2,
+    ) == {
+        "articulation_solver_iteration_counts_match_contract": True
+    }
+
+
+@pytest.mark.parametrize(
+    "rows",
+    [
+        [],
+        [{"solver_position_iteration_count": 4, "solver_velocity_iteration_count": 0}],
+        [{"solver_position_iteration_count": 8, "solver_velocity_iteration_count": 4}],
+        [{"solver_position_iteration_count": None, "solver_velocity_iteration_count": 0}],
+        [{"solver_position_iteration_count": 8, "solver_velocity_iteration_count": None}],
+    ],
+)
+def test_solver_position_iteration_check_fails_closed(rows: list[dict[str, object]]) -> None:
+    checks = PROBE.articulation_solver_iteration_checks(
+        {"articulations": rows},
+        expected_position_count=8,
+        expected_velocity_count=0,
+        expected_articulations=1,
+    )
+
+    assert checks == {
+        "articulation_solver_iteration_counts_match_contract": False
+    }
+
+
 def test_rev3_observation_schema_uses_explicit_actor_and_critic_indices() -> None:
     assert PROBE.ACTOR_FOOT_LOAD_SLICE == slice(49, 53)
     assert PROBE.ACTOR_RANGE_SLICE == slice(53, 68)

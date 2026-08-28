@@ -13,7 +13,9 @@ sys.path.insert(0, str(ROOT / "src"))
 from isaac_walk_g009.recover_contracts import (
     ACTION_EMA_ALPHA,
     ACTION_SCALE,
+    ARTICULATION_SOLVER_POSITION_ITERATION_COUNT,
     ACTOR_OBSERVATION_DIM,
+    ACTOR_OBSERVATION_METADATA,
     CONTROL_DT_S,
     CRITIC_OBSERVATION_DIM,
     EFFECTIVE_ACTION_TARGET_HARD_LIMIT_RANGE_FRACTION,
@@ -154,7 +156,18 @@ def test_r0_reward_and_ppo_contract_match_the_frozen_document_revision() -> None
 
 def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     contract = recover_contract()
-    assert contract["contract_id"] == "g009_r0_recover_rev11"
+    assert contract["contract_id"] == "g009_r0_recover_rev12"
+    assert contract["physics"] == {
+        "articulation_solver_position_iteration_count": 8,
+        "articulation_solver_velocity_iteration_count": 0,
+        "rev11_baseline_articulation_solver_position_iteration_count": 4,
+        "single_variable_change": (
+            "increase only the Go2 articulation position-solver iteration count "
+            "from 4 to 8; retain action, reset, reward, curriculum, torque, joint-limit "
+            "tolerance, and observation-noise contracts"
+        ),
+    }
+    assert ARTICULATION_SOLVER_POSITION_ITERATION_COUNT == 8
     assert contract["timing"] == {
         "physics_dt_s": 0.005,
         "control_decimation": 4,
@@ -225,6 +238,39 @@ def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
         POSE_CURRICULUM_PROBABILITIES
     )
     assert curriculum["actor_observation_exposure"] is False
+
+
+def test_rev12_changes_only_solver_iterations_and_preserves_rev11_mechanics() -> None:
+    contract = recover_contract()
+    reward_weights = {term["name"]: term["weight"] for term in contract["reward"]["terms"]}
+    actor_noise = {
+        term["name"]: term["noise_uniform"]
+        for term in contract["observations"]["actor"]["terms"]
+    }
+
+    assert contract["physics"]["rev11_baseline_articulation_solver_position_iteration_count"] == 4
+    assert contract["physics"]["articulation_solver_position_iteration_count"] == 8
+    assert contract["physics"]["articulation_solver_velocity_iteration_count"] == 0
+    assert contract["action"]["scale"] == 0.70
+    assert contract["action"]["ema_alpha"] == 0.2
+    assert contract["reset"]["folded_joint_angles_rad"] == {
+        "left_hip": 0.1,
+        "right_hip": -0.1,
+        "thigh": 1.5,
+        "calf": -2.37,
+    }
+    assert tuple(contract["reset"]["pose_curriculum"]["phase_end_control_steps_exclusive"]) == (
+        1201,
+        2401,
+    )
+    assert contract["ppo"]["init_noise_std"] == 0.5
+    assert contract["termination"]["solver_joint_limit_tolerance_rad"] == 0.01
+    assert reward_weights == {term.name: term.weight for term in R0_REWARD_TERMS}
+    assert reward_weights["torque_l2"] == -0.0002
+    assert actor_noise == {
+        name: metadata["noise_uniform"]
+        for name, metadata in ACTOR_OBSERVATION_METADATA.items()
+    }
 
 
 def test_json_manifest_is_canonically_bound_to_the_import_light_code_contract() -> None:

@@ -23,6 +23,7 @@ from isaac_walk_g009.agent_cfg import G009RecoverPPORunnerCfg
 from isaac_walk_g009.recover_contracts import (
     ACTION_EMA_ALPHA,
     ACTION_SCALE,
+    ARTICULATION_SOLVER_POSITION_ITERATION_COUNT,
     ACTOR_OBSERVATION_TERMS,
     GO2_SOFT_JOINT_LIMIT_FACTOR,
     MAX_BASE_HEIGHT_M,
@@ -108,6 +109,12 @@ def test_r0_registry_uses_task_specific_runner():
 def test_r0_flat_scene_and_disabled_randomization_contract():
     cfg = G009FlatRecoverEnvCfg()
     assert cfg.commands.base_velocity is None
+    assert (
+        cfg.scene.robot.spawn.articulation_props.solver_position_iteration_count
+        == ARTICULATION_SOLVER_POSITION_ITERATION_COUNT
+        == 8
+    )
+    assert cfg.scene.robot.spawn.articulation_props.solver_velocity_iteration_count == 0
     assert cfg.actions.joint_pos.class_type.__name__ == "EMAJointPositionToLimitsAction"
     assert cfg.actions.joint_pos.scale == ACTION_SCALE == 0.70
     assert cfg.actions.joint_pos.alpha == ACTION_EMA_ALPHA == 0.2

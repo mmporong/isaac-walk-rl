@@ -42,6 +42,7 @@ PHYSICS_DT_S = 0.005
 CONTROL_DECIMATION = 4
 CONTROL_DT_S = PHYSICS_DT_S * CONTROL_DECIMATION
 EPISODE_LENGTH_S = 8.0
+ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 8
 
 ACTION_SCALE = 0.70
 ACTION_EMA_ALPHA = 0.2
@@ -298,7 +299,7 @@ def recover_contract() -> dict[str, Any]:
         for pose in RECOVER_POSES.values()
     ]
     return {
-        "contract_id": "g009_r0_recover_rev11",
+        "contract_id": "g009_r0_recover_rev12",
         "stage_id": "R0",
         "policy_schema": "P-RECOVER-83/C-RECOVER-107",
         "poses": poses,
@@ -308,6 +309,18 @@ def recover_contract() -> dict[str, Any]:
             "control_dt_s": CONTROL_DT_S,
             "episode_length_s": EPISODE_LENGTH_S,
             "max_episode_steps": int(round(EPISODE_LENGTH_S / CONTROL_DT_S)),
+        },
+        "physics": {
+            "articulation_solver_position_iteration_count": (
+                ARTICULATION_SOLVER_POSITION_ITERATION_COUNT
+            ),
+            "articulation_solver_velocity_iteration_count": 0,
+            "rev11_baseline_articulation_solver_position_iteration_count": 4,
+            "single_variable_change": (
+                "increase only the Go2 articulation position-solver iteration count "
+                "from 4 to 8; retain action, reset, reward, curriculum, torque, joint-limit "
+                "tolerance, and observation-noise contracts"
+            ),
         },
         "reset": {
             "assignment_mode": "random",
@@ -648,6 +661,7 @@ assert CRITIC_OBSERVATION_DIM == 107
 __all__ = [
     "ACTION_EMA_ALPHA",
     "ACTION_SCALE",
+    "ARTICULATION_SOLVER_POSITION_ITERATION_COUNT",
     "ACTOR_OBSERVATION_DIM",
     "ACTOR_OBSERVATION_METADATA",
     "ACTOR_OBSERVATION_TERMS",
