@@ -319,6 +319,12 @@ rev11 gate01은 clean source commit `26fa9860470fe30ce192b342165caf2122598e8f`�
 - 새 사건이 발생하면 reset 전에 env·pose·rollout/episode/sim step, 전체 joint position·hard limits·velocity·torque, wrapper clip 전 PPO sample, clip 후 action, EMA processed target을 기록한다. termination `(step, env)` multiset과 attribution multiset이 정확히 같고 원 hard-limit predicate를 다시 계산해 참일 때만 `attributed`다.
 - `attributed`는 source/seed/protocol-matched fresh rollout에서 새 사건의 귀속이 정확하다는 뜻일 뿐이다. 원 사건과의 동일성은 `historical_event_identity_confirmed=false`, 안전 gate는 `false`, learned-policy qualification도 `false`로 남긴다. 한 번 재현되지 않으면 PASS로 바꾸지 않고 같은 고정 프로토콜을 독립 프로세스 세 번까지 실행해 GPU 비결정성을 확인한다.
 
+clean source commit `12caebe523ae0a414630216e30d100302f693a0d`에서 GPU fresh rollout을 새 프로세스로 세 번 실행했고 모두 `attributed`였다. 세 execution ID와 report SHA-256은 서로 달랐지만 stochastic action-stream SHA-256 `46e58c33f305b168eed0b81931873c93356656398e456e1799b500c39dc22453`, policy SHA, 사건 위치와 모든 수치는 같았다.
+
+- 사건은 세 번 모두 `rollout step 23 / env 706 / prone / FR_calf_joint / lower`였다. 실제 위치 `-2.7339249rad`, hard lower `-2.7227001rad`, raw excess `0.0112247rad`, `0.01rad` tolerance 밖 excess는 `0.0012247rad`였다.
+- 같은 순간 FR calf의 PPO·clip 후 action은 `+0.1681439`, EMA target은 `-1.6222125rad`로 hard lower보다 약 `1.10049rad` 안쪽이었다. joint velocity는 `-0.1714629rad/s`, applied torque는 lower 방향과 반대인 `+23.5Nm`로 actuator 상한에 걸렸다.
+- 따라서 새 rollout의 직접 관측은 사건 순간 policy target이 lower limit을 요구했다는 설명을 배제한다. actuator가 limit 안쪽으로 최대 토크를 내는데도 actual joint가 lower를 넘었으므로 이전 step의 관성, 외부 접촉력, joint/contact constraint 오차 중 하나 이상의 비명령 요인이 필요하다. event 이전 history와 body별 contact force를 아직 저장하지 않았으므로 특정 충돌 링크나 solver iteration 부족을 직접 원인으로 확정하지 않는다. rev12의 solver A/B는 이 가설을 판별하는 다음 실험이다.
+
 #### 단계별 영상·공개 정책
 
 - 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0` 아래에만 보관하고 Git에 넣지 않는다. 사용자가 확인할 원본과 합성 MP4도 `local_only`다.
