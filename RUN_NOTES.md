@@ -310,6 +310,15 @@ rev11 gate01은 clean source commit `26fa9860470fe30ce192b342165caf2122598e8f`�
 - 1환경 deterministic playback은 8초 뒤 time-out됐고 stable success가 없었다. 이 단일 캡처에서는 safety termination이 재현되지 않았지만, 1,024환경 학습 aggregate의 hard-limit 실패를 상쇄하지 않는다.
 - 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev11_gate01_01_prone_s42.mp4`에만 둔다. H.264 `1280×720`, `50 fps`, 400 frame, 8초, SHA-256 `7a6ffd04430508d440625a23a8105fd06087b3d4f25390dec9ef2b64bf7c04cd`다. 공개 GIF·PNG·analysis·capture·summary·sidecar JSON에는 `DIAGNOSTIC / NOT QUALIFIED / 01 PRONE / STRICT SUCCESS 0`를 표시했다.
 
+#### rev11 gate01 hard-limit 귀속 프로토콜
+
+- TensorBoard의 `0.0416666679`는 `4.17%`의 환경이나 `0.0417rad` 초과량이 아니다. RSL-RL이 24-step rollout의 reset-batch 정수 count를 평균한 값이며 `0.0416666679 × 24 ≈ 1`이므로 원 gate01에서 hard-limit 종료가 한 번 기록됐다는 뜻이다.
+- 원 report에는 env·joint·action·reset 직전 상태가 없고 `model_0.pt`는 해당 rollout의 PPO update 뒤 저장됐다. checkpoint에는 원 stochastic action stream과 RNG state도 없으므로 과거 사건의 bitwise identity는 복원하거나 주장하지 않는다.
+- `scripts/attribute_g009_r0_gate01.py`는 동일 task, seed `42`, `1,024 env × 24 step`, prone `100%`, scratch stochastic PPO 경로를 새 프로세스에서 실행한다. PPO update 직전에 sentinel로 멈추며 checkpoint를 읽거나 만들지 않는다.
+- 활성 `RecorderTerm`을 추가하면 noisy observation이 매 step 한 번 더 계산돼 Torch RNG가 달라진다. 따라서 `active_terms == []`를 유지하고 기존 `RecorderManager.record_pre_reset` 인스턴스 메서드만 감싼다. observer 앞뒤 CPU·CUDA RNG SHA 상태, policy SHA, action count `24`, rollout storage step `24`, update sentinel, diagnostic checkpoint 부재를 fail-closed로 검사한다. 장치는 원 실행 경로의 `cuda:0`으로 고정하고 Isaac Lab·RSL-RL 실행 소스 11개의 SHA-256을 기대값과 직접 비교하며, Git이 추적하는 Isaac Lab 핵심 경로 6개는 clean이어야 한다.
+- 새 사건이 발생하면 reset 전에 env·pose·rollout/episode/sim step, 전체 joint position·hard limits·velocity·torque, wrapper clip 전 PPO sample, clip 후 action, EMA processed target을 기록한다. termination `(step, env)` multiset과 attribution multiset이 정확히 같고 원 hard-limit predicate를 다시 계산해 참일 때만 `attributed`다.
+- `attributed`는 source/seed/protocol-matched fresh rollout에서 새 사건의 귀속이 정확하다는 뜻일 뿐이다. 원 사건과의 동일성은 `historical_event_identity_confirmed=false`, 안전 gate는 `false`, learned-policy qualification도 `false`로 남긴다. 한 번 재현되지 않으면 PASS로 바꾸지 않고 같은 고정 프로토콜을 독립 프로세스 세 번까지 실행해 GPU 비결정성을 확인한다.
+
 #### 단계별 영상·공개 정책
 
 - 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0` 아래에만 보관하고 Git에 넣지 않는다. 사용자가 확인할 원본과 합성 MP4도 `local_only`다.
