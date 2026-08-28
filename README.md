@@ -62,7 +62,7 @@ G008-1 command smoke -> G008-2 command PPO
 | `G009-2` | 6개 경사 × 4개 방위 analytic gate (`S0`) | 지형 검증 | `24/24` 통과 |
 | `G009-3` | collision mesh·마찰·support-normal reset (`S0`) | Isaac runtime 검증 | 완료 |
 | `G009-4` | 5°·15°·25° 동일 조건 재생 (`S0`) | 시각 증거 | 완료, 25°는 실패 경계 |
-| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전 귀속 | rev12 gate10 기각·full-state 귀속 완료, rev13 기각, rev14 CPU·GPU runtime 각 `3/3` 완료 후 separation strict 기각, Gate01·Gate10·PPO 미실행 |
+| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전 귀속 | rev12 gate10 기각·full-state 귀속 완료, rev13·rev14 기각, rev15 CPU·GPU runtime 각 `3/3` 완료 후 GPU force strict 기각, Gate01·Gate10·PPO 미실행 |
 | `G009-6` | 5°·10° 횡경사 WALK (`S1-low`) | 다음 강화학습 | R0·calibration 뒤 실행 |
 
 G008의 상세 번호표는 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md), G009의 전체 후속 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에서 이어집니다.
@@ -200,7 +200,19 @@ CPU·GPU runtime을 각각 세 번 실행했습니다. CPU right-side reset-hold
 
 `04`는 실제 headless off-screen camera footage이고, `05`는 `TELEMETRY ANIMATION · NOT CAMERA FOOTAGE`로 표시한 정량 애니메이션입니다. 로컬 전용 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev14_04_right_side_tradeoff_s42.mp4`, SHA-256은 `0bebba8177d48357a743a9a00b93a6ed9ae403a1a53813dc71bff59c027cb865`입니다. capture commit은 `0463dc69297b6c52b546ec40670f20038a766285`, media commit은 `68fddd2`입니다. 정량 결론은 [`rev14 3×3 trade-off synthesis`](reports/runs/g009_r0_runtime_probe_rev14_tradeoff_synthesis_3x3_s42.json)에 있습니다.
 
-다음 rev15는 rev14에서 이어서 학습하지 않습니다. 마지막 승인 runtime인 rev12의 solver `8/0`, max depenetration `1.0m/s`에서 position iteration만 `8 → 16`으로 바꾸는 새 scratch 단일변수 실험입니다. contact offset과 rest offset은 유지합니다.
+## G009-5 R0 rev15 CPU/GPU 접촉력 divergence
+
+rev15는 rev14를 이어받지 않고 마지막 승인 runtime인 rev12의 solver `8/0`, rigid-body `max_depenetration_velocity=1.0m/s`로 돌아간 뒤 position iteration만 `8 → 16`으로 바꾼 scratch 단일변수 진단입니다. source commit은 `bc999d504e226011ff3d83e68a416b9049b406cb`, 계약 SHA-256은 `5f29ba19458404b5009d3734294c57e79294efecc7fe03bf8c71c71656129832`입니다. CPU와 `cuda:0`에서 각각 `8 env × 150 control step`을 새 프로세스로 세 번 실행했고, live stage의 8 articulation과 152개 rigid body에서 solver `16/0`과 `1.0m/s`를 다시 읽었습니다.
+
+CPU는 세 번 모두 non-foot peak force `13.2482814789 BW`, worst contact separation `-0.00935308635m`로 force `≤15 BW`와 separation `≥-0.01m` 관문을 통과했습니다. GPU는 세 번 모두 env 7의 `right_side / reset_pose_hold`, base, physics step 129에서 `16.7882747650 BW`를 기록했습니다. `15 BW`보다 `1.7882747650 BW`, 즉 `11.92%` 높습니다. numeric-invalid와 hard-joint-limit termination은 여섯 실행 모두 `0`이었지만, 동일 계약의 GPU force 관문이 실패했으므로 strict synthesis는 rev15를 `rejected_before_gate01`로 판정했습니다. Gate01·Gate10·PPO는 실행하지 않았고 `learned=false`, qualification은 `not_run`입니다.
+
+![G009-5 rev15 06 GPU right-side 실제 카메라 진단](docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev15_06_gpu_right_side_force_fail.gif)
+
+![G009-5 rev15 07 CPU·GPU 텔레메트리](docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev15_07_cpu_gpu_telemetry.gif)
+
+`06`은 `cuda:0` physics를 headless로 실행하면서 off-screen 카메라로 촬영한 실제 Isaac Sim 진단 영상입니다. 창을 띄우지 않았다는 뜻이지 physics를 생략했다는 뜻이 아니며, PPO checkpoint를 사용한 보행·복구 영상도 아닙니다. `07`은 `TELEMETRY ANIMATION · NOT CAMERA FOOTAGE`로 표시한 CPU/GPU 수치 비교입니다. 로컬 전용 H.264 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev15_06_gpu_right_side_force_fail_s42.mp4`, SHA-256은 `5c3436ce16edc3ea904b609d5a2a975db0b1fef052a78e233cd03f958f129b86`입니다. 정량 결론은 [`rev15 3×3 rejection synthesis`](reports/runs/g009_r0_runtime_probe_rev15_rejection_synthesis_3x3_s42.json)에 있습니다.
+
+다음 단계는 PPO 학습이 아니라 rev12와 rev15의 동일 pose/action 경로에서 CPU/GPU contact impulse, normal force, root 상태와 solver readback을 physics step 단위로 맞춰 최초 divergence 시점을 찾는 진단입니다. 그 원인이 분리되고 새 단일변수 후보가 CPU·GPU 각각 `3/3` 관문을 통과한 뒤에만 scratch Gate01을 엽니다.
 
 ## RBQ 외부 자산 호환성 게이트
 

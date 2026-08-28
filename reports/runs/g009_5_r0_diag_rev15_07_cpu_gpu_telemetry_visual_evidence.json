@@ -1,0 +1,71 @@
+{
+  "schema_version": "g009.r0.rev15.cpu_gpu_visual_evidence.v1",
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "rejected",
+  "diagnostic_only": true,
+  "telemetry_animation": true,
+  "camera_footage": false,
+  "public_claim_eligible": false,
+  "qualification_status": "not_run",
+  "qualification_passed": null,
+  "learned_policy_qualified": false,
+  "ppo_training_run": false,
+  "candidate_runtime_calibration_passed": false,
+  "completed_stages": {
+    "cpu_runtime_3x": true,
+    "gpu_runtime_3x": true,
+    "strict_rejection_synthesis": true
+  },
+  "blocked_stages": {
+    "gate01": true,
+    "gate10": true,
+    "ppo_training": true
+  },
+  "labels": [
+    "PUBLIC DIAGNOSTIC",
+    "TELEMETRY ANIMATION · NOT CAMERA FOOTAGE",
+    "07 CPU/GPU DIVERGENCE",
+    "NO PPO",
+    "REJECTED"
+  ],
+  "source": {
+    "path": "reports/runs/g009_r0_runtime_probe_rev15_rejection_synthesis_3x3_s42.json",
+    "sha256": "9cbb31e22d355c0c9f1f855dcac05486cf92c0268f4788621c85ad6d78e01f85"
+  },
+  "source_builder": {
+    "path": "scripts/build_g009_r0_rev15_cpu_gpu_media.py",
+    "sha256": "7c3fc77b2516390bde3d45278531da56c91deb796607f2b706aa0383f7a858f3"
+  },
+  "cpu_force_check": {
+    "passed": true,
+    "threshold_bodyweights": 15.0,
+    "observed_bodyweights": 13.248281478881836
+  },
+  "gpu_force_check": {
+    "passed": false,
+    "threshold_bodyweights": 15.0,
+    "observed_bodyweights": 16.78827476501465,
+    "blocking_check": "nonfoot_peak_force_bounded"
+  },
+  "cpu_separation_check": {
+    "passed": true,
+    "threshold_m": -0.01,
+    "observed_m": -0.009353086352348328
+  },
+  "png": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev15_07_cpu_gpu_telemetry.png",
+    "sha256": "ab55ff7e31dc500d9790715978871088d5cb2db6d981a6ed5cb2c29870d2c5c1",
+    "bytes": 90864,
+    "width": 1280,
+    "height": 720
+  },
+  "gif": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev15_07_cpu_gpu_telemetry.gif",
+    "sha256": "853d2e2453e2baf80272297378060016ea3463eff1e7724a7a0dc05b026c3fd1",
+    "bytes": 154022,
+    "frames": 6,
+    "duration_ms": 5400
+  }
+}
