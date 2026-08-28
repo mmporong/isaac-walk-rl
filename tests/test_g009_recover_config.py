@@ -65,9 +65,11 @@ def test_r0_pose_curriculum_uses_global_control_step_without_actor_exposure():
     expected = (
         (0, POSE_CURRICULUM_PROBABILITIES[0]),
         (1199, POSE_CURRICULUM_PROBABILITIES[0]),
-        (1200, POSE_CURRICULUM_PROBABILITIES[1]),
+        (1200, POSE_CURRICULUM_PROBABILITIES[0]),
+        (1201, POSE_CURRICULUM_PROBABILITIES[1]),
         (2399, POSE_CURRICULUM_PROBABILITIES[1]),
-        (2400, POSE_CURRICULUM_PROBABILITIES[2]),
+        (2400, POSE_CURRICULUM_PROBABILITIES[1]),
+        (2401, POSE_CURRICULUM_PROBABILITIES[2]),
     )
     for control_step, probabilities in expected:
         env.common_step_counter = control_step
@@ -78,6 +80,17 @@ def test_r0_pose_curriculum_uses_global_control_step_without_actor_exposure():
         )
         assert state["common_control_step"] == float(control_step)
     assert not hasattr(env, "_g009_recover_fall_class_one_hot")
+
+
+def test_r0_pose_curriculum_keeps_first_1200_training_steps_prone_only():
+    env = types.SimpleNamespace(common_step_counter=0, device="cpu")
+    expected = torch.tensor(POSE_CURRICULUM_PROBABILITIES[0], dtype=torch.float32)
+
+    for control_step in range(1, 1201):
+        env.common_step_counter = control_step
+        state = recovery_pose_curriculum(env, [])
+        torch.testing.assert_close(env._g009_recover_pose_probabilities, expected)
+        assert state["phase_index"] == 0.0
 
 
 def test_r0_registry_uses_task_specific_runner():
@@ -96,7 +109,7 @@ def test_r0_flat_scene_and_disabled_randomization_contract():
     cfg = G009FlatRecoverEnvCfg()
     assert cfg.commands.base_velocity is None
     assert cfg.actions.joint_pos.class_type.__name__ == "EMAJointPositionToLimitsAction"
-    assert cfg.actions.joint_pos.scale == ACTION_SCALE == 0.8
+    assert cfg.actions.joint_pos.scale == ACTION_SCALE == 0.70
     assert cfg.actions.joint_pos.alpha == ACTION_EMA_ALPHA == 0.2
     assert cfg.actions.joint_pos.rescale_to_limits is True
     assert cfg.scene.robot.soft_joint_pos_limit_factor == GO2_SOFT_JOINT_LIMIT_FACTOR == 0.9

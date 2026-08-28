@@ -273,10 +273,18 @@ rev9 prone pilot은 clean source에서 `1,024 env × 50 iterations × seed 42`�
 - 재생 결과는 `strict success=0`, recovery time 없음, time-out이다. 해당 재생의 safety termination은 `0`이지만 rev9 학습 중 hard-joint-limit이 50개 기록 중 23개에서 발생했으므로 checkpoint 기각 판정은 유지한다.
 - 공개 파일은 `docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev9_01_prone.gif`와 `g009_5_r0_diag_rev9_01_prone_still.png`다. 오버레이에 `DIAGNOSTIC · NOT QUALIFIED`, `STRICT SUCCESS 0`, `HARD LIMIT EVENTS`를 넣었다. capture·summary·sidecar JSON은 원본 MP4, checkpoint, training report, source bundle, 공개 파생물의 SHA-256을 결합한다.
 
+#### rev10 안전 계약
+
+- 계약 ID는 `g009_r0_recover_rev10`, canonical SHA-256은 `b5499b4a8c111788c3c601fd983bb03907cb3779106821ce2a0be6ef447d5912`다.
+- rev9에서 hard-joint-limit이 50개 기록 중 23개, 최대 `0.4583333`으로 나타났고 numeric-invalid는 전 구간 `0`이었다. rev10은 원인 분리를 위해 action scale만 `0.80 → 0.70`으로 낮췄다.
+- soft joint limit factor `0.9`를 곱한 effective target range는 hard range의 `0.72 → 0.63`, 한쪽당 목표 margin은 `0.14 → 0.185`다. EMA alpha `0.2`, PPO initial noise `0.5`, 보상 항목·가중치, hard-limit tolerance `0.01rad`는 유지했다.
+- pose curriculum phase end를 `(1200,2400) → (1201,2401)`로 바꿨다. 경계 판정은 control step `0/1199/1200 → phase 0`, `1201/2399/2400 → phase 1`, `2401 → phase 2`이며, `1..1200` 전 구간 prone 확률 `1.0` 회귀 검사를 추가했다.
+- canonical manifest `--check`, 순수 계약 테스트 `5 passed`, Isaac 번들 구성 테스트 `7 passed`, G009 구성 차이 테스트 `7 passed`를 통과했다. 이는 구성 검증이며 학습 안전성과 복구 성능을 뜻하지 않는다.
+
 다음 revision은 rev9를 resume하지 않고 scratch로 시작한다.
 
 1. `[완료]` rev9 checkpoint 동작을 diagnostic-only 로컬 MP4와 `NOT QUALIFIED` 오버레이가 있는 공개 GIF·PNG·JSON으로 고정했다.
-2. rev10에서 action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, 초기 noise `0.5`, reward, hard tolerance는 유지한다. curriculum 경계를 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
+2. `[완료]` rev10에서 action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, 초기 noise `0.5`, reward, hard tolerance를 유지했다. curriculum 경계를 `(1201,2401)`로 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
 3. `1,024×1 → 1,024×10 → 1,024×50` scratch 안전 gate를 순서대로 실행한다. 각 단계에서 numeric-invalid와 hard-joint-limit 최대값이 모두 `0`이어야 다음 단계로 간다.
 4. 50회 안전 pilot은 stable support와 upright hold가 최소 한 번은 nonzero여야 한다. 통과한 revision만 `1,024×300`, seed 42 scratch qualification으로 연다.
 5. deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.

@@ -5,8 +5,8 @@
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0·S0 완료, G009-5 R0 rev9 prone scratch pilot·GPU/CPU runtime calibration·진단 미디어 완료
-- 현재 한계: rev9에서 stable support·upright hold 신호는 나타났지만 엄격 성공은 `0`이고 hard-joint-limit이 50개 기록 중 23개에서 발생했다. rev9 checkpoint는 기각했으며 rev10 안전 revision과 공식 pose별 평가는 아직 실행 전
+- 현재 단계: C0·S0 완료, G009-5 R0 rev9 진단 미디어 완료, rev10 안전 계약 구현·구성 검사 완료
+- 현재 한계: rev9 checkpoint는 엄격 성공 `0`과 hard-joint-limit 발생으로 기각했다. rev10은 아직 학습 전이므로 안전 개선과 전복 복구 성능은 주장하지 않으며, `1,024×1 → ×10 → ×50` scratch gate와 공식 pose별 평가는 실행 전이다.
 
 ## 작업 순번
 
@@ -18,7 +18,7 @@
 | `G009-2` | `S0` | 6개 경사 × 4개 방위 analytic gate | `24/24` 통과 |
 | `G009-3` | `S0` | collision mesh, material, support-normal reset의 Isaac runtime readback | 완료 |
 | `G009-4` | `S0` | 5°·15°·25° 동일 조건 headless 재생 | 완료, 25°는 실패 경계 |
-| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | rev9 pilot·진단 미디어 완료, 안전 gate 실패·rev10 준비 |
+| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | rev9 기각·진단 미디어 완료, rev10 계약 구현·학습 gate 대기 |
 | `G009-6` | `S1-low` | 5°·10° 횡경사 WALK PPO | R0·calibration 뒤 실행 |
 
 이후 `S1-high`, 외란, residual terrain, 발별·공간 마찰, 경사 RECOVER와 link-mass를 순차적으로 연다. 전체 stage 순서는 [다음 학습과 검증 순서](#다음-학습과-검증-순서)에 있다.
@@ -47,7 +47,7 @@ G009는 산 비탈에서 보행 영상을 만드는 작업이 아니라, 경사�
 | S0 Isaac 구성·runtime | PASS | G009 7개 구성·spawn·reset 검사, G008 8개 회귀 검사, `5/15/25°` USD geometry·material readback | PPO 학습 성능 |
 | support-plane 수학 모듈 | 순수 수학 PASS | robust fit, fallback, 접평면 투영, COM, 지지 영역 수학 | 매 step RayCaster runtime 연결 완료 |
 | G009 WALK PPO | 미실행 | 학습 계약과 stage 순서가 사전 등록됨 | 경사 횡단 성공 |
-| G009 RECOVER PPO | rev9 진단 학습·미디어 완료, checkpoint 기각 | scratch rev1~rev9, action 안전 envelope, GPU/CPU runtime 계약, 실패 동작 증거 | 전복 복구 성공, 공식 checkpoint qualification |
+| G009 RECOVER PPO | rev10 계약 구현, scratch gate 미실행 | scratch rev1~rev9, 실패 동작 증거, rev10 action envelope·curriculum 회귀 | rev10 안전 개선, 전복 복구 성공, 공식 checkpoint qualification |
 | supervisor | 미구현 | 상태 전이와 평가 계약이 정해짐 | `fall -> recover -> walk` 연결 성공 |
 | S0 미디어 녹화 | 완료 | 3개 로컬 MP4, 공개 GIF·PNG, capture JSON·summary·sidecar 해시 결합 | G009 WALK 성공 |
 | 실물 로봇 | 범위 밖 | Mini Pupper 재학습 원칙만 정함 | Go2 정책의 직접 전이, sim-to-real 완료 |
@@ -546,7 +546,22 @@ rev9의 실제 동작을 성공 영상과 분리해 `01 prone` 진단 증거로 
 
 공개 GIF와 PNG에는 `DIAGNOSTIC · NOT QUALIFIED`, `STRICT SUCCESS 0`, `HARD LIMIT EVENTS`를 고정 표기했다. 영상에서 몸통이 움직이는 사실은 복구 성공이 아니며, 다중 환경 pilot report의 strict-success `0`과 안전 gate 실패가 최종 판정이다. 첫 Vulkan 시도는 Windows renderer 초기화 전에 종료됐고, D3D12로 전환한 뒤 화면이 너무 넓었던 두 시도는 로컬 `rejected_attempts`에 보존했다. 최종 증거만 공개 경로에 연결했다.
 
-### actor/critic, action, 성공 gate
+### rev10 안전 계약
+
+rev10 계약 ID는 `g009_r0_recover_rev10`, canonical contract SHA-256은 `b5499b4a8c111788c3c601fd983bb03907cb3779106821ce2a0be6ef447d5912`다. rev9에서 처음 나타난 support/hold 신호를 보존하면서 hard-joint-limit 원인을 한 변수로 검증하기 위해 다음 두 항목만 바꿨다.
+
+| 항목 | rev9 | rev10 | 역학적 의미 |
+| --- | ---: | ---: | --- |
+| normalized action scale | `0.80` | `0.70` | 관절 목표 권한을 `12.5%` 줄여 충돌·관성·제어 오버슈트가 URDF hard limit을 넘을 여유를 낮춤 |
+| effective hard-range fraction | `0.72` | `0.63` | `scale × soft factor(0.9)` |
+| hard-limit margin per side | `0.14` | `0.185` | 각 관절 범위 끝의 목표 여유를 `4.5%p` 확대 |
+| curriculum phase end | `(1200,2400)` | `(1201,2401)` | 1,200·2,400번째 control step의 한-step 조기 phase 전환을 제거 |
+
+EMA alpha `0.2`, 50Hz 제어, PPO initial noise `0.5`, soft-limit factor `0.9`, 보상 항목과 가중치, hard-limit tolerance `0.01rad`는 바꾸지 않았다. action target이 hard range의 중앙 `63%`에 있다는 사실만으로 실제 joint state 안전을 보장할 수는 없다. 발·몸통 충돌과 링크 관성 때문에 관절이 target을 넘어갈 수 있으므로, rev10의 안전성은 scratch rollout의 실제 `Episode_Termination/hard_joint_limit`로 판정한다.
+
+curriculum 회귀는 control step `0/1199/1200`을 phase 0, `1201/2399/2400`을 phase 1, `2401`을 phase 2로 고정한다. 별도 전수 검사에서 `1..1200` 전 구간은 prone 확률 `1.0`, 나머지 자세 `0.0`이어야 한다.
+
+### rev9 actor/critic, action, 성공 gate
 
 - actor `P-RECOVER-83`: proprioception·joint·이전 action·발 접촉/하중 53차원과 body-fixed 5×3 range 15차원, hit mask 15차원
 - critic `C-RECOVER-107`: actor prefix 83차원과 simulation-only privileged suffix 24차원
@@ -689,7 +704,7 @@ G009 R0에서는 scratch PPO smoke와 50회 진단 pilot을 실제로 실행했�
 한 번에 경사·요철·마찰·외란·전복을 모두 섞지 않는다. 아래 순서를 지켜 새 물리 축을 하나씩 연다.
 
 1. **R0 rev9 diagnostic media — 완료**: 기각한 prone pilot을 성공 영상과 분리해 로컬 MP4와 `DIAGNOSTIC / NOT QUALIFIED` 표시가 있는 공개 GIF·PNG·정량 JSON으로 남겼다.
-2. **R0 rev10 safety revision**: action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, PPO 초기 noise `0.5`, reward, hard tolerance `0.01rad`는 유지한다. prone phase 경계를 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
+2. **R0 rev10 safety revision — 완료**: action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, PPO 초기 noise `0.5`, reward, hard tolerance `0.01rad`는 유지했다. prone phase 경계를 `(1201,2401)`로 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
 3. **R0 rev10 safety gates**: 새 scratch lineage에서 `1,024×1 → 1,024×10 → 1,024×50` 순서로 실행한다. 각 단계의 `numeric_invalid=0`, `hard_joint_limit=0`을 확인한 뒤에만 다음 단계로 넘어간다. 50회에서는 stable support와 upright hold가 최소 한 번은 nonzero여야 한다.
 4. **R0 qualification**: rev10 안전 gate를 통과한 뒤 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch에서 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
 5. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.

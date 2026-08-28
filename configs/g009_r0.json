@@ -2,9 +2,9 @@
   "schema_version": 2,
   "goal_id": "g009",
   "stage_id": "R0",
-  "contract_sha256": "4e0499699a24a272cccb9687f417d97770fcbc229186e2aedde6914e45beab66",
+  "contract_sha256": "b5499b4a8c111788c3c601fd983bb03907cb3779106821ce2a0be6ef447d5912",
   "contract": {
-    "contract_id": "g009_r0_recover_rev9",
+    "contract_id": "g009_r0_recover_rev10",
     "stage_id": "R0",
     "policy_schema": "P-RECOVER-83/C-RECOVER-107",
     "poses": [
@@ -133,8 +133,8 @@
         "clock": "env.common_step_counter",
         "control_steps_per_ppo_iteration": 24,
         "phase_end_control_steps_exclusive": [
-          1200,
-          2400
+          1201,
+          2401
         ],
         "phases": [
           {
@@ -181,7 +181,7 @@
     "action": {
       "type": "EMAJointPositionToLimitsAction",
       "dim": 12,
-      "scale": 0.8,
+      "scale": 0.7,
       "ema_alpha": 0.2,
       "ema_control_frequency_hz": 50.0,
       "ema_time_constant_s": 0.08962840235449102,
@@ -192,9 +192,9 @@
       "rescale_to_soft_joint_limits": true,
       "runner_clip_actions": 1.0,
       "asset_soft_joint_limit_factor": 0.9,
-      "effective_target_hard_limit_range_fraction": 0.7200000000000001,
-      "hard_limit_margin_fraction_per_side": 0.13999999999999996,
-      "safety_rationale": "seed-42 rev3 smoke terminated 75% of completed episodes at the hard joint limit; scale-only rev4 still terminated 62.5%; scale 0.8 plus alpha 0.2 removed it in the 64-env rev5 smoke, but rev6 still measured 0.0416667 in the 1024-env stress smoke; reducing PPO initial noise to 0.5 produced zero in the rev7 1024-env stress smoke; stochastic-training terminations remain diagnostic and the official deterministic evaluation still requires zero; the 0.01 rad solver tolerance is not relaxed"
+      "effective_target_hard_limit_range_fraction": 0.63,
+      "hard_limit_margin_fraction_per_side": 0.185,
+      "safety_rationale": "seed-42 rev3 smoke terminated 75% of completed episodes at the hard joint limit; scale-only rev4 still terminated 62.5%; scale 0.8 plus alpha 0.2 removed it in the 64-env rev5 smoke, but rev6 still measured 0.0416667 in the 1024-env stress smoke; reducing PPO initial noise to 0.5 produced zero in the rev7 1024-env stress smoke; rev9 prone pilot returned hard-limit terminations in 23 of 50 iterations with a maximum rate of 0.4583333, so rev10 reduces only the action scale to 0.70 while retaining EMA alpha 0.2, PPO initial noise 0.5, and the 0.01 rad solver tolerance; stochastic-training terminations remain diagnostic and the official deterministic evaluation still requires zero; rev9 numeric-invalid terminations remained zero throughout the pilot"
     },
     "materials": {
       "ground": {

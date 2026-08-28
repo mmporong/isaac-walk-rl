@@ -43,7 +43,7 @@ CONTROL_DECIMATION = 4
 CONTROL_DT_S = PHYSICS_DT_S * CONTROL_DECIMATION
 EPISODE_LENGTH_S = 8.0
 
-ACTION_SCALE = 0.8
+ACTION_SCALE = 0.70
 ACTION_EMA_ALPHA = 0.2
 GO2_SOFT_JOINT_LIMIT_FACTOR = 0.9
 EFFECTIVE_ACTION_TARGET_HARD_LIMIT_RANGE_FRACTION = (
@@ -82,7 +82,7 @@ REGULARIZATION_HEIGHT_GATE_FULL_M = MIN_BASE_HEIGHT_M
 FALLEN_ANGVEL_PENALTY_MULTIPLIER = 0.10
 FALLEN_ACTION_RATE_PENALTY_MULTIPLIER = 0.20
 
-POSE_CURRICULUM_PHASE_END_CONTROL_STEPS = (1200, 2400)
+POSE_CURRICULUM_PHASE_END_CONTROL_STEPS = (1201, 2401)
 POSE_CURRICULUM_PROBABILITIES = (
     (1.0, 0.0, 0.0, 0.0),
     (0.50, 0.0, 0.25, 0.25),
@@ -298,7 +298,7 @@ def recover_contract() -> dict[str, Any]:
         for pose in RECOVER_POSES.values()
     ]
     return {
-        "contract_id": "g009_r0_recover_rev9",
+        "contract_id": "g009_r0_recover_rev10",
         "stage_id": "R0",
         "policy_schema": "P-RECOVER-83/C-RECOVER-107",
         "poses": poses,
@@ -363,8 +363,12 @@ def recover_contract() -> dict[str, Any]:
                 "scale-only rev4 still terminated 62.5%; scale 0.8 plus alpha 0.2 removed it in the "
                 "64-env rev5 smoke, but rev6 still measured 0.0416667 in the 1024-env stress smoke; "
                 "reducing PPO initial noise to 0.5 produced zero in the rev7 1024-env stress smoke; "
+                "rev9 prone pilot returned hard-limit terminations in 23 of 50 iterations with a "
+                "maximum rate of 0.4583333, so rev10 reduces only the action scale to 0.70 while "
+                "retaining EMA alpha 0.2, PPO initial noise 0.5, and the 0.01 rad solver tolerance; "
                 "stochastic-training terminations remain diagnostic and the official deterministic "
-                "evaluation still requires zero; the 0.01 rad solver tolerance is not relaxed"
+                "evaluation still requires zero; rev9 numeric-invalid terminations remained zero "
+                "throughout the pilot"
             ),
         },
         "materials": {

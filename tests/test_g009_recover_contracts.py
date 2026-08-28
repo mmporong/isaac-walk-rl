@@ -154,7 +154,7 @@ def test_r0_reward_and_ppo_contract_match_the_frozen_document_revision() -> None
 
 def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     contract = recover_contract()
-    assert contract["contract_id"] == "g009_r0_recover_rev9"
+    assert contract["contract_id"] == "g009_r0_recover_rev10"
     assert contract["timing"] == {
         "physics_dt_s": 0.005,
         "control_decimation": 4,
@@ -183,7 +183,7 @@ def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     assert contract["materials"]["effective_foot_ground_friction"]["missing_value_policy"] == "fail_closed"
     assert contract["action"]["normalized_clip"] == [-1.0, 1.0]
     assert contract["action"]["type"] == "EMAJointPositionToLimitsAction"
-    assert contract["action"]["scale"] == ACTION_SCALE == 0.8
+    assert contract["action"]["scale"] == ACTION_SCALE == 0.70
     assert contract["action"]["ema_alpha"] == ACTION_EMA_ALPHA == 0.2
     assert contract["action"]["ema_control_frequency_hz"] == 50.0
     assert contract["action"]["ema_time_constant_s"] == pytest.approx(0.08963, rel=1.0e-4)
@@ -192,8 +192,8 @@ def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     ) == 0.9
     assert contract["action"]["effective_target_hard_limit_range_fraction"] == (
         EFFECTIVE_ACTION_TARGET_HARD_LIMIT_RANGE_FRACTION
-    ) == pytest.approx(0.72)
-    assert contract["action"]["hard_limit_margin_fraction_per_side"] == pytest.approx(0.14)
+    ) == pytest.approx(0.63)
+    assert contract["action"]["hard_limit_margin_fraction_per_side"] == pytest.approx(0.185)
     assert contract["collision_penalty"]["active_when_base_height_m_min"] == 0.30
     assert contract["observations"]["actor"]["range_sensor"]["no_hit_semantics"] == (
         "range=1.0, hit_mask=0.0, not numeric_invalid"
@@ -217,7 +217,7 @@ def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     curriculum = contract["reset"]["pose_curriculum"]
     assert tuple(curriculum["phase_end_control_steps_exclusive"]) == (
         POSE_CURRICULUM_PHASE_END_CONTROL_STEPS
-    )
+    ) == (1201, 2401)
     assert [tuple(phase["pose_probabilities"].values()) for phase in curriculum["phases"]] == list(
         POSE_CURRICULUM_PROBABILITIES
     )
