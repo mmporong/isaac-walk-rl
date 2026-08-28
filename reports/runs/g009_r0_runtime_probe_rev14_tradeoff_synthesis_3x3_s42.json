@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "experiment": "rev14_max_depenetration_velocity_tradeoff",
+  "status": "rejected_before_gate01",
+  "learned": false,
+  "qualification_status": "not_run",
+  "conclusion": "rev14 runtime checks and force gates pass, but strict synthesis rejects the CPU separation overrun",
+  "lineage": {
+    "source_commit": "e9c1eff15bb2679c67e325546a749dbe7f98b07c",
+    "source_bundle_sha256": "5c3cfa41a9c6b61a5579ed48ed17eb4f0f363eeebb9f970b61eada09fca8bacc",
+    "contract_sha256": "744c53d3c8d1e608f849af405c7d0fad314b01234fc4cb9a4ab1000c69140506"
+  },
+  "repeatability": {
+    "cpu": {
+      "required_runs": 3,
+      "validated_runs": 3,
+      "semantically_identical": true,
+      "inputs": [
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev14_actualtopology_cpu_rep01_s42.json",
+          "sha256": "3cc04ef58582b8a9dc7c77b46ce8747965db66561c949f70f4ff40c3241faa1f",
+          "execution_id": "a0fe0250b7cb4f51bb691deaa4d986af",
+          "primary_force_bodyweights": 8.50235366821289,
+          "global_force_bodyweights": 13.943856239318848,
+          "worst_separation_m": -0.010990187525749207
+        },
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev14_actualtopology_cpu_rep02_s42.json",
+          "sha256": "c0608e42fd128027c3945cd944a76eaa56fa95ae343b335fc6cf6b32d1704149",
+          "execution_id": "c5ffbdba22774960ae9a896b79a3bdc4",
+          "primary_force_bodyweights": 8.50235366821289,
+          "global_force_bodyweights": 13.943856239318848,
+          "worst_separation_m": -0.010990187525749207
+        },
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev14_actualtopology_cpu_rep03_s42.json",
+          "sha256": "8d47c402359b0cf48d2c3dcc54b64641cd5f5794f1885be9cd6f5dfbe0e701fb",
+          "execution_id": "260e7bb0cd584ffaae3c2401cdf58d95",
+          "primary_force_bodyweights": 8.50235366821289,
+          "global_force_bodyweights": 13.943856239318848,
+          "worst_separation_m": -0.010990187525749207
+        }
+      ]
+    },
+    "gpu": {
+      "required_runs": 3,
+      "validated_runs": 3,
+      "semantically_identical": true,
+      "inputs": [
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev14_actualtopology_gpu_rep01_s42.json",
+          "sha256": "42ee16fc344a75f10f9bfc6db580d7fff74c946c19b06ccc902564305b8af4a9",
+          "execution_id": "1f09537096c34236bdda36e53c100b01",
+          "primary_force_bodyweights": 12.610370635986328,
+          "global_force_bodyweights": 12.610370635986328,
+          "worst_separation_m": null
+        },
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev14_actualtopology_gpu_rep02_s42.json",
+          "sha256": "c23515c70936ab72a65c848be1beba6638a22a3f5e6e8fc614fd6702942583ec",
+          "execution_id": "65d7381c4dbc45ce8248e106f2aac69d",
+          "primary_force_bodyweights": 12.610370635986328,
+          "global_force_bodyweights": 12.610370635986328,
+          "worst_separation_m": null
+        },
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev14_actualtopology_gpu_rep03_s42.json",
+          "sha256": "bf0c3c6cd26d6a67a1957341f0e55cf7e70b7716620370efce65ddddcfc0704e",
+          "execution_id": "6c6f2320328843cbb12fd6dcce9a71ae",
+          "primary_force_bodyweights": 12.610370635986328,
+          "global_force_bodyweights": 12.610370635986328,
+          "worst_separation_m": null
+        }
+      ]
+    },
+    "unique_execution_ids": 6
+  },
+  "physics_readback": {
+    "articulations_per_run": 8,
+    "links_per_articulation": 19,
+    "rigid_bodies_per_run": 152,
+    "max_depenetration_velocity_m_s": 0.75,
+    "all_paths_and_apis_valid": true
+  },
+  "tradeoff": {
+    "cpu_primary_right_side_reset_pose_hold_bodyweights": 8.50235366821289,
+    "rev12_cpu_primary_bodyweights": 9.332860946655273,
+    "cpu_primary_improvement_bodyweights": 0.8305072784423828,
+    "cpu_global_peak_bodyweights": 13.943856239318848,
+    "gpu_global_peak_bodyweights": 12.610370635986328,
+    "cpu_worst_separation_m": -0.010990187525749207,
+    "separation_threshold_m": -0.01,
+    "separation_overrun_m": 0.0009901875257492063,
+    "separation_overrun_mm": 0.9901875257492063,
+    "strict_decision": "reject"
+  },
+  "safety": {
+    "numeric_invalid_terminations": 0,
+    "hard_joint_limit_terminations": 0
+  },
+  "rev12_baselines": {
+    "cpu": {
+      "path": "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep01_s42.json",
+      "sha256": "fb8bad2190389c3e964d1807a0f54ea700ddfd6919765105c04b93bfa8c7dd75",
+      "source_commit": "9da3e87e4be9142035d24e8a4a22e204f8b229d5",
+      "source_bundle_sha256": "55e6eabbde30930b89d386b8a7533beccb903fc95934fcf6c3f2f1110ba5c0b4",
+      "primary_force_bodyweights": 9.332860946655273,
+      "global_force_bodyweights": 9.408609390258789,
+      "worst_separation_m": -0.009375497698783875
+    },
+    "gpu": {
+      "path": "reports/runs/g009_r0_runtime_probe_rev12_gpu_rep01_s42.json",
+      "sha256": "e485a3fcab5d8f8e6a793d30f76fb0a3ce346e27ed89a158409862e3e32414d1",
+      "source_commit": "9da3e87e4be9142035d24e8a4a22e204f8b229d5",
+      "source_bundle_sha256": "55e6eabbde30930b89d386b8a7533beccb903fc95934fcf6c3f2f1110ba5c0b4",
+      "primary_force_bodyweights": 8.79500675201416,
+      "global_force_bodyweights": 9.400354385375977,
+      "worst_separation_m": null
+    }
+  },
+  "completed_stages": {
+    "cpu_runtime_3x": true,
+    "gpu_runtime_3x": true,
+    "strict_tradeoff_synthesis": true
+  },
+  "blocked_stages": {
+    "gate01": true,
+    "gate10": true,
+    "ppo_training": true
+  }
+}
