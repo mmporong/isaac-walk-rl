@@ -1,0 +1,131 @@
+{
+  "schema_version": "g009.r0.pilot_analysis.v2",
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "public_claim_eligible": false,
+  "qualification_allowed": false,
+  "qualification_status": "not_run",
+  "qualification_block_reasons": [
+    "diagnostic_pilot_never_qualifies",
+    "strict_success_zero"
+  ],
+  "revision": "rev12",
+  "gate_label": "gate01",
+  "output_stem": "g009_5_r0_diag_rev12_gate01_01_prone",
+  "analysis_source": {
+    "path": "scripts/analyze_g009_r0_pilot.py",
+    "sha256": "ab40b8d4b9673c6f03faea7ec2885dbe332430d163dee4d6df887230d1c78ff2"
+  },
+  "training_report": {
+    "path": "reports/runs/go2_flat_recover_rev12_prone_gate01_s42_20260828-182222.json",
+    "sha256": "5ae873887d6208e59de568fb76d8a47ac85488137924bae6f8542597b8573bed",
+    "run_name": "go2_flat_recover_rev12_prone_gate01_s42_20260828-182222",
+    "source_commit": "61013ef8896ac2577c50c0ed15947040447c893d",
+    "source_bundle_sha256": "2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa"
+  },
+  "tensorboard": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_18-22-32_go2_flat_recover_rev12_prone_gate01_s42_20260828-182222",
+    "event_bundle_sha256": "8c5dfaed9ba2268afbc5e141a59c64c3d8a6b3cf76fd4372ef29c7727da77dc8",
+    "event_files": {
+      "events.out.tfevents.1787908956.DESKTOP-991BNBV.37060.0": "4c09793fd7d0db9e16d82487e10d3ae13043c938428eae237df7114cc3528907"
+    },
+    "sample_count_per_tag": 1
+  },
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_18-22-32_go2_flat_recover_rev12_prone_gate01_s42_20260828-182222\\model_0.pt",
+    "sha256": "52f45ef5ae9d3c98ced51132e7fb6b5e8d78d0721a7efd9657f3fdc46ea17017"
+  },
+  "pilot": {
+    "num_envs": 1024,
+    "iterations": 1,
+    "seed": 42,
+    "headless": true,
+    "scratch": true
+  },
+  "observations": {
+    "hard_joint_limit": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "numeric_invalid": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "stable_support": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "upright_hold": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "strict_stable_success": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "strict_success_reward": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "curriculum_boundary_leak": {
+      "detected": false,
+      "phase_index_maximum": 0.0,
+      "prone_probability_minimum": 1.0,
+      "left_side_probability_maximum": 0.0,
+      "right_side_probability_maximum": 0.0
+    },
+    "policy_mean_noise_std": {
+      "sample_count": 1,
+      "latest": 0.5025169849395752,
+      "minimum": 0.5025169849395752,
+      "maximum": 0.5025169849395752,
+      "mean": 0.5025169849395752,
+      "nonzero_sample_count": 1
+    }
+  },
+  "tail_10_iterations": [
+    {
+      "iteration": 0,
+      "mean_reward": -0.5078176259994507,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5025169849395752
+    }
+  ],
+  "interpretation": "rev12 gate01 진단: 관절 한계 종료가 관측되지 않음; prone 커리큘럼 경계 누수가 관측되지 않음; stable_support 신호가 관측되지 않음; upright_hold 신호가 관측되지 않음; 엄격 성공이 관측되지 않음. 정책 자격 평가는 수행하지 않았다."
+}

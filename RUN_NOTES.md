@@ -301,8 +301,11 @@ rev9 prone pilot은 clean source에서 `1,024 env × 50 iterations × seed 42`�
 2. `[완료]` rev10에서 action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, 초기 noise `0.5`, reward, hard tolerance를 유지했다. curriculum 경계를 `(1201,2401)`로 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
 3. `[완료]` rev11에서 calf reset을 action envelope 안으로 옮긴 뒤 CPU/GPU runtime probe를 각각 3회 실행했다. 여섯 실행 모두 hold action 비포화, reset-target 오차 `≤1e-6 rad`, 비발 접촉력 `≤15 BW`, numeric-invalid·hard-joint-limit `0`을 통과했다.
 4. `[기각]` rev11 `1,024×1` scratch gate01은 process/run-health는 PASS였지만 첫 scalar의 hard-joint-limit이 `0.0416667`이라 안전 gate를 통과하지 못했다. numeric-invalid는 `0`, prone probability는 `1.0`, curriculum phase는 `0`이었다. gate10·gate50은 실행하지 않는다.
-5. 50회 안전 pilot은 stable support와 upright hold가 최소 한 번은 nonzero여야 한다. 통과한 revision만 `1,024×300`, seed 42 scratch qualification으로 연다.
-6. deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.
+5. `[완료]` rev12에서 articulation solver position iteration만 `4 → 8`로 올렸다. CPU/GPU runtime probe 각 3회가 모두 통과했고 raw hard-limit crossing과 non-foot contact peak가 감소했다.
+6. `[완료]` rev12 `1,024×1` scratch gate01은 hard-joint-limit·numeric-invalid `0`으로 안전 관문을 통과했다. stable support·upright hold·strict success는 모두 `0`이어서 qualification은 아니다.
+7. `[다음]` 동일 rev12 계약으로 resume 없는 `1,024×10` scratch gate10을 실행하고, 통과하면 별도 단계 영상을 만든다.
+8. `[대기]` 50회 안전 pilot은 stable support와 upright hold가 최소 한 번은 nonzero여야 한다. 통과한 revision만 `1,024×300`, seed 42 scratch qualification으로 연다.
+9. deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.
 
 rev11 gate01은 clean source commit `26fa9860470fe30ce192b342165caf2122598e8f`에서 `1,024 env × 24 step × 1 iteration`, seed `42`, headless, scratch로 실행했다. wall time은 `18.581 s`, 처리량은 `7,766 steps/s`, peak VRAM은 `4,368 MiB`, final mean reward는 `-0.52`였다. `model_0.pt` SHA-256은 `e89f92235656ef61e082333981a3045ba3582331cc1f7d6457d6806172291e4c`다. stable support, upright hold, strict success는 모두 `0`이었다.
 
@@ -339,7 +342,15 @@ clean source commit `9da3e87e4be9142035d24e8a4a22e204f8b229d5`에서 CPU·GPU �
 - 여섯 report 모두 live articulation 8개에서 solver `position=8 / velocity=0`, runtime contract PASS, run health PASS, boolean check 실패 `0`이었다. 엄격 합성도 GPU `3/3`, CPU `3/3`, CPU contact-separation `3/3` PASS다.
 - prone reset-pose-hold raw hard-limit crossing은 GPU 세 번 모두 `0.0019140244rad`, CPU 세 번 모두 `0.0028049946rad`였다. rev11 대비 각각 `73.45%`, `57.41%` 감소해 solver 가설을 지지한다. tolerance `0.01rad`는 바꾸지 않았다.
 - 최악의 non-foot contact는 CPU `left_side / reset_pose_hold / base`의 `9.4086094 BW`였다. `15 BW` 상한 이내이며 rev11 CPU `13.9706669 BW`보다 `32.65%` 낮다. GPU 최악값도 `9.4003544 BW`로 rev11보다 `14.88%` 낮다.
-- 이 결과는 3초 deterministic runtime calibration이며 learned checkpoint 평가가 아니다. [strict 3×3 synthesis](reports/runs/g009_r0_runtime_probe_rev12_synthesis_3x3_s42.json)는 `runtime_calibration_passed=true`, `learned_policy_qualified=false`로 기록한다. 다음 판정은 resume 없는 rev12 scratch gate01이다.
+- 이 결과는 3초 deterministic runtime calibration이며 learned checkpoint 평가가 아니다. [strict 3×3 synthesis](reports/runs/g009_r0_runtime_probe_rev12_synthesis_3x3_s42.json)는 `runtime_calibration_passed=true`, `learned_policy_qualified=false`로 기록한다. 이 합성 PASS로 resume 없는 rev12 scratch gate01 실행 조건을 충족했다.
+
+#### rev12 scratch gate01과 단계 영상
+
+- clean source commit `61013ef8896ac2577c50c0ed15947040447c893d`에서 `go2_flat_recover_rev12_prone_gate01_s42_20260828-182222`를 resume 없이 실행했다. seed `42`, headless, `1,024 env × 24 step × 1 iteration`이고 source bundle SHA-256은 `2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa`다.
+- process/run health는 PASS, `hard_joint_limit maximum=0`, `numeric_invalid maximum=0`, prone probability `1.0`, curriculum phase `0`이다. rev11 gate01의 한 건과 달리 rev12 stochastic PPO rollout에서는 safety termination이 재발하지 않아 gate01 안전 관문을 통과했다.
+- final mean reward는 `-0.51`, stable support·upright hold·strict success는 모두 `0`이다. 따라서 gate01 PASS는 solver 수정 뒤 첫 rollout이 안전했다는 뜻이며 복구 학습 성공이나 qualification을 뜻하지 않는다. 다음 단계는 동일 rev12의 resume 없는 scratch `1,024×10` gate10이다.
+- checkpoint `model_0.pt` SHA-256은 `52f45ef5ae9d3c98ced51132e7fb6b5e8d78d0721a7efd9657f3fdc46ea17017`이다. 1환경 deterministic playback은 8초 time-out, safety termination `false`, strict success `0`이었다.
+- 로컬 전용 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev12_gate01_01_prone_s42.mp4`다. H.264 `1280×720`, `50fps`, 8초, SHA-256 `4073f4b68d752a0760ed8ea31fc482ade95a150b657c658f69c5f1a2d7422982`이며 Git에는 넣지 않는다. 공개 GIF·PNG·JSON에는 `DIAGNOSTIC · NOT QUALIFIED · 01 PRONE · STRICT SUCCESS 0`를 표시한다.
 
 #### 단계별 영상·공개 정책
 
