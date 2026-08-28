@@ -1,0 +1,429 @@
+{
+  "schema_version": 1,
+  "run_name": "go2_flat_recover_rev7_pilot_s42_20260828-1312",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "num_envs": 1024,
+  "max_iterations": 50,
+  "seed": 42,
+  "headless": true,
+  "qualification_mode": {
+    "enabled": false,
+    "preflight_passed": null,
+    "policy_qualification_status": "not_run"
+  },
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "--task",
+    "Isaac-G009-Recover-Flat-Go2-R0-v0",
+    "--num_envs",
+    1024,
+    "--max_iterations",
+    50,
+    "--seed",
+    42,
+    "--run_name",
+    "go2_flat_recover_rev7_pilot_s42_20260828-1312",
+    "--headless"
+  ],
+  "resume": {
+    "enabled": false,
+    "load_run": null,
+    "checkpoint": null
+  },
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "sha256": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+    "repository_internal": true
+  },
+  "repository": {
+    "commit": "88fad8735841d4b83d50ec70da2415fa996e7cc6",
+    "dirty": true
+  },
+  "source_bundle": {
+    "sha256": "6ea72c588160877956ebdbc54aa516da0e67e7d64cff8efe75dbe59dff9347c9",
+    "files": {
+      "configs/g009_r0.json": "34f87feba6a62f986c92eea07f2f5d6636d44244540acdcaee0e6063d310f8e5",
+      "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+      "scripts/run_training.ps1": "69cf739f226464b6e9749fbab691c906825e1ff3dbe455d665c540aa285012aa",
+      "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+      "src/isaac_walk_g009/mdp/__init__.py": "58de66006be808999873c2e8bd30f89e9acd4a64f083f70c9dbac5bc5ed4bc64",
+      "src/isaac_walk_g009/mdp/events.py": "14c60fd2685138595be457407f579fa607cba8b23f28ea5bd87364adb3ea16c0",
+      "src/isaac_walk_g009/mdp/recover.py": "cb447720885b54776594767b822e2d9ce967347a74b79961b2f2f5a3aa795ec8",
+      "src/isaac_walk_g009/recover_contracts.py": "af470976b619ef43bf2c74a5485c96a6eb9aed3111f632c039b8c2e92541edef",
+      "src/isaac_walk_g009/recover_env_cfg.py": "3490ec7e3353c9794d740cd91bb17d14f20567024799d7ff1458c99e081ea4d8",
+      "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+    },
+    "matches_repository_commit": false
+  },
+  "started_at": "2026-08-28T13:11:49.5365715+09:00",
+  "ended_at": "2026-08-28T13:13:34.8843327+09:00",
+  "wall_time_seconds": 105.347,
+  "exit_code": 0,
+  "last_iteration": 49,
+  "iteration_target": 50,
+  "gpu": {
+    "baseline_used_mib": 1448,
+    "peak_used_mib": 4385.0,
+    "delta_used_mib": 2937.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.06,
+        "used_mib": 1451
+      },
+      {
+        "elapsed_seconds": 2.121,
+        "used_mib": 1544
+      },
+      {
+        "elapsed_seconds": 4.185,
+        "used_mib": 1544
+      },
+      {
+        "elapsed_seconds": 6.246,
+        "used_mib": 1576
+      },
+      {
+        "elapsed_seconds": 8.308,
+        "used_mib": 1633
+      },
+      {
+        "elapsed_seconds": 10.372,
+        "used_mib": 1673
+      },
+      {
+        "elapsed_seconds": 12.434,
+        "used_mib": 4047
+      },
+      {
+        "elapsed_seconds": 14.496,
+        "used_mib": 4221
+      },
+      {
+        "elapsed_seconds": 16.577,
+        "used_mib": 4221
+      },
+      {
+        "elapsed_seconds": 18.637,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 20.714,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 22.776,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 24.864,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 26.934,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 29.015,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 31.088,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 33.154,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 35.213,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 37.275,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 39.339,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 41.403,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 43.462,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 45.527,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 47.587,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 49.663,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 51.728,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 53.789,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 55.852,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 57.914,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 59.985,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 62.054,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 64.133,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 66.194,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 68.259,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 70.319,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 72.382,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 74.444,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 76.524,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 78.584,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 80.647,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 82.718,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 84.79,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 86.833,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 88.896,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 90.958,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 93.021,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 95.082,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 97.163,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 99.23,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 101.285,
+        "used_mib": 4385
+      },
+      {
+        "elapsed_seconds": 103.334,
+        "used_mib": 1451
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.057,
+        "used_mib": 1448
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      7425,
+      13800,
+      14113,
+      14613,
+      14820,
+      14228,
+      14735,
+      14815,
+      14501,
+      15125,
+      14561,
+      14815,
+      14775,
+      14522,
+      14639,
+      14793,
+      14937,
+      13605,
+      14522,
+      14565,
+      13901,
+      14851,
+      14696,
+      14784,
+      14905,
+      14635,
+      14029,
+      13985,
+      14302,
+      14626,
+      14704,
+      14265,
+      13980,
+      14348,
+      13519,
+      12912,
+      14150,
+      14487,
+      14635,
+      14691,
+      14509,
+      14748,
+      14873,
+      14565,
+      14731,
+      14776,
+      15056,
+      14731,
+      15019,
+      14081
+    ],
+    "mean_steps_per_second": 14348.06,
+    "median_steps_per_second": 14619.5,
+    "final_mean_reward": -1.1,
+    "final_mean_episode_length": 400.0
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_rev7_pilot_s42_20260828-1312.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_rev7_pilot_s42_20260828-1312.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_13-11-58_go2_flat_recover_rev7_pilot_s42_20260828-1312",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_13-11-58_go2_flat_recover_rev7_pilot_s42_20260828-1312\\model_49.pt",
+    "checkpoint_sha256": "94be60c43bf3dfe17f22395cb8b3d296381ea6f393b6b59d24fd2d616325c1b8"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/upright_progress",
+      "Episode_Reward/base_height_progress",
+      "Episode_Reward/stable_support",
+      "Episode_Reward/upright_hold",
+      "Episode_Reward/stable_success_once",
+      "Episode_Reward/angvel_l2",
+      "Episode_Reward/joint_limit",
+      "Episode_Reward/torque_l2",
+      "Episode_Reward/joint_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/mechanical_power_proxy",
+      "Episode_Reward/undesired_collision",
+      "Episode_Termination/time_out",
+      "Episode_Termination/stable_success",
+      "Episode_Termination/numeric_invalid",
+      "Episode_Termination/hard_joint_limit",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/upright_progress": 0.11637129634618759,
+      "Episode_Reward/base_height_progress": 0.00041702864109538496,
+      "Episode_Reward/stable_support": 0.0,
+      "Episode_Reward/upright_hold": 0.0,
+      "Episode_Reward/stable_success_once": 0.0,
+      "Episode_Reward/angvel_l2": -0.07848890870809555,
+      "Episode_Reward/joint_limit": -0.03716509789228439,
+      "Episode_Reward/torque_l2": -0.02721036784350872,
+      "Episode_Reward/joint_acc_l2": -0.061727460473775864,
+      "Episode_Reward/action_rate_l2": -0.05114934965968132,
+      "Episode_Reward/mechanical_power_proxy": -0.0005250548711046576,
+      "Episode_Reward/undesired_collision": 0.0,
+      "Episode_Termination/time_out": 2.125,
+      "Episode_Termination/stable_success": 0.0,
+      "Episode_Termination/numeric_invalid": 0.0,
+      "Episode_Termination/hard_joint_limit": 0.0,
+      "Loss/value_function": 0.003031904576346278,
+      "Loss/surrogate": -0.00915559846907854,
+      "Loss/entropy": 8.579986572265625,
+      "Loss/learning_rate": 0.00011390625149942935,
+      "Policy/mean_noise_std": 0.495536744594574,
+      "Perf/total_fps": 14081.0,
+      "Perf/collection time": 1.6042542457580566,
+      "Perf/learning_time": 0.14102792739868164,
+      "Train/mean_reward": -1.0980517864227295,
+      "Train/mean_episode_length": 400.0,
+      "Train/mean_reward/time": -1.0980517864227295,
+      "Train/mean_episode_length/time": 400.0
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "run_health_passed": true,
+  "qualification_passed": null,
+  "passed": true
+}

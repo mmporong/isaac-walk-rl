@@ -171,3 +171,98 @@ py .\scripts\build_g009_s0_media.py --capture-reports `
 ```
 
 - 다음 실행은 `G009-5` R0 flat RECOVER를 scratch에서 학습하고, S0 nominal WALK와 R0 RECOVER의 torque·power·impact proxy를 calibration한 뒤 `G009-6` S1-low `5/10°` WALK를 여는 순서다. 각 stage는 별도 다중 seed 평가 JSON과 MP4·GIF·PNG·sidecar를 새로 만든다.
+
+### G009-5 R0 평지 전복 복구 PPO 계약·진단
+
+#### 실행 범위와 headless 의미
+
+- R0 task는 `Isaac-G009-Recover-Flat-Go2-R0-v0`다. 물리 timestep은 `0.005 s`, control decimation은 `4`, 정책 제어 주기는 `0.02 s`(`50 Hz`), episode 상한은 `400 step`(`8.0 s`)이다.
+- 여기서 `headless`는 Isaac Sim GUI 창을 띄우지 않는 실행을 뜻한다. 학습은 화면 렌더링 없이 물리·센서·PPO를 실행하고, 영상 단계에서는 같은 `--headless` 프로세스에서 카메라 extension과 off-screen renderer만 켠다. 따라서 headless 학습과 headless off-screen 녹화는 같은 말이 아니다.
+- 네 canonical reset pose와 root height는 prone `0.165 m`, supine `0.060 m`, left/right side `0.163 m`다. 각 revision은 이전에 기각한 checkpoint를 재개하지 않고 scratch에서 실행했다. 보고서의 `resume.enabled=false`와 빈 `effective_hydra_overrides`를 기준으로 확인했다.
+
+#### rev1~rev8 진단과 기각
+
+아래 수치는 각 JSON의 마지막 TensorBoard scalar다. `hard-limit`은 마지막 기록의 `Episode_Termination/hard_joint_limit`이므로 전체 학습 구간의 누적 횟수로 해석하지 않는다. 모든 실행은 프로세스·checkpoint 생성 관점에서는 정상 종료했지만, 엄격 복구 신호가 `0`이어서 정책 checkpoint는 모두 기각했다.
+
+rev1~rev8 report는 당시 dirty working tree에서 생성됐고 `source_bundle.matches_repository_commit=false`다. 마지막 scalar와 report 파일 hash는 실패 진단용으로 보존하지만 당시 source snapshot을 완전히 재현하는 승인 증거는 아니다. rev9부터는 clean commit, 개별 source file SHA와 source bundle SHA를 필수 provenance로 사용한다.
+
+| revision | scratch 실행 | final reward | `stable_support / upright_hold / stable_success_once` | final hard-limit | 판정과 다음 수정 |
+| --- | --- | ---: | ---: | ---: | --- |
+| rev1 | `1,024 env × 50 iter`, seed `42` | `-22.25` | `0 / 0 / 0` | `0.0416667` | 성공 경험이 없고 안전 종료도 남아 기각 |
+| rev2 | `64 × 1` smoke 후 `1,024 × 50` | `-18.24` | `0 / 0 / 0` | `0` | reward가 덜 음수가 됐지만 복구 신호가 없어 기각 |
+| rev3 | `64 × 1` smoke | `-2.81` | `0 / 0 / 0` | `0.75` | P83/C107 관측 경계를 고정했지만 완료 episode의 75%가 hard limit으로 끝나 기각 |
+| rev4 | `64 × 1` smoke | `-2.62` | `0 / 0 / 0` | `0.625` | action scale만 `0.8`로 줄였으나 hard-limit 62.5%가 남아 기각 |
+| rev5 | `64 × 1` smoke | `-1.15` | `0 / 0 / 0` | `0` | scale `0.8`에 EMA `alpha=0.2`를 더해 해당 smoke의 hard-limit을 없앴지만 성공 신호가 없어 학습 후보로 채택하지 않음 |
+| rev6 | `64 × 1` smoke와 `1,024 × 1` stress | `-0.97 / -0.35` | 두 실행 모두 `0 / 0 / 0` | `0 / 0.0416667` | side root height를 `0.163 m`로 보정했지만 대규모 stress에서 안전 종료가 다시 나타나 기각 |
+| rev7 | `1,024 × 1` stress 후 `1,024 × 50` | pilot `-1.10` | pilot `0 / 0 / 0` | pilot final `0` | PPO 초기 표준편차를 `0.5`로 낮춰 stress의 final hard-limit은 `0`이 됐으나 50-iteration 복구 경험은 끝내 없어서 기각 |
+| rev8 | `1,024 × 50` safety pilot | `-0.19` | `0 / 0 / 0` | final `0` | EMA를 `alpha=0.1`로 더 느리게 만들자 reward는 덜 음수가 됐지만 복구 신호는 여전히 `0`; 동작량 감소를 복구 개선으로 볼 수 없어 기각하고 `alpha=0.2`로 복원 |
+
+대표 원본은 [rev1 1024×50](reports/runs/go2_flat_recover_pilot2_s42_20260828-1105.json), [rev2 1024×50](reports/runs/go2_flat_recover_rev2_pilot_s42_20260828-1222.json), [rev3 smoke](reports/runs/go2_flat_recover_rev3_smoke_s42_20260828-1250.json), [rev4 smoke](reports/runs/go2_flat_recover_rev4_smoke_s42_20260828-1300.json), [rev5 smoke](reports/runs/go2_flat_recover_rev5_smoke_s42_20260828-1302.json), [rev6 stress](reports/runs/go2_flat_recover_rev6_stress_s42_20260828-1309.json), [rev7 1024×50](reports/runs/go2_flat_recover_rev7_pilot_s42_20260828-1312.json), [rev8 1024×50](reports/runs/go2_flat_recover_rev8_safety_pilot_s42_20260828-1318.json)이다. 단순히 final reward가 `-22.25 → -0.19`로 변한 사실만으로 정책이 개선됐다고 판단하지 않는다. 세 엄격 복구 항이 계속 `0`이었기 때문이다.
+
+#### rev9 동결 계약
+
+- 최종 계약 ID는 `g009_r0_recover_rev9`, 계약 SHA-256은 `4e0499699a24a272cccb9687f417d97770fcbc229186e2aedde6914e45beab66`다. 단일 원본은 [configs/g009_r0.json](configs/g009_r0.json)이다.
+- actor는 `P-RECOVER-83`이다. base 선·각속도, projected gravity, 관절 위치·속도, 이전 action, 4발 contact/load, body-fixed `5×3` range와 hit mask를 사용한다. pose one-hot, true terrain normal, mass·friction·wrench 같은 simulator oracle은 actor에 주지 않는다.
+- critic은 actor 83차원 prefix에 privileged 24차원을 더한 `C-RECOVER-107`이다. 실물 적용에는 IMU/base estimator, joint encoder, foot contact/load estimator, 하향 range/depth camera adapter가 필요하므로 deployability 상태는 `conditional_adapter_required`다.
+- critic의 `commanded_wrench` 3차원과 `normalized_pulse_time_remaining` 1차원은 D1 확장을 위해 예약한 채널이다. 외란이 비활성인 R0에서는 각각 명시적 constant-zero 함수가 값을 만들며, 현재 측정 신호나 actor 입력으로 해석하지 않는다.
+- action은 12차원 `EMAJointPositionToLimitsAction`이다. normalized clip `[-1,1]`, scale `0.8`, EMA `alpha=0.2`, soft joint limit factor `0.9`를 적용한다. hard-limit 전체 범위의 `72%`만 target envelope로 쓰며 각 끝의 margin은 `14%`다. solver tolerance `0.01 rad`는 완화하지 않는다.
+- PPO는 RSL-RL `2.3.3`, rollout `24 step/env`, actor·critic MLP `512-256-128`, ELU, 초기 noise std `0.5`, `5 epochs × 4 mini-batches`, iteration당 optimizer update `20`, clip `0.2`, entropy `0.01`, gamma `0.99`, GAE lambda `0.95`, adaptive learning rate 초기값 `0.001`이다.
+
+rev9 reward는 Isaac Lab의 `control_dt` 곱을 포함해 `sum(weight × raw_rate × 0.02)`로 집계한다.
+
+| 항 | weight | 의미 |
+| --- | ---: | --- |
+| `upright_progress` | `+2.0` | 할인 호환 자세 잠재차 |
+| `gated_base_height_progress` | `+2.0` | 자세 gate를 통과한 높이 잠재차 |
+| `soft_stand_progress` | `+2.0` | `u·z·(0.5c+0.5l)`의 할인 잠재차 |
+| `stable_support` | `+0.5` | 연속 지지 상태 |
+| `upright_hold` | `+5.0` | 엄격 upright 유지 |
+| `stable_success_once` | `+10.0` | 성공 latch 1회 terminal impulse |
+| `gated_angvel_l2` | `-0.05` | 쓰러진 상태 multiplier `0.1`, 유효 `-0.005` |
+| `joint_limit` | `-2.0` | 관절 안전 |
+| `torque_l2` | `-0.0002` | torque regularization |
+| `joint_acc_l2` | `-2.5e-7` | 관절 가속 regularization |
+| `gated_action_rate_l2` | `-0.01` | 쓰러진 상태 multiplier `0.2`, 유효 `-0.002` |
+| `mechanical_power_proxy` | `-1e-5` | 기계 power proxy |
+| `undesired_collision` | `-1.0` | 비발 접촉 벌점 |
+
+잠재 보상은 `(gamma·Phi_t - Phi_t-1) / control_dt`이며 terminal transition의 `Phi_t`는 `0`으로 강제한다. episode 시작의 이전 잠재도 `0`으로 초기화해 전체 discounted shaping return이 telescope하도록 고정했다. rev7·rev8에서 자세·높이 잠재 최대치와 regularization이 복구 탐색을 막은 진단을 반영해, rev9는 soft stand 진행 항을 추가하고 쓰러진 상태의 각속도·action-rate 벌점을 낮췄다. 이 shaping 신호는 아래 엄격 성공 판정을 대체하지 않는다.
+
+엄격 성공은 다음 조건을 `25 control step=0.5 s` 연속 만족해야 한다.
+
+- support normal 대비 upright angle `≤20°`, base height `0.30~0.60 m`
+- true support normal 방향의 양의 발 하중이 있는 발 `≥3`, 네 발 합계 `≥0.6 × 15.019 kg × 9.81 m/s²`
+- force `>1 N`인 비발 접촉 `0`
+- base linear speed `≤0.5 m/s`, angular speed `≤1.0 rad/s`
+- `numeric_invalid=0`, URDF hard-joint-limit safety termination `0`
+
+pose curriculum clock은 `env.common_step_counter`이며 PPO iteration당 `24` control step으로 환산한다.
+
+| PPO iteration | prone | supine | left | right |
+| ---: | ---: | ---: | ---: | ---: |
+| `0~49` | `100%` | `0%` | `0%` | `0%` |
+| `50~99` | `50%` | `0%` | `25%` | `25%` |
+| `100~299` | `25%` | `25%` | `25%` | `25%` |
+
+평가는 curriculum을 쓰지 않고 네 pose를 동일 개수로 stratified assignment한다. pose class는 critic-only이며 actor 관측에는 노출하지 않는다.
+
+#### runtime calibration과 테스트
+
+- [GPU probe](reports/runs/g009_r0_runtime_probe_gpu.json)와 [CPU probe](reports/runs/g009_r0_runtime_probe_cpu.json)는 각각 8환경, 150-step, seed `42`로 reset pose, P83/C107 차원, range/no-hit, foot load, friction·mass readback, latch, joint/torque/speed·contact 안전 경계를 검사했다. 두 report는 clean git commit, 13개 source binding 파일 SHA와 source bundle SHA를 기록한다.
+- [GPU/CPU synthesis](reports/runs/g009_r0_runtime_probe_synthesis.json)은 두 probe가 같은 계약 SHA를 사용했으며 `gpu_run_health_passed=true`, `gpu_runtime_contract_passed=true`, `cpu_authoritative_separation_passed=true`, `runtime_calibration_passed=true`임을 기록한다.
+- 이 PASS는 환경·센서·계약이 실행된다는 뜻일 뿐 학습 성공이 아니다. synthesis는 명시적으로 `learned_policy_qualified=false`, qualification `status=not_run`이다.
+- rev9 순수 Python G009 검사 결과는 `168 passed`, Isaac 번들 Python의 `test_g009_recover_config.py`는 `6 passed`, `test_g009_config_diff.py`는 `7 passed`다. 잠재 보상 telescope, one-shot latch, actor privilege 경계, pose curriculum, evaluation/media fail-closed, qualification 실행 조건을 포함한다.
+
+#### 다음 실행과 qualification gate
+
+1. 먼저 rev9를 `1,024 env × 50 iterations × seed 42`로 scratch pilot한다. 총 rollout transition은 `1,024 × 24 × 50 = 1,228,800`, optimizer update는 `50 × 20 = 1,000`이다.
+2. pilot 마지막 10 iteration에서 `stable_support`, `upright_hold`, `stable_success_once` 중 최소 한 신호가 `0`보다 크고, numeric-invalid는 `0`, hard-limit 안전 지표는 공식 조건을 만족하는지 확인한다. 이 gate가 실패하면 300-iteration run으로 늘리지 않고 reward·reset·exploration 가설을 새 revision으로 분리한다.
+3. pilot gate를 통과한 revision만 `1,024 env × 300 iterations × seed 42` scratch qualification으로 실행한다. 총 transition은 `7,372,800`, optimizer update는 `6,000`이다. qualification은 clean source commit, canonical entrypoint, 계약에 등록한 source binding, resume 금지, Hydra override 금지, 정확한 budget을 모두 요구한다.
+4. 학습 보고서의 `numeric_invalid`와 `hard_joint_limit` reset-batch count 최대값이 모두 `0`이어야 한다. 이후 deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.
+
+#### 단계별 영상·공개 정책
+
+- 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0` 아래에만 보관하고 Git에 넣지 않는다. 사용자가 확인할 원본과 합성 MP4도 `local_only`다.
+- 공식 qualification을 통과한 checkpoint만 public media builder 입력으로 허용한다. 공개 저장소에는 GIF·PNG·정량 JSON sidecar만 둔다. 진단용 pilot 영상은 성공 증거와 분리하고 `diagnostic` 또는 `not_run/failed` 상태를 명시한다.
+- G009-5 R0 pose 번호와 파일명은 `01 prone` → `02 supine` → `03 left_side` → `04 right_side` 순서로 고정한다. 로컬 파일은 `g009_5_r0_01_prone_s42.mp4`, `g009_5_r0_02_supine_s42.mp4`, `g009_5_r0_03_left_side_s42.mp4`, `g009_5_r0_04_right_side_s42.mp4` 형식이다.
+- 공개 합성물 목표 경로는 `docs/media/g009/R0/g009_5_r0_four_pose_recovery.gif`와 대응 contact sheet PNG다. 평가·캡처·파생물 sidecar는 source commit, contract SHA, checkpoint SHA, pose 번호, headless/off-screen, ffprobe와 파일 SHA-256을 결합한다.

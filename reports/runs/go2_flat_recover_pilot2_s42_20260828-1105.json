@@ -1,0 +1,406 @@
+{
+  "schema_version": 1,
+  "run_name": "go2_flat_recover_pilot2_s42_20260828-1105",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "num_envs": 1024,
+  "max_iterations": 50,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "--task",
+    "Isaac-G009-Recover-Flat-Go2-R0-v0",
+    "--num_envs",
+    1024,
+    "--max_iterations",
+    50,
+    "--seed",
+    42,
+    "--run_name",
+    "go2_flat_recover_pilot2_s42_20260828-1105",
+    "--headless"
+  ],
+  "resume": {
+    "enabled": false,
+    "load_run": null,
+    "checkpoint": null
+  },
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "sha256": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+    "repository_internal": true
+  },
+  "started_at": "2026-08-28T11:05:42.8966144+09:00",
+  "ended_at": "2026-08-28T11:07:30.2296332+09:00",
+  "wall_time_seconds": 107.332,
+  "exit_code": 0,
+  "last_iteration": 49,
+  "iteration_target": 50,
+  "gpu": {
+    "baseline_used_mib": 1448,
+    "peak_used_mib": 4419.0,
+    "delta_used_mib": 2971.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.073,
+        "used_mib": 1451
+      },
+      {
+        "elapsed_seconds": 2.13,
+        "used_mib": 1451
+      },
+      {
+        "elapsed_seconds": 4.193,
+        "used_mib": 1544
+      },
+      {
+        "elapsed_seconds": 6.257,
+        "used_mib": 1576
+      },
+      {
+        "elapsed_seconds": 8.317,
+        "used_mib": 1633
+      },
+      {
+        "elapsed_seconds": 10.38,
+        "used_mib": 1673
+      },
+      {
+        "elapsed_seconds": 12.444,
+        "used_mib": 4111
+      },
+      {
+        "elapsed_seconds": 14.504,
+        "used_mib": 4259
+      },
+      {
+        "elapsed_seconds": 16.567,
+        "used_mib": 4261
+      },
+      {
+        "elapsed_seconds": 18.629,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 20.691,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 22.754,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 24.816,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 26.878,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 28.941,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 31.003,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 33.065,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 35.127,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 37.193,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 39.267,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 41.332,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 43.396,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 45.457,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 47.517,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 49.594,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 51.657,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 53.72,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 55.781,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 57.844,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 59.923,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 61.987,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 64.047,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 66.11,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 68.172,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 70.234,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 72.306,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 74.374,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 76.436,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 78.499,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 80.561,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 82.631,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 84.701,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 86.763,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 88.826,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 90.888,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 92.95,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 95.013,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 97.076,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 99.142,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 101.2,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 103.263,
+        "used_mib": 4419
+      },
+      {
+        "elapsed_seconds": 105.325,
+        "used_mib": 4419
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.046,
+        "used_mib": 1448
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      7648,
+      12039,
+      14224,
+      13474,
+      12955,
+      13827,
+      13894,
+      13882,
+      14236,
+      14028,
+      14496,
+      13420,
+      11365,
+      12701,
+      13945,
+      12824,
+      13158,
+      13769,
+      14290,
+      14390,
+      13819,
+      13965,
+      13993,
+      14731,
+      13632,
+      13538,
+      13902,
+      13628,
+      14122,
+      14419,
+      14411,
+      14604,
+      14126,
+      13973,
+      14578,
+      14390,
+      14484,
+      12885,
+      14122,
+      13046,
+      14150,
+      14390,
+      14386,
+      14357,
+      14269,
+      13894,
+      14403,
+      14311,
+      14445,
+      12372
+    ],
+    "mean_steps_per_second": 13718.2,
+    "median_steps_per_second": 13983.0,
+    "final_mean_reward": -22.25,
+    "final_mean_episode_length": 392.04
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_pilot2_s42_20260828-1105.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_pilot2_s42_20260828-1105.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_11-05-52_go2_flat_recover_pilot2_s42_20260828-1105",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_11-05-52_go2_flat_recover_pilot2_s42_20260828-1105\\model_49.pt",
+    "checkpoint_sha256": "85004e1e42dc28d59ff82719d1e6e99ab58db53b7d41719924912c26d9764fbe"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/upright_progress",
+      "Episode_Reward/base_height_progress",
+      "Episode_Reward/stable_support",
+      "Episode_Reward/upright_hold",
+      "Episode_Reward/stable_success_once",
+      "Episode_Reward/angvel_l2",
+      "Episode_Reward/joint_limit",
+      "Episode_Reward/torque_l2",
+      "Episode_Reward/joint_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/mechanical_power_proxy",
+      "Episode_Reward/undesired_collision",
+      "Episode_Termination/time_out",
+      "Episode_Termination/stable_success",
+      "Episode_Termination/numeric_invalid",
+      "Episode_Termination/hard_joint_limit",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/upright_progress": -0.002892396179959178,
+      "Episode_Reward/base_height_progress": -0.00019760846043936908,
+      "Episode_Reward/stable_support": 0.0,
+      "Episode_Reward/upright_hold": 0.0,
+      "Episode_Reward/stable_success_once": 0.0,
+      "Episode_Reward/angvel_l2": -0.7836658358573914,
+      "Episode_Reward/joint_limit": -0.1186818927526474,
+      "Episode_Reward/torque_l2": -0.16028384864330292,
+      "Episode_Reward/joint_acc_l2": -0.8464623689651489,
+      "Episode_Reward/action_rate_l2": -0.08463612198829651,
+      "Episode_Reward/mechanical_power_proxy": -0.00880357064306736,
+      "Episode_Reward/undesired_collision": -0.7589594721794128,
+      "Episode_Termination/time_out": 3.9583334922790527,
+      "Episode_Termination/stable_success": 0.0,
+      "Episode_Termination/numeric_invalid": 0.0,
+      "Episode_Termination/hard_joint_limit": 0.0416666679084301,
+      "Loss/value_function": 0.013044193387031555,
+      "Loss/surrogate": -0.005942401941865683,
+      "Loss/entropy": 16.832212448120117,
+      "Loss/learning_rate": 0.0002562890585977584,
+      "Policy/mean_noise_std": 0.9862117767333984,
+      "Perf/total_fps": 12372.0,
+      "Perf/collection time": 1.7962932586669922,
+      "Perf/learning_time": 0.19002699851989746,
+      "Train/mean_reward": -22.25299835205078,
+      "Train/mean_episode_length": 392.0400085449219,
+      "Train/mean_reward/time": -22.25299835205078,
+      "Train/mean_episode_length/time": 392.0400085449219
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true
+}

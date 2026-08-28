@@ -26,6 +26,11 @@ param(
 
     [string]$TrainingEntrypointPath,
 
+    [ValidateNotNull()]
+    [string[]]$SourceBindingPaths = @(),
+
+    [switch]$Qualification,
+
     [switch]$Resume,
 
     [string]$LoadRun,
@@ -131,6 +136,19 @@ function Get-LastMatchValue {
     return $matches[$matches.Count - 1].Groups[$Group].Value
 }
 
+function Get-TextSha256 {
+    param([Parameter(Mandatory = $true)][string]$Text)
+
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text)
+        return ([System.BitConverter]::ToString($sha.ComputeHash($bytes))).Replace('-', '').ToLowerInvariant()
+    }
+    finally {
+        $sha.Dispose()
+    }
+}
+
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $isaacLabFullPath = [System.IO.Path]::GetFullPath($IsaacLabPath)
 $pythonBat = Join-Path $isaacLabFullPath '_isaac_sim\python.bat'
@@ -180,6 +198,20 @@ if ($Resume) {
 elseif (-not [string]::IsNullOrWhiteSpace($LoadRun) -or -not [string]::IsNullOrWhiteSpace($ResumeCheckpoint)) {
     throw 'LoadRun과 ResumeCheckpoint는 -Resume과 함께 사용해야 합니다.'
 }
+if ($Qualification -and $Resume) {
+    throw 'Qualification 학습은 scratch 실행만 허용합니다.'
+}
+if ($Qualification -and $HydraOverrides.Count -gt 0) {
+    throw 'Qualification 학습은 런타임 의미를 바꾸는 Hydra override를 허용하지 않습니다.'
+}
+$g009QualificationTask = 'Isaac-G009-Recover-Flat-Go2-R0-v0'
+if (
+    $Qualification -and
+    $Task -eq $g009QualificationTask -and
+    ($NumEnvs -ne 1024 -or $MaxIterations -ne 300 -or $Seed -ne 42)
+) {
+    throw 'G009 R0 Qualification은 num_envs=1024, max_iterations=300, seed=42만 허용합니다.'
+}
 
 if (-not (Test-Path -LiteralPath $pythonBat -PathType Leaf)) {
     throw "Isaac Sim bundled python.bat을 찾을 수 없습니다: $pythonBat"
@@ -188,6 +220,116 @@ if (-not (Test-Path -LiteralPath $trainScript -PathType Leaf)) {
     throw "RSL-RL train.py를 찾을 수 없습니다: $trainScript"
 }
 $trainingEntrypointHash = (Get-FileHash -LiteralPath $trainScript -Algorithm SHA256).Hash.ToLowerInvariant()
+$sourceBindingFiles = [ordered]@{}
+$repoBoundary = [System.IO.Path]::GetFullPath($repoRoot).TrimEnd('\') + '\'
+foreach ($sourcePath in @($SourceBindingPaths | Sort-Object -Unique)) {
+    $fullSourcePath = if ([System.IO.Path]::IsPathRooted($sourcePath)) {
+        [System.IO.Path]::GetFullPath($sourcePath)
+    }
+    else {
+        [System.IO.Path]::GetFullPath((Join-Path $repoRoot $sourcePath))
+    }
+    if (-not $fullSourcePath.StartsWith($repoBoundary, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "SourceBindingPaths는 저장소 내부 파일이어야 합니다: $fullSourcePath"
+    }
+    if (-not (Test-Path -LiteralPath $fullSourcePath -PathType Leaf)) {
+        throw "SourceBindingPaths 파일을 찾을 수 없습니다: $fullSourcePath"
+    }
+    $relativeSourcePath = [System.IO.Path]::GetRelativePath($repoRoot, $fullSourcePath).Replace('\', '/')
+    $sourceBindingFiles[$relativeSourcePath] = (
+        Get-FileHash -LiteralPath $fullSourcePath -Algorithm SHA256
+    ).Hash.ToLowerInvariant()
+}
+$sourceBundlePayload = (
+    $sourceBindingFiles.GetEnumerator() | ForEach-Object { "$($_.Key):$($_.Value)" }
+) -join "`n"
+$sourceBundleHash = if ($sourceBindingFiles.Count -gt 0) {
+    Get-TextSha256 $sourceBundlePayload
+}
+else {
+    $null
+}
+$repositoryCommit = $null
+$repositoryDirty = $null
+$sourceBundleMatchesHead = $null
+$gitCommand = Get-Command git -ErrorAction SilentlyContinue
+if ($null -ne $gitCommand) {
+    $commitOutput = & $gitCommand.Source -C $repoRoot rev-parse HEAD 2>$null
+    if ($LASTEXITCODE -eq 0 -and $commitOutput) {
+        $repositoryCommit = ([string]$commitOutput).Trim()
+        $statusOutput = @(& $gitCommand.Source -C $repoRoot status --porcelain=v1 2>$null)
+        if ($LASTEXITCODE -eq 0) {
+            $repositoryDirty = $statusOutput.Count -gt 0
+        }
+    }
+    if ($sourceBindingFiles.Count -gt 0 -and $null -ne $repositoryCommit) {
+        $allSourceFilesTracked = $true
+        foreach ($relativeSourcePath in $sourceBindingFiles.Keys) {
+            & $gitCommand.Source -C $repoRoot ls-files --error-unmatch -- $relativeSourcePath *> $null
+            if ($LASTEXITCODE -ne 0) {
+                $allSourceFilesTracked = $false
+                break
+            }
+        }
+        if ($allSourceFilesTracked) {
+            $diffArguments = @('-C', $repoRoot, 'diff', '--quiet', 'HEAD', '--') + @($sourceBindingFiles.Keys)
+            & $gitCommand.Source @diffArguments
+            $sourceBundleMatchesHead = $LASTEXITCODE -eq 0
+        }
+        else {
+            $sourceBundleMatchesHead = $false
+        }
+    }
+}
+
+$qualificationPreflightPassed = $null
+if ($Qualification) {
+    $qualificationFailures = [System.Collections.Generic.List[string]]::new()
+    if ($sourceBindingFiles.Count -eq 0) {
+        $qualificationFailures.Add('source bundle이 비어 있음')
+    }
+    if ($null -eq $repositoryCommit -or $repositoryCommit -notmatch '^[0-9a-f]{40}$') {
+        $qualificationFailures.Add('유효한 repository commit을 읽지 못함')
+    }
+    if ($repositoryDirty -ne $false) {
+        $qualificationFailures.Add('repository가 clean 상태가 아님')
+    }
+    if ($sourceBundleMatchesHead -ne $true) {
+        $qualificationFailures.Add('source bundle이 현재 HEAD와 일치하지 않음')
+    }
+    if ([string]::IsNullOrWhiteSpace($TrainingEntrypointPath)) {
+        $qualificationFailures.Add('repository 내부 training entrypoint가 지정되지 않음')
+    }
+    if ($Task -eq $g009QualificationTask) {
+        $requiredG009SourcePaths = @(
+            'configs/g009_r0.json',
+            'scripts/bootstrap_train_g009.py',
+            'scripts/run_training.ps1',
+            'src/isaac_walk_g009/agent_cfg.py',
+            'src/isaac_walk_g009/mdp/__init__.py',
+            'src/isaac_walk_g009/mdp/events.py',
+            'src/isaac_walk_g009/mdp/recover.py',
+            'src/isaac_walk_g009/recover_contracts.py',
+            'src/isaac_walk_g009/recover_env_cfg.py',
+            'src/isaac_walk_g009/registry.py'
+        )
+        foreach ($requiredPath in $requiredG009SourcePaths) {
+            if (-not $sourceBindingFiles.Contains($requiredPath)) {
+                $qualificationFailures.Add("G009 R0 필수 source binding 누락: $requiredPath")
+            }
+        }
+        $expectedG009Entrypoint = [System.IO.Path]::GetFullPath(
+            (Join-Path $repoRoot 'scripts\bootstrap_train_g009.py')
+        )
+        if (-not $trainScript.Equals($expectedG009Entrypoint, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $qualificationFailures.Add('G009 R0 training entrypoint가 bootstrap_train_g009.py와 일치하지 않음')
+        }
+    }
+    if ($qualificationFailures.Count -gt 0) {
+        throw ('Qualification 사전 검증 실패: ' + ($qualificationFailures -join '; '))
+    }
+    $qualificationPreflightPassed = $true
+}
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $repoRoot "reports\runs\$RunName.json"
@@ -230,9 +372,9 @@ $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $process = Start-Process -FilePath $pythonBat `
     -ArgumentList $argumentLine `
     -WorkingDirectory $isaacLabFullPath `
+    -WindowStyle Hidden `
     -RedirectStandardOutput $stdoutPath `
     -RedirectStandardError $stderrPath `
-    -WindowStyle Hidden `
     -PassThru
 
 while (-not $process.HasExited) {
@@ -314,12 +456,30 @@ $tensorboardScalars = $null
 if ($actualLogDirectory -and (Test-Path -LiteralPath $actualLogDirectory -PathType Container)) {
     $tensorboardExists = $null -ne (Get-ChildItem -LiteralPath $actualLogDirectory -Filter 'events.out.tfevents.*' -File | Select-Object -First 1)
     if ($tensorboardExists) {
-        $scalarCode = "import json,sys;from tensorboard.backend.event_processing.event_accumulator import EventAccumulator;e=EventAccumulator(sys.argv[1]);e.Reload();tags=e.Tags().get('scalars',[]);print(json.dumps({'tags':tags,'latest':{t:e.Scalars(t)[-1].value for t in tags if e.Scalars(t)}}))"
+        $scalarCode = "import json,sys;from tensorboard.backend.event_processing.event_accumulator import EventAccumulator;e=EventAccumulator(sys.argv[1],size_guidance={'scalars':0});e.Reload();tags=e.Tags().get('scalars',[]);series={t:[float(x.value) for x in e.Scalars(t)] for t in tags};summary={t:{'sample_count':len(v),'latest':v[-1],'minimum':min(v),'maximum':max(v),'mean':sum(v)/len(v),'nonzero_sample_count':sum(abs(x)>1.0e-12 for x in v)} for t,v in series.items() if v};print(json.dumps({'tags':tags,'latest':{t:v[-1] for t,v in series.items() if v},'series_summary':summary}))"
         $scalarOutput = @(& $pythonBat -c $scalarCode $actualLogDirectory 2>$null)
         if ($LASTEXITCODE -eq 0 -and $scalarOutput.Count -gt 0) {
             try { $tensorboardScalars = $scalarOutput[-1] | ConvertFrom-Json } catch { $tensorboardScalars = $null }
         }
     }
+}
+
+$hardJointLimitSummary = $null
+$numericInvalidSummary = $null
+if ($tensorboardScalars -and $tensorboardScalars.series_summary) {
+    $hardJointLimitProperty = $tensorboardScalars.series_summary.PSObject.Properties['Episode_Termination/hard_joint_limit']
+    $numericInvalidProperty = $tensorboardScalars.series_summary.PSObject.Properties['Episode_Termination/numeric_invalid']
+    if ($hardJointLimitProperty) { $hardJointLimitSummary = $hardJointLimitProperty.Value }
+    if ($numericInvalidProperty) { $numericInvalidSummary = $numericInvalidProperty.Value }
+}
+$qualificationTrainingSafetyPassed = if ($Qualification) {
+    $null -ne $hardJointLimitSummary -and
+    $null -ne $numericInvalidSummary -and
+    [double]$hardJointLimitSummary.maximum -eq 0.0 -and
+    [double]$numericInvalidSummary.maximum -eq 0.0
+}
+else {
+    $null
 }
 
 $gpuValues = @($gpuSamples | ForEach-Object { $_.used_mib } | Where-Object { $null -ne $_ })
@@ -349,6 +509,7 @@ $successChecks = [ordered]@{
     checkpoint_exists = ($null -ne $checkpoint)
     gpu_measurement_complete = $gpuMeasurementComplete
     gpu_recovered_to_baseline = $recoveredToBaseline
+    qualification_training_safety_zero = $qualificationTrainingSafetyPassed
 }
 $passed = -not ($successChecks.Values -contains $false)
 
@@ -360,6 +521,11 @@ $report = [ordered]@{
     max_iterations = $MaxIterations
     seed = $Seed
     headless = $true
+    qualification_mode = [ordered]@{
+        enabled = [bool]$Qualification
+        preflight_passed = $qualificationPreflightPassed
+        policy_qualification_status = 'not_run'
+    }
     command = @(
         (Convert-ToPortablePath $pythonBat),
         (Convert-ToPortablePath $trainScript),
@@ -380,6 +546,15 @@ $report = [ordered]@{
         path = Convert-ToPortablePath $trainScript
         sha256 = $trainingEntrypointHash
         repository_internal = -not [string]::IsNullOrWhiteSpace($TrainingEntrypointPath)
+    }
+    repository = [ordered]@{
+        commit = $repositoryCommit
+        dirty = $repositoryDirty
+    }
+    source_bundle = [ordered]@{
+        sha256 = $sourceBundleHash
+        files = $sourceBindingFiles
+        matches_repository_commit = $sourceBundleMatchesHead
     }
     started_at = $startedAt.ToString('o')
     ended_at = $endedAt.ToString('o')
@@ -406,6 +581,21 @@ $report = [ordered]@{
         final_mean_reward = $finalReward
         final_mean_episode_length = $finalEpisodeLength
     }
+    training_safety_aggregate = [ordered]@{
+        metric_semantics = 'TensorBoard statistics over per-reset-batch termination counts across every logged scalar sample'
+        scalar_reservoir = 'unbounded (size_guidance scalars=0)'
+        hard_joint_limit = $hardJointLimitSummary
+        numeric_invalid = $numericInvalidSummary
+        qualification_requires_both_maximum_counts_zero = [bool]$Qualification
+        qualification_passed = $qualificationTrainingSafetyPassed
+        unavailable_fields = @(
+            'hard_limit_total_count',
+            'hard_limit_max_excess_rad',
+            'hard_limit_by_joint',
+            'hard_limit_by_pose'
+        )
+        unavailable_reason = 'RSL-RL episode summaries expose rates only; joint/pose attribution requires dedicated runtime instrumentation'
+    }
     artifacts = [ordered]@{
         raw_stdout = Convert-ToPortablePath $stdoutPath
         raw_stderr = Convert-ToPortablePath $stderrPath
@@ -416,6 +606,8 @@ $report = [ordered]@{
     tensorboard = $tensorboardScalars
     fatal_patterns_found = $fatalMatches
     success_checks = $successChecks
+    run_health_passed = $passed
+    qualification_passed = $null
     passed = $passed
 }
 

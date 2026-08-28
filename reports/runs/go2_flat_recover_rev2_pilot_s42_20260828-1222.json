@@ -1,0 +1,436 @@
+{
+  "schema_version": 1,
+  "run_name": "go2_flat_recover_rev2_pilot_s42_20260828-1222",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "num_envs": 1024,
+  "max_iterations": 50,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "--task",
+    "Isaac-G009-Recover-Flat-Go2-R0-v0",
+    "--num_envs",
+    1024,
+    "--max_iterations",
+    50,
+    "--seed",
+    42,
+    "--run_name",
+    "go2_flat_recover_rev2_pilot_s42_20260828-1222",
+    "--headless"
+  ],
+  "resume": {
+    "enabled": false,
+    "load_run": null,
+    "checkpoint": null
+  },
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "sha256": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+    "repository_internal": true
+  },
+  "repository": {
+    "commit": "88fad8735841d4b83d50ec70da2415fa996e7cc6",
+    "dirty": true
+  },
+  "source_bundle": {
+    "sha256": "f865a17f75267a4729b1d5da0b0dfa96a07402ef35283d7f6a0f32e5f58d8b82",
+    "files": {
+      "configs/g009_r0.json": "d3b241f13db1838444bd0afcef66aed48f0520920fdba26d7e0be974cf0f30f9",
+      "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+      "scripts/run_training.ps1": "b154e1a85ed136f23702166342f8f15bf3af1808aaef69b9745d6f55892cabbe",
+      "src/isaac_walk_g009/agent_cfg.py": "1a8dbcb2d6751fbae503d5ee8109790e6bcbe47308a385aee1b9db5f36dab175",
+      "src/isaac_walk_g009/mdp/__init__.py": "58de66006be808999873c2e8bd30f89e9acd4a64f083f70c9dbac5bc5ed4bc64",
+      "src/isaac_walk_g009/mdp/events.py": "14c60fd2685138595be457407f579fa607cba8b23f28ea5bd87364adb3ea16c0",
+      "src/isaac_walk_g009/mdp/recover.py": "6fe36ab88c79b567d54aa2b6085189e545555061a79e555cf67b4441534f4619",
+      "src/isaac_walk_g009/recover_contracts.py": "faaa799ec574f15e76233b8371e8e15a1fa025bc215119a13c6c29ff6bfbf285",
+      "src/isaac_walk_g009/recover_env_cfg.py": "5f1b97a78e4640dc20f90c42d8a41b3b17cab857a295f23edb9927f87c4953c4",
+      "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+    },
+    "matches_repository_commit": false
+  },
+  "started_at": "2026-08-28T12:21:23.2344418+09:00",
+  "ended_at": "2026-08-28T12:23:14.8223736+09:00",
+  "wall_time_seconds": 111.587,
+  "exit_code": 0,
+  "last_iteration": 49,
+  "iteration_target": 50,
+  "gpu": {
+    "baseline_used_mib": 1448,
+    "peak_used_mib": 4553.0,
+    "delta_used_mib": 3105.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.07,
+        "used_mib": 1451
+      },
+      {
+        "elapsed_seconds": 2.134,
+        "used_mib": 1544
+      },
+      {
+        "elapsed_seconds": 4.196,
+        "used_mib": 1544
+      },
+      {
+        "elapsed_seconds": 6.274,
+        "used_mib": 1576
+      },
+      {
+        "elapsed_seconds": 8.337,
+        "used_mib": 1623
+      },
+      {
+        "elapsed_seconds": 10.399,
+        "used_mib": 1607
+      },
+      {
+        "elapsed_seconds": 12.462,
+        "used_mib": 4047
+      },
+      {
+        "elapsed_seconds": 14.526,
+        "used_mib": 4195
+      },
+      {
+        "elapsed_seconds": 16.589,
+        "used_mib": 4279
+      },
+      {
+        "elapsed_seconds": 18.648,
+        "used_mib": 4427
+      },
+      {
+        "elapsed_seconds": 20.712,
+        "used_mib": 4427
+      },
+      {
+        "elapsed_seconds": 22.79,
+        "used_mib": 4427
+      },
+      {
+        "elapsed_seconds": 24.867,
+        "used_mib": 4427
+      },
+      {
+        "elapsed_seconds": 26.93,
+        "used_mib": 4427
+      },
+      {
+        "elapsed_seconds": 28.992,
+        "used_mib": 4427
+      },
+      {
+        "elapsed_seconds": 31.06,
+        "used_mib": 4427
+      },
+      {
+        "elapsed_seconds": 33.121,
+        "used_mib": 4427
+      },
+      {
+        "elapsed_seconds": 35.179,
+        "used_mib": 4427
+      },
+      {
+        "elapsed_seconds": 37.241,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 39.317,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 41.382,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 43.444,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 45.505,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 47.569,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 49.631,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 51.692,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 53.763,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 55.832,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 57.917,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 59.974,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 62.036,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 64.098,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 66.159,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 68.223,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 70.284,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 72.385,
+        "used_mib": 4521
+      },
+      {
+        "elapsed_seconds": 74.44,
+        "used_mib": 4521
+      },
+      {
+        "elapsed_seconds": 76.503,
+        "used_mib": 4553
+      },
+      {
+        "elapsed_seconds": 78.587,
+        "used_mib": 4553
+      },
+      {
+        "elapsed_seconds": 80.659,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 82.722,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 84.783,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 86.845,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 88.909,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 90.985,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 93.048,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 95.11,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 97.204,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 99.266,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 101.328,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 103.397,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 105.453,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 107.516,
+        "used_mib": 4429
+      },
+      {
+        "elapsed_seconds": 109.579,
+        "used_mib": 4421
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.045,
+        "used_mib": 1448
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      6761,
+      14278,
+      14656,
+      13894,
+      14407,
+      12042,
+      12672,
+      12146,
+      11284,
+      12922,
+      13325,
+      14479,
+      14518,
+      14109,
+      12724,
+      13365,
+      13651,
+      14183,
+      14105,
+      14154,
+      14441,
+      13746,
+      13394,
+      14252,
+      13590,
+      14097,
+      14175,
+      14336,
+      13267,
+      12946,
+      11617,
+      11235,
+      11209,
+      12140,
+      13504,
+      14403,
+      14302,
+      14174,
+      12539,
+      14356,
+      13482,
+      12669,
+      14174,
+      14386,
+      14802,
+      14639,
+      14504,
+      14310,
+      13063,
+      13361
+    ],
+    "mean_steps_per_second": 13415.76,
+    "median_steps_per_second": 13820.0,
+    "final_mean_reward": -18.24,
+    "final_mean_episode_length": 400.0
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_rev2_pilot_s42_20260828-1222.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_rev2_pilot_s42_20260828-1222.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_12-21-32_go2_flat_recover_rev2_pilot_s42_20260828-1222",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_12-21-32_go2_flat_recover_rev2_pilot_s42_20260828-1222\\model_49.pt",
+    "checkpoint_sha256": "808e45c75f63cc7d9e587f624e4718939619671d373ea8e2bdb8b1743f5c303c"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/upright_progress",
+      "Episode_Reward/base_height_progress",
+      "Episode_Reward/stable_support",
+      "Episode_Reward/upright_hold",
+      "Episode_Reward/stable_success_once",
+      "Episode_Reward/angvel_l2",
+      "Episode_Reward/joint_limit",
+      "Episode_Reward/torque_l2",
+      "Episode_Reward/joint_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/mechanical_power_proxy",
+      "Episode_Reward/undesired_collision",
+      "Episode_Termination/time_out",
+      "Episode_Termination/stable_success",
+      "Episode_Termination/numeric_invalid",
+      "Episode_Termination/hard_joint_limit",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/upright_progress": 0.2290605753660202,
+      "Episode_Reward/base_height_progress": -0.004275284241884947,
+      "Episode_Reward/stable_support": 0.0,
+      "Episode_Reward/upright_hold": 0.0,
+      "Episode_Reward/stable_success_once": 0.0,
+      "Episode_Reward/angvel_l2": -1.0018517971038818,
+      "Episode_Reward/joint_limit": -0.10760468244552612,
+      "Episode_Reward/torque_l2": -0.18310748040676117,
+      "Episode_Reward/joint_acc_l2": -1.0597461462020874,
+      "Episode_Reward/action_rate_l2": -0.09251656383275986,
+      "Episode_Reward/mechanical_power_proxy": -0.0089621152728796,
+      "Episode_Reward/undesired_collision": 0.0,
+      "Episode_Termination/time_out": 2.8333334922790527,
+      "Episode_Termination/stable_success": 0.0,
+      "Episode_Termination/numeric_invalid": 0.0,
+      "Episode_Termination/hard_joint_limit": 0.0,
+      "Loss/value_function": 0.018121061846613884,
+      "Loss/surrogate": -0.0037729223258793354,
+      "Loss/entropy": 16.852014541625977,
+      "Loss/learning_rate": 5.062499985797331E-05,
+      "Policy/mean_noise_std": 0.9877598881721497,
+      "Perf/total_fps": 13361.0,
+      "Perf/collection time": 1.6837751865386963,
+      "Perf/learning_time": 0.15552496910095215,
+      "Train/mean_reward": -18.24407196044922,
+      "Train/mean_episode_length": 400.0,
+      "Train/mean_reward/time": -18.24407196044922,
+      "Train/mean_episode_length/time": 400.0
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "run_health_passed": true,
+  "qualification_passed": null,
+  "passed": true
+}

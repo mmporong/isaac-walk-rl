@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "run_name": "go2_flat_recover_smoke_s42_20260828-1056",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "num_envs": 64,
+  "max_iterations": 1,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "--task",
+    "Isaac-G009-Recover-Flat-Go2-R0-v0",
+    "--num_envs",
+    64,
+    "--max_iterations",
+    1,
+    "--seed",
+    42,
+    "--run_name",
+    "go2_flat_recover_smoke_s42_20260828-1056",
+    "--headless"
+  ],
+  "resume": {
+    "enabled": false,
+    "load_run": null,
+    "checkpoint": null
+  },
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "sha256": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+    "repository_internal": true
+  },
+  "started_at": "2026-08-28T10:56:32.2884574+09:00",
+  "ended_at": "2026-08-28T10:56:50.8638395+09:00",
+  "wall_time_seconds": 18.574,
+  "exit_code": 0,
+  "last_iteration": 0,
+  "iteration_target": 1,
+  "gpu": {
+    "baseline_used_mib": 1448,
+    "peak_used_mib": 3911.0,
+    "delta_used_mib": 2463.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.068,
+        "used_mib": 1451
+      },
+      {
+        "elapsed_seconds": 2.129,
+        "used_mib": 1544
+      },
+      {
+        "elapsed_seconds": 4.192,
+        "used_mib": 1544
+      },
+      {
+        "elapsed_seconds": 6.253,
+        "used_mib": 1576
+      },
+      {
+        "elapsed_seconds": 8.316,
+        "used_mib": 1633
+      },
+      {
+        "elapsed_seconds": 10.377,
+        "used_mib": 1607
+      },
+      {
+        "elapsed_seconds": 12.44,
+        "used_mib": 3895
+      },
+      {
+        "elapsed_seconds": 14.502,
+        "used_mib": 3895
+      },
+      {
+        "elapsed_seconds": 16.565,
+        "used_mib": 3911
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.048,
+        "used_mib": 1448
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      682
+    ],
+    "mean_steps_per_second": 682.0,
+    "median_steps_per_second": 682,
+    "final_mean_reward": -1.12,
+    "final_mean_episode_length": 21.5
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_smoke_s42_20260828-1056.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_smoke_s42_20260828-1056.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_10-56-42_go2_flat_recover_smoke_s42_20260828-1056",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_10-56-42_go2_flat_recover_smoke_s42_20260828-1056\\model_0.pt",
+    "checkpoint_sha256": "bda0796df0bc79910307be7b23a36684c17307b0553fb19c6df70747665f3488"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/upright_progress",
+      "Episode_Reward/base_height_progress",
+      "Episode_Reward/stable_support",
+      "Episode_Reward/upright_hold",
+      "Episode_Reward/stable_success_once",
+      "Episode_Reward/angvel_l2",
+      "Episode_Reward/joint_limit",
+      "Episode_Reward/torque_l2",
+      "Episode_Reward/joint_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/mechanical_power_proxy",
+      "Episode_Reward/undesired_collision",
+      "Episode_Termination/time_out",
+      "Episode_Termination/stable_success",
+      "Episode_Termination/numeric_invalid",
+      "Episode_Termination/hard_joint_limit",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/upright_progress": -0.0005373402964323759,
+      "Episode_Reward/base_height_progress": -2.6308574888389558E-05,
+      "Episode_Reward/stable_support": 0.0,
+      "Episode_Reward/upright_hold": 0.0,
+      "Episode_Reward/stable_success_once": 0.0,
+      "Episode_Reward/angvel_l2": -0.006455160211771727,
+      "Episode_Reward/joint_limit": 0.0,
+      "Episode_Reward/torque_l2": -0.0006492817774415016,
+      "Episode_Reward/joint_acc_l2": -0.0038399887271225452,
+      "Episode_Reward/action_rate_l2": -0.0026639755815267563,
+      "Episode_Reward/mechanical_power_proxy": -3.165581074426882E-05,
+      "Episode_Reward/undesired_collision": -0.014270832762122154,
+      "Episode_Termination/time_out": 0.25,
+      "Episode_Termination/stable_success": 0.0,
+      "Episode_Termination/numeric_invalid": 0.0,
+      "Episode_Termination/hard_joint_limit": 0.0,
+      "Loss/value_function": 0.2581891715526581,
+      "Loss/surrogate": 0.09320658445358276,
+      "Loss/entropy": 17.026674270629883,
+      "Loss/learning_rate": 9.999999747378752E-06,
+      "Policy/mean_noise_std": 1.0000637769699097,
+      "Perf/total_fps": 682.0,
+      "Perf/collection time": 1.8713264465332031,
+      "Perf/learning_time": 0.37806034088134766,
+      "Train/mean_reward": -1.1175267696380615,
+      "Train/mean_episode_length": 21.5,
+      "Train/mean_reward/time": -1.1175267696380615,
+      "Train/mean_episode_length/time": 21.5
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "passed": true
+}

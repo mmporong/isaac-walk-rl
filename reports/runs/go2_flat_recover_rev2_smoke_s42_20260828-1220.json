@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "run_name": "go2_flat_recover_rev2_smoke_s42_20260828-1220",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "num_envs": 64,
+  "max_iterations": 1,
+  "seed": 42,
+  "headless": true,
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "--task",
+    "Isaac-G009-Recover-Flat-Go2-R0-v0",
+    "--num_envs",
+    64,
+    "--max_iterations",
+    1,
+    "--seed",
+    42,
+    "--run_name",
+    "go2_flat_recover_rev2_smoke_s42_20260828-1220",
+    "--headless"
+  ],
+  "resume": {
+    "enabled": false,
+    "load_run": null,
+    "checkpoint": null
+  },
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\isaac-walk-rl\\scripts\\bootstrap_train_g009.py",
+    "sha256": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+    "repository_internal": true
+  },
+  "repository": {
+    "commit": "88fad8735841d4b83d50ec70da2415fa996e7cc6",
+    "dirty": true
+  },
+  "source_bundle": {
+    "sha256": "f865a17f75267a4729b1d5da0b0dfa96a07402ef35283d7f6a0f32e5f58d8b82",
+    "files": {
+      "configs/g009_r0.json": "d3b241f13db1838444bd0afcef66aed48f0520920fdba26d7e0be974cf0f30f9",
+      "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+      "scripts/run_training.ps1": "b154e1a85ed136f23702166342f8f15bf3af1808aaef69b9745d6f55892cabbe",
+      "src/isaac_walk_g009/agent_cfg.py": "1a8dbcb2d6751fbae503d5ee8109790e6bcbe47308a385aee1b9db5f36dab175",
+      "src/isaac_walk_g009/mdp/__init__.py": "58de66006be808999873c2e8bd30f89e9acd4a64f083f70c9dbac5bc5ed4bc64",
+      "src/isaac_walk_g009/mdp/events.py": "14c60fd2685138595be457407f579fa607cba8b23f28ea5bd87364adb3ea16c0",
+      "src/isaac_walk_g009/mdp/recover.py": "6fe36ab88c79b567d54aa2b6085189e545555061a79e555cf67b4441534f4619",
+      "src/isaac_walk_g009/recover_contracts.py": "faaa799ec574f15e76233b8371e8e15a1fa025bc215119a13c6c29ff6bfbf285",
+      "src/isaac_walk_g009/recover_env_cfg.py": "5f1b97a78e4640dc20f90c42d8a41b3b17cab857a295f23edb9927f87c4953c4",
+      "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+    },
+    "matches_repository_commit": false
+  },
+  "started_at": "2026-08-28T12:20:16.5084813+09:00",
+  "ended_at": "2026-08-28T12:20:35.1094459+09:00",
+  "wall_time_seconds": 18.6,
+  "exit_code": 0,
+  "last_iteration": 0,
+  "iteration_target": 1,
+  "gpu": {
+    "baseline_used_mib": 1448,
+    "peak_used_mib": 3899.0,
+    "delta_used_mib": 2451.0,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.069,
+        "used_mib": 1451
+      },
+      {
+        "elapsed_seconds": 2.129,
+        "used_mib": 1544
+      },
+      {
+        "elapsed_seconds": 4.192,
+        "used_mib": 1544
+      },
+      {
+        "elapsed_seconds": 6.254,
+        "used_mib": 1576
+      },
+      {
+        "elapsed_seconds": 8.317,
+        "used_mib": 1613
+      },
+      {
+        "elapsed_seconds": 10.379,
+        "used_mib": 1607
+      },
+      {
+        "elapsed_seconds": 12.442,
+        "used_mib": 3895
+      },
+      {
+        "elapsed_seconds": 14.503,
+        "used_mib": 3899
+      },
+      {
+        "elapsed_seconds": 16.589,
+        "used_mib": 1492
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.046,
+        "used_mib": 1448
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      611
+    ],
+    "mean_steps_per_second": 611.0,
+    "median_steps_per_second": 611,
+    "final_mean_reward": -0.86,
+    "final_mean_episode_length": 10.0
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_rev2_smoke_s42_20260828-1220.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_recover_rev2_smoke_s42_20260828-1220.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_12-20-26_go2_flat_recover_rev2_smoke_s42_20260828-1220",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_12-20-26_go2_flat_recover_rev2_smoke_s42_20260828-1220\\model_0.pt",
+    "checkpoint_sha256": "4e691c72e6715e80340175789523592291f641fcebcf64966e4c08fcc1ffd292"
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/upright_progress",
+      "Episode_Reward/base_height_progress",
+      "Episode_Reward/stable_support",
+      "Episode_Reward/upright_hold",
+      "Episode_Reward/stable_success_once",
+      "Episode_Reward/angvel_l2",
+      "Episode_Reward/joint_limit",
+      "Episode_Reward/torque_l2",
+      "Episode_Reward/joint_acc_l2",
+      "Episode_Reward/action_rate_l2",
+      "Episode_Reward/mechanical_power_proxy",
+      "Episode_Reward/undesired_collision",
+      "Episode_Termination/time_out",
+      "Episode_Termination/stable_success",
+      "Episode_Termination/numeric_invalid",
+      "Episode_Termination/hard_joint_limit",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/upright_progress": -0.010705903172492981,
+      "Episode_Reward/base_height_progress": -0.0018607735401019454,
+      "Episode_Reward/stable_support": 0.0,
+      "Episode_Reward/upright_hold": 0.0,
+      "Episode_Reward/stable_success_once": 0.0,
+      "Episode_Reward/angvel_l2": -0.025193754583597183,
+      "Episode_Reward/joint_limit": -0.0002675277355592698,
+      "Episode_Reward/torque_l2": -0.0034900016617029905,
+      "Episode_Reward/joint_acc_l2": -0.01216469332575798,
+      "Episode_Reward/action_rate_l2": -0.00161582394503057,
+      "Episode_Reward/mechanical_power_proxy": -0.0001594395434949547,
+      "Episode_Reward/undesired_collision": 0.0,
+      "Episode_Termination/time_out": 0.9583333730697632,
+      "Episode_Termination/stable_success": 0.0,
+      "Episode_Termination/numeric_invalid": 0.0,
+      "Episode_Termination/hard_joint_limit": 0.0,
+      "Loss/value_function": 1.3623113632202148,
+      "Loss/surrogate": 0.16857774555683136,
+      "Loss/entropy": 17.03543472290039,
+      "Loss/learning_rate": 9.999999747378752E-06,
+      "Policy/mean_noise_std": 1.00093674659729,
+      "Perf/total_fps": 611.0,
+      "Perf/collection time": 2.217860221862793,
+      "Perf/learning_time": 0.29355359077453613,
+      "Train/mean_reward": -0.858603298664093,
+      "Train/mean_episode_length": 10.0,
+      "Train/mean_reward/time": -0.858603298664093,
+      "Train/mean_episode_length/time": 10.0
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true
+  },
+  "run_health_passed": true,
+  "qualification_passed": null,
+  "passed": true
+}

@@ -1,0 +1,792 @@
+{
+  "schema_version": 2,
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "contract_sha256": "4e0499699a24a272cccb9687f417d97770fcbc229186e2aedde6914e45beab66",
+  "contract": {
+    "contract_id": "g009_r0_recover_rev9",
+    "stage_id": "R0",
+    "policy_schema": "P-RECOVER-83/C-RECOVER-107",
+    "poses": [
+      {
+        "name": "prone",
+        "probability": 0.25,
+        "root_height_m": 0.165,
+        "root_quaternion_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "expected_body_up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "source_class_one_hot": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "supine",
+        "probability": 0.25,
+        "root_height_m": 0.06,
+        "root_quaternion_wxyz": [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        "expected_body_up": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "source_class_one_hot": [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "left_side",
+        "probability": 0.25,
+        "root_height_m": 0.163,
+        "root_quaternion_wxyz": [
+          0.7071067811865476,
+          0.7071067811865476,
+          0.0,
+          0.0
+        ],
+        "expected_body_up": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "source_class_one_hot": [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ]
+      },
+      {
+        "name": "right_side",
+        "probability": 0.25,
+        "root_height_m": 0.163,
+        "root_quaternion_wxyz": [
+          0.7071067811865476,
+          -0.7071067811865476,
+          0.0,
+          0.0
+        ],
+        "expected_body_up": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "source_class_one_hot": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    ],
+    "timing": {
+      "physics_dt_s": 0.005,
+      "control_decimation": 4,
+      "control_dt_s": 0.02,
+      "episode_length_s": 8.0,
+      "max_episode_steps": 400
+    },
+    "reset": {
+      "assignment_mode": "random",
+      "pose_xy_range_m": [
+        -0.05,
+        0.05
+      ],
+      "yaw_range_rad": [
+        -3.141592653589793,
+        3.141592653589793
+      ],
+      "root_and_joint_state_written_atomically": true,
+      "root_velocity_m_s_and_rad_s": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "folded_joint_angles_rad": {
+        "left_hip": 0.1,
+        "right_hip": -0.1,
+        "thigh": 1.5,
+        "calf": -2.4
+      },
+      "pose_curriculum": {
+        "clock": "env.common_step_counter",
+        "control_steps_per_ppo_iteration": 24,
+        "phase_end_control_steps_exclusive": [
+          1200,
+          2400
+        ],
+        "phases": [
+          {
+            "ppo_iterations": [
+              0,
+              49
+            ],
+            "pose_probabilities": {
+              "prone": 1.0,
+              "supine": 0.0,
+              "left_side": 0.0,
+              "right_side": 0.0
+            }
+          },
+          {
+            "ppo_iterations": [
+              50,
+              99
+            ],
+            "pose_probabilities": {
+              "prone": 0.5,
+              "supine": 0.0,
+              "left_side": 0.25,
+              "right_side": 0.25
+            }
+          },
+          {
+            "ppo_iterations": [
+              100,
+              299
+            ],
+            "pose_probabilities": {
+              "prone": 0.25,
+              "supine": 0.25,
+              "left_side": 0.25,
+              "right_side": 0.25
+            }
+          }
+        ],
+        "evaluation_override": "stratified_equal_pose_assignment",
+        "actor_observation_exposure": false
+      }
+    },
+    "action": {
+      "type": "EMAJointPositionToLimitsAction",
+      "dim": 12,
+      "scale": 0.8,
+      "ema_alpha": 0.2,
+      "ema_control_frequency_hz": 50.0,
+      "ema_time_constant_s": 0.08962840235449102,
+      "normalized_clip": [
+        -1.0,
+        1.0
+      ],
+      "rescale_to_soft_joint_limits": true,
+      "runner_clip_actions": 1.0,
+      "asset_soft_joint_limit_factor": 0.9,
+      "effective_target_hard_limit_range_fraction": 0.7200000000000001,
+      "hard_limit_margin_fraction_per_side": 0.13999999999999996,
+      "safety_rationale": "seed-42 rev3 smoke terminated 75% of completed episodes at the hard joint limit; scale-only rev4 still terminated 62.5%; scale 0.8 plus alpha 0.2 removed it in the 64-env rev5 smoke, but rev6 still measured 0.0416667 in the 1024-env stress smoke; reducing PPO initial noise to 0.5 produced zero in the rev7 1024-env stress smoke; stochastic-training terminations remain diagnostic and the official deterministic evaluation still requires zero; the 0.01 rad solver tolerance is not relaxed"
+    },
+    "materials": {
+      "ground": {
+        "static_friction": 0.8,
+        "dynamic_friction": 0.6,
+        "friction_combine_mode": "multiply"
+      },
+      "feet": {
+        "static_friction": 1.0,
+        "dynamic_friction": 1.0,
+        "restitution": 0.0
+      },
+      "effective_foot_ground_friction": {
+        "static": 0.8,
+        "dynamic": 0.6,
+        "source": "startup PhysX foot-material readback multiplied by the ground material",
+        "missing_value_policy": "fail_closed"
+      }
+    },
+    "observations": {
+      "actor": {
+        "schema_id": "P-RECOVER-83",
+        "dim": 83,
+        "deployability_status": "conditional_adapter_required",
+        "required_hardware_adapters": [
+          "base state estimator and IMU",
+          "joint encoder interface",
+          "foot contact/load estimator",
+          "body-mounted downward range/depth camera adapter"
+        ],
+        "terrain_geometry_source": "body-fixed 5x3 pinhole range image",
+        "range_sensor": {
+          "type": "RayCasterCameraCfg",
+          "data_type": "distance_to_camera",
+          "ray_alignment": "base",
+          "width": 5,
+          "height": 3,
+          "max_distance_m": 1.0,
+          "depth_clipping_behavior": "none",
+          "mount_position_m": [
+            0.0,
+            0.0,
+            -0.05
+          ],
+          "mount_quaternion_wxyz": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476,
+            0.0
+          ],
+          "mount_convention": "world",
+          "forward_axis_mapping": "camera +X to body -Z",
+          "no_hit_semantics": "range=1.0, hit_mask=0.0, not numeric_invalid"
+        },
+        "foot_load_denominator": {
+          "type": "frozen_nominal_mass",
+          "nominal_total_mass_kg": 15.019
+        },
+        "terms": [
+          {
+            "name": "base_linear_velocity",
+            "dim": 3,
+            "privileged": false,
+            "sim_source": "articulation base-frame velocity",
+            "hardware_source": "base state estimator",
+            "noise_uniform": [
+              -0.1,
+              0.1
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "base_angular_velocity",
+            "dim": 3,
+            "privileged": false,
+            "sim_source": "articulation base-frame angular velocity",
+            "hardware_source": "IMU gyroscope",
+            "noise_uniform": [
+              -0.2,
+              0.2
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "projected_gravity",
+            "dim": 3,
+            "privileged": false,
+            "sim_source": "articulation projected gravity",
+            "hardware_source": "IMU attitude estimator",
+            "noise_uniform": [
+              -0.05,
+              0.05
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "relative_joint_position",
+            "dim": 12,
+            "privileged": false,
+            "sim_source": "articulation joint position",
+            "hardware_source": "joint encoders",
+            "noise_uniform": [
+              -0.01,
+              0.01
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "relative_joint_velocity",
+            "dim": 12,
+            "privileged": false,
+            "sim_source": "articulation joint velocity",
+            "hardware_source": "filtered joint encoder derivative",
+            "noise_uniform": [
+              -1.5,
+              1.5
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "last_recover_action",
+            "dim": 12,
+            "privileged": false,
+            "sim_source": "action manager previous command",
+            "hardware_source": "controller command buffer",
+            "noise_uniform": null,
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "four_foot_contact_state",
+            "dim": 4,
+            "privileged": false,
+            "sim_source": "foot ContactSensor threshold",
+            "hardware_source": "foot contact/load estimator",
+            "noise_uniform": null,
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "normalized_four_foot_load",
+            "dim": 4,
+            "privileged": false,
+            "sim_source": "foot ContactSensor force magnitude",
+            "hardware_source": "foot load or actuator-torque force estimator",
+            "noise_uniform": [
+              -0.02,
+              0.02
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "body_fixed_range",
+            "dim": 15,
+            "privileged": false,
+            "sim_source": "body-fixed RayCasterCamera distance_to_camera",
+            "hardware_source": "body-mounted downward range/depth camera",
+            "noise_uniform": null,
+            "invalid_policy": "no_hit_or_out_of_range_to_one_without_termination; negative_finite_or_nan_to_numeric_invalid"
+          },
+          {
+            "name": "body_fixed_range_hit_mask",
+            "dim": 15,
+            "privileged": false,
+            "sim_source": "finite in-range distance_to_camera mask",
+            "hardware_source": "range/depth camera validity mask",
+            "noise_uniform": null,
+            "invalid_policy": "no_hit_or_out_of_range_to_one_without_termination; negative_finite_or_nan_to_numeric_invalid"
+          }
+        ]
+      },
+      "critic": {
+        "schema_id": "C-RECOVER-107",
+        "dim": 107,
+        "actor_prefix_dim": 83,
+        "terms": [
+          {
+            "name": "base_linear_velocity",
+            "dim": 3,
+            "privileged": false,
+            "sim_source": "articulation base-frame velocity",
+            "hardware_source": "base state estimator",
+            "noise_uniform": [
+              -0.1,
+              0.1
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "base_angular_velocity",
+            "dim": 3,
+            "privileged": false,
+            "sim_source": "articulation base-frame angular velocity",
+            "hardware_source": "IMU gyroscope",
+            "noise_uniform": [
+              -0.2,
+              0.2
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "projected_gravity",
+            "dim": 3,
+            "privileged": false,
+            "sim_source": "articulation projected gravity",
+            "hardware_source": "IMU attitude estimator",
+            "noise_uniform": [
+              -0.05,
+              0.05
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "relative_joint_position",
+            "dim": 12,
+            "privileged": false,
+            "sim_source": "articulation joint position",
+            "hardware_source": "joint encoders",
+            "noise_uniform": [
+              -0.01,
+              0.01
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "relative_joint_velocity",
+            "dim": 12,
+            "privileged": false,
+            "sim_source": "articulation joint velocity",
+            "hardware_source": "filtered joint encoder derivative",
+            "noise_uniform": [
+              -1.5,
+              1.5
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "last_recover_action",
+            "dim": 12,
+            "privileged": false,
+            "sim_source": "action manager previous command",
+            "hardware_source": "controller command buffer",
+            "noise_uniform": null,
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "four_foot_contact_state",
+            "dim": 4,
+            "privileged": false,
+            "sim_source": "foot ContactSensor threshold",
+            "hardware_source": "foot contact/load estimator",
+            "noise_uniform": null,
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "normalized_four_foot_load",
+            "dim": 4,
+            "privileged": false,
+            "sim_source": "foot ContactSensor force magnitude",
+            "hardware_source": "foot load or actuator-torque force estimator",
+            "noise_uniform": [
+              -0.02,
+              0.02
+            ],
+            "invalid_policy": "nonfinite_signal_to_numeric_invalid_termination"
+          },
+          {
+            "name": "body_fixed_range",
+            "dim": 15,
+            "privileged": false,
+            "sim_source": "body-fixed RayCasterCamera distance_to_camera",
+            "hardware_source": "body-mounted downward range/depth camera",
+            "noise_uniform": null,
+            "invalid_policy": "no_hit_or_out_of_range_to_one_without_termination; negative_finite_or_nan_to_numeric_invalid"
+          },
+          {
+            "name": "body_fixed_range_hit_mask",
+            "dim": 15,
+            "privileged": false,
+            "sim_source": "finite in-range distance_to_camera mask",
+            "hardware_source": "range/depth camera validity mask",
+            "noise_uniform": null,
+            "invalid_policy": "no_hit_or_out_of_range_to_one_without_termination; negative_finite_or_nan_to_numeric_invalid"
+          },
+          {
+            "name": "terrain_normal_gt",
+            "dim": 3,
+            "privileged": true
+          },
+          {
+            "name": "base_height_gt",
+            "dim": 1,
+            "privileged": true
+          },
+          {
+            "name": "four_foot_effective_static_dynamic_friction",
+            "dim": 8,
+            "privileged": true
+          },
+          {
+            "name": "whole_body_com_base",
+            "dim": 3,
+            "privileged": true
+          },
+          {
+            "name": "total_mass",
+            "dim": 1,
+            "privileged": true
+          },
+          {
+            "name": "commanded_wrench",
+            "dim": 3,
+            "privileged": true,
+            "r0_runtime_state": "constant_zero_inactive",
+            "activation_stage": "D1_external_wrench",
+            "implementation": "critic_zero_external_wrench",
+            "rationale": "reserved critic-only channel; R0 has no external-wrench event"
+          },
+          {
+            "name": "normalized_pulse_time_remaining",
+            "dim": 1,
+            "privileged": true,
+            "r0_runtime_state": "constant_zero_inactive",
+            "activation_stage": "D1_external_wrench",
+            "implementation": "critic_zero_disturbance_pulse",
+            "rationale": "reserved critic-only channel; R0 has no disturbance pulse"
+          },
+          {
+            "name": "source_fall_class_one_hot",
+            "dim": 4,
+            "privileged": true
+          }
+        ],
+        "privileged_terms": [
+          {
+            "name": "terrain_normal_gt",
+            "dim": 3,
+            "privileged": true
+          },
+          {
+            "name": "base_height_gt",
+            "dim": 1,
+            "privileged": true
+          },
+          {
+            "name": "four_foot_effective_static_dynamic_friction",
+            "dim": 8,
+            "privileged": true
+          },
+          {
+            "name": "whole_body_com_base",
+            "dim": 3,
+            "privileged": true
+          },
+          {
+            "name": "total_mass",
+            "dim": 1,
+            "privileged": true
+          },
+          {
+            "name": "commanded_wrench",
+            "dim": 3,
+            "privileged": true,
+            "r0_runtime_state": "constant_zero_inactive",
+            "activation_stage": "D1_external_wrench",
+            "implementation": "critic_zero_external_wrench",
+            "rationale": "reserved critic-only channel; R0 has no external-wrench event"
+          },
+          {
+            "name": "normalized_pulse_time_remaining",
+            "dim": 1,
+            "privileged": true,
+            "r0_runtime_state": "constant_zero_inactive",
+            "activation_stage": "D1_external_wrench",
+            "implementation": "critic_zero_disturbance_pulse",
+            "rationale": "reserved critic-only channel; R0 has no disturbance pulse"
+          },
+          {
+            "name": "source_fall_class_one_hot",
+            "dim": 4,
+            "privileged": true
+          }
+        ]
+      }
+    },
+    "success_gate": {
+      "upright_angle_deg_max": 20.0,
+      "upright_cos_min": 0.9396926207859084,
+      "base_height_m": [
+        0.3,
+        0.6
+      ],
+      "foot_contacts_min": 3,
+      "contact_force_threshold_n": 1.0,
+      "foot_contact_definition": "positive contact-force projection onto the true support normal",
+      "total_foot_normal_support_ratio_min": 0.6,
+      "nominal_total_mass_kg": 15.019,
+      "gravity_magnitude_m_s2": 9.81,
+      "non_foot_contacts_max": 0,
+      "non_foot_contact_force_threshold_n": 1.0,
+      "base_linear_speed_m_s_max": 0.5,
+      "base_angular_speed_rad_s_max": 1.0,
+      "stable_dwell_steps": 25,
+      "stable_dwell_s": 0.5,
+      "mechanics_rationale": "success requires gravity-supporting foot load, not tangential force or body/leg bracing; at least 60% of nominal weight must be carried by three or more feet"
+    },
+    "reward": {
+      "revision": "R0-rev4-gated-potential-and-regularization",
+      "aggregation": "sum_i(weight_i * raw_rate_i * control_dt_s)",
+      "framework_semantics": "Isaac Lab RewardManager multiplies every weighted raw term by control_dt_s",
+      "terms": [
+        {
+          "name": "upright_progress",
+          "weight": 2.0,
+          "temporal_semantics": "discounted_potential_difference"
+        },
+        {
+          "name": "gated_base_height_progress",
+          "weight": 2.0,
+          "temporal_semantics": "discounted_potential_difference"
+        },
+        {
+          "name": "soft_stand_progress",
+          "weight": 2.0,
+          "temporal_semantics": "discounted_potential_difference"
+        },
+        {
+          "name": "stable_support",
+          "weight": 0.5,
+          "temporal_semantics": "continuous_rate"
+        },
+        {
+          "name": "upright_hold",
+          "weight": 5.0,
+          "temporal_semantics": "continuous_rate"
+        },
+        {
+          "name": "stable_success_once",
+          "weight": 10.0,
+          "temporal_semantics": "terminal_impulse"
+        },
+        {
+          "name": "gated_angvel_l2",
+          "weight": -0.05,
+          "temporal_semantics": "continuous_rate"
+        },
+        {
+          "name": "joint_limit",
+          "weight": -2.0,
+          "temporal_semantics": "continuous_rate"
+        },
+        {
+          "name": "torque_l2",
+          "weight": -0.0002,
+          "temporal_semantics": "continuous_rate"
+        },
+        {
+          "name": "joint_acc_l2",
+          "weight": -2.5e-07,
+          "temporal_semantics": "continuous_rate"
+        },
+        {
+          "name": "gated_action_rate_l2",
+          "weight": -0.01,
+          "temporal_semantics": "continuous_rate"
+        },
+        {
+          "name": "mechanical_power_proxy",
+          "weight": -1e-05,
+          "temporal_semantics": "continuous_rate"
+        },
+        {
+          "name": "undesired_collision",
+          "weight": -1.0,
+          "temporal_semantics": "continuous_rate"
+        }
+      ],
+      "potential_difference_definition": "(gamma * potential_t - potential_t-1) / control_dt_s; potential_t is zero on terminal transitions",
+      "potential_discount_factor": 0.99,
+      "episode_boundary_semantics": "previous potential is reset to zero, the first transition contributes gamma*potential_t, and terminal potential is forced to zero so the full discounted shaping return telescopes to zero",
+      "potential_shaping": {
+        "height": {
+          "weight": 2.0,
+          "normalized_height_m": [
+            0.06,
+            0.3
+          ],
+          "orientation_gate_cosine": [
+            0.0,
+            0.8
+          ]
+        },
+        "soft_stand": {
+          "weight": 2.0,
+          "formula": "u*z*(0.5*c+0.5*l)",
+          "upright_score": "clip((alignment+1)/2,0,1)",
+          "normalized_height_m": [
+            0.06,
+            0.3
+          ],
+          "positive_normal_load_ratio_target": 0.6,
+          "contact_count_target": 3,
+          "tangential_or_negative_load_credit": 0.0
+        },
+        "strict_success_gate_is_separate": true,
+        "pilot_basis": "rev7 and rev8 uniform 1024x50 pilots produced zero stable-support, hold, or success events because the prone height potential maximum was 0.135 before regularization"
+      },
+      "state_gated_regularization": {
+        "stand_gate": {
+          "orientation_cosine": [
+            0.5,
+            0.9396926207859084
+          ],
+          "base_height_m": [
+            0.2,
+            0.3
+          ],
+          "combination": "orientation_gate*height_gate"
+        },
+        "gated_angvel_l2": {
+          "configured_weight": -0.05,
+          "fallen_multiplier": 0.1,
+          "fallen_effective_weight": -0.005,
+          "standing_effective_weight": -0.05
+        },
+        "gated_action_rate_l2": {
+          "configured_weight": -0.01,
+          "fallen_multiplier": 0.2,
+          "fallen_effective_weight": -0.002,
+          "standing_effective_weight": -0.01
+        },
+        "unchanged_safety_terms": [
+          "joint_limit",
+          "torque_l2",
+          "joint_acc_l2",
+          "mechanical_power_proxy",
+          "undesired_collision"
+        ]
+      },
+      "terminal_impulse_definition": "one_shot_indicator / control_dt_s",
+      "stable_success_once_requires_consecutive_hold": true
+    },
+    "ppo": {
+      "algorithm": "RSL-RL PPO",
+      "rsl_rl_version": "2.3.3",
+      "rollout_horizon_steps_per_env": 24,
+      "actor_hidden_dims": [
+        512,
+        256,
+        128
+      ],
+      "critic_hidden_dims": [
+        512,
+        256,
+        128
+      ],
+      "activation": "elu",
+      "init_noise_std": 0.5,
+      "learning_epochs": 5,
+      "mini_batches": 4,
+      "optimizer_updates_per_iteration": 20,
+      "clip_parameter": 0.2,
+      "entropy_coefficient": 0.01,
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "learning_rate": 0.001,
+      "schedule": "adaptive",
+      "desired_kl": 0.01,
+      "max_gradient_norm": 1.0,
+      "empirical_normalization": false,
+      "scratch_training": true,
+      "qualification_num_envs": 1024,
+      "qualification_iterations": 300,
+      "qualification_seed": 42
+    },
+    "termination": {
+      "active_terms": [
+        "timeout",
+        "stable_success",
+        "numeric_invalid",
+        "urdf_hard_joint_limit_violation"
+      ],
+      "base_contact_termination": false,
+      "solver_joint_limit_tolerance_rad": 0.01,
+      "solver_joint_limit_tolerance_calibration": {
+        "gpu_reset_hold_max_raw_excess_rad": 0.007703,
+        "cpu_reset_hold_max_raw_excess_rad": 0.003262,
+        "rationale": "0.01 rad exceeds measured reset-hold solver overshoot on both GPU and CPU while remaining a strict URDF-limit guard"
+      }
+    },
+    "collision_penalty": {
+      "non_foot_contact_force_threshold_n": 1.0,
+      "active_when_base_height_m_min": 0.3,
+      "rationale": "allow required body and leg pivots while fallen; penalize renewed collision after standing height is reached"
+    }
+  }
+}

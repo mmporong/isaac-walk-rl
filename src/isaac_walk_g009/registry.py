@@ -1,4 +1,4 @@
-"""Gym registration for the G009 S0 slope task."""
+"""Gym registrations for G009 slope qualification and recovery tasks."""
 
 from __future__ import annotations
 
@@ -12,10 +12,17 @@ AGENT_ENTRY_POINT = (
 TASK_ENTRY_POINTS = {
     "Isaac-G009-Velocity-Slope-Go2-S0-v0": "isaac_walk_g009.env_cfg:G009SlopeWalkEnvCfg",
 }
+RECOVER_TASK_ENTRY_POINTS = {
+    "Isaac-G009-Recover-Flat-Go2-R0-v0": "isaac_walk_g009.recover_env_cfg:G009FlatRecoverEnvCfg",
+}
+AGENT_ENTRY_POINTS = {
+    "Isaac-G009-Velocity-Slope-Go2-S0-v0": AGENT_ENTRY_POINT,
+    "Isaac-G009-Recover-Flat-Go2-R0-v0": "isaac_walk_g009.agent_cfg:G009RecoverPPORunnerCfg",
+}
 
 
 def register_tasks() -> None:
-    for task_id, env_cfg_entry_point in TASK_ENTRY_POINTS.items():
+    for task_id, env_cfg_entry_point in (TASK_ENTRY_POINTS | RECOVER_TASK_ENTRY_POINTS).items():
         if task_id in gym.registry:
             continue
         gym.register(
@@ -24,9 +31,15 @@ def register_tasks() -> None:
             disable_env_checker=True,
             kwargs={
                 "env_cfg_entry_point": env_cfg_entry_point,
-                "rsl_rl_cfg_entry_point": AGENT_ENTRY_POINT,
+                "rsl_rl_cfg_entry_point": AGENT_ENTRY_POINTS[task_id],
             },
         )
 
 
-__all__ = ["AGENT_ENTRY_POINT", "TASK_ENTRY_POINTS", "register_tasks"]
+__all__ = [
+    "AGENT_ENTRY_POINT",
+    "AGENT_ENTRY_POINTS",
+    "RECOVER_TASK_ENTRY_POINTS",
+    "TASK_ENTRY_POINTS",
+    "register_tasks",
+]
