@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "experiment": "rev15_position_solver_cpu_gpu_divergence",
+  "status": "rejected_before_gate01",
+  "evidence_synthesis_valid": true,
+  "candidate_runtime_calibration_passed": false,
+  "learned": false,
+  "ppo_training": false,
+  "ppo_training_status": "not_run",
+  "qualification_status": "not_run",
+  "qualification_passed": null,
+  "conclusion": "rev15 passes the authoritative CPU runtime and separation gate, but the GPU runtime reproducibly exceeds the 15 BW non-foot contact-force gate",
+  "lineage": {
+    "source_commit": "bc999d504e226011ff3d83e68a416b9049b406cb",
+    "source_bundle_sha256": "218671a84f2748f7b94a426490057318b0896e2160454f6928c4277dee7435df",
+    "contract_sha256": "5f29ba19458404b5009d3734294c57e79294efecc7fe03bf8c71c71656129832"
+  },
+  "controlled_change": {
+    "baseline_revision": "rev12",
+    "solver_position_iterations": {
+      "baseline": 8,
+      "candidate": 16
+    },
+    "solver_velocity_iterations": {
+      "baseline": 0,
+      "candidate": 0
+    },
+    "max_depenetration_velocity_m_s": {
+      "baseline": 1.0,
+      "candidate": 1.0
+    }
+  },
+  "repeatability": {
+    "cpu": {
+      "required_runs": 3,
+      "validated_runs": 3,
+      "semantically_identical": true,
+      "inputs": [
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev15_cpu_rep01_s42.json",
+          "sha256": "426f4fe1085aeddad52c77d98fc74a55907dcc90d7084ebe8b4fde736b60e9d5",
+          "execution_id": "144b636184f542f1ae9319bbe2ebabed",
+          "started_at_utc": "2026-08-28T14:48:38.830088Z",
+          "peak_force_bodyweights": 13.248281478881836,
+          "peak_force_env_index": 7,
+          "peak_force_pose": "right_side",
+          "peak_force_action_mode": "reset_pose_hold",
+          "peak_force_body_name": "base",
+          "peak_force_body_index": 0,
+          "peak_force_physics_step": 130,
+          "peak_force_time_s": 0.65,
+          "worst_separation_m": -0.009353086352348328
+        },
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev15_cpu_rep02_s42.json",
+          "sha256": "e972efc874205d076e50c543659cb0aa2a5e3f74300f8627466272d5448bdace",
+          "execution_id": "cbf7bc72e330486986ce48306d4feca4",
+          "started_at_utc": "2026-08-28T14:49:03.361972Z",
+          "peak_force_bodyweights": 13.248281478881836,
+          "peak_force_env_index": 7,
+          "peak_force_pose": "right_side",
+          "peak_force_action_mode": "reset_pose_hold",
+          "peak_force_body_name": "base",
+          "peak_force_body_index": 0,
+          "peak_force_physics_step": 130,
+          "peak_force_time_s": 0.65,
+          "worst_separation_m": -0.009353086352348328
+        },
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev15_cpu_rep03_s42.json",
+          "sha256": "49252da40105efd2309d88cc23d5ea1aab1207e56e80adbf5566af851242537a",
+          "execution_id": "7ae4bca660994d3bb855c9ed73a7b4ad",
+          "started_at_utc": "2026-08-28T14:49:24.294133Z",
+          "peak_force_bodyweights": 13.248281478881836,
+          "peak_force_env_index": 7,
+          "peak_force_pose": "right_side",
+          "peak_force_action_mode": "reset_pose_hold",
+          "peak_force_body_name": "base",
+          "peak_force_body_index": 0,
+          "peak_force_physics_step": 130,
+          "peak_force_time_s": 0.65,
+          "worst_separation_m": -0.009353086352348328
+        }
+      ]
+    },
+    "gpu": {
+      "required_runs": 3,
+      "validated_runs": 3,
+      "semantically_identical": true,
+      "inputs": [
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev15_gpu_rep01_s42.json",
+          "sha256": "e24674a1ed33c38fbe5f12d19dc068167b9787e75323efbe55629bf059839b91",
+          "execution_id": "fc715b20c45242b19b86445f733fa02b",
+          "started_at_utc": "2026-08-28T14:50:39.797388Z",
+          "peak_force_bodyweights": 16.78827476501465,
+          "peak_force_env_index": 7,
+          "peak_force_pose": "right_side",
+          "peak_force_action_mode": "reset_pose_hold",
+          "peak_force_body_name": "base",
+          "peak_force_body_index": 0,
+          "peak_force_physics_step": 129,
+          "peak_force_time_s": 0.645,
+          "worst_separation_m": null
+        },
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev15_gpu_rep02_s42.json",
+          "sha256": "ef0871ee8ea82d614f613f959a7a45cb84e57ce00edd90d04a3226ac241c87d7",
+          "execution_id": "99d201671b7d4763845bc4d0a38d40d1",
+          "started_at_utc": "2026-08-28T14:51:31.821920Z",
+          "peak_force_bodyweights": 16.78827476501465,
+          "peak_force_env_index": 7,
+          "peak_force_pose": "right_side",
+          "peak_force_action_mode": "reset_pose_hold",
+          "peak_force_body_name": "base",
+          "peak_force_body_index": 0,
+          "peak_force_physics_step": 129,
+          "peak_force_time_s": 0.645,
+          "worst_separation_m": null
+        },
+        {
+          "path": "reports/runs/g009_r0_runtime_probe_rev15_gpu_rep03_s42.json",
+          "sha256": "ca64da55ae2828f3d259afec3281e5afa1f4c631130c1733f3bbe70080688b03",
+          "execution_id": "9dc377f6a76f4dc092683b1cca2083a9",
+          "started_at_utc": "2026-08-28T14:53:45.709284Z",
+          "peak_force_bodyweights": 16.78827476501465,
+          "peak_force_env_index": 7,
+          "peak_force_pose": "right_side",
+          "peak_force_action_mode": "reset_pose_hold",
+          "peak_force_body_name": "base",
+          "peak_force_body_index": 0,
+          "peak_force_physics_step": 129,
+          "peak_force_time_s": 0.645,
+          "worst_separation_m": null
+        }
+      ]
+    },
+    "unique_execution_ids": 6
+  },
+  "physics_readback": {
+    "articulations_per_run": 8,
+    "links_per_articulation": 19,
+    "rigid_bodies_per_run": 152,
+    "solver_position_iterations": 16,
+    "solver_velocity_iterations": 0,
+    "max_depenetration_velocity_m_s": 1.0,
+    "all_paths_and_apis_valid": true
+  },
+  "device_results": {
+    "cpu": {
+      "runtime_passed": true,
+      "progression_gate_passed": true,
+      "validated_runs": 3,
+      "run_health_passed_runs": 3,
+      "runtime_passed_runs": 3,
+      "progression_gate_passed_runs": 3,
+      "peak_nonfoot_force_bodyweights": 13.248281478881836,
+      "force_threshold_bodyweights": 15.0,
+      "worst_contact_separation_m": -0.009353086352348328,
+      "separation_threshold_m": -0.01
+    },
+    "gpu": {
+      "runtime_passed": false,
+      "progression_gate_passed": false,
+      "validated_runs": 3,
+      "run_health_passed_runs": 3,
+      "runtime_passed_runs": 0,
+      "progression_gate_passed_runs": 0,
+      "failed_checks": [
+        "nonfoot_peak_force_bounded"
+      ],
+      "peak_nonfoot_force_bodyweights": 16.78827476501465,
+      "force_threshold_bodyweights": 15.0,
+      "contact_separation_authority": "cpu_only_not_evaluated_on_gpu"
+    }
+  },
+  "divergence": {
+    "same_seed_and_contract": true,
+    "peak_force_difference_gpu_minus_cpu_bodyweights": 3.5399932861328125,
+    "gpu_force_excess_bodyweights": 1.7882747650146484,
+    "gpu_force_excess_percent_of_threshold": 11.921831766764322,
+    "cpu_separation_margin_m": 0.0006469136476516726,
+    "cpu_separation_margin_mm": 0.6469136476516726,
+    "strict_decision": "reject"
+  },
+  "decision": {
+    "strict_decision": "reject",
+    "blocking_device": "gpu",
+    "blocking_check": "nonfoot_peak_force_bounded",
+    "threshold_bodyweights": 15.0,
+    "observed_bodyweights": 16.78827476501465,
+    "overrun_bodyweights": 1.7882747650146484,
+    "overrun_percent_of_threshold": 11.921831766764322
+  },
+  "safety": {
+    "numeric_invalid_terminations": 0,
+    "hard_joint_limit_terminations": 0
+  },
+  "completed_stages": {
+    "cpu_runtime_3x": true,
+    "gpu_runtime_3x": true,
+    "strict_rejection_synthesis": true
+  },
+  "blocked_stages": {
+    "gate01": true,
+    "gate10": true,
+    "ppo_training": true
+  }
+}

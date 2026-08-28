@@ -1,0 +1,4799 @@
+{
+  "schema_version": 3,
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "probe": "flat_recover_runtime_calibration",
+  "execution": {
+    "execution_id": "fc715b20c45242b19b86445f733fa02b",
+    "started_at_utc": "2026-08-28T14:50:39.797388Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_runtime_probe_rev15_gpu_rep01_s42.json",
+    "no_overwrite": true
+  },
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "contract_sha256": "5f29ba19458404b5009d3734294c57e79294efecc7fe03bf8c71c71656129832",
+  "source_bundle": {
+    "schema_version": 1,
+    "git_commit": "bc999d504e226011ff3d83e68a416b9049b406cb",
+    "git_commit_valid": true,
+    "source_binding_paths": [
+      "configs/g009_r0.json",
+      "scripts/bootstrap_train_g009.py",
+      "scripts/probe_g009_recover_runtime.py",
+      "scripts/run_training.ps1",
+      "scripts/sync_g009_r0_contract.py",
+      "scripts/synthesize_g009_r0_probe.py",
+      "src/isaac_walk_g009/agent_cfg.py",
+      "src/isaac_walk_g009/mdp/__init__.py",
+      "src/isaac_walk_g009/mdp/events.py",
+      "src/isaac_walk_g009/mdp/recover.py",
+      "src/isaac_walk_g009/recover_contracts.py",
+      "src/isaac_walk_g009/recover_env_cfg.py",
+      "src/isaac_walk_g009/registry.py"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0.json": "88f9d5e7f7c4025fce4ee921fcee690a771e042a6861ab19975514757b774eb1",
+      "scripts/bootstrap_train_g009.py": "4d5cc0776bc97a075854e7bfb801992ce0ea3a3f0e330f37c4f52edace669a58",
+      "scripts/probe_g009_recover_runtime.py": "48d66ef07da8e38ca1d327363838f5cc352e4de1a355c568bce8322b3dd4d8dd",
+      "scripts/run_training.ps1": "1572dfef8fc7534029fc7d0748e79b39d71076c968edb80c1117bfe5574926fa",
+      "scripts/sync_g009_r0_contract.py": "387af5d8b9f0cc4e78dd4c81900a45cb453f4af63de73a7512160a9f179efc57",
+      "scripts/synthesize_g009_r0_probe.py": "ee2371b3af0b0ec97a9eeef874ade9b4d37480f92fcff59d6265b795a087b87b",
+      "src/isaac_walk_g009/agent_cfg.py": "0a1ab242e4c13023b72b319f3d0ff461131b12c8745596aadbc40a2e4d39b79b",
+      "src/isaac_walk_g009/mdp/__init__.py": "c5e13ec110a341e974cd303d8e44bfadb696a97ea2db2185d7a01fece74ccfd5",
+      "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+      "src/isaac_walk_g009/mdp/recover.py": "a825707a076d02fb597f2e6a779170ad34dac54037c9ef535e9f54fbfc4f3599",
+      "src/isaac_walk_g009/recover_contracts.py": "a55dddd8d245d06b20c3cd943c6f8d53949657b229bb63cfdcdea7eb0a787546",
+      "src/isaac_walk_g009/recover_env_cfg.py": "db548cf339d92243e2037951a8d6b475c4bff5f8458036d04568d67aee05dd81",
+      "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+    },
+    "source_bundle_sha256": "218671a84f2748f7b94a426490057318b0896e2160454f6928c4277dee7435df",
+    "all_files_present": true,
+    "missing_files": [],
+    "clean": true,
+    "dirty_source_paths": []
+  },
+  "seed": 42,
+  "device": "cuda:0",
+  "num_envs": 8,
+  "rollout_steps": 150,
+  "rollout_duration_s": 3.0,
+  "headless": true,
+  "pose_name_order": [
+    "prone",
+    "supine",
+    "left_side",
+    "right_side"
+  ],
+  "action_modes": [
+    "zero_normalized",
+    "reset_pose_hold"
+  ],
+  "observation_shapes": {
+    "policy": [
+      8,
+      83
+    ],
+    "critic": [
+      8,
+      107
+    ]
+  },
+  "observation_calibration": {
+    "critic_base_height_m": [
+      0.16500000655651093,
+      0.05999999865889549,
+      0.16300000250339508,
+      0.16300000250339508,
+      0.16500000655651093,
+      0.05999999865889549,
+      0.16300000250339508,
+      0.16300000250339508
+    ],
+    "flat_ground_height_error_m": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "critic_terrain_normal_base": [
+      [
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      [
+        0.0,
+        0.9999999403953552,
+        5.960464477539063e-08
+      ],
+      [
+        0.0,
+        -0.9999999403953552,
+        5.960464477539063e-08
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      [
+        0.0,
+        0.9999999403953552,
+        5.960464477539063e-08
+      ],
+      [
+        0.0,
+        -0.9999999403953552,
+        5.960464477539063e-08
+      ]
+    ],
+    "reset_actor_foot_load_bodyweights": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "reset_body_range_normalized": [
+      [
+        0.12345609068870544,
+        0.11845488101243973,
+        0.11674021184444427,
+        0.11845488846302032,
+        0.12345609068870544,
+        0.12181183695793152,
+        0.11674022674560547,
+        0.11499999463558197,
+        0.11674022674560547,
+        0.12181183695793152,
+        0.12345609068870544,
+        0.11845488846302032,
+        0.11674022674560547,
+        0.11845488846302032,
+        0.12345609068870544
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        0.8961166739463806,
+        0.5652442574501038,
+        1.0,
+        1.0,
+        1.0,
+        0.8909634351730347,
+        0.47931423783302307,
+        1.0,
+        1.0,
+        1.0,
+        0.9435688257217407,
+        0.518394947052002
+      ],
+      [
+        0.45317795872688293,
+        0.9002132415771484,
+        1.0,
+        1.0,
+        1.0,
+        0.592494010925293,
+        0.9227586984634399,
+        1.0,
+        1.0,
+        1.0,
+        0.4878888428211212,
+        0.9494041204452515,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.12345608323812485,
+        0.11845488101243973,
+        0.11674021184444427,
+        0.11845488846302032,
+        0.12345608323812485,
+        0.12181183695793152,
+        0.11674022674560547,
+        0.11499999463558197,
+        0.11674022674560547,
+        0.12181183695793152,
+        0.12345608323812485,
+        0.11845488846302032,
+        0.11674022674560547,
+        0.11845488846302032,
+        0.12345608323812485
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        0.9421125650405884,
+        0.5293949246406555,
+        1.0,
+        1.0,
+        1.0,
+        0.9428433775901794,
+        0.5382272005081177,
+        1.0,
+        1.0,
+        1.0,
+        0.8885743021965027,
+        0.5329068899154663
+      ],
+      [
+        0.4220457971096039,
+        0.9296888709068298,
+        1.0,
+        1.0,
+        1.0,
+        0.5594317317008972,
+        0.9450091123580933,
+        1.0,
+        1.0,
+        1.0,
+        0.48337477445602417,
+        0.8857147097587585,
+        1.0,
+        1.0,
+        1.0
+      ]
+    ],
+    "reset_body_range_hit_mask": [
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "reset_body_range_hit_count": [
+      15,
+      0,
+      6,
+      6,
+      15,
+      0,
+      6,
+      6
+    ],
+    "body_range_camera_config": {
+      "prim_path": "/World/envs/env_.*/Robot/base",
+      "mesh_prim_paths": [
+        "/World/ground"
+      ],
+      "data_types": [
+        "distance_to_camera"
+      ],
+      "max_distance_m": 1.0,
+      "offset_position_m": [
+        0.0,
+        0.0,
+        -0.05
+      ],
+      "offset_rotation_wxyz": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476,
+        0.0
+      ],
+      "offset_convention": "world",
+      "pattern": {
+        "width": 5,
+        "height": 3,
+        "focal_length": 24.0,
+        "horizontal_aperture": 20.955
+      },
+      "checks": {
+        "body_range_camera_attached_to_base": true,
+        "body_range_camera_targets_ground": true,
+        "body_range_camera_distance_output": true,
+        "body_range_camera_pattern_5x3": true,
+        "body_range_camera_max_distance_1m": true,
+        "body_range_camera_offset_matches_contract": true,
+        "body_range_camera_rotation_matches_contract": true
+      }
+    },
+    "body_range_camera_world_position_m": [
+      [
+        3.75,
+        -1.25,
+        0.11500000953674316
+      ],
+      [
+        3.75,
+        1.25,
+        0.11000002920627594
+      ],
+      [
+        1.25,
+        -1.2000000476837158,
+        0.16300001740455627
+      ],
+      [
+        1.25,
+        1.2000000476837158,
+        0.16300000250339508
+      ],
+      [
+        -1.25,
+        -1.25,
+        0.11500000953674316
+      ],
+      [
+        -1.25,
+        1.25,
+        0.11000002920627594
+      ],
+      [
+        -3.75,
+        -1.2000000476837158,
+        0.16300001740455627
+      ],
+      [
+        -3.75,
+        1.2000000476837158,
+        0.16300000250339508
+      ]
+    ],
+    "body_range_camera_world_quaternion_wxyz": [
+      [
+        0.7071068286895752,
+        2.468905080377226e-08,
+        0.7071068286895752,
+        -2.4526752184783618e-08
+      ],
+      [
+        -2.4487643912607382e-08,
+        0.7071068286895752,
+        -2.468905080377226e-08,
+        0.7071068286895752
+      ],
+      [
+        0.5000000596046448,
+        0.5000000596046448,
+        0.5000000596046448,
+        0.5000001192092896
+      ],
+      [
+        0.5000000596046448,
+        -0.4999999701976776,
+        0.5000000596046448,
+        -0.5
+      ],
+      [
+        0.7071068286895752,
+        2.468905080377226e-08,
+        0.7071068286895752,
+        -2.4526752184783618e-08
+      ],
+      [
+        -2.4487643912607382e-08,
+        0.7071068286895752,
+        -2.468905080377226e-08,
+        0.7071068286895752
+      ],
+      [
+        0.5000000596046448,
+        0.5000000596046448,
+        0.5000000596046448,
+        0.5000001192092896
+      ],
+      [
+        0.5000000596046448,
+        -0.4999999701976776,
+        0.5000000596046448,
+        -0.5
+      ]
+    ],
+    "body_range_camera_position_error_m": [
+      0.0,
+      2.9802322387695312e-08,
+      1.4901161193847656e-08,
+      0.0,
+      0.0,
+      2.9802322387695312e-08,
+      1.4901161193847656e-08,
+      0.0
+    ],
+    "body_range_camera_quaternion_error_l2": [
+      9.119505506305359e-08,
+      9.11845461359917e-08,
+      2.0431443203960953e-07,
+      1.2990531672585348e-07,
+      9.119505506305359e-08,
+      9.11845461359917e-08,
+      2.0431443203960953e-07,
+      1.2990531672585348e-07
+    ],
+    "foot_load_range_independence": {
+      "foot_load_max_abs_change_under_forced_no_hit": 0.0,
+      "foot_load_unchanged_under_forced_no_hit": true,
+      "forced_no_hit_range_is_one": true,
+      "forced_no_hit_mask_is_zero": true,
+      "forced_no_hit_does_not_mark_actor_invalid": true
+    },
+    "privilege_isolation": {
+      "actor_max_abs_change": 0.0,
+      "critic_max_abs_change": 1.0,
+      "actor_unchanged": true,
+      "critic_perturbation_exercised": true,
+      "actor_call_succeeds_without_live_mass_read": true,
+      "actor_mass_read_error": null
+    }
+  },
+  "physics_readback": {
+    "nominal_total_mass_kg": [
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078,
+      15.019001007080078
+    ],
+    "foot_material_static_dynamic": [
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ]
+    ],
+    "effective_friction_static_dynamic": [
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ],
+      [
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ],
+        [
+          0.800000011920929,
+          0.6000000238418579
+        ]
+      ]
+    ],
+    "articulation_solver_iterations": {
+      "source": "USD PhysxArticulationAPI live-stage readback",
+      "articulations": [
+        {
+          "prim_path": "/World/envs/env_0/Robot/base",
+          "solver_position_iteration_count": 16,
+          "solver_velocity_iteration_count": 0
+        },
+        {
+          "prim_path": "/World/envs/env_1/Robot/base",
+          "solver_position_iteration_count": 16,
+          "solver_velocity_iteration_count": 0
+        },
+        {
+          "prim_path": "/World/envs/env_2/Robot/base",
+          "solver_position_iteration_count": 16,
+          "solver_velocity_iteration_count": 0
+        },
+        {
+          "prim_path": "/World/envs/env_3/Robot/base",
+          "solver_position_iteration_count": 16,
+          "solver_velocity_iteration_count": 0
+        },
+        {
+          "prim_path": "/World/envs/env_4/Robot/base",
+          "solver_position_iteration_count": 16,
+          "solver_velocity_iteration_count": 0
+        },
+        {
+          "prim_path": "/World/envs/env_5/Robot/base",
+          "solver_position_iteration_count": 16,
+          "solver_velocity_iteration_count": 0
+        },
+        {
+          "prim_path": "/World/envs/env_6/Robot/base",
+          "solver_position_iteration_count": 16,
+          "solver_velocity_iteration_count": 0
+        },
+        {
+          "prim_path": "/World/envs/env_7/Robot/base",
+          "solver_position_iteration_count": 16,
+          "solver_velocity_iteration_count": 0
+        }
+      ]
+    },
+    "rigid_body_max_depenetration_velocity": {
+      "source": "root_physx_view.link_paths direct USD/PhysX live-stage readback",
+      "robot_container_prim_paths": [
+        "/World/envs/env_0/Robot",
+        "/World/envs/env_1/Robot",
+        "/World/envs/env_2/Robot",
+        "/World/envs/env_3/Robot",
+        "/World/envs/env_4/Robot",
+        "/World/envs/env_5/Robot",
+        "/World/envs/env_6/Robot",
+        "/World/envs/env_7/Robot"
+      ],
+      "articulation_prim_paths": [
+        "/World/envs/env_0/Robot/base",
+        "/World/envs/env_1/Robot/base",
+        "/World/envs/env_2/Robot/base",
+        "/World/envs/env_3/Robot/base",
+        "/World/envs/env_4/Robot/base",
+        "/World/envs/env_5/Robot/base",
+        "/World/envs/env_6/Robot/base",
+        "/World/envs/env_7/Robot/base"
+      ],
+      "authoritative_body_names": [
+        "base",
+        "FL_hip",
+        "FR_hip",
+        "Head_upper",
+        "RL_hip",
+        "RR_hip",
+        "FL_thigh",
+        "FR_thigh",
+        "Head_lower",
+        "RL_thigh",
+        "RR_thigh",
+        "FL_calf",
+        "FR_calf",
+        "RL_calf",
+        "RR_calf",
+        "FL_foot",
+        "FR_foot",
+        "RL_foot",
+        "RR_foot"
+      ],
+      "authoritative_link_path_groups": [
+        [
+          "/World/envs/env_0/Robot/base",
+          "/World/envs/env_0/Robot/FL_hip",
+          "/World/envs/env_0/Robot/FR_hip",
+          "/World/envs/env_0/Robot/Head_upper",
+          "/World/envs/env_0/Robot/RL_hip",
+          "/World/envs/env_0/Robot/RR_hip",
+          "/World/envs/env_0/Robot/FL_thigh",
+          "/World/envs/env_0/Robot/FR_thigh",
+          "/World/envs/env_0/Robot/Head_lower",
+          "/World/envs/env_0/Robot/RL_thigh",
+          "/World/envs/env_0/Robot/RR_thigh",
+          "/World/envs/env_0/Robot/FL_calf",
+          "/World/envs/env_0/Robot/FR_calf",
+          "/World/envs/env_0/Robot/RL_calf",
+          "/World/envs/env_0/Robot/RR_calf",
+          "/World/envs/env_0/Robot/FL_foot",
+          "/World/envs/env_0/Robot/FR_foot",
+          "/World/envs/env_0/Robot/RL_foot",
+          "/World/envs/env_0/Robot/RR_foot"
+        ],
+        [
+          "/World/envs/env_1/Robot/base",
+          "/World/envs/env_1/Robot/FL_hip",
+          "/World/envs/env_1/Robot/FR_hip",
+          "/World/envs/env_1/Robot/Head_upper",
+          "/World/envs/env_1/Robot/RL_hip",
+          "/World/envs/env_1/Robot/RR_hip",
+          "/World/envs/env_1/Robot/FL_thigh",
+          "/World/envs/env_1/Robot/FR_thigh",
+          "/World/envs/env_1/Robot/Head_lower",
+          "/World/envs/env_1/Robot/RL_thigh",
+          "/World/envs/env_1/Robot/RR_thigh",
+          "/World/envs/env_1/Robot/FL_calf",
+          "/World/envs/env_1/Robot/FR_calf",
+          "/World/envs/env_1/Robot/RL_calf",
+          "/World/envs/env_1/Robot/RR_calf",
+          "/World/envs/env_1/Robot/FL_foot",
+          "/World/envs/env_1/Robot/FR_foot",
+          "/World/envs/env_1/Robot/RL_foot",
+          "/World/envs/env_1/Robot/RR_foot"
+        ],
+        [
+          "/World/envs/env_2/Robot/base",
+          "/World/envs/env_2/Robot/FL_hip",
+          "/World/envs/env_2/Robot/FR_hip",
+          "/World/envs/env_2/Robot/Head_upper",
+          "/World/envs/env_2/Robot/RL_hip",
+          "/World/envs/env_2/Robot/RR_hip",
+          "/World/envs/env_2/Robot/FL_thigh",
+          "/World/envs/env_2/Robot/FR_thigh",
+          "/World/envs/env_2/Robot/Head_lower",
+          "/World/envs/env_2/Robot/RL_thigh",
+          "/World/envs/env_2/Robot/RR_thigh",
+          "/World/envs/env_2/Robot/FL_calf",
+          "/World/envs/env_2/Robot/FR_calf",
+          "/World/envs/env_2/Robot/RL_calf",
+          "/World/envs/env_2/Robot/RR_calf",
+          "/World/envs/env_2/Robot/FL_foot",
+          "/World/envs/env_2/Robot/FR_foot",
+          "/World/envs/env_2/Robot/RL_foot",
+          "/World/envs/env_2/Robot/RR_foot"
+        ],
+        [
+          "/World/envs/env_3/Robot/base",
+          "/World/envs/env_3/Robot/FL_hip",
+          "/World/envs/env_3/Robot/FR_hip",
+          "/World/envs/env_3/Robot/Head_upper",
+          "/World/envs/env_3/Robot/RL_hip",
+          "/World/envs/env_3/Robot/RR_hip",
+          "/World/envs/env_3/Robot/FL_thigh",
+          "/World/envs/env_3/Robot/FR_thigh",
+          "/World/envs/env_3/Robot/Head_lower",
+          "/World/envs/env_3/Robot/RL_thigh",
+          "/World/envs/env_3/Robot/RR_thigh",
+          "/World/envs/env_3/Robot/FL_calf",
+          "/World/envs/env_3/Robot/FR_calf",
+          "/World/envs/env_3/Robot/RL_calf",
+          "/World/envs/env_3/Robot/RR_calf",
+          "/World/envs/env_3/Robot/FL_foot",
+          "/World/envs/env_3/Robot/FR_foot",
+          "/World/envs/env_3/Robot/RL_foot",
+          "/World/envs/env_3/Robot/RR_foot"
+        ],
+        [
+          "/World/envs/env_4/Robot/base",
+          "/World/envs/env_4/Robot/FL_hip",
+          "/World/envs/env_4/Robot/FR_hip",
+          "/World/envs/env_4/Robot/Head_upper",
+          "/World/envs/env_4/Robot/RL_hip",
+          "/World/envs/env_4/Robot/RR_hip",
+          "/World/envs/env_4/Robot/FL_thigh",
+          "/World/envs/env_4/Robot/FR_thigh",
+          "/World/envs/env_4/Robot/Head_lower",
+          "/World/envs/env_4/Robot/RL_thigh",
+          "/World/envs/env_4/Robot/RR_thigh",
+          "/World/envs/env_4/Robot/FL_calf",
+          "/World/envs/env_4/Robot/FR_calf",
+          "/World/envs/env_4/Robot/RL_calf",
+          "/World/envs/env_4/Robot/RR_calf",
+          "/World/envs/env_4/Robot/FL_foot",
+          "/World/envs/env_4/Robot/FR_foot",
+          "/World/envs/env_4/Robot/RL_foot",
+          "/World/envs/env_4/Robot/RR_foot"
+        ],
+        [
+          "/World/envs/env_5/Robot/base",
+          "/World/envs/env_5/Robot/FL_hip",
+          "/World/envs/env_5/Robot/FR_hip",
+          "/World/envs/env_5/Robot/Head_upper",
+          "/World/envs/env_5/Robot/RL_hip",
+          "/World/envs/env_5/Robot/RR_hip",
+          "/World/envs/env_5/Robot/FL_thigh",
+          "/World/envs/env_5/Robot/FR_thigh",
+          "/World/envs/env_5/Robot/Head_lower",
+          "/World/envs/env_5/Robot/RL_thigh",
+          "/World/envs/env_5/Robot/RR_thigh",
+          "/World/envs/env_5/Robot/FL_calf",
+          "/World/envs/env_5/Robot/FR_calf",
+          "/World/envs/env_5/Robot/RL_calf",
+          "/World/envs/env_5/Robot/RR_calf",
+          "/World/envs/env_5/Robot/FL_foot",
+          "/World/envs/env_5/Robot/FR_foot",
+          "/World/envs/env_5/Robot/RL_foot",
+          "/World/envs/env_5/Robot/RR_foot"
+        ],
+        [
+          "/World/envs/env_6/Robot/base",
+          "/World/envs/env_6/Robot/FL_hip",
+          "/World/envs/env_6/Robot/FR_hip",
+          "/World/envs/env_6/Robot/Head_upper",
+          "/World/envs/env_6/Robot/RL_hip",
+          "/World/envs/env_6/Robot/RR_hip",
+          "/World/envs/env_6/Robot/FL_thigh",
+          "/World/envs/env_6/Robot/FR_thigh",
+          "/World/envs/env_6/Robot/Head_lower",
+          "/World/envs/env_6/Robot/RL_thigh",
+          "/World/envs/env_6/Robot/RR_thigh",
+          "/World/envs/env_6/Robot/FL_calf",
+          "/World/envs/env_6/Robot/FR_calf",
+          "/World/envs/env_6/Robot/RL_calf",
+          "/World/envs/env_6/Robot/RR_calf",
+          "/World/envs/env_6/Robot/FL_foot",
+          "/World/envs/env_6/Robot/FR_foot",
+          "/World/envs/env_6/Robot/RL_foot",
+          "/World/envs/env_6/Robot/RR_foot"
+        ],
+        [
+          "/World/envs/env_7/Robot/base",
+          "/World/envs/env_7/Robot/FL_hip",
+          "/World/envs/env_7/Robot/FR_hip",
+          "/World/envs/env_7/Robot/Head_upper",
+          "/World/envs/env_7/Robot/RL_hip",
+          "/World/envs/env_7/Robot/RR_hip",
+          "/World/envs/env_7/Robot/FL_thigh",
+          "/World/envs/env_7/Robot/FR_thigh",
+          "/World/envs/env_7/Robot/Head_lower",
+          "/World/envs/env_7/Robot/RL_thigh",
+          "/World/envs/env_7/Robot/RR_thigh",
+          "/World/envs/env_7/Robot/FL_calf",
+          "/World/envs/env_7/Robot/FR_calf",
+          "/World/envs/env_7/Robot/RL_calf",
+          "/World/envs/env_7/Robot/RR_calf",
+          "/World/envs/env_7/Robot/FL_foot",
+          "/World/envs/env_7/Robot/FR_foot",
+          "/World/envs/env_7/Robot/RL_foot",
+          "/World/envs/env_7/Robot/RR_foot"
+        ]
+      ],
+      "articulation_group_count": 8,
+      "rigid_body_count": 152,
+      "duplicate_link_prim_paths": [],
+      "articulations": [
+        {
+          "articulation_index": 0,
+          "robot_container_prim_path": "/World/envs/env_0/Robot",
+          "articulation_prim_path": "/World/envs/env_0/Robot/base",
+          "root_link_prim_path": "/World/envs/env_0/Robot/base",
+          "authoritative_body_names": [
+            "base",
+            "FL_hip",
+            "FR_hip",
+            "Head_upper",
+            "RL_hip",
+            "RR_hip",
+            "FL_thigh",
+            "FR_thigh",
+            "Head_lower",
+            "RL_thigh",
+            "RR_thigh",
+            "FL_calf",
+            "FR_calf",
+            "RL_calf",
+            "RR_calf",
+            "FL_foot",
+            "FR_foot",
+            "RL_foot",
+            "RR_foot"
+          ],
+          "authoritative_link_paths": [
+            "/World/envs/env_0/Robot/base",
+            "/World/envs/env_0/Robot/FL_hip",
+            "/World/envs/env_0/Robot/FR_hip",
+            "/World/envs/env_0/Robot/Head_upper",
+            "/World/envs/env_0/Robot/RL_hip",
+            "/World/envs/env_0/Robot/RR_hip",
+            "/World/envs/env_0/Robot/FL_thigh",
+            "/World/envs/env_0/Robot/FR_thigh",
+            "/World/envs/env_0/Robot/Head_lower",
+            "/World/envs/env_0/Robot/RL_thigh",
+            "/World/envs/env_0/Robot/RR_thigh",
+            "/World/envs/env_0/Robot/FL_calf",
+            "/World/envs/env_0/Robot/FR_calf",
+            "/World/envs/env_0/Robot/RL_calf",
+            "/World/envs/env_0/Robot/RR_calf",
+            "/World/envs/env_0/Robot/FL_foot",
+            "/World/envs/env_0/Robot/FR_foot",
+            "/World/envs/env_0/Robot/RL_foot",
+            "/World/envs/env_0/Robot/RR_foot"
+          ],
+          "links": [
+            {
+              "body_index": 0,
+              "body_name": "base",
+              "prim_path": "/World/envs/env_0/Robot/base",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 1,
+              "body_name": "FL_hip",
+              "prim_path": "/World/envs/env_0/Robot/FL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 2,
+              "body_name": "FR_hip",
+              "prim_path": "/World/envs/env_0/Robot/FR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 3,
+              "body_name": "Head_upper",
+              "prim_path": "/World/envs/env_0/Robot/Head_upper",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 4,
+              "body_name": "RL_hip",
+              "prim_path": "/World/envs/env_0/Robot/RL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 5,
+              "body_name": "RR_hip",
+              "prim_path": "/World/envs/env_0/Robot/RR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 6,
+              "body_name": "FL_thigh",
+              "prim_path": "/World/envs/env_0/Robot/FL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 7,
+              "body_name": "FR_thigh",
+              "prim_path": "/World/envs/env_0/Robot/FR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 8,
+              "body_name": "Head_lower",
+              "prim_path": "/World/envs/env_0/Robot/Head_lower",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 9,
+              "body_name": "RL_thigh",
+              "prim_path": "/World/envs/env_0/Robot/RL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 10,
+              "body_name": "RR_thigh",
+              "prim_path": "/World/envs/env_0/Robot/RR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 11,
+              "body_name": "FL_calf",
+              "prim_path": "/World/envs/env_0/Robot/FL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 12,
+              "body_name": "FR_calf",
+              "prim_path": "/World/envs/env_0/Robot/FR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 13,
+              "body_name": "RL_calf",
+              "prim_path": "/World/envs/env_0/Robot/RL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 14,
+              "body_name": "RR_calf",
+              "prim_path": "/World/envs/env_0/Robot/RR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 15,
+              "body_name": "FL_foot",
+              "prim_path": "/World/envs/env_0/Robot/FL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 16,
+              "body_name": "FR_foot",
+              "prim_path": "/World/envs/env_0/Robot/FR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 17,
+              "body_name": "RL_foot",
+              "prim_path": "/World/envs/env_0/Robot/RL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 18,
+              "body_name": "RR_foot",
+              "prim_path": "/World/envs/env_0/Robot/RR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            }
+          ]
+        },
+        {
+          "articulation_index": 1,
+          "robot_container_prim_path": "/World/envs/env_1/Robot",
+          "articulation_prim_path": "/World/envs/env_1/Robot/base",
+          "root_link_prim_path": "/World/envs/env_1/Robot/base",
+          "authoritative_body_names": [
+            "base",
+            "FL_hip",
+            "FR_hip",
+            "Head_upper",
+            "RL_hip",
+            "RR_hip",
+            "FL_thigh",
+            "FR_thigh",
+            "Head_lower",
+            "RL_thigh",
+            "RR_thigh",
+            "FL_calf",
+            "FR_calf",
+            "RL_calf",
+            "RR_calf",
+            "FL_foot",
+            "FR_foot",
+            "RL_foot",
+            "RR_foot"
+          ],
+          "authoritative_link_paths": [
+            "/World/envs/env_1/Robot/base",
+            "/World/envs/env_1/Robot/FL_hip",
+            "/World/envs/env_1/Robot/FR_hip",
+            "/World/envs/env_1/Robot/Head_upper",
+            "/World/envs/env_1/Robot/RL_hip",
+            "/World/envs/env_1/Robot/RR_hip",
+            "/World/envs/env_1/Robot/FL_thigh",
+            "/World/envs/env_1/Robot/FR_thigh",
+            "/World/envs/env_1/Robot/Head_lower",
+            "/World/envs/env_1/Robot/RL_thigh",
+            "/World/envs/env_1/Robot/RR_thigh",
+            "/World/envs/env_1/Robot/FL_calf",
+            "/World/envs/env_1/Robot/FR_calf",
+            "/World/envs/env_1/Robot/RL_calf",
+            "/World/envs/env_1/Robot/RR_calf",
+            "/World/envs/env_1/Robot/FL_foot",
+            "/World/envs/env_1/Robot/FR_foot",
+            "/World/envs/env_1/Robot/RL_foot",
+            "/World/envs/env_1/Robot/RR_foot"
+          ],
+          "links": [
+            {
+              "body_index": 0,
+              "body_name": "base",
+              "prim_path": "/World/envs/env_1/Robot/base",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 1,
+              "body_name": "FL_hip",
+              "prim_path": "/World/envs/env_1/Robot/FL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 2,
+              "body_name": "FR_hip",
+              "prim_path": "/World/envs/env_1/Robot/FR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 3,
+              "body_name": "Head_upper",
+              "prim_path": "/World/envs/env_1/Robot/Head_upper",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 4,
+              "body_name": "RL_hip",
+              "prim_path": "/World/envs/env_1/Robot/RL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 5,
+              "body_name": "RR_hip",
+              "prim_path": "/World/envs/env_1/Robot/RR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 6,
+              "body_name": "FL_thigh",
+              "prim_path": "/World/envs/env_1/Robot/FL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 7,
+              "body_name": "FR_thigh",
+              "prim_path": "/World/envs/env_1/Robot/FR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 8,
+              "body_name": "Head_lower",
+              "prim_path": "/World/envs/env_1/Robot/Head_lower",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 9,
+              "body_name": "RL_thigh",
+              "prim_path": "/World/envs/env_1/Robot/RL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 10,
+              "body_name": "RR_thigh",
+              "prim_path": "/World/envs/env_1/Robot/RR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 11,
+              "body_name": "FL_calf",
+              "prim_path": "/World/envs/env_1/Robot/FL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 12,
+              "body_name": "FR_calf",
+              "prim_path": "/World/envs/env_1/Robot/FR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 13,
+              "body_name": "RL_calf",
+              "prim_path": "/World/envs/env_1/Robot/RL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 14,
+              "body_name": "RR_calf",
+              "prim_path": "/World/envs/env_1/Robot/RR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 15,
+              "body_name": "FL_foot",
+              "prim_path": "/World/envs/env_1/Robot/FL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 16,
+              "body_name": "FR_foot",
+              "prim_path": "/World/envs/env_1/Robot/FR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 17,
+              "body_name": "RL_foot",
+              "prim_path": "/World/envs/env_1/Robot/RL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 18,
+              "body_name": "RR_foot",
+              "prim_path": "/World/envs/env_1/Robot/RR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            }
+          ]
+        },
+        {
+          "articulation_index": 2,
+          "robot_container_prim_path": "/World/envs/env_2/Robot",
+          "articulation_prim_path": "/World/envs/env_2/Robot/base",
+          "root_link_prim_path": "/World/envs/env_2/Robot/base",
+          "authoritative_body_names": [
+            "base",
+            "FL_hip",
+            "FR_hip",
+            "Head_upper",
+            "RL_hip",
+            "RR_hip",
+            "FL_thigh",
+            "FR_thigh",
+            "Head_lower",
+            "RL_thigh",
+            "RR_thigh",
+            "FL_calf",
+            "FR_calf",
+            "RL_calf",
+            "RR_calf",
+            "FL_foot",
+            "FR_foot",
+            "RL_foot",
+            "RR_foot"
+          ],
+          "authoritative_link_paths": [
+            "/World/envs/env_2/Robot/base",
+            "/World/envs/env_2/Robot/FL_hip",
+            "/World/envs/env_2/Robot/FR_hip",
+            "/World/envs/env_2/Robot/Head_upper",
+            "/World/envs/env_2/Robot/RL_hip",
+            "/World/envs/env_2/Robot/RR_hip",
+            "/World/envs/env_2/Robot/FL_thigh",
+            "/World/envs/env_2/Robot/FR_thigh",
+            "/World/envs/env_2/Robot/Head_lower",
+            "/World/envs/env_2/Robot/RL_thigh",
+            "/World/envs/env_2/Robot/RR_thigh",
+            "/World/envs/env_2/Robot/FL_calf",
+            "/World/envs/env_2/Robot/FR_calf",
+            "/World/envs/env_2/Robot/RL_calf",
+            "/World/envs/env_2/Robot/RR_calf",
+            "/World/envs/env_2/Robot/FL_foot",
+            "/World/envs/env_2/Robot/FR_foot",
+            "/World/envs/env_2/Robot/RL_foot",
+            "/World/envs/env_2/Robot/RR_foot"
+          ],
+          "links": [
+            {
+              "body_index": 0,
+              "body_name": "base",
+              "prim_path": "/World/envs/env_2/Robot/base",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 1,
+              "body_name": "FL_hip",
+              "prim_path": "/World/envs/env_2/Robot/FL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 2,
+              "body_name": "FR_hip",
+              "prim_path": "/World/envs/env_2/Robot/FR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 3,
+              "body_name": "Head_upper",
+              "prim_path": "/World/envs/env_2/Robot/Head_upper",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 4,
+              "body_name": "RL_hip",
+              "prim_path": "/World/envs/env_2/Robot/RL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 5,
+              "body_name": "RR_hip",
+              "prim_path": "/World/envs/env_2/Robot/RR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 6,
+              "body_name": "FL_thigh",
+              "prim_path": "/World/envs/env_2/Robot/FL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 7,
+              "body_name": "FR_thigh",
+              "prim_path": "/World/envs/env_2/Robot/FR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 8,
+              "body_name": "Head_lower",
+              "prim_path": "/World/envs/env_2/Robot/Head_lower",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 9,
+              "body_name": "RL_thigh",
+              "prim_path": "/World/envs/env_2/Robot/RL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 10,
+              "body_name": "RR_thigh",
+              "prim_path": "/World/envs/env_2/Robot/RR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 11,
+              "body_name": "FL_calf",
+              "prim_path": "/World/envs/env_2/Robot/FL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 12,
+              "body_name": "FR_calf",
+              "prim_path": "/World/envs/env_2/Robot/FR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 13,
+              "body_name": "RL_calf",
+              "prim_path": "/World/envs/env_2/Robot/RL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 14,
+              "body_name": "RR_calf",
+              "prim_path": "/World/envs/env_2/Robot/RR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 15,
+              "body_name": "FL_foot",
+              "prim_path": "/World/envs/env_2/Robot/FL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 16,
+              "body_name": "FR_foot",
+              "prim_path": "/World/envs/env_2/Robot/FR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 17,
+              "body_name": "RL_foot",
+              "prim_path": "/World/envs/env_2/Robot/RL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 18,
+              "body_name": "RR_foot",
+              "prim_path": "/World/envs/env_2/Robot/RR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            }
+          ]
+        },
+        {
+          "articulation_index": 3,
+          "robot_container_prim_path": "/World/envs/env_3/Robot",
+          "articulation_prim_path": "/World/envs/env_3/Robot/base",
+          "root_link_prim_path": "/World/envs/env_3/Robot/base",
+          "authoritative_body_names": [
+            "base",
+            "FL_hip",
+            "FR_hip",
+            "Head_upper",
+            "RL_hip",
+            "RR_hip",
+            "FL_thigh",
+            "FR_thigh",
+            "Head_lower",
+            "RL_thigh",
+            "RR_thigh",
+            "FL_calf",
+            "FR_calf",
+            "RL_calf",
+            "RR_calf",
+            "FL_foot",
+            "FR_foot",
+            "RL_foot",
+            "RR_foot"
+          ],
+          "authoritative_link_paths": [
+            "/World/envs/env_3/Robot/base",
+            "/World/envs/env_3/Robot/FL_hip",
+            "/World/envs/env_3/Robot/FR_hip",
+            "/World/envs/env_3/Robot/Head_upper",
+            "/World/envs/env_3/Robot/RL_hip",
+            "/World/envs/env_3/Robot/RR_hip",
+            "/World/envs/env_3/Robot/FL_thigh",
+            "/World/envs/env_3/Robot/FR_thigh",
+            "/World/envs/env_3/Robot/Head_lower",
+            "/World/envs/env_3/Robot/RL_thigh",
+            "/World/envs/env_3/Robot/RR_thigh",
+            "/World/envs/env_3/Robot/FL_calf",
+            "/World/envs/env_3/Robot/FR_calf",
+            "/World/envs/env_3/Robot/RL_calf",
+            "/World/envs/env_3/Robot/RR_calf",
+            "/World/envs/env_3/Robot/FL_foot",
+            "/World/envs/env_3/Robot/FR_foot",
+            "/World/envs/env_3/Robot/RL_foot",
+            "/World/envs/env_3/Robot/RR_foot"
+          ],
+          "links": [
+            {
+              "body_index": 0,
+              "body_name": "base",
+              "prim_path": "/World/envs/env_3/Robot/base",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 1,
+              "body_name": "FL_hip",
+              "prim_path": "/World/envs/env_3/Robot/FL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 2,
+              "body_name": "FR_hip",
+              "prim_path": "/World/envs/env_3/Robot/FR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 3,
+              "body_name": "Head_upper",
+              "prim_path": "/World/envs/env_3/Robot/Head_upper",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 4,
+              "body_name": "RL_hip",
+              "prim_path": "/World/envs/env_3/Robot/RL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 5,
+              "body_name": "RR_hip",
+              "prim_path": "/World/envs/env_3/Robot/RR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 6,
+              "body_name": "FL_thigh",
+              "prim_path": "/World/envs/env_3/Robot/FL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 7,
+              "body_name": "FR_thigh",
+              "prim_path": "/World/envs/env_3/Robot/FR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 8,
+              "body_name": "Head_lower",
+              "prim_path": "/World/envs/env_3/Robot/Head_lower",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 9,
+              "body_name": "RL_thigh",
+              "prim_path": "/World/envs/env_3/Robot/RL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 10,
+              "body_name": "RR_thigh",
+              "prim_path": "/World/envs/env_3/Robot/RR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 11,
+              "body_name": "FL_calf",
+              "prim_path": "/World/envs/env_3/Robot/FL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 12,
+              "body_name": "FR_calf",
+              "prim_path": "/World/envs/env_3/Robot/FR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 13,
+              "body_name": "RL_calf",
+              "prim_path": "/World/envs/env_3/Robot/RL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 14,
+              "body_name": "RR_calf",
+              "prim_path": "/World/envs/env_3/Robot/RR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 15,
+              "body_name": "FL_foot",
+              "prim_path": "/World/envs/env_3/Robot/FL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 16,
+              "body_name": "FR_foot",
+              "prim_path": "/World/envs/env_3/Robot/FR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 17,
+              "body_name": "RL_foot",
+              "prim_path": "/World/envs/env_3/Robot/RL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 18,
+              "body_name": "RR_foot",
+              "prim_path": "/World/envs/env_3/Robot/RR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            }
+          ]
+        },
+        {
+          "articulation_index": 4,
+          "robot_container_prim_path": "/World/envs/env_4/Robot",
+          "articulation_prim_path": "/World/envs/env_4/Robot/base",
+          "root_link_prim_path": "/World/envs/env_4/Robot/base",
+          "authoritative_body_names": [
+            "base",
+            "FL_hip",
+            "FR_hip",
+            "Head_upper",
+            "RL_hip",
+            "RR_hip",
+            "FL_thigh",
+            "FR_thigh",
+            "Head_lower",
+            "RL_thigh",
+            "RR_thigh",
+            "FL_calf",
+            "FR_calf",
+            "RL_calf",
+            "RR_calf",
+            "FL_foot",
+            "FR_foot",
+            "RL_foot",
+            "RR_foot"
+          ],
+          "authoritative_link_paths": [
+            "/World/envs/env_4/Robot/base",
+            "/World/envs/env_4/Robot/FL_hip",
+            "/World/envs/env_4/Robot/FR_hip",
+            "/World/envs/env_4/Robot/Head_upper",
+            "/World/envs/env_4/Robot/RL_hip",
+            "/World/envs/env_4/Robot/RR_hip",
+            "/World/envs/env_4/Robot/FL_thigh",
+            "/World/envs/env_4/Robot/FR_thigh",
+            "/World/envs/env_4/Robot/Head_lower",
+            "/World/envs/env_4/Robot/RL_thigh",
+            "/World/envs/env_4/Robot/RR_thigh",
+            "/World/envs/env_4/Robot/FL_calf",
+            "/World/envs/env_4/Robot/FR_calf",
+            "/World/envs/env_4/Robot/RL_calf",
+            "/World/envs/env_4/Robot/RR_calf",
+            "/World/envs/env_4/Robot/FL_foot",
+            "/World/envs/env_4/Robot/FR_foot",
+            "/World/envs/env_4/Robot/RL_foot",
+            "/World/envs/env_4/Robot/RR_foot"
+          ],
+          "links": [
+            {
+              "body_index": 0,
+              "body_name": "base",
+              "prim_path": "/World/envs/env_4/Robot/base",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 1,
+              "body_name": "FL_hip",
+              "prim_path": "/World/envs/env_4/Robot/FL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 2,
+              "body_name": "FR_hip",
+              "prim_path": "/World/envs/env_4/Robot/FR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 3,
+              "body_name": "Head_upper",
+              "prim_path": "/World/envs/env_4/Robot/Head_upper",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 4,
+              "body_name": "RL_hip",
+              "prim_path": "/World/envs/env_4/Robot/RL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 5,
+              "body_name": "RR_hip",
+              "prim_path": "/World/envs/env_4/Robot/RR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 6,
+              "body_name": "FL_thigh",
+              "prim_path": "/World/envs/env_4/Robot/FL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 7,
+              "body_name": "FR_thigh",
+              "prim_path": "/World/envs/env_4/Robot/FR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 8,
+              "body_name": "Head_lower",
+              "prim_path": "/World/envs/env_4/Robot/Head_lower",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 9,
+              "body_name": "RL_thigh",
+              "prim_path": "/World/envs/env_4/Robot/RL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 10,
+              "body_name": "RR_thigh",
+              "prim_path": "/World/envs/env_4/Robot/RR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 11,
+              "body_name": "FL_calf",
+              "prim_path": "/World/envs/env_4/Robot/FL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 12,
+              "body_name": "FR_calf",
+              "prim_path": "/World/envs/env_4/Robot/FR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 13,
+              "body_name": "RL_calf",
+              "prim_path": "/World/envs/env_4/Robot/RL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 14,
+              "body_name": "RR_calf",
+              "prim_path": "/World/envs/env_4/Robot/RR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 15,
+              "body_name": "FL_foot",
+              "prim_path": "/World/envs/env_4/Robot/FL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 16,
+              "body_name": "FR_foot",
+              "prim_path": "/World/envs/env_4/Robot/FR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 17,
+              "body_name": "RL_foot",
+              "prim_path": "/World/envs/env_4/Robot/RL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 18,
+              "body_name": "RR_foot",
+              "prim_path": "/World/envs/env_4/Robot/RR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            }
+          ]
+        },
+        {
+          "articulation_index": 5,
+          "robot_container_prim_path": "/World/envs/env_5/Robot",
+          "articulation_prim_path": "/World/envs/env_5/Robot/base",
+          "root_link_prim_path": "/World/envs/env_5/Robot/base",
+          "authoritative_body_names": [
+            "base",
+            "FL_hip",
+            "FR_hip",
+            "Head_upper",
+            "RL_hip",
+            "RR_hip",
+            "FL_thigh",
+            "FR_thigh",
+            "Head_lower",
+            "RL_thigh",
+            "RR_thigh",
+            "FL_calf",
+            "FR_calf",
+            "RL_calf",
+            "RR_calf",
+            "FL_foot",
+            "FR_foot",
+            "RL_foot",
+            "RR_foot"
+          ],
+          "authoritative_link_paths": [
+            "/World/envs/env_5/Robot/base",
+            "/World/envs/env_5/Robot/FL_hip",
+            "/World/envs/env_5/Robot/FR_hip",
+            "/World/envs/env_5/Robot/Head_upper",
+            "/World/envs/env_5/Robot/RL_hip",
+            "/World/envs/env_5/Robot/RR_hip",
+            "/World/envs/env_5/Robot/FL_thigh",
+            "/World/envs/env_5/Robot/FR_thigh",
+            "/World/envs/env_5/Robot/Head_lower",
+            "/World/envs/env_5/Robot/RL_thigh",
+            "/World/envs/env_5/Robot/RR_thigh",
+            "/World/envs/env_5/Robot/FL_calf",
+            "/World/envs/env_5/Robot/FR_calf",
+            "/World/envs/env_5/Robot/RL_calf",
+            "/World/envs/env_5/Robot/RR_calf",
+            "/World/envs/env_5/Robot/FL_foot",
+            "/World/envs/env_5/Robot/FR_foot",
+            "/World/envs/env_5/Robot/RL_foot",
+            "/World/envs/env_5/Robot/RR_foot"
+          ],
+          "links": [
+            {
+              "body_index": 0,
+              "body_name": "base",
+              "prim_path": "/World/envs/env_5/Robot/base",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 1,
+              "body_name": "FL_hip",
+              "prim_path": "/World/envs/env_5/Robot/FL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 2,
+              "body_name": "FR_hip",
+              "prim_path": "/World/envs/env_5/Robot/FR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 3,
+              "body_name": "Head_upper",
+              "prim_path": "/World/envs/env_5/Robot/Head_upper",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 4,
+              "body_name": "RL_hip",
+              "prim_path": "/World/envs/env_5/Robot/RL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 5,
+              "body_name": "RR_hip",
+              "prim_path": "/World/envs/env_5/Robot/RR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 6,
+              "body_name": "FL_thigh",
+              "prim_path": "/World/envs/env_5/Robot/FL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 7,
+              "body_name": "FR_thigh",
+              "prim_path": "/World/envs/env_5/Robot/FR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 8,
+              "body_name": "Head_lower",
+              "prim_path": "/World/envs/env_5/Robot/Head_lower",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 9,
+              "body_name": "RL_thigh",
+              "prim_path": "/World/envs/env_5/Robot/RL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 10,
+              "body_name": "RR_thigh",
+              "prim_path": "/World/envs/env_5/Robot/RR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 11,
+              "body_name": "FL_calf",
+              "prim_path": "/World/envs/env_5/Robot/FL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 12,
+              "body_name": "FR_calf",
+              "prim_path": "/World/envs/env_5/Robot/FR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 13,
+              "body_name": "RL_calf",
+              "prim_path": "/World/envs/env_5/Robot/RL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 14,
+              "body_name": "RR_calf",
+              "prim_path": "/World/envs/env_5/Robot/RR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 15,
+              "body_name": "FL_foot",
+              "prim_path": "/World/envs/env_5/Robot/FL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 16,
+              "body_name": "FR_foot",
+              "prim_path": "/World/envs/env_5/Robot/FR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 17,
+              "body_name": "RL_foot",
+              "prim_path": "/World/envs/env_5/Robot/RL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 18,
+              "body_name": "RR_foot",
+              "prim_path": "/World/envs/env_5/Robot/RR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            }
+          ]
+        },
+        {
+          "articulation_index": 6,
+          "robot_container_prim_path": "/World/envs/env_6/Robot",
+          "articulation_prim_path": "/World/envs/env_6/Robot/base",
+          "root_link_prim_path": "/World/envs/env_6/Robot/base",
+          "authoritative_body_names": [
+            "base",
+            "FL_hip",
+            "FR_hip",
+            "Head_upper",
+            "RL_hip",
+            "RR_hip",
+            "FL_thigh",
+            "FR_thigh",
+            "Head_lower",
+            "RL_thigh",
+            "RR_thigh",
+            "FL_calf",
+            "FR_calf",
+            "RL_calf",
+            "RR_calf",
+            "FL_foot",
+            "FR_foot",
+            "RL_foot",
+            "RR_foot"
+          ],
+          "authoritative_link_paths": [
+            "/World/envs/env_6/Robot/base",
+            "/World/envs/env_6/Robot/FL_hip",
+            "/World/envs/env_6/Robot/FR_hip",
+            "/World/envs/env_6/Robot/Head_upper",
+            "/World/envs/env_6/Robot/RL_hip",
+            "/World/envs/env_6/Robot/RR_hip",
+            "/World/envs/env_6/Robot/FL_thigh",
+            "/World/envs/env_6/Robot/FR_thigh",
+            "/World/envs/env_6/Robot/Head_lower",
+            "/World/envs/env_6/Robot/RL_thigh",
+            "/World/envs/env_6/Robot/RR_thigh",
+            "/World/envs/env_6/Robot/FL_calf",
+            "/World/envs/env_6/Robot/FR_calf",
+            "/World/envs/env_6/Robot/RL_calf",
+            "/World/envs/env_6/Robot/RR_calf",
+            "/World/envs/env_6/Robot/FL_foot",
+            "/World/envs/env_6/Robot/FR_foot",
+            "/World/envs/env_6/Robot/RL_foot",
+            "/World/envs/env_6/Robot/RR_foot"
+          ],
+          "links": [
+            {
+              "body_index": 0,
+              "body_name": "base",
+              "prim_path": "/World/envs/env_6/Robot/base",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 1,
+              "body_name": "FL_hip",
+              "prim_path": "/World/envs/env_6/Robot/FL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 2,
+              "body_name": "FR_hip",
+              "prim_path": "/World/envs/env_6/Robot/FR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 3,
+              "body_name": "Head_upper",
+              "prim_path": "/World/envs/env_6/Robot/Head_upper",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 4,
+              "body_name": "RL_hip",
+              "prim_path": "/World/envs/env_6/Robot/RL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 5,
+              "body_name": "RR_hip",
+              "prim_path": "/World/envs/env_6/Robot/RR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 6,
+              "body_name": "FL_thigh",
+              "prim_path": "/World/envs/env_6/Robot/FL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 7,
+              "body_name": "FR_thigh",
+              "prim_path": "/World/envs/env_6/Robot/FR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 8,
+              "body_name": "Head_lower",
+              "prim_path": "/World/envs/env_6/Robot/Head_lower",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 9,
+              "body_name": "RL_thigh",
+              "prim_path": "/World/envs/env_6/Robot/RL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 10,
+              "body_name": "RR_thigh",
+              "prim_path": "/World/envs/env_6/Robot/RR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 11,
+              "body_name": "FL_calf",
+              "prim_path": "/World/envs/env_6/Robot/FL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 12,
+              "body_name": "FR_calf",
+              "prim_path": "/World/envs/env_6/Robot/FR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 13,
+              "body_name": "RL_calf",
+              "prim_path": "/World/envs/env_6/Robot/RL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 14,
+              "body_name": "RR_calf",
+              "prim_path": "/World/envs/env_6/Robot/RR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 15,
+              "body_name": "FL_foot",
+              "prim_path": "/World/envs/env_6/Robot/FL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 16,
+              "body_name": "FR_foot",
+              "prim_path": "/World/envs/env_6/Robot/FR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 17,
+              "body_name": "RL_foot",
+              "prim_path": "/World/envs/env_6/Robot/RL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 18,
+              "body_name": "RR_foot",
+              "prim_path": "/World/envs/env_6/Robot/RR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            }
+          ]
+        },
+        {
+          "articulation_index": 7,
+          "robot_container_prim_path": "/World/envs/env_7/Robot",
+          "articulation_prim_path": "/World/envs/env_7/Robot/base",
+          "root_link_prim_path": "/World/envs/env_7/Robot/base",
+          "authoritative_body_names": [
+            "base",
+            "FL_hip",
+            "FR_hip",
+            "Head_upper",
+            "RL_hip",
+            "RR_hip",
+            "FL_thigh",
+            "FR_thigh",
+            "Head_lower",
+            "RL_thigh",
+            "RR_thigh",
+            "FL_calf",
+            "FR_calf",
+            "RL_calf",
+            "RR_calf",
+            "FL_foot",
+            "FR_foot",
+            "RL_foot",
+            "RR_foot"
+          ],
+          "authoritative_link_paths": [
+            "/World/envs/env_7/Robot/base",
+            "/World/envs/env_7/Robot/FL_hip",
+            "/World/envs/env_7/Robot/FR_hip",
+            "/World/envs/env_7/Robot/Head_upper",
+            "/World/envs/env_7/Robot/RL_hip",
+            "/World/envs/env_7/Robot/RR_hip",
+            "/World/envs/env_7/Robot/FL_thigh",
+            "/World/envs/env_7/Robot/FR_thigh",
+            "/World/envs/env_7/Robot/Head_lower",
+            "/World/envs/env_7/Robot/RL_thigh",
+            "/World/envs/env_7/Robot/RR_thigh",
+            "/World/envs/env_7/Robot/FL_calf",
+            "/World/envs/env_7/Robot/FR_calf",
+            "/World/envs/env_7/Robot/RL_calf",
+            "/World/envs/env_7/Robot/RR_calf",
+            "/World/envs/env_7/Robot/FL_foot",
+            "/World/envs/env_7/Robot/FR_foot",
+            "/World/envs/env_7/Robot/RL_foot",
+            "/World/envs/env_7/Robot/RR_foot"
+          ],
+          "links": [
+            {
+              "body_index": 0,
+              "body_name": "base",
+              "prim_path": "/World/envs/env_7/Robot/base",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 1,
+              "body_name": "FL_hip",
+              "prim_path": "/World/envs/env_7/Robot/FL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 2,
+              "body_name": "FR_hip",
+              "prim_path": "/World/envs/env_7/Robot/FR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 3,
+              "body_name": "Head_upper",
+              "prim_path": "/World/envs/env_7/Robot/Head_upper",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 4,
+              "body_name": "RL_hip",
+              "prim_path": "/World/envs/env_7/Robot/RL_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 5,
+              "body_name": "RR_hip",
+              "prim_path": "/World/envs/env_7/Robot/RR_hip",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 6,
+              "body_name": "FL_thigh",
+              "prim_path": "/World/envs/env_7/Robot/FL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 7,
+              "body_name": "FR_thigh",
+              "prim_path": "/World/envs/env_7/Robot/FR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 8,
+              "body_name": "Head_lower",
+              "prim_path": "/World/envs/env_7/Robot/Head_lower",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 9,
+              "body_name": "RL_thigh",
+              "prim_path": "/World/envs/env_7/Robot/RL_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 10,
+              "body_name": "RR_thigh",
+              "prim_path": "/World/envs/env_7/Robot/RR_thigh",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 11,
+              "body_name": "FL_calf",
+              "prim_path": "/World/envs/env_7/Robot/FL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 12,
+              "body_name": "FR_calf",
+              "prim_path": "/World/envs/env_7/Robot/FR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 13,
+              "body_name": "RL_calf",
+              "prim_path": "/World/envs/env_7/Robot/RL_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 14,
+              "body_name": "RR_calf",
+              "prim_path": "/World/envs/env_7/Robot/RR_calf",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 15,
+              "body_name": "FL_foot",
+              "prim_path": "/World/envs/env_7/Robot/FL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 16,
+              "body_name": "FR_foot",
+              "prim_path": "/World/envs/env_7/Robot/FR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 17,
+              "body_name": "RL_foot",
+              "prim_path": "/World/envs/env_7/Robot/RL_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            },
+            {
+              "body_index": 18,
+              "body_name": "RR_foot",
+              "prim_path": "/World/envs/env_7/Robot/RR_foot",
+              "prim_valid": true,
+              "usd_rigid_body_api": true,
+              "physx_rigid_body_api": true,
+              "max_depenetration_velocity_m_s": 1.0,
+              "error": null
+            }
+          ]
+        }
+      ]
+    },
+    "contact_separation_method": "PhysX per-physics-step contact report event without GPU filter",
+    "contact_separation_api_available": true,
+    "contact_separation_error": null,
+    "contact_report_event_count": 0,
+    "contact_report_expected_physics_steps": 600,
+    "contact_report_headers_seen": 0,
+    "robot_ground_headers_seen": 0,
+    "contact_force_history_steps": 4,
+    "contact_force_sampling_dt_s": 0.005,
+    "separation_point_count_per_env": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "minimum_separation_provenance_per_env": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "device_capability_diagnostics": {
+    "ground_contact_separation_available": false,
+    "ground_contact_separation_above_minus_1cm": false
+  },
+  "required_crosschecks": {
+    "cpu_contact_separation": {
+      "name": "cpu_contact_separation",
+      "authority_device": "cpu",
+      "required_for_final_synthesis": true,
+      "this_run_is_authority": false,
+      "data_available": false,
+      "threshold_m": -0.01,
+      "threshold_passed": null,
+      "status": "requires_cpu_crosscheck",
+      "passed": null
+    }
+  },
+  "final_synthesis": {
+    "status": "not_run",
+    "passed": null,
+    "reason": "combine GPU blocking dynamics with the authoritative CPU contact-separation crosscheck"
+  },
+  "reward_manager_calibration": {
+    "expected": {
+      "step_dt_s": 0.02,
+      "terminal_raw_pulse": 50.0,
+      "terminal_weight": 10.0,
+      "terminal_contribution": 10.0,
+      "potential_delta": 0.2475,
+      "potential_raw_rate": 12.375,
+      "potential_weight": 2.0,
+      "potential_contribution": 0.495
+    },
+    "observed": {
+      "required_consecutive_steps": 25,
+      "pretrigger_steps_clear": true,
+      "trigger_on_required_step": true,
+      "repeated_step_has_no_pulse": true,
+      "success_contribution": [
+        10.0,
+        0.0,
+        0.0,
+        10.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "success_contribution_exact_10": true,
+      "partial_reset_clears_only_selected": true,
+      "partial_reset_retriggers_only_selected": true,
+      "configured_min_foot_support_ratio": 0.6,
+      "body_supported_nonfoot_contact_did_not_latch": true,
+      "low_foot_load_did_not_latch": true,
+      "potential_contribution": [
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492,
+        0.4949999749660492
+      ],
+      "potential_contribution_exact_0_495": true
+    }
+  },
+  "action_readback": {
+    "type": "EMAJointPositionToLimitsAction",
+    "scale": 0.7,
+    "ema_alpha": 0.2,
+    "ema_reset_target_max_error_rad_per_env": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "asset_soft_joint_limit_factor": 0.9,
+    "effective_target_hard_limit_range_fraction": 0.63
+  },
+  "action_dim": 12,
+  "active_terminations": [
+    "time_out",
+    "stable_success",
+    "numeric_invalid",
+    "hard_joint_limit"
+  ],
+  "reset": {
+    "source_class_ids": [
+      0,
+      1,
+      2,
+      3,
+      0,
+      1,
+      2,
+      3
+    ],
+    "source_class_one_hot": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "root_position_local_m": [
+      [
+        0.0,
+        0.0,
+        0.16500000655651093
+      ],
+      [
+        0.0,
+        0.0,
+        0.05999999865889549
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ],
+      [
+        0.0,
+        0.0,
+        0.16500000655651093
+      ],
+      [
+        0.0,
+        0.0,
+        0.05999999865889549
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ],
+      [
+        0.0,
+        0.0,
+        0.16300000250339508
+      ]
+    ],
+    "root_quaternion_wxyz": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        0.7071067690849304,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        -0.7071067690849304,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        0.7071067690849304,
+        0.0,
+        0.0
+      ],
+      [
+        0.7071067690849304,
+        -0.7071067690849304,
+        0.0,
+        0.0
+      ]
+    ],
+    "body_up_error_l2": [
+      0.0,
+      0.0,
+      8.429369557916289e-08,
+      8.429369557916289e-08,
+      0.0,
+      0.0,
+      8.429369557916289e-08,
+      8.429369557916289e-08
+    ],
+    "joint_position_rad": [
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000000149011612,
+        -0.10000000149011612,
+        0.10000000149011612,
+        -0.10000000149011612,
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ]
+    ],
+    "joint_hard_limits_rad": [
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.0471998453140259,
+        1.0471998453140259
+      ],
+      [
+        -1.5707999467849731,
+        3.4906997680664062
+      ],
+      [
+        -1.5707999467849731,
+        3.4906997680664062
+      ],
+      [
+        -0.5235999226570129,
+        4.537899494171143
+      ],
+      [
+        -0.5235999226570129,
+        4.537899494171143
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ],
+      [
+        -2.7227001190185547,
+        -0.8377599120140076
+      ]
+    ],
+    "hold_normalized_action": [
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ]
+    ],
+    "hold_unclamped_normalized_action": [
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ],
+      [
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.15157580375671387,
+        -0.15157580375671387,
+        0.3387226462364197,
+        0.3387226462364197,
+        -0.3180873394012451,
+        -0.3180873394012451,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791,
+        -0.9932863712310791
+      ]
+    ],
+    "hold_reachable_processed_joint_target_rad": [
+      [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ]
+    ],
+    "hold_reachable_target_error_rad": [
+      [
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        0.0,
+        0.0,
+        1.1920928955078125e-07,
+        1.1920928955078125e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        0.0,
+        0.0,
+        1.1920928955078125e-07,
+        1.1920928955078125e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        0.0,
+        0.0,
+        1.1920928955078125e-07,
+        1.1920928955078125e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        2.2351741790771484e-08,
+        0.0,
+        0.0,
+        1.1920928955078125e-07,
+        1.1920928955078125e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ]
+  },
+  "calibration_thresholds": {
+    "solver_joint_limit_tolerance_rad": 0.01,
+    "min_root_height_m": 0.02,
+    "min_contact_separation_m": -0.01,
+    "max_nonfoot_force_bodyweights": 15.0,
+    "reset_hold_target_tolerance_rad": 1e-06,
+    "max_excess_contact_delta_v_m_s": 3.0,
+    "tail_window_steps": 25,
+    "max_tail_horizontal_speed_m_s": 0.5,
+    "max_tail_vertical_speed_m_s": 0.25,
+    "max_tail_angular_speed_rad_s": 2.0
+  },
+  "pose_mode_metrics": [
+    {
+      "env_index": 0,
+      "pose_id": "prone",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.12345609068870544,
+        0.11845488101243973,
+        0.11674021184444427,
+        0.11845488846302032,
+        0.12345609068870544,
+        0.12181183695793152,
+        0.11674022674560547,
+        0.11499999463558197,
+        0.11674022674560547,
+        0.12181183695793152,
+        0.12345609068870544,
+        0.11845488846302032,
+        0.11674022674560547,
+        0.11845488846302032,
+        0.12345609068870544
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 15,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.5839480757713318,
+      "max_root_angular_speed_rad_s": 1.2206696271896362,
+      "min_root_height_m": 0.15986354649066925,
+      "max_root_height_m": 0.22930721938610077,
+      "max_joint_speed_rad_s": 7.908153057098389,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 11.730412483215332,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": false,
+      "max_nonfoot_force_bodyweights": 0.0,
+      "max_nonfoot_force_physics_step": -1,
+      "max_nonfoot_force_body_index": -1,
+      "max_nonfoot_force_body_name": null,
+      "max_nonfoot_force_time_s": null,
+      "excess_contact_delta_v_m_s": 0.0,
+      "peak_step_excess_contact_delta_v_m_s": 0.0,
+      "peak_step_excess_contact_impulse_control_step": -1,
+      "peak_step_excess_contact_impulse_time_s": null,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 0.5625736117362976,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "reset_pose_hold_normalized_action_saturated": null,
+      "reset_pose_hold_saturated_joint_count": null,
+      "reset_pose_hold_saturated_joint_names": null,
+      "reset_pose_hold_reachable_processed_joint_target_rad": null,
+      "reset_pose_hold_reachable_target_max_error_rad": null,
+      "reset_pose_hold_reachable_target_max_error_joint_index": null,
+      "reset_pose_hold_reachable_target_max_error_joint_name": null,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.007285232190042734,
+      "tail_vertical_speed_p95_m_s": 0.00421463418751955,
+      "tail_angular_speed_p95_rad_s": 0.008923789486289024,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 1,
+      "pose_id": "supine",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 0,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.10512427240610123,
+      "max_root_angular_speed_rad_s": 0.5830116868019104,
+      "min_root_height_m": 0.05699508264660835,
+      "max_root_height_m": 0.05955451726913452,
+      "max_joint_speed_rad_s": 5.468737602233887,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 4.832353591918945,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": false,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 2.556468963623047,
+      "max_nonfoot_force_physics_step": 5,
+      "max_nonfoot_force_body_index": 0,
+      "max_nonfoot_force_body_name": "base",
+      "max_nonfoot_force_time_s": 0.025,
+      "excess_contact_delta_v_m_s": 0.11661026626825333,
+      "peak_step_excess_contact_delta_v_m_s": 0.07355880737304688,
+      "peak_step_excess_contact_impulse_control_step": 2,
+      "peak_step_excess_contact_impulse_time_s": 0.04,
+      "first_contact_physics_step": 4,
+      "first_contact_time_s": 0.02,
+      "first_contact_force_bodyweights": 1.999422311782837,
+      "first_contact_excess_delta_v_m_s": 0.024496667087078094,
+      "reset_pose_hold_normalized_action_saturated": null,
+      "reset_pose_hold_saturated_joint_count": null,
+      "reset_pose_hold_saturated_joint_names": null,
+      "reset_pose_hold_reachable_processed_joint_target_rad": null,
+      "reset_pose_hold_reachable_target_max_error_rad": null,
+      "reset_pose_hold_reachable_target_max_error_joint_index": null,
+      "reset_pose_hold_reachable_target_max_error_joint_name": null,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.0006178062176331878,
+      "tail_vertical_speed_p95_m_s": 0.0008825217373669147,
+      "tail_angular_speed_p95_rad_s": 0.006253072526305914,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 2,
+      "pose_id": "left_side",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        0.8961166739463806,
+        0.5652442574501038,
+        1.0,
+        1.0,
+        1.0,
+        0.8909634351730347,
+        0.47931423783302307,
+        1.0,
+        1.0,
+        1.0,
+        0.9435688257217407,
+        0.518394947052002
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.25365200638771057,
+      "max_root_angular_speed_rad_s": 1.8181517124176025,
+      "min_root_height_m": 0.15503157675266266,
+      "max_root_height_m": 0.16269245743751526,
+      "max_joint_speed_rad_s": 5.70950984954834,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 4.781376838684082,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 4.7613372802734375,
+      "max_nonfoot_force_physics_step": 11,
+      "max_nonfoot_force_body_index": 6,
+      "max_nonfoot_force_body_name": "FR_thigh",
+      "max_nonfoot_force_time_s": 0.055,
+      "excess_contact_delta_v_m_s": 0.2601202130317688,
+      "peak_step_excess_contact_delta_v_m_s": 0.2532605528831482,
+      "peak_step_excess_contact_impulse_control_step": 3,
+      "peak_step_excess_contact_impulse_time_s": 0.06,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 1.6398500204086304,
+      "first_contact_excess_delta_v_m_s": 0.006859647110104561,
+      "reset_pose_hold_normalized_action_saturated": null,
+      "reset_pose_hold_saturated_joint_count": null,
+      "reset_pose_hold_saturated_joint_names": null,
+      "reset_pose_hold_reachable_processed_joint_target_rad": null,
+      "reset_pose_hold_reachable_target_max_error_rad": null,
+      "reset_pose_hold_reachable_target_max_error_joint_index": null,
+      "reset_pose_hold_reachable_target_max_error_joint_name": null,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.0020081778056919575,
+      "tail_vertical_speed_p95_m_s": 0.000891194271389395,
+      "tail_angular_speed_p95_rad_s": 0.03731031343340874,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 3,
+      "pose_id": "right_side",
+      "action_mode": "zero_normalized",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.45317795872688293,
+        0.9002132415771484,
+        1.0,
+        1.0,
+        1.0,
+        0.592494010925293,
+        0.9227586984634399,
+        1.0,
+        1.0,
+        1.0,
+        0.4878888428211212,
+        0.9494041204452515,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.2536330223083496,
+      "max_root_angular_speed_rad_s": 1.8175731897354126,
+      "min_root_height_m": 0.15506179630756378,
+      "max_root_height_m": 0.16269244253635406,
+      "max_joint_speed_rad_s": 5.708914756774902,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 3.9642300605773926,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 5.033446788787842,
+      "max_nonfoot_force_physics_step": 11,
+      "max_nonfoot_force_body_index": 2,
+      "max_nonfoot_force_body_name": "FL_thigh",
+      "max_nonfoot_force_time_s": 0.055,
+      "excess_contact_delta_v_m_s": 0.26007047295570374,
+      "peak_step_excess_contact_delta_v_m_s": 0.25321176648139954,
+      "peak_step_excess_contact_impulse_control_step": 3,
+      "peak_step_excess_contact_impulse_time_s": 0.06,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 1.6398308277130127,
+      "first_contact_excess_delta_v_m_s": 0.006858702749013901,
+      "reset_pose_hold_normalized_action_saturated": null,
+      "reset_pose_hold_saturated_joint_count": null,
+      "reset_pose_hold_saturated_joint_names": null,
+      "reset_pose_hold_reachable_processed_joint_target_rad": null,
+      "reset_pose_hold_reachable_target_max_error_rad": null,
+      "reset_pose_hold_reachable_target_max_error_joint_index": null,
+      "reset_pose_hold_reachable_target_max_error_joint_name": null,
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.0022790301591157913,
+      "tail_vertical_speed_p95_m_s": 0.0008369578863494098,
+      "tail_angular_speed_p95_rad_s": 0.03724689409136772,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 4,
+      "pose_id": "prone",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.12345608323812485,
+        0.11845488101243973,
+        0.11674021184444427,
+        0.11845488846302032,
+        0.12345608323812485,
+        0.12181183695793152,
+        0.11674022674560547,
+        0.11499999463558197,
+        0.11674022674560547,
+        0.12181183695793152,
+        0.12345608323812485,
+        0.11845488846302032,
+        0.11674022674560547,
+        0.11845488846302032,
+        0.12345608323812485
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 15,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0017418861389160156,
+      "max_hard_joint_limit_violation_control_step": 16,
+      "max_hard_joint_limit_violation_time_s": 0.32,
+      "max_hard_joint_limit_violation_joint": "RR_calf_joint",
+      "max_root_linear_speed_m_s": 0.5400857925415039,
+      "max_root_angular_speed_rad_s": 1.1340562105178833,
+      "min_root_height_m": 0.1003786101937294,
+      "max_root_height_m": 0.1626129299402237,
+      "max_joint_speed_rad_s": 3.046424150466919,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 9.253410339355469,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 3.080073118209839,
+      "max_nonfoot_force_physics_step": 23,
+      "max_nonfoot_force_body_index": 10,
+      "max_nonfoot_force_body_name": "Head_lower",
+      "max_nonfoot_force_time_s": 0.115,
+      "excess_contact_delta_v_m_s": 0.07750259339809418,
+      "peak_step_excess_contact_delta_v_m_s": 0.07750259339809418,
+      "peak_step_excess_contact_impulse_control_step": 6,
+      "peak_step_excess_contact_impulse_time_s": 0.12,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 0.08675674349069595,
+      "first_contact_excess_delta_v_m_s": 0.0,
+      "reset_pose_hold_normalized_action_saturated": false,
+      "reset_pose_hold_saturated_joint_count": 0,
+      "reset_pose_hold_saturated_joint_names": [],
+      "reset_pose_hold_reachable_processed_joint_target_rad": [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      "reset_pose_hold_reachable_target_max_error_rad": 1.1920928955078125e-07,
+      "reset_pose_hold_reachable_target_max_error_joint_index": 6,
+      "reset_pose_hold_reachable_target_max_error_joint_name": "RL_thigh_joint",
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.001167986891232431,
+      "tail_vertical_speed_p95_m_s": 0.0008493614732287824,
+      "tail_angular_speed_p95_rad_s": 0.0022714845836162567,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 5,
+      "pose_id": "supine",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 0,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 0.19620005786418915,
+      "max_root_angular_speed_rad_s": 0.017216823995113373,
+      "min_root_height_m": 0.05700003355741501,
+      "max_root_height_m": 0.05754749849438667,
+      "max_joint_speed_rad_s": 1.1368027925491333,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 0.9957252144813538,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": false,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 3.7427189350128174,
+      "max_nonfoot_force_physics_step": 5,
+      "max_nonfoot_force_body_index": 0,
+      "max_nonfoot_force_body_name": "base",
+      "max_nonfoot_force_time_s": 0.025,
+      "excess_contact_delta_v_m_s": 0.1128196120262146,
+      "peak_step_excess_contact_delta_v_m_s": 0.1128196120262146,
+      "peak_step_excess_contact_impulse_control_step": 2,
+      "peak_step_excess_contact_impulse_time_s": 0.04,
+      "first_contact_physics_step": 5,
+      "first_contact_time_s": 0.025,
+      "first_contact_force_bodyweights": 3.7427189350128174,
+      "first_contact_excess_delta_v_m_s": 0.11000537127256393,
+      "reset_pose_hold_normalized_action_saturated": false,
+      "reset_pose_hold_saturated_joint_count": 0,
+      "reset_pose_hold_saturated_joint_names": [],
+      "reset_pose_hold_reachable_processed_joint_target_rad": [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      "reset_pose_hold_reachable_target_max_error_rad": 1.1920928955078125e-07,
+      "reset_pose_hold_reachable_target_max_error_joint_index": 6,
+      "reset_pose_hold_reachable_target_max_error_joint_name": "RL_thigh_joint",
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.0006029408541508019,
+      "tail_vertical_speed_p95_m_s": 0.00027337222127243876,
+      "tail_angular_speed_p95_rad_s": 0.006455378141254187,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 6,
+      "pose_id": "left_side",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        1.0,
+        1.0,
+        1.0,
+        0.9421125650405884,
+        0.5293949246406555,
+        1.0,
+        1.0,
+        1.0,
+        0.9428433775901794,
+        0.5382272005081177,
+        1.0,
+        1.0,
+        1.0,
+        0.8885743021965027,
+        0.5329068899154663
+      ],
+      "reset_body_range_hit_mask": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 1.0874069929122925,
+      "max_root_angular_speed_rad_s": 6.5618462562561035,
+      "min_root_height_m": 0.05700015276670456,
+      "max_root_height_m": 0.16252432763576508,
+      "max_joint_speed_rad_s": 10.775562286376953,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 5.964608669281006,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 8.45569896697998,
+      "max_nonfoot_force_physics_step": 132,
+      "max_nonfoot_force_body_index": 0,
+      "max_nonfoot_force_body_name": "base",
+      "max_nonfoot_force_time_s": 0.66,
+      "excess_contact_delta_v_m_s": 1.1103620529174805,
+      "peak_step_excess_contact_delta_v_m_s": 0.9099316596984863,
+      "peak_step_excess_contact_impulse_control_step": 33,
+      "peak_step_excess_contact_impulse_time_s": 0.66,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 1.531915307044983,
+      "first_contact_excess_delta_v_m_s": 0.0015654455637559295,
+      "reset_pose_hold_normalized_action_saturated": false,
+      "reset_pose_hold_saturated_joint_count": 0,
+      "reset_pose_hold_saturated_joint_names": [],
+      "reset_pose_hold_reachable_processed_joint_target_rad": [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      "reset_pose_hold_reachable_target_max_error_rad": 1.1920928955078125e-07,
+      "reset_pose_hold_reachable_target_max_error_joint_index": 6,
+      "reset_pose_hold_reachable_target_max_error_joint_name": "RL_thigh_joint",
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.0010696981335058808,
+      "tail_vertical_speed_p95_m_s": 0.00027435668744146824,
+      "tail_angular_speed_p95_rad_s": 0.006405540741980076,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    },
+    {
+      "env_index": 7,
+      "pose_id": "right_side",
+      "action_mode": "reset_pose_hold",
+      "finite": true,
+      "reset_actor_foot_load_bodyweights": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_normalized": [
+        0.4220457971096039,
+        0.9296888709068298,
+        1.0,
+        1.0,
+        1.0,
+        0.5594317317008972,
+        0.9450091123580933,
+        1.0,
+        1.0,
+        1.0,
+        0.48337477445602417,
+        0.8857147097587585,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reset_body_range_hit_mask": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reset_body_range_hit_count": 6,
+      "hard_limit_margin_safe": true,
+      "max_hard_joint_limit_violation_rad": 0.0,
+      "max_hard_joint_limit_violation_control_step": -1,
+      "max_hard_joint_limit_violation_time_s": null,
+      "max_hard_joint_limit_violation_joint": null,
+      "max_root_linear_speed_m_s": 1.0420193672180176,
+      "max_root_angular_speed_rad_s": 11.188983917236328,
+      "min_root_height_m": 0.057000238448381424,
+      "max_root_height_m": 0.16252434253692627,
+      "max_joint_speed_rad_s": 10.784761428833008,
+      "joint_speed_limit_rad_s": 30.0,
+      "max_abs_torque_nm": 5.284485816955566,
+      "torque_limit_nm": 23.5,
+      "foot_contact_exercised": true,
+      "nonfoot_contact_exercised": true,
+      "max_nonfoot_force_bodyweights": 16.78827476501465,
+      "max_nonfoot_force_physics_step": 129,
+      "max_nonfoot_force_body_index": 0,
+      "max_nonfoot_force_body_name": "base",
+      "max_nonfoot_force_time_s": 0.645,
+      "excess_contact_delta_v_m_s": 1.1800236701965332,
+      "peak_step_excess_contact_delta_v_m_s": 0.8994547128677368,
+      "peak_step_excess_contact_impulse_control_step": 33,
+      "peak_step_excess_contact_impulse_time_s": 0.66,
+      "first_contact_physics_step": 1,
+      "first_contact_time_s": 0.005,
+      "first_contact_force_bodyweights": 1.5319256782531738,
+      "first_contact_excess_delta_v_m_s": 0.0015659586060792208,
+      "reset_pose_hold_normalized_action_saturated": false,
+      "reset_pose_hold_saturated_joint_count": 0,
+      "reset_pose_hold_saturated_joint_names": [],
+      "reset_pose_hold_reachable_processed_joint_target_rad": [
+        0.10000002384185791,
+        -0.10000002384185791,
+        0.10000002384185791,
+        -0.10000002384185791,
+        1.5,
+        1.5,
+        1.5000001192092896,
+        1.5000001192092896,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082,
+        -2.369999885559082
+      ],
+      "reset_pose_hold_reachable_target_max_error_rad": 1.1920928955078125e-07,
+      "reset_pose_hold_reachable_target_max_error_joint_index": 6,
+      "reset_pose_hold_reachable_target_max_error_joint_name": "RL_thigh_joint",
+      "min_contact_separation_m": null,
+      "min_contact_separation_provenance": null,
+      "tail_horizontal_speed_p95_m_s": 0.0007574515184387565,
+      "tail_vertical_speed_p95_m_s": 0.00023228504869621247,
+      "tail_angular_speed_p95_rad_s": 0.009233076125383377,
+      "termination_counts": {
+        "time_out": 0,
+        "stable_success": 0,
+        "numeric_invalid": 0,
+        "hard_joint_limit": 0
+      }
+    }
+  ],
+  "checks": {
+    "articulation_solver_iteration_counts_match_contract": true,
+    "rigid_body_max_depenetration_velocity_matches_contract": true,
+    "joint_action_type_matches_contract": true,
+    "joint_action_scale_matches_contract": true,
+    "joint_action_ema_alpha_matches_contract": true,
+    "joint_action_ema_history_matches_reset_joint_positions": true,
+    "soft_joint_limit_factor_matches_contract": true,
+    "policy_observation_dim_83": true,
+    "critic_observation_dim_107": true,
+    "action_dim_12": true,
+    "eight_env_pose_mode_stratification": true,
+    "eight_env_pose_one_hot": true,
+    "pose_orientation_matches_contract": true,
+    "observations_finite_at_reset": true,
+    "critic_base_height_matches_root_height": true,
+    "critic_terrain_normal_finite_unit_length": true,
+    "body_range_camera_world_pose_matches_base_offset": true,
+    "body_range_camera_attached_to_base": true,
+    "body_range_camera_targets_ground": true,
+    "body_range_camera_distance_output": true,
+    "body_range_camera_pattern_5x3": true,
+    "body_range_camera_max_distance_1m": true,
+    "body_range_camera_offset_matches_contract": true,
+    "body_range_camera_rotation_matches_contract": true,
+    "actor_foot_load_finite_nonnegative": true,
+    "body_range_finite_unit_interval": true,
+    "body_range_mask_binary": true,
+    "body_range_no_hit_is_one": true,
+    "prone_has_at_least_one_camera_hit_both_modes": true,
+    "supine_has_zero_camera_hits_both_modes": true,
+    "actor_foot_load_valid_through_rollout": true,
+    "body_range_valid_through_rollout": true,
+    "body_range_mask_valid_through_rollout": true,
+    "body_range_no_hit_is_one_through_rollout": true,
+    "actor_foot_load_independent_of_ray_no_hit": true,
+    "forced_ray_no_hit_maps_to_valid_actor_observation": true,
+    "foot_material_readback_matches_startup": true,
+    "effective_friction_matches_multiply_combine": true,
+    "nominal_mass_readback_matches_contract": true,
+    "actor_privileged_perturbation_invariant": true,
+    "actor_call_path_avoids_live_mass_read": true,
+    "reward_terminal_contribution_exact_10": true,
+    "reward_potential_contribution_exact_0_495": true,
+    "stable_success_25_step_one_shot": true,
+    "stable_success_partial_reset_isolated": true,
+    "stable_success_uses_60pct_foot_load_gate": true,
+    "body_supported_state_does_not_latch_success": true,
+    "low_foot_load_state_does_not_latch_success": true,
+    "rollout_state_finite_all_pose_modes": true,
+    "no_numeric_invalid_termination": true,
+    "no_hard_joint_limit_termination": true,
+    "joint_positions_within_hard_limit_margin": true,
+    "torque_within_runtime_limit": true,
+    "joint_speed_within_runtime_limit": true,
+    "root_height_above_2cm": true,
+    "at_least_one_contact_type_exercised_per_pose_mode": true,
+    "foot_contact_exercised_globally": true,
+    "nonfoot_contact_exercised_globally": true,
+    "nonfoot_peak_force_bounded": false,
+    "nonfoot_peak_force_body_attribution_complete": true,
+    "nonfoot_excess_impulse_bounded": true,
+    "tail_horizontal_speed_settled": true,
+    "tail_vertical_speed_settled": true,
+    "tail_angular_speed_settled": true,
+    "reset_pose_hold_actions_bounded": true,
+    "reset_pose_hold_action_diagnostics_finite": true,
+    "reset_pose_hold_actions_unsaturated": true,
+    "reset_pose_hold_reachable_targets_match_reset_positions": true,
+    "zero_normalized_actions_are_zero": true,
+    "base_contact_not_a_termination": true,
+    "source_binding_files_present": true,
+    "source_binding_git_commit_valid": true,
+    "source_binding_clean": true
+  },
+  "run_health": {
+    "passed": true,
+    "check_names": [
+      "observations_finite_at_reset",
+      "rollout_state_finite_all_pose_modes",
+      "no_numeric_invalid_termination"
+    ]
+  },
+  "runtime_contract": {
+    "passed": false,
+    "blocking_checks": [
+      "articulation_solver_iteration_counts_match_contract",
+      "rigid_body_max_depenetration_velocity_matches_contract",
+      "joint_action_type_matches_contract",
+      "joint_action_scale_matches_contract",
+      "joint_action_ema_alpha_matches_contract",
+      "joint_action_ema_history_matches_reset_joint_positions",
+      "soft_joint_limit_factor_matches_contract",
+      "policy_observation_dim_83",
+      "critic_observation_dim_107",
+      "action_dim_12",
+      "eight_env_pose_mode_stratification",
+      "eight_env_pose_one_hot",
+      "pose_orientation_matches_contract",
+      "observations_finite_at_reset",
+      "critic_base_height_matches_root_height",
+      "critic_terrain_normal_finite_unit_length",
+      "body_range_camera_world_pose_matches_base_offset",
+      "body_range_camera_attached_to_base",
+      "body_range_camera_targets_ground",
+      "body_range_camera_distance_output",
+      "body_range_camera_pattern_5x3",
+      "body_range_camera_max_distance_1m",
+      "body_range_camera_offset_matches_contract",
+      "body_range_camera_rotation_matches_contract",
+      "actor_foot_load_finite_nonnegative",
+      "body_range_finite_unit_interval",
+      "body_range_mask_binary",
+      "body_range_no_hit_is_one",
+      "prone_has_at_least_one_camera_hit_both_modes",
+      "supine_has_zero_camera_hits_both_modes",
+      "actor_foot_load_valid_through_rollout",
+      "body_range_valid_through_rollout",
+      "body_range_mask_valid_through_rollout",
+      "body_range_no_hit_is_one_through_rollout",
+      "actor_foot_load_independent_of_ray_no_hit",
+      "forced_ray_no_hit_maps_to_valid_actor_observation",
+      "foot_material_readback_matches_startup",
+      "effective_friction_matches_multiply_combine",
+      "nominal_mass_readback_matches_contract",
+      "actor_privileged_perturbation_invariant",
+      "actor_call_path_avoids_live_mass_read",
+      "reward_terminal_contribution_exact_10",
+      "reward_potential_contribution_exact_0_495",
+      "stable_success_25_step_one_shot",
+      "stable_success_partial_reset_isolated",
+      "stable_success_uses_60pct_foot_load_gate",
+      "body_supported_state_does_not_latch_success",
+      "low_foot_load_state_does_not_latch_success",
+      "rollout_state_finite_all_pose_modes",
+      "no_numeric_invalid_termination",
+      "no_hard_joint_limit_termination",
+      "joint_positions_within_hard_limit_margin",
+      "torque_within_runtime_limit",
+      "joint_speed_within_runtime_limit",
+      "root_height_above_2cm",
+      "at_least_one_contact_type_exercised_per_pose_mode",
+      "foot_contact_exercised_globally",
+      "nonfoot_contact_exercised_globally",
+      "nonfoot_peak_force_bounded",
+      "nonfoot_peak_force_body_attribution_complete",
+      "nonfoot_excess_impulse_bounded",
+      "tail_horizontal_speed_settled",
+      "tail_vertical_speed_settled",
+      "tail_angular_speed_settled",
+      "reset_pose_hold_actions_bounded",
+      "reset_pose_hold_action_diagnostics_finite",
+      "reset_pose_hold_actions_unsaturated",
+      "reset_pose_hold_reachable_targets_match_reset_positions",
+      "zero_normalized_actions_are_zero",
+      "base_contact_not_a_termination",
+      "source_binding_files_present",
+      "source_binding_git_commit_valid",
+      "source_binding_clean"
+    ]
+  },
+  "qualification": {
+    "status": "not_run",
+    "passed": null,
+    "reason": "runtime calibration does not evaluate a learned checkpoint"
+  },
+  "passed_semantics": "progression_gate_not_policy_qualification",
+  "passed": false,
+  "progression_gate": {
+    "passed": false,
+    "status": "runtime_contract_failed",
+    "device": "cuda:0",
+    "cpu_contact_separation_required_this_run": false,
+    "blocking_checks": {
+      "runtime_contract": false
+    }
+  }
+}
