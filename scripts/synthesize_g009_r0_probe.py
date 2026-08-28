@@ -40,6 +40,22 @@ STRICT_REQUIRED_CHECKS = frozenset(
         "nonfoot_peak_force_bounded",
     }
 )
+REV14_CONTRACT_SHA256 = "744c53d3c8d1e608f849af405c7d0fad314b01234fc4cb9a4ab1000c69140506"
+REV14_REQUIRED_CHECKS = STRICT_REQUIRED_CHECKS | {
+    "rigid_body_max_depenetration_velocity_matches_contract"
+}
+STRICT_REQUIRED_CHECKS_BY_CONTRACT: dict[str, frozenset[str]] = {
+    "0679a10d025156f53452e04b50c40b530318cf4c5e904cfc34152b9dea700da4": (
+        STRICT_REQUIRED_CHECKS
+    ),
+    "d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0": (
+        STRICT_REQUIRED_CHECKS
+    ),
+    "ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558": (
+        STRICT_REQUIRED_CHECKS
+    ),
+    REV14_CONTRACT_SHA256: REV14_REQUIRED_CHECKS,
+}
 
 
 class SynthesisError(ValueError):
@@ -238,7 +254,15 @@ def _validate_strict_device_report(
         raise SynthesisError(f"{label} checks must be a non-empty boolean map")
     if not all(isinstance(key, str) and key for key in checks):
         raise SynthesisError(f"{label} checks keys must be non-empty strings")
-    missing_checks = sorted(STRICT_REQUIRED_CHECKS - checks.keys())
+    contract_sha256 = report.get("contract_sha256")
+    if not isinstance(contract_sha256, str):
+        raise SynthesisError(f"{label} contract_sha256 must be a string")
+    required_checks = STRICT_REQUIRED_CHECKS_BY_CONTRACT.get(contract_sha256)
+    if required_checks is None:
+        raise SynthesisError(
+            f"{label} contract_sha256 has no registered strict check contract"
+        )
+    missing_checks = sorted(required_checks - checks.keys())
     if missing_checks:
         raise SynthesisError(
             f"{label} checks missing required checks: {', '.join(missing_checks)}"

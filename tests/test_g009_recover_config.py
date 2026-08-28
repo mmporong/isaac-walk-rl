@@ -28,6 +28,7 @@ from isaac_walk_g009.recover_contracts import (
     ACTOR_OBSERVATION_TERMS,
     GO2_SOFT_JOINT_LIMIT_FACTOR,
     MAX_BASE_HEIGHT_M,
+    MAX_DEPENETRATION_VELOCITY_M_S,
     MAX_LINEAR_SPEED_M_S,
     NOMINAL_TOTAL_MASS_KG,
     MIN_TOTAL_FOOT_SUPPORT_RATIO,
@@ -119,6 +120,11 @@ def test_r0_flat_scene_and_disabled_randomization_contract():
         cfg.scene.robot.spawn.articulation_props.solver_velocity_iteration_count
         == ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT
         == 1
+    )
+    assert (
+        cfg.scene.robot.spawn.rigid_props.max_depenetration_velocity
+        == MAX_DEPENETRATION_VELOCITY_M_S
+        == 0.75
     )
     assert cfg.actions.joint_pos.class_type.__name__ == "EMAJointPositionToLimitsAction"
     assert cfg.actions.joint_pos.scale == ACTION_SCALE == 0.70

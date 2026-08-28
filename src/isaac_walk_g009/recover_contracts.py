@@ -44,6 +44,8 @@ CONTROL_DT_S = PHYSICS_DT_S * CONTROL_DECIMATION
 EPISODE_LENGTH_S = 8.0
 ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 8
 ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT = 1
+MAX_DEPENETRATION_VELOCITY_M_S = 0.75
+REV13_BASELINE_MAX_DEPENETRATION_VELOCITY_M_S = 1.0
 
 ACTION_SCALE = 0.70
 ACTION_EMA_ALPHA = 0.2
@@ -300,7 +302,7 @@ def recover_contract() -> dict[str, Any]:
         for pose in RECOVER_POSES.values()
     ]
     return {
-        "contract_id": "g009_r0_recover_rev13",
+        "contract_id": "g009_r0_recover_rev14",
         "stage_id": "R0",
         "policy_schema": "P-RECOVER-83/C-RECOVER-107",
         "poses": poses,
@@ -318,13 +320,17 @@ def recover_contract() -> dict[str, Any]:
             "articulation_solver_velocity_iteration_count": (
                 ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT
             ),
+            "max_depenetration_velocity_m_s": MAX_DEPENETRATION_VELOCITY_M_S,
+            "rev13_baseline_max_depenetration_velocity_m_s": (
+                REV13_BASELINE_MAX_DEPENETRATION_VELOCITY_M_S
+            ),
             "rev11_baseline_articulation_solver_position_iteration_count": 4,
             "rev12_baseline_articulation_solver_velocity_iteration_count": 0,
             "single_variable_change": (
-                "increase only the Go2 articulation velocity-solver iteration count "
-                "from 0 to 1; retain the position-solver iteration count at 8 and retain "
-                "action, reset, reward, curriculum, torque, joint-limit tolerance, and "
-                "observation-noise contracts"
+                "decrease only the Go2 rigid-body maximum depenetration velocity "
+                "from 1.0 to 0.75 m/s; retain articulation solver position/velocity "
+                "iteration counts at 8/1 and retain action, reset, reward, curriculum, "
+                "torque, joint-limit tolerance, and observation-noise contracts"
             ),
         },
         "reset": {
@@ -691,6 +697,7 @@ __all__ = [
     "MAX_ANGULAR_SPEED_RAD_S",
     "MAX_BASE_HEIGHT_M",
     "MAX_LINEAR_SPEED_M_S",
+    "MAX_DEPENETRATION_VELOCITY_M_S",
     "MIN_BASE_HEIGHT_M",
     "MIN_FOOT_CONTACTS",
     "NOMINAL_TOTAL_MASS_KG",
@@ -704,6 +711,7 @@ __all__ = [
     "PRIVILEGED_OBSERVATION_TERMS",
     "R0_REWARD_TERMS",
     "RECOVER_POSES",
+    "REV13_BASELINE_MAX_DEPENETRATION_VELOCITY_M_S",
     "RESET_POSE_XY_RANGE_M",
     "RESET_YAW_RANGE_RAD",
     "RecoverPose",

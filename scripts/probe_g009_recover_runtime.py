@@ -8,6 +8,7 @@ qualifies a learned checkpoint.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 import math
@@ -1037,6 +1038,152 @@ def articulation_solver_iteration_checks(
     }
 
 
+def rigid_body_max_depenetration_velocity_readback(
+    stage,
+    robot_prim_paths: list[str],
+    PhysxSchema,
+    UsdPhysics,
+) -> dict[str, Any]:
+    """Read max depenetration velocity from every USD rigid body under each robot."""
+
+    rows: list[dict[str, Any]] = []
+    invalid_robot_prim_paths: list[str] = []
+    for robot_prim_path in robot_prim_paths:
+        root_prim = stage.GetPrimAtPath(robot_prim_path)
+        if not root_prim.IsValid():
+            invalid_robot_prim_paths.append(robot_prim_path)
+            continue
+
+        pending = [root_prim]
+        while pending:
+            prim = pending.pop()
+            pending.extend(reversed(list(prim.GetChildren())))
+            if not prim.HasAPI(UsdPhysics.RigidBodyAPI):
+                continue
+
+            has_physx_api = bool(prim.HasAPI(PhysxSchema.PhysxRigidBodyAPI))
+            value: float | None = None
+            error: str | None = None
+            if not has_physx_api:
+                error = "missing_physx_rigid_body_api"
+            else:
+                api = PhysxSchema.PhysxRigidBodyAPI(prim)
+                attribute_getter = getattr(
+                    api, "GetMaxDepenetrationVelocityAttr", None
+                )
+                attribute: Any = (
+                    attribute_getter() if callable(attribute_getter) else None
+                )
+                raw_value = attribute.Get() if attribute else None
+                if isinstance(raw_value, bool) or not isinstance(raw_value, (int, float)):
+                    error = "missing_or_non_numeric_max_depenetration_velocity"
+                else:
+                    value = float(raw_value)
+                    if not math.isfinite(value):
+                        value = None
+                        error = "non_finite_max_depenetration_velocity"
+            rows.append(
+                {
+                    "robot_prim_path": robot_prim_path,
+                    "prim_path": str(prim.GetPath()),
+                    "usd_rigid_body_api": True,
+                    "physx_rigid_body_api": has_physx_api,
+                    "max_depenetration_velocity_m_s": value,
+                    "error": error,
+                }
+            )
+
+    prim_path_counts = Counter(row["prim_path"] for row in rows)
+    return {
+        "source": "USD RigidBodyAPI enumeration with PhysxRigidBodyAPI live-stage readback",
+        "robot_prim_paths": list(robot_prim_paths),
+        "invalid_robot_prim_paths": invalid_robot_prim_paths,
+        "rigid_body_count": len(rows),
+        "duplicate_rigid_body_prim_paths": sorted(
+            path for path, count in prim_path_counts.items() if count > 1
+        ),
+        "rigid_bodies": rows,
+    }
+
+
+def rigid_body_max_depenetration_velocity_checks(
+    readback: dict[str, Any],
+    *,
+    expected_velocity_m_s: float,
+    expected_robot_count: int,
+    expected_rigid_bodies_per_robot: int,
+) -> dict[str, bool]:
+    """Fail closed unless every expected robot rigid body reports the contract value."""
+
+    rows = readback.get("rigid_bodies")
+    robot_prim_paths = readback.get("robot_prim_paths")
+    invalid_roots = readback.get("invalid_robot_prim_paths")
+    expected_total = expected_robot_count * expected_rigid_bodies_per_robot
+    known_roots = (
+        set(robot_prim_paths)
+        if isinstance(robot_prim_paths, list)
+        and all(isinstance(path, str) and path for path in robot_prim_paths)
+        else set()
+    )
+    row_prim_paths = (
+        [
+            row.get("prim_path")
+            for row in rows
+            if isinstance(row, dict) and isinstance(row.get("prim_path"), str)
+        ]
+        if isinstance(rows, list)
+        else []
+    )
+    duplicate_paths = {
+        path for path, count in Counter(row_prim_paths).items() if count > 1
+    }
+    per_root_counts = Counter(
+        row.get("robot_prim_path")
+        for row in rows or []
+        if isinstance(row, dict) and isinstance(row.get("robot_prim_path"), str)
+    )
+    valid = (
+        expected_robot_count > 0
+        and expected_rigid_bodies_per_robot > 0
+        and isinstance(rows, list)
+        and isinstance(robot_prim_paths, list)
+        and len(robot_prim_paths) == expected_robot_count
+        and len(set(robot_prim_paths)) == expected_robot_count
+        and invalid_roots == []
+        and not duplicate_paths
+        and readback.get("rigid_body_count") == expected_total
+        and len(rows) == expected_total
+        and all(
+            per_root_counts[root] == expected_rigid_bodies_per_robot
+            for root in known_roots
+        )
+        and all(
+            isinstance(row, dict)
+            and isinstance(row.get("robot_prim_path"), str)
+            and row["robot_prim_path"] in known_roots
+            and isinstance(row.get("prim_path"), str)
+            and (
+                row["prim_path"] == row["robot_prim_path"]
+                or row["prim_path"].startswith(
+                    row["robot_prim_path"].rstrip("/") + "/"
+                )
+            )
+            and row.get("usd_rigid_body_api") is True
+            and row.get("physx_rigid_body_api") is True
+            and row.get("error") is None
+            and isinstance(row.get("max_depenetration_velocity_m_s"), float)
+            and math.isclose(
+                row["max_depenetration_velocity_m_s"],
+                expected_velocity_m_s,
+                rel_tol=0.0,
+                abs_tol=1.0e-6,
+            )
+            for row in rows
+        )
+    )
+    return {"rigid_body_max_depenetration_velocity_matches_contract": bool(valid)}
+
+
 def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]:
     execution = validate_execution_metadata(execution, args.output.resolve())
     source_bundle = source_bundle_provenance()
@@ -1047,7 +1194,7 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
     import omni.usd
     import isaaclab_tasks  # noqa: F401
     from omni.physx import get_physx_simulation_interface
-    from pxr import PhysicsSchemaTools, PhysxSchema
+    from pxr import PhysicsSchemaTools, PhysxSchema, UsdPhysics
     from isaaclab.utils import math as math_utils
     from isaaclab_tasks.utils import parse_env_cfg
     from isaac_walk_g009 import register_tasks
@@ -1064,6 +1211,7 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
         GROUND_DYNAMIC_FRICTION,
         GROUND_STATIC_FRICTION,
         GO2_SOFT_JOINT_LIMIT_FACTOR,
+        MAX_DEPENETRATION_VELOCITY_M_S,
         NOMINAL_TOTAL_MASS_KG,
         RECOVER_POSES,
         SOLVER_JOINT_LIMIT_TOLERANCE_RAD,
@@ -1089,6 +1237,12 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
         omni.usd.get_context().get_stage(),
         list(robot.root_physx_view.prim_paths),
         PhysxSchema,
+    )
+    max_depenetration_velocity_readback = rigid_body_max_depenetration_velocity_readback(
+        omni.usd.get_context().get_stage(),
+        list(robot.root_physx_view.prim_paths),
+        PhysxSchema,
+        UsdPhysics,
     )
     action_term = raw_env.action_manager.get_term("joint_pos")
     runtime_action_scale = float(action_term.cfg.scale)
@@ -1621,6 +1775,12 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
                 expected_velocity_count=ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT,
                 expected_articulations=args.num_envs,
             ),
+            **rigid_body_max_depenetration_velocity_checks(
+                max_depenetration_velocity_readback,
+                expected_velocity_m_s=MAX_DEPENETRATION_VELOCITY_M_S,
+                expected_robot_count=args.num_envs,
+                expected_rigid_bodies_per_robot=len(robot.body_names),
+            ),
             "joint_action_type_matches_contract": (
                 type(action_term).__name__ == "EMAJointPositionToLimitsAction"
             ),
@@ -1743,6 +1903,9 @@ def probe(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]
             {
                 "articulation_solver_iterations": (
                     solver_iteration_readback
+                ),
+                "rigid_body_max_depenetration_velocity": (
+                    max_depenetration_velocity_readback
                 ),
                 "contact_separation_method": "PhysX per-physics-step contact report event without GPU filter",
                 "contact_separation_api_available": separation_available,

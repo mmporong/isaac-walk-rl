@@ -45,6 +45,7 @@ from .recover_contracts import (
     HEIGHT_SHAPING_MIN_M,
     MAX_ANGULAR_SPEED_RAD_S,
     MAX_BASE_HEIGHT_M,
+    MAX_DEPENETRATION_VELOCITY_M_S,
     MAX_LINEAR_SPEED_M_S,
     MIN_BASE_HEIGHT_M,
     MIN_FOOT_CONTACTS,
@@ -313,6 +314,9 @@ class G009FlatRecoverEnvCfg(G008CommandEnvCfg):
         )
         self.scene.robot.spawn.articulation_props.solver_velocity_iteration_count = (
             ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT
+        )
+        self.scene.robot.spawn.rigid_props.max_depenetration_velocity = (
+            MAX_DEPENETRATION_VELOCITY_M_S
         )
         self.scene.robot.soft_joint_pos_limit_factor = GO2_SOFT_JOINT_LIMIT_FACTOR
         self.actions.joint_pos = base_mdp.EMAJointPositionToLimitsActionCfg(

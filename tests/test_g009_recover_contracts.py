@@ -22,6 +22,7 @@ from isaac_walk_g009.recover_contracts import (
     EFFECTIVE_ACTION_TARGET_HARD_LIMIT_RANGE_FRACTION,
     GO2_SOFT_JOINT_LIMIT_FACTOR,
     MAX_BASE_HEIGHT_M,
+    MAX_DEPENETRATION_VELOCITY_M_S,
     MAX_LINEAR_SPEED_M_S,
     MIN_TOTAL_FOOT_SUPPORT_RATIO,
     POSE_CURRICULUM_PHASE_END_CONTROL_STEPS,
@@ -29,6 +30,7 @@ from isaac_walk_g009.recover_contracts import (
     PPO_INIT_NOISE_STD,
     PPO_GAMMA,
     RECOVER_POSES,
+    REV13_BASELINE_MAX_DEPENETRATION_VELOCITY_M_S,
     R0_REWARD_TERMS,
     SOLVER_JOINT_LIMIT_TOLERANCE_RAD,
     canonical_sha256,
@@ -37,9 +39,7 @@ from isaac_walk_g009.recover_contracts import (
 
 
 MANIFEST = ROOT / "configs" / "g009_r0.json"
-REV12_NON_VELOCITY_CONTRACT_SHA256 = (
-    "1f26f58655091a86af5a1da73be12562667f4573dfc3841b79162b3c899959f6"
-)
+REV13_CONTRACT_SHA256 = "ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558"
 
 
 def _rotate_body_up_wxyz(quaternion: tuple[float, float, float, float]) -> tuple[float, float, float]:
@@ -160,21 +160,25 @@ def test_r0_reward_and_ppo_contract_match_the_frozen_document_revision() -> None
 
 def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     contract = recover_contract()
-    assert contract["contract_id"] == "g009_r0_recover_rev13"
+    assert contract["contract_id"] == "g009_r0_recover_rev14"
     assert contract["physics"] == {
         "articulation_solver_position_iteration_count": 8,
         "articulation_solver_velocity_iteration_count": 1,
+        "max_depenetration_velocity_m_s": 0.75,
+        "rev13_baseline_max_depenetration_velocity_m_s": 1.0,
         "rev11_baseline_articulation_solver_position_iteration_count": 4,
         "rev12_baseline_articulation_solver_velocity_iteration_count": 0,
         "single_variable_change": (
-            "increase only the Go2 articulation velocity-solver iteration count "
-            "from 0 to 1; retain the position-solver iteration count at 8 and retain "
-            "action, reset, reward, curriculum, torque, joint-limit tolerance, and "
-            "observation-noise contracts"
+            "decrease only the Go2 rigid-body maximum depenetration velocity "
+            "from 1.0 to 0.75 m/s; retain articulation solver position/velocity "
+            "iteration counts at 8/1 and retain action, reset, reward, curriculum, "
+            "torque, joint-limit tolerance, and observation-noise contracts"
         ),
     }
     assert ARTICULATION_SOLVER_POSITION_ITERATION_COUNT == 8
     assert ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT == 1
+    assert MAX_DEPENETRATION_VELOCITY_M_S == 0.75
+    assert REV13_BASELINE_MAX_DEPENETRATION_VELOCITY_M_S == 1.0
     assert contract["timing"] == {
         "physics_dt_s": 0.005,
         "control_decimation": 4,
@@ -247,15 +251,22 @@ def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     assert curriculum["actor_observation_exposure"] is False
 
 
-def test_rev13_changes_only_solver_velocity_iterations_and_preserves_rev12_mechanics() -> None:
+def test_rev14_changes_only_max_depenetration_velocity_and_preserves_rev13_contract() -> None:
     contract = recover_contract()
-    invariant_projection = json.loads(json.dumps(contract, ensure_ascii=False, allow_nan=False))
-    invariant_projection.pop("contract_id")
-    invariant_projection["physics"].pop("articulation_solver_velocity_iteration_count")
-    invariant_projection["physics"].pop(
-        "rev12_baseline_articulation_solver_velocity_iteration_count"
+    reconstructed_rev13 = json.loads(
+        json.dumps(contract, ensure_ascii=False, allow_nan=False)
     )
-    invariant_projection["physics"].pop("single_variable_change")
+    reconstructed_rev13["contract_id"] = "g009_r0_recover_rev13"
+    reconstructed_rev13["physics"].pop("max_depenetration_velocity_m_s")
+    reconstructed_rev13["physics"].pop(
+        "rev13_baseline_max_depenetration_velocity_m_s"
+    )
+    reconstructed_rev13["physics"]["single_variable_change"] = (
+        "increase only the Go2 articulation velocity-solver iteration count "
+        "from 0 to 1; retain the position-solver iteration count at 8 and retain "
+        "action, reset, reward, curriculum, torque, joint-limit tolerance, and "
+        "observation-noise contracts"
+    )
     reward_weights = {term["name"]: term["weight"] for term in contract["reward"]["terms"]}
     actor_noise = {
         term["name"]: term["noise_uniform"]
@@ -266,7 +277,7 @@ def test_rev13_changes_only_solver_velocity_iterations_and_preserves_rev12_mecha
     assert contract["physics"]["articulation_solver_position_iteration_count"] == 8
     assert contract["physics"]["rev12_baseline_articulation_solver_velocity_iteration_count"] == 0
     assert contract["physics"]["articulation_solver_velocity_iteration_count"] == 1
-    assert canonical_sha256(invariant_projection) == REV12_NON_VELOCITY_CONTRACT_SHA256
+    assert canonical_sha256(reconstructed_rev13) == REV13_CONTRACT_SHA256
     assert contract["action"]["scale"] == 0.70
     assert contract["action"]["ema_alpha"] == 0.2
     assert contract["reset"]["folded_joint_angles_rad"] == {

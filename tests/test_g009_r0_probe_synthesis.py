@@ -52,7 +52,7 @@ def _report(device: str) -> dict:
         "goal_id": "g009",
         "stage_id": "R0",
         "probe": "flat_recover_runtime_calibration",
-        "contract_sha256": "a" * 64,
+        "contract_sha256": "ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558",
         "source_bundle": _source_bundle(),
         "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
         "seed": 42,
@@ -92,6 +92,7 @@ def _report(device: str) -> dict:
             "reset_pose_hold_reachable_targets_match_reset_positions": True,
             "nonfoot_peak_force_body_attribution_complete": True,
             "nonfoot_peak_force_bounded": True,
+            "rigid_body_max_depenetration_velocity_matches_contract": True,
             "another_runtime_check": True,
         },
     }
@@ -429,6 +430,72 @@ def test_strict_repeated_synthesis_recomputes_required_checks_fail_closed(
     _write_report(gpu_paths[1], gpu)
 
     with pytest.raises(SYNTHESIS.SynthesisError, match=expected):
+        SYNTHESIS.synthesize_repeated_reports(gpu_paths, cpu_paths)
+
+
+@pytest.mark.parametrize("device", ["gpu", "cpu"])
+def test_strict_repeated_synthesis_requires_max_depenetration_check_on_both_devices(
+    tmp_path: Path, device: str
+) -> None:
+    gpu_paths, cpu_paths = _repeated_paths(tmp_path)
+    for path in [*gpu_paths, *cpu_paths]:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        report["contract_sha256"] = SYNTHESIS.REV14_CONTRACT_SHA256
+        _write_report(path, report)
+    path = (gpu_paths if device == "gpu" else cpu_paths)[1]
+    report = json.loads(path.read_text(encoding="utf-8"))
+    del report["checks"][
+        "rigid_body_max_depenetration_velocity_matches_contract"
+    ]
+    _write_report(path, report)
+
+    with pytest.raises(SYNTHESIS.SynthesisError, match="missing required checks"):
+        SYNTHESIS.synthesize_repeated_reports(gpu_paths, cpu_paths)
+
+
+def test_strict_repeated_synthesis_accepts_complete_rev14_check_contract(
+    tmp_path: Path,
+) -> None:
+    gpu_paths, cpu_paths = _repeated_paths(tmp_path)
+    for path in [*gpu_paths, *cpu_paths]:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        report["contract_sha256"] = SYNTHESIS.REV14_CONTRACT_SHA256
+        _write_report(path, report)
+
+    result = SYNTHESIS.synthesize_repeated_reports(gpu_paths, cpu_paths)
+
+    assert result["runtime_calibration_passed"] is True
+
+
+def test_strict_repeated_synthesis_keeps_rev12_required_check_compatibility(
+    tmp_path: Path,
+) -> None:
+    gpu_paths, cpu_paths = _repeated_paths(tmp_path)
+    for path in [*gpu_paths, *cpu_paths]:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        report["contract_sha256"] = (
+            "d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0"
+        )
+        del report["checks"][
+            "rigid_body_max_depenetration_velocity_matches_contract"
+        ]
+        _write_report(path, report)
+
+    result = SYNTHESIS.synthesize_repeated_reports(gpu_paths, cpu_paths)
+
+    assert result["runtime_calibration_passed"] is True
+
+
+def test_strict_repeated_synthesis_rejects_unknown_contract_registry_entry(
+    tmp_path: Path,
+) -> None:
+    gpu_paths, cpu_paths = _repeated_paths(tmp_path)
+    for path in [*gpu_paths, *cpu_paths]:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        report["contract_sha256"] = "f" * 64
+        _write_report(path, report)
+
+    with pytest.raises(SYNTHESIS.SynthesisError, match="no registered strict check contract"):
         SYNTHESIS.synthesize_repeated_reports(gpu_paths, cpu_paths)
 
 

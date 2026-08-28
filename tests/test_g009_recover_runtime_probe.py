@@ -293,6 +293,310 @@ def test_solver_iteration_check_fails_closed(rows: list[dict[str, object]]) -> N
     }
 
 
+def test_rigid_body_max_depenetration_readback_covers_every_robot_body() -> None:
+    class Attribute:
+        def Get(self):
+            return 0.75
+
+    class Prim:
+        def __init__(self, path: str, *, rigid: bool, children=()):
+            self.path = path
+            self.rigid = rigid
+            self.children = list(children)
+
+        def IsValid(self):
+            return True
+
+        def GetChildren(self):
+            return self.children
+
+        def GetPath(self):
+            return self.path
+
+        def HasAPI(self, api_type):
+            return self.rigid
+
+    body_0 = Prim("/World/envs/env_0/Robot/base", rigid=True)
+    body_1 = Prim("/World/envs/env_0/Robot/FL_hip", rigid=True)
+    root = Prim("/World/envs/env_0/Robot", rigid=False, children=(body_0, body_1))
+
+    class Stage:
+        def GetPrimAtPath(self, path):
+            assert path == root.path
+            return root
+
+    class PhysxSchema:
+        class PhysxRigidBodyAPI:
+            def __init__(self, prim):
+                assert prim.rigid
+
+            def GetMaxDepenetrationVelocityAttr(self):
+                return Attribute()
+
+    class UsdPhysics:
+        class RigidBodyAPI:
+            pass
+
+    result = PROBE.rigid_body_max_depenetration_velocity_readback(
+        Stage(), [root.path], PhysxSchema, UsdPhysics
+    )
+
+    assert result["rigid_body_count"] == 2
+    assert [row["prim_path"] for row in result["rigid_bodies"]] == [
+        body_0.path,
+        body_1.path,
+    ]
+    assert all(
+        row["max_depenetration_velocity_m_s"] == pytest.approx(0.75)
+        and row["error"] is None
+        for row in result["rigid_bodies"]
+    )
+    assert PROBE.rigid_body_max_depenetration_velocity_checks(
+        result,
+        expected_velocity_m_s=0.75,
+        expected_robot_count=1,
+        expected_rigid_bodies_per_robot=2,
+    ) == {"rigid_body_max_depenetration_velocity_matches_contract": True}
+
+
+@pytest.mark.parametrize(
+    ("physx_api_present", "attribute_present", "raw_value", "expected_error"),
+    [
+        (False, True, 0.75, "missing_physx_rigid_body_api"),
+        (True, False, 0.75, "missing_or_non_numeric_max_depenetration_velocity"),
+        (True, True, None, "missing_or_non_numeric_max_depenetration_velocity"),
+        (True, True, "0.75", "missing_or_non_numeric_max_depenetration_velocity"),
+        (True, True, True, "missing_or_non_numeric_max_depenetration_velocity"),
+        (True, True, float("nan"), "non_finite_max_depenetration_velocity"),
+        (True, True, float("inf"), "non_finite_max_depenetration_velocity"),
+        (True, True, float("-inf"), "non_finite_max_depenetration_velocity"),
+    ],
+)
+def test_rigid_body_max_depenetration_readback_records_missing_or_invalid_values(
+    physx_api_present: bool,
+    attribute_present: bool,
+    raw_value: object,
+    expected_error: str,
+) -> None:
+    class Attribute:
+        def Get(self):
+            return raw_value
+
+    class Api:
+        if attribute_present:
+
+            def GetMaxDepenetrationVelocityAttr(self):
+                return Attribute()
+
+    class Prim:
+        def IsValid(self):
+            return True
+
+        def GetChildren(self):
+            return []
+
+        def GetPath(self):
+            return "/World/envs/env_0/Robot/base"
+
+        def HasAPI(self, api_type):
+            return api_type is UsdPhysics.RigidBodyAPI or physx_api_present
+
+    class Stage:
+        def GetPrimAtPath(self, path):
+            return Prim()
+
+    class PhysxSchema:
+        class PhysxRigidBodyAPI:
+            def __new__(cls, prim):
+                return Api()
+
+    class UsdPhysics:
+        class RigidBodyAPI:
+            pass
+
+    result = PROBE.rigid_body_max_depenetration_velocity_readback(
+        Stage(), ["/World/envs/env_0/Robot"], PhysxSchema, UsdPhysics
+    )
+
+    assert result["rigid_bodies"][0]["max_depenetration_velocity_m_s"] is None
+    assert result["rigid_bodies"][0]["error"] == expected_error
+    assert PROBE.rigid_body_max_depenetration_velocity_checks(
+        result,
+        expected_velocity_m_s=0.75,
+        expected_robot_count=1,
+        expected_rigid_bodies_per_robot=1,
+    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
+
+
+def test_rigid_body_max_depenetration_readback_rejects_invalid_robot_root() -> None:
+    class InvalidPrim:
+        def IsValid(self):
+            return False
+
+    class Stage:
+        def GetPrimAtPath(self, path):
+            return InvalidPrim()
+
+    result = PROBE.rigid_body_max_depenetration_velocity_readback(
+        Stage(), ["/World/envs/env_0/Robot"], object(), object()
+    )
+
+    assert result["invalid_robot_prim_paths"] == ["/World/envs/env_0/Robot"]
+    assert result["rigid_body_count"] == 0
+    assert PROBE.rigid_body_max_depenetration_velocity_checks(
+        result,
+        expected_velocity_m_s=0.75,
+        expected_robot_count=1,
+        expected_rigid_bodies_per_robot=1,
+    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        {"rigid_body_count": 0, "rigid_bodies": []},
+        {"invalid_robot_prim_paths": ["/World/envs/env_0/Robot"]},
+        {"robot_prim_paths": []},
+        {"rigid_bodies": [{"max_depenetration_velocity_m_s": None}]},
+        {
+            "rigid_bodies": [
+                {
+                    "robot_prim_path": "/World/envs/env_0/Robot",
+                    "prim_path": "/World/envs/env_0/Robot/base",
+                    "usd_rigid_body_api": True,
+                    "physx_rigid_body_api": True,
+                    "max_depenetration_velocity_m_s": 1.0,
+                    "error": None,
+                }
+            ]
+        },
+    ],
+)
+def test_rigid_body_max_depenetration_check_fails_closed(
+    mutation: dict[str, object],
+) -> None:
+    valid = {
+        "robot_prim_paths": ["/World/envs/env_0/Robot"],
+        "invalid_robot_prim_paths": [],
+        "rigid_body_count": 1,
+        "duplicate_rigid_body_prim_paths": [],
+        "rigid_bodies": [
+            {
+                "robot_prim_path": "/World/envs/env_0/Robot",
+                "prim_path": "/World/envs/env_0/Robot/base",
+                "usd_rigid_body_api": True,
+                "physx_rigid_body_api": True,
+                "max_depenetration_velocity_m_s": 0.75,
+                "error": None,
+            }
+        ],
+    }
+    valid.update(mutation)
+
+    assert PROBE.rigid_body_max_depenetration_velocity_checks(
+        valid,
+        expected_velocity_m_s=0.75,
+        expected_robot_count=1,
+        expected_rigid_bodies_per_robot=1,
+    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
+
+
+def _valid_rigid_body_row(root: str, suffix: str) -> dict[str, object]:
+    return {
+        "robot_prim_path": root,
+        "prim_path": f"{root}/{suffix}",
+        "usd_rigid_body_api": True,
+        "physx_rigid_body_api": True,
+        "max_depenetration_velocity_m_s": 0.75,
+        "error": None,
+    }
+
+
+def test_rigid_body_checker_rejects_root_level_three_plus_one_imbalance() -> None:
+    roots = ["/World/envs/env_0/Robot", "/World/envs/env_1/Robot"]
+    rows = [
+        _valid_rigid_body_row(roots[0], "base"),
+        _valid_rigid_body_row(roots[0], "FL_hip"),
+        _valid_rigid_body_row(roots[0], "FR_hip"),
+        _valid_rigid_body_row(roots[1], "base"),
+    ]
+    readback = {
+        "robot_prim_paths": roots,
+        "invalid_robot_prim_paths": [],
+        "rigid_body_count": 4,
+        "duplicate_rigid_body_prim_paths": [],
+        "rigid_bodies": rows,
+    }
+
+    assert PROBE.rigid_body_max_depenetration_velocity_checks(
+        readback,
+        expected_velocity_m_s=0.75,
+        expected_robot_count=2,
+        expected_rigid_bodies_per_robot=2,
+    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
+
+
+def test_rigid_body_checker_recomputes_duplicates_instead_of_trusting_metadata() -> None:
+    root = "/World/envs/env_0/Robot"
+    duplicate_row = _valid_rigid_body_row(root, "base")
+    duplicate_readback = {
+        "robot_prim_paths": [root],
+        "invalid_robot_prim_paths": [],
+        "rigid_body_count": 2,
+        "duplicate_rigid_body_prim_paths": [],
+        "rigid_bodies": [duplicate_row, dict(duplicate_row)],
+    }
+    assert PROBE.rigid_body_max_depenetration_velocity_checks(
+        duplicate_readback,
+        expected_velocity_m_s=0.75,
+        expected_robot_count=1,
+        expected_rigid_bodies_per_robot=2,
+    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
+
+    unique_readback = {
+        **duplicate_readback,
+        "duplicate_rigid_body_prim_paths": [f"{root}/fabricated"],
+        "rigid_bodies": [
+            _valid_rigid_body_row(root, "base"),
+            _valid_rigid_body_row(root, "FL_hip"),
+        ],
+    }
+    assert PROBE.rigid_body_max_depenetration_velocity_checks(
+        unique_readback,
+        expected_velocity_m_s=0.75,
+        expected_robot_count=1,
+        expected_rigid_bodies_per_robot=2,
+    ) == {"rigid_body_max_depenetration_velocity_matches_contract": True}
+
+
+@pytest.mark.parametrize(
+    ("row_root", "prim_path"),
+    [
+        ("/World/envs/env_1/Robot", "/World/envs/env_1/Robot/base"),
+        ("/World/envs/env_0/Robot", "/World/envs/env_0/RobotSibling/base"),
+    ],
+)
+def test_rigid_body_checker_rejects_unknown_root_or_non_descendant_path(
+    row_root: str, prim_path: str
+) -> None:
+    root = "/World/envs/env_0/Robot"
+    row = _valid_rigid_body_row(root, "base")
+    row.update({"robot_prim_path": row_root, "prim_path": prim_path})
+    readback = {
+        "robot_prim_paths": [root],
+        "invalid_robot_prim_paths": [],
+        "rigid_body_count": 1,
+        "duplicate_rigid_body_prim_paths": [],
+        "rigid_bodies": [row],
+    }
+    assert PROBE.rigid_body_max_depenetration_velocity_checks(
+        readback,
+        expected_velocity_m_s=0.75,
+        expected_robot_count=1,
+        expected_rigid_bodies_per_robot=1,
+    ) == {"rigid_body_max_depenetration_velocity_matches_contract": False}
+
+
 def test_rev3_observation_schema_uses_explicit_actor_and_critic_indices() -> None:
     assert PROBE.ACTOR_FOOT_LOAD_SLICE == slice(49, 53)
     assert PROBE.ACTOR_RANGE_SLICE == slice(53, 68)
