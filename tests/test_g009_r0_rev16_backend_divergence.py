@@ -362,7 +362,7 @@ def _zero_physics_rows() -> list[dict]:
     body_names = [
         "base",
         *[f"link_{index}" for index in range(1, 15)],
-        *[f"foot_{index}" for index in range(4)],
+        *[f"leg_{index}_foot" for index in range(4)],
     ]
     rows = []
     for control_step in range(1, 151):
@@ -381,11 +381,11 @@ def _zero_physics_rows() -> list[dict]:
     return sorted(rows, key=lambda row: row["physics_step"])
 
 
-def _zero_control_rows() -> list[dict]:
-    body_names = [
+def _zero_control_rows(link_body_names: list[str] | None = None) -> list[dict]:
+    body_names = link_body_names or [
         "base",
         *[f"link_{index}" for index in range(1, 15)],
-        *[f"foot_{index}" for index in range(4)],
+        *[f"leg_{index}_foot" for index in range(4)],
     ]
     joint_names = [f"joint_{index}" for index in range(12)]
     return [
@@ -420,6 +420,8 @@ def _complete_report(
     device: str = "cpu",
     arm: str = "A",
     predecessor: dict | None = None,
+    *,
+    link_body_names: list[str] | None = None,
 ) -> dict:
     contract = PROBE.rev16_contract(arm, device)
     reference_path = PROBE.REPO_ROOT / PROBE.HISTORICAL_REPORTS[(arm, device)]["path"]
@@ -428,8 +430,9 @@ def _complete_report(
     body_names = [
         "base",
         *[f"link_{index}" for index in range(1, 15)],
-        *[f"foot_{index}" for index in range(4)],
+        *[f"leg_{index}_foot" for index in range(4)],
     ]
+    link_body_names = link_body_names or body_names.copy()
     joint_names = [f"joint_{index}" for index in range(12)]
     return {
         "schema_version": "g009.r0.rev16.backend_divergence.v1",
@@ -463,6 +466,7 @@ def _complete_report(
             "source_env_index": 7,
             "pose_id": "right_side",
             "action_mode": "reset_pose_hold",
+            "target_body_index": 0,
             "target_body_name": "base",
         },
         "pose_action_assignment": {
@@ -471,11 +475,13 @@ def _complete_report(
         },
         "live_physics_readback": {"checks": {"solver": True, "depenetration": True}},
         "runtime_topology": {
-            "body_names": body_names,
+            "force_body_names": body_names,
+            "link_body_names": link_body_names,
             "joint_names": joint_names,
-            "base_body_id": 0,
-            "foot_body_ids": list(range(15, 19)),
-            "nonfoot_body_ids": list(range(15)),
+            "base_force_body_id": 0,
+            "foot_force_body_ids": list(range(15, 19)),
+            "nonfoot_force_body_ids": list(range(15)),
+            "body_mass_body_names": link_body_names,
             "body_mass_kg": [1.0] * 19,
             "total_mass_kg": 19.0,
             "body_weight_n": 19.0 * 9.81,
@@ -488,7 +494,7 @@ def _complete_report(
             "peak_window_radius_physics_steps": 8,
         },
         "physics_substep_telemetry": _zero_physics_rows(),
-        "control_step_telemetry": _zero_control_rows(),
+        "control_step_telemetry": _zero_control_rows(link_body_names),
         "active_terminations": [
             "time_out",
             "stable_success",
@@ -694,6 +700,97 @@ def test_report_contract_accepts_complete_diagnostic_and_rejects_progression() -
     }
     with pytest.raises(ValueError, match="governance"):
         PROBE.validate_report_contract(report)
+
+
+def test_report_contract_accepts_distinct_sensor_and_robot_body_orders() -> None:
+    force_order = _complete_report()["runtime_topology"]["force_body_names"]
+    link_order = [*force_order[1:], force_order[0]]
+    report = _complete_report(link_body_names=link_order)
+
+    PROBE.validate_report_contract(report)
+
+    assert report["physics_substep_telemetry"][0]["body_names"] == force_order
+    assert report["control_step_telemetry"][0]["link_names"] == link_order
+    assert report["runtime_topology"]["body_mass_body_names"] == link_order
+
+
+def test_report_contract_rejects_sensor_robot_body_set_mismatch() -> None:
+    report = _complete_report()
+    report["runtime_topology"]["link_body_names"][-1] = "foreign_link"
+    report["runtime_topology"]["body_mass_body_names"][-1] = "foreign_link"
+    report["control_step_telemetry"][0]["link_names"][-1] = "foreign_link"
+
+    with pytest.raises(ValueError, match="force/link/mass body topology mismatch"):
+        PROBE.validate_report_contract(report)
+
+
+def test_report_contract_rejects_mass_order_not_bound_to_robot_links() -> None:
+    report = _complete_report()
+    mass_order = report["runtime_topology"]["body_mass_body_names"].copy()
+    report["runtime_topology"]["body_mass_body_names"] = [
+        *mass_order[1:],
+        mass_order[0],
+    ]
+
+    with pytest.raises(ValueError, match="force/link/mass body topology mismatch"):
+        PROBE.validate_report_contract(report)
+
+
+@pytest.mark.parametrize(
+    ("field", "mutation"),
+    [
+        ("base_force_body_id", True),
+        ("foot_force_body_ids", [15, 16, 17, 17]),
+        ("foot_force_body_ids", [True, 16, 17, 18]),
+        ("foot_force_body_ids", [15, 16, 17, 19]),
+        ("nonfoot_force_body_ids", [*range(14), 13]),
+        ("nonfoot_force_body_ids", [True, *range(1, 15)]),
+    ],
+)
+def test_report_contract_rejects_non_strict_force_body_ids(
+    field: str, mutation: object
+) -> None:
+    report = _complete_report()
+    report["runtime_topology"][field] = mutation
+
+    with pytest.raises(ValueError, match="body id|foot/nonfoot topology"):
+        PROBE.validate_report_contract(report)
+
+
+def test_report_contract_rejects_force_ids_not_matching_sensor_labels() -> None:
+    report = _complete_report()
+    report["runtime_topology"]["foot_force_body_ids"] = [14, 16, 17, 18]
+    report["runtime_topology"]["nonfoot_force_body_ids"] = [*range(14), 15]
+
+    with pytest.raises(ValueError, match="force body labels"):
+        PROBE.validate_report_contract(report)
+
+
+def test_predecessor_rejects_rehashed_raw_report_with_duplicate_nonfoot_id(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    synthesis_path, source = _write_valid_predecessor(monkeypatch, tmp_path, 3)
+    raw_path = tmp_path / "reports" / "runs" / "raw_01.json"
+    raw_report = json.loads(raw_path.read_text(encoding="utf-8"))
+    raw_report["runtime_topology"]["nonfoot_force_body_ids"] = [*range(14), 13]
+    raw_bytes = (
+        json.dumps(raw_report, ensure_ascii=False, allow_nan=False).encode("utf-8")
+        + b"\n"
+    )
+    raw_path.write_bytes(raw_bytes)
+    evidence = {
+        "path": "reports/runs/raw_01.json",
+        "sha256": PROBE.hashlib.sha256(raw_bytes).hexdigest(),
+    }
+    synthesis = json.loads(synthesis_path.read_text(encoding="utf-8"))
+    synthesis["input_reports"][0] = evidence
+    synthesis["groups"][0]["runs"][0]["evidence"] = evidence
+    synthesis_path.write_text(json.dumps(synthesis), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="foot/nonfoot topology"):
+        PROBE.validate_predecessor_synthesis(
+            synthesis_path, arm="A", device="cuda:0", source_bundle=source
+        )
 
 
 def test_report_contract_requires_exact_eight_env_pose_action_assignment() -> None:

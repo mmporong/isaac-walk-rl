@@ -88,6 +88,19 @@ def _contract(arm: str, device: str) -> dict:
     return SUMMARY.raw_probe.rev16_contract(arm, device)
 
 
+FORCE_BODY_NAMES = [
+    "base",
+    *[f"link_{index}" for index in range(1, 15)],
+    *[f"leg_{index}_foot" for index in range(4)],
+]
+LINK_BODY_NAMES = [
+    FORCE_BODY_NAMES[0],
+    FORCE_BODY_NAMES[2],
+    FORCE_BODY_NAMES[1],
+    *FORCE_BODY_NAMES[3:],
+]
+
+
 def _physics_rows(peak_step: int, peak_bw: float, neighbor_bw: float) -> list[dict]:
     body_weight = 19.0 * 9.81
     rows = RAW_TEST._zero_physics_rows()
@@ -110,7 +123,7 @@ def _physics_rows(peak_step: int, peak_bw: float, neighbor_bw: float) -> list[di
 
 
 def _control_rows(speed: float) -> list[dict]:
-    rows = RAW_TEST._zero_control_rows()
+    rows = RAW_TEST._zero_control_rows(LINK_BODY_NAMES)
     for row in rows:
         row["root_state_w"][10] = speed
         row["joint_velocity_rad_s"][0] = speed
@@ -184,6 +197,7 @@ def _report(arm: str, device: str, replicate: int) -> tuple[dict, dict[str, str]
             "source_env_index": 7,
             "pose_id": "right_side",
             "action_mode": "reset_pose_hold",
+            "target_body_index": 0,
             "target_body_name": "base",
         },
         "safety_termination_counts": {
@@ -234,15 +248,13 @@ def _report(arm: str, device: str, replicate: int) -> tuple[dict, dict[str, str]
             **SUMMARY.load_historical_target(arm, device),
         },
         "runtime_topology": {
-            "body_names": [
-                "base",
-                *[f"link_{index}" for index in range(1, 15)],
-                *[f"foot_{index}" for index in range(4)],
-            ],
+            "force_body_names": FORCE_BODY_NAMES.copy(),
+            "link_body_names": LINK_BODY_NAMES.copy(),
             "joint_names": [f"joint_{index}" for index in range(12)],
-            "base_body_id": 0,
-            "foot_body_ids": list(range(15, 19)),
-            "nonfoot_body_ids": list(range(15)),
+            "base_force_body_id": 0,
+            "foot_force_body_ids": list(range(15, 19)),
+            "nonfoot_force_body_ids": list(range(15)),
+            "body_mass_body_names": LINK_BODY_NAMES.copy(),
             "body_mass_kg": [1.0] * 19,
             "total_mass_kg": 19.0,
             "body_weight_n": 19.0 * 9.81,
@@ -299,7 +311,15 @@ def test_sequential_prefixes_are_valid_and_bound_for_next_group(
 def test_full_matrix_supports_hypothesis_three_of_three_without_accepting_arm_b() -> (
     None
 ):
-    result = SUMMARY.synthesize_loaded(_entries())
+    entries = _entries()
+    assert all(
+        report["runtime_topology"]["force_body_names"]
+        != report["runtime_topology"]["link_body_names"]
+        and report["runtime_topology"]["body_mass_body_names"]
+        == report["runtime_topology"]["link_body_names"]
+        for report, _ in entries
+    )
+    result = SUMMARY.synthesize_loaded(entries)
 
     assert result["hypothesis"]["decision"] == "supported"
     assert result["hypothesis"]["supported_3_of_3"] is True

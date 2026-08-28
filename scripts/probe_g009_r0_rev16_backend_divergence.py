@@ -711,28 +711,68 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
     topology = report.get("runtime_topology")
     require(isinstance(topology, dict), "runtime topology is required")
     topology = cast(dict[str, Any], topology)
-    body_names = topology.get("body_names")
+    require(
+        set(topology)
+        == {
+            "force_body_names",
+            "link_body_names",
+            "joint_names",
+            "base_force_body_id",
+            "foot_force_body_ids",
+            "nonfoot_force_body_ids",
+            "body_mass_body_names",
+            "body_mass_kg",
+            "total_mass_kg",
+            "body_weight_n",
+        },
+        "runtime topology keys mismatch",
+    )
+    body_names = topology.get("force_body_names")
     require(
         isinstance(body_names, list)
         and len(body_names) == 19
         and all(isinstance(name, str) for name in body_names),
-        "runtime topology must contain 19 body names",
+        "runtime topology must contain 19 force body names",
     )
     body_names = cast(list[str], body_names)
+    link_body_names = topology.get("link_body_names")
+    mass_body_names = topology.get("body_mass_body_names")
+    require(
+        isinstance(link_body_names, list)
+        and len(link_body_names) == 19
+        and all(isinstance(name, str) for name in link_body_names)
+        and isinstance(mass_body_names, list)
+        and mass_body_names == link_body_names
+        and len(set(body_names)) == 19
+        and len(set(link_body_names)) == 19
+        and set(body_names) == set(link_body_names),
+        "force/link/mass body topology mismatch",
+    )
     body_mass = _finite_vector(topology.get("body_mass_kg"), 19, "body mass")
     require(all(value > 0.0 for value in body_mass), "body mass must be positive")
     total_mass = _finite_number(topology.get("total_mass_kg"), "total mass")
     _close(total_mass, sum(body_mass), "total mass")
     body_weight = _finite_number(topology.get("body_weight_n"), "body weight")
     _close(body_weight, total_mass * 9.81, "body weight")
-    base_id = topology.get("base_body_id")
-    foot_ids = topology.get("foot_body_ids")
-    nonfoot_ids = topology.get("nonfoot_body_ids")
+    base_id = topology.get("base_force_body_id")
+    foot_ids = topology.get("foot_force_body_ids")
+    nonfoot_ids = topology.get("nonfoot_force_body_ids")
     require(type(base_id) is int and 0 <= base_id < 19, "base body id mismatch")
+    expected_foot_ids = [
+        index for index, name in enumerate(body_names) if name.endswith("_foot")
+    ]
+    expected_nonfoot_ids = [
+        index for index, name in enumerate(body_names) if not name.endswith("_foot")
+    ]
     require(
         isinstance(foot_ids, list)
         and isinstance(nonfoot_ids, list)
         and len(foot_ids) == 4
+        and len(nonfoot_ids) == 15
+        and all(type(index) is int and 0 <= index < 19 for index in foot_ids)
+        and all(type(index) is int and 0 <= index < 19 for index in nonfoot_ids)
+        and len(set(foot_ids)) == len(foot_ids)
+        and len(set(nonfoot_ids)) == len(nonfoot_ids)
         and set(foot_ids) | set(nonfoot_ids) == set(range(19))
         and not set(foot_ids) & set(nonfoot_ids),
         "foot/nonfoot topology mismatch",
@@ -740,6 +780,11 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
     base_id = cast(int, base_id)
     foot_ids = cast(list[int], foot_ids)
     nonfoot_ids = cast(list[int], nonfoot_ids)
+    require(body_names[base_id] == "base", "base force body label mismatch")
+    require(
+        foot_ids == expected_foot_ids and nonfoot_ids == expected_nonfoot_ids,
+        "foot/nonfoot force body labels mismatch",
+    )
     timing = report.get("telemetry_timing")
     require(isinstance(timing, dict), "telemetry timing is required")
     require(
@@ -904,7 +949,7 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
 def validate_control_telemetry(report: dict[str, Any]) -> None:
     topology = report["runtime_topology"]
     joint_names = topology.get("joint_names")
-    body_names = topology.get("body_names")
+    body_names = topology.get("link_body_names")
     require(
         isinstance(joint_names, list) and len(joint_names) == 12,
         "runtime topology must contain 12 joints",
@@ -1618,11 +1663,17 @@ def validate_report_contract(report: dict[str, Any]) -> None:
     )
     validate_predecessor_binding(report)
     cell = report.get("controlled_cell")
+    topology = report.get("runtime_topology")
+    base_force_body_id = (
+        topology.get("base_force_body_id") if isinstance(topology, dict) else None
+    )
+    require(type(base_force_body_id) is int, "base body id mismatch")
     require(
         isinstance(cell, dict)
         and cell.get("source_env_index") == 7
         and cell.get("pose_id") == "right_side"
         and cell.get("action_mode") == "reset_pose_hold"
+        and cell.get("target_body_index") == base_force_body_id
         and cell.get("target_body_name") == "base",
         "controlled cell mismatch",
     )
@@ -1819,8 +1870,14 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
             "required safety termination terms are unavailable",
         )
         body_names = list(sensor.body_names)
+        link_body_names = list(robot.body_names)
         require(
-            body_names == list(robot.body_names), "sensor/robot body order mismatch"
+            len(body_names) == 19
+            and len(link_body_names) == 19
+            and len(set(body_names)) == 19
+            and len(set(link_body_names)) == 19
+            and set(body_names) == set(link_body_names),
+            "sensor/robot body topology mismatch",
         )
         base_body_id = body_names.index("base")
         foot_ids = [
@@ -1831,7 +1888,8 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         ]
         body_mass_kg = raw_env._g009_r0_body_mass[SOURCE_ENV_INDEX]
         require(
-            bool(body_mass_kg.isfinite().all().item())
+            body_mass_kg.shape == (len(link_body_names),)
+            and bool(body_mass_kg.isfinite().all().item())
             and bool((body_mass_kg > 0.0).all().item()),
             "runtime body mass readback is invalid",
         )
@@ -2026,11 +2084,13 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
                 "mapping": expected_pose_action_assignment(),
             },
             "runtime_topology": {
-                "body_names": body_names,
+                "force_body_names": body_names,
+                "link_body_names": link_body_names,
                 "joint_names": list(robot.joint_names),
-                "base_body_id": base_body_id,
-                "foot_body_ids": foot_ids,
-                "nonfoot_body_ids": nonfoot_ids,
+                "base_force_body_id": base_body_id,
+                "foot_force_body_ids": foot_ids,
+                "nonfoot_force_body_ids": nonfoot_ids,
+                "body_mass_body_names": link_body_names,
                 "body_mass_kg": body_mass_kg.detach().cpu().tolist(),
                 "total_mass_kg": total_mass_kg,
                 "body_weight_n": total_mass_kg * 9.81,
