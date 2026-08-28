@@ -1,0 +1,132 @@
+{
+  "schema_version": "g009.r0.pilot_analysis.v2",
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "public_claim_eligible": false,
+  "qualification_allowed": false,
+  "qualification_status": "not_run",
+  "qualification_block_reasons": [
+    "diagnostic_pilot_never_qualifies",
+    "hard_joint_limit_nonzero",
+    "strict_success_zero"
+  ],
+  "revision": "rev11",
+  "gate_label": "gate01",
+  "output_stem": "g009_5_r0_diag_rev11_gate01_01_prone",
+  "analysis_source": {
+    "path": "scripts/analyze_g009_r0_pilot.py",
+    "sha256": "ab40b8d4b9673c6f03faea7ec2885dbe332430d163dee4d6df887230d1c78ff2"
+  },
+  "training_report": {
+    "path": "reports/runs/go2_flat_recover_rev11_prone_gate01_s42_20260828-1651.json",
+    "sha256": "a62252a91261cfe1bee17d45a680ee1314fe7d8ba02c6c1b0bf06b2c560754b3",
+    "run_name": "go2_flat_recover_rev11_prone_gate01_s42_20260828-1651",
+    "source_commit": "26fa9860470fe30ce192b342165caf2122598e8f",
+    "source_bundle_sha256": "6c05ceac1de0988d36e2542bcdfc4001fe2c37dd9d49753010ca914996b1204d"
+  },
+  "tensorboard": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_16-51-27_go2_flat_recover_rev11_prone_gate01_s42_20260828-1651",
+    "event_bundle_sha256": "981f90a319a834208f269d038b157b3b4f0dd33c0ff12555b6c1678cc03c4b75",
+    "event_files": {
+      "events.out.tfevents.1787903491.DESKTOP-991BNBV.46160.0": "7500f7e401cce3313ffb84ab6c2bd09a6870be321d020b8c553d95038ad993db"
+    },
+    "sample_count_per_tag": 1
+  },
+  "checkpoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-08-28_16-51-27_go2_flat_recover_rev11_prone_gate01_s42_20260828-1651\\model_0.pt",
+    "sha256": "e89f92235656ef61e082333981a3045ba3582331cc1f7d6457d6806172291e4c"
+  },
+  "pilot": {
+    "num_envs": 1024,
+    "iterations": 1,
+    "seed": 42,
+    "headless": true,
+    "scratch": true
+  },
+  "observations": {
+    "hard_joint_limit": {
+      "sample_count": 1,
+      "latest": 0.0416666679084301,
+      "minimum": 0.0416666679084301,
+      "maximum": 0.0416666679084301,
+      "mean": 0.0416666679084301,
+      "nonzero_sample_count": 1
+    },
+    "numeric_invalid": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "stable_support": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "upright_hold": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "strict_stable_success": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "strict_success_reward": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "curriculum_boundary_leak": {
+      "detected": false,
+      "phase_index_maximum": 0.0,
+      "prone_probability_minimum": 1.0,
+      "left_side_probability_maximum": 0.0,
+      "right_side_probability_maximum": 0.0
+    },
+    "policy_mean_noise_std": {
+      "sample_count": 1,
+      "latest": 0.5021969079971313,
+      "minimum": 0.5021969079971313,
+      "maximum": 0.5021969079971313,
+      "mean": 0.5021969079971313,
+      "nonzero_sample_count": 1
+    }
+  },
+  "tail_10_iterations": [
+    {
+      "iteration": 0,
+      "mean_reward": -0.5172732472419739,
+      "stable_support": 0.0,
+      "upright_hold": 0.0,
+      "stable_success": 0.0,
+      "stable_success_once": 0.0,
+      "hard_joint_limit": 0.0416666679084301,
+      "numeric_invalid": 0.0,
+      "curriculum_phase_index": 0.0,
+      "probability_prone": 1.0,
+      "probability_left_side": 0.0,
+      "probability_right_side": 0.0,
+      "policy_mean_noise_std": 0.5021969079971313
+    }
+  ],
+  "interpretation": "rev11 gate01 진단: 관절 한계 종료가 관측됨; prone 커리큘럼 경계 누수가 관측되지 않음; stable_support 신호가 관측되지 않음; upright_hold 신호가 관측되지 않음; 엄격 성공이 관측되지 않음. 정책 자격 평가는 수행하지 않았다."
+}

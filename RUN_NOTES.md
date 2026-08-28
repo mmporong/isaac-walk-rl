@@ -300,9 +300,15 @@ rev9 prone pilot은 clean source에서 `1,024 env × 50 iterations × seed 42`�
 1. `[완료]` rev9 checkpoint 동작을 diagnostic-only 로컬 MP4와 `NOT QUALIFIED` 오버레이가 있는 공개 GIF·PNG·JSON으로 고정했다.
 2. `[완료]` rev10에서 action scale만 `0.8 → 0.70`으로 줄이고 EMA `0.2`, 초기 noise `0.5`, reward, hard tolerance를 유지했다. curriculum 경계를 `(1201,2401)`로 고쳐 50회 pilot 전 구간 prone `1.0`을 요구한다.
 3. `[완료]` rev11에서 calf reset을 action envelope 안으로 옮긴 뒤 CPU/GPU runtime probe를 각각 3회 실행했다. 여섯 실행 모두 hold action 비포화, reset-target 오차 `≤1e-6 rad`, 비발 접촉력 `≤15 BW`, numeric-invalid·hard-joint-limit `0`을 통과했다.
-4. `[진행 중]` `1,024×1 → 1,024×10 → 1,024×50` scratch 안전 gate를 순서대로 실행한다. 각 단계에서 numeric-invalid와 hard-joint-limit 최대값이 모두 `0`이어야 다음 단계로 간다.
+4. `[기각]` rev11 `1,024×1` scratch gate01은 process/run-health는 PASS였지만 첫 scalar의 hard-joint-limit이 `0.0416667`이라 안전 gate를 통과하지 못했다. numeric-invalid는 `0`, prone probability는 `1.0`, curriculum phase는 `0`이었다. gate10·gate50은 실행하지 않는다.
 5. 50회 안전 pilot은 stable support와 upright hold가 최소 한 번은 nonzero여야 한다. 통과한 revision만 `1,024×300`, seed 42 scratch qualification으로 연다.
 6. deterministic 공식 평가에서 prone/supine/left/right 각각 성공률 `≥80%`, median recovery time `≤4.0 s`, safety termination `0`을 모두 만족해야만 learned checkpoint를 qualified로 판정한다.
+
+rev11 gate01은 clean source commit `26fa9860470fe30ce192b342165caf2122598e8f`에서 `1,024 env × 24 step × 1 iteration`, seed `42`, headless, scratch로 실행했다. wall time은 `18.581 s`, 처리량은 `7,766 steps/s`, peak VRAM은 `4,368 MiB`, final mean reward는 `-0.52`였다. `model_0.pt` SHA-256은 `e89f92235656ef61e082333981a3045ba3582331cc1f7d6457d6806172291e4c`다. stable support, upright hold, strict success는 모두 `0`이었다.
+
+- 분석 JSON은 hard-joint-limit nonzero와 strict success zero를 qualification block reason으로 기록했다. 학습 aggregate의 episode-summary rate는 joint·pose별 attribution을 제공하지 않으므로, 다음 revision 전에 별도 runtime instrumentation으로 위반 관절·초과량·pose/action 시점을 찾아야 한다.
+- 1환경 deterministic playback은 8초 뒤 time-out됐고 stable success가 없었다. 이 단일 캡처에서는 safety termination이 재현되지 않았지만, 1,024환경 학습 aggregate의 hard-limit 실패를 상쇄하지 않는다.
+- 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev11_gate01_01_prone_s42.mp4`에만 둔다. H.264 `1280×720`, `50 fps`, 400 frame, 8초, SHA-256 `7a6ffd04430508d440625a23a8105fd06087b3d4f25390dec9ef2b64bf7c04cd`다. 공개 GIF·PNG·analysis·capture·summary·sidecar JSON에는 `DIAGNOSTIC / NOT QUALIFIED / 01 PRONE / STRICT SUCCESS 0`를 표시했다.
 
 #### 단계별 영상·공개 정책
 
