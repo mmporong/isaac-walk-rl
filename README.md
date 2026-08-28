@@ -62,7 +62,7 @@ G008-1 command smoke -> G008-2 command PPO
 | `G009-2` | 6개 경사 × 4개 방위 analytic gate (`S0`) | 지형 검증 | `24/24` 통과 |
 | `G009-3` | collision mesh·마찰·support-normal reset (`S0`) | Isaac runtime 검증 | 완료 |
 | `G009-4` | 5°·15°·25° 동일 조건 재생 (`S0`) | 시각 증거 | 완료, 25°는 실패 경계 |
-| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전 귀속 | rev12 gate10 기각·full-state 귀속 완료, rev13 solver velocity `0 → 1` 구현·정적 검증 완료, runtime 예정 |
+| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전 귀속 | rev12 gate10 기각·full-state 귀속 완료, rev13 solver velocity `0 → 1` CPU runtime `3/3` 동일 접촉 상한 초과로 기각, GPU·PPO 미실행 |
 | `G009-6` | 5°·10° 횡경사 WALK (`S1-low`) | 다음 강화학습 | R0·calibration 뒤 실행 |
 
 G008의 상세 번호표는 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md), G009의 전체 후속 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에서 이어집니다.

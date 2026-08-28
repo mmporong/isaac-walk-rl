@@ -378,7 +378,24 @@ clean source commit `9da3e87e4be9142035d24e8a4a22e204f8b229d5`에서 CPU·GPU �
 - `py scripts/sync_g009_r0_contract.py --check`는 PASS였다. rev12 manifest와 rev13 manifest의 의미 diff는 contract ID·contract hash·변경 설명, velocity `0 → 1`, rev12 baseline velocity 메타데이터 추가뿐이었다. 이 허용 필드를 제거한 전체 계약 투영은 rev12 고정 SHA-256 `1f26f58655091a86af5a1da73be12562667f4573dfc3841b79162b3c899959f6`와 같아야 하며 회귀 테스트가 이를 직접 검사한다.
 - Isaac 의존 테스트 두 파일을 제외한 전체 G009 순수 Python 검사는 `382 passed`, Isaac Sim 번들 Python의 `tests/test_g009_recover_config.py`는 `7 passed`였다. 변경 Python 파일의 `py_compile`은 PASS, import-light 변경 파일의 Pyright는 `0 errors`였다.
 - rev12 Gate10 attribution 스크립트의 고정 hash는 수정하지 않았다. rev13 소스에서 과거 진단을 재실행하려 하면 config·contract·env cfg 세 경로의 mismatch를 감지해 fail-closed로 거부하는 테스트를 추가했다.
-- 현재 상태는 `implemented_not_runtime_validated`이고 `learned_policy_qualified=false`다. 다음 실행은 clean source commit에서 CPU probe 3회, GPU probe 3회, strict synthesis 순서다. 여섯 runtime에서 실제 articulation `position=8 / velocity=1`, hard-limit·numeric-invalid `0`을 모두 확인하기 전에는 scratch Gate01을 열지 않는다.
+- 구현 직후 상태는 `implemented_not_runtime_validated`, `learned_policy_qualified=false`였다. 예정 순서는 clean source commit의 CPU probe 3회, GPU probe 3회, strict synthesis였으며, 실제 articulation `position=8 / velocity=1`, hard-limit·numeric-invalid `0`을 모두 확인하기 전에는 scratch Gate01을 열지 않는 계약이었다. 아래 CPU 결과가 이 관문에서 rev13을 기각했다.
+
+#### rev13 CPU runtime 3회 기각과 공개 진단 미디어
+
+- clean source commit `e3734b728fcf546fea4ee05b9c8733800d6ab536`에서 seed `42`, headless, device `cpu`, `8 env × 150 control step` probe를 새 프로세스로 세 번 실행했다. execution ID는 `9e66cca532f64a7eaba06b615f38f37d`, `be56124aee694addbf0eebc7305b88d4`, `263d6b8c7430441fb4eb26c4afe1abd3`으로 서로 다르다. 세 report의 source bundle SHA-256은 `df6c6aa46181ca033791fb11ccfa76d9eab8643822da1c6cdc2e288409cabe3d`, contract SHA-256은 `ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558`로 같았다.
+- 세 실행 모두 live articulation 8개에서 `position=8 / velocity=1`을 읽었고 run health는 PASS였다. numeric-invalid와 hard-joint-limit termination은 `0`이었다. 그러나 세 번 모두 유일한 false check가 `nonfoot_peak_force_bounded`였고, `right_side / reset_pose_hold`의 `base`가 physics step `129`, `0.645s`에 `15.97161865234375 BW`를 기록해 고정 상한 `15 BW`를 넘었다.
+- rev12 CPU rep01의 같은 cell은 `9.332860946655273 BW`였다. rev13은 force peak `+71.133147%`, root angular speed peak `+46.661288%`, joint speed peak `-32.208318%`, total excess contact delta-v `-6.887120%`, peak-step excess delta-v `-5.958619%`다. delta-v 감소와 force/root angular peak 증가는 더 시간적으로 집중되고 회전 성분이 큰 접촉 반응과 일치하지만, 이 관측만으로 해당 메커니즘의 인과를 증명하지 않는다.
+- CPU 관문에서 rev13을 `rejected`로 판정했다. 따라서 GPU runtime, scratch Gate01, Gate10, PPO 학습은 실행하지 않았다. `learned_policy_qualified=false`, qualification은 `not_run`이며, 기존 strict success `0`을 성공으로 바꾸지 않는다.
+- 정량 합성은 `reports/runs/g009_r0_runtime_probe_rev13_cpu_failure_synthesis_s42.json`, 공개 PNG/GIF는 `docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev13_cpu_runtime_failure.{png,gif}`다. 두 공개 매체에는 `TELEMETRY ANIMATION · NOT CAMERA FOOTAGE`, `NO PPO`, `REJECTED`를 직접 표시했다.
+- 로컬 전용 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev13_cpu_runtime_failure_s42.mp4`다. H.264 `1280×720`, `30fps`, `5.4초`, SHA-256 `2e6c38bc9ce2df3b6f50113985433d23f3f06645371e13d8cf9f0dc44940fcd0`이며 Git에는 넣지 않는다.
+
+#### rev14 max depenetration velocity 단일변수 사전등록
+
+- Isaac Lab `RigidBodyPropertiesCfg.max_depenetration_velocity`는 solver가 접촉 침투를 해소하려고 도입할 수 있는 최대 속도다. 로컬 Isaac Lab v2.1.1 Unitree Go2 asset의 baseline은 `1.0m/s`이며 rigid-body schema는 robot prim 아래의 적용 가능한 모든 rigid body에 중첩 적용된다.
+- rev14는 rev13의 articulation solver `position=8 / velocity=1`을 유지한 채 rigid-body `max_depenetration_velocity`만 `1.0 → 0.75m/s`로 낮춘다. calf reset, timestep, action scale/EMA, PPO noise, motor torque, reward, curriculum, termination, contact threshold는 바꾸지 않는다. `0.75m/s`는 첫 탐색에서 지속적인 침투를 과도하게 허용할 위험을 줄이기 위한 보수적 25% clamp다. 동일 유효질량을 가정한 correction-velocity 제곱비는 `0.75²/1.0²=0.5625`지만, 이는 탐색 직관일 뿐 로봇 운동에너지·충격량·접촉력의 상한이나 force 감소량 예측이 아니다.
+- 먼저 모든 rigid link의 live USD readback이 `0.75m/s`, articulation이 `8/1`인지 fail-closed로 확인한다. 같은 seed·pose·action·dt CPU probe를 독립 실행 3회 수행하고, primary gate는 세 실행 모두 오른쪽 옆면 reset-hold peak가 rev12 기준 `9.332860946655273 BW` 이하인 것이다. 기존 JSON predicate `no_numeric_invalid_termination`, `no_hard_joint_limit_termination`, `root_height_above_2cm`도 모두 true이고 전체 false-check 목록이 비어야 한다. force body/time, root pose·linear/angular velocity, minimum separation, joint torque/limit, normal-force trajectory를 함께 보존한다.
+- 한 번이라도 primary 또는 safety gate가 실패하면 rev14를 기각하고 GPU·PPO를 열지 않는다. CPU `3/3` 통과 뒤에만 GPU `3/3 → scratch Gate01 → scratch Gate10`을 순차 실행한다. `max_contact_impulse`는 peak를 직접 잘라 실패를 가릴 수 있고, stabilization/contact offset/rest offset은 영향 범위가 넓어 이번 단일변수 후보에서 제외했다.
+- 근거: [Isaac Lab rigid-body schema](https://isaac-sim.github.io/IsaacLab/v2.0.0/source/api/lab/isaaclab.sim.schemas.html), [PhysX PxRigidBody API](https://nvidia-omniverse.github.io/PhysX/physx/5.3.1/_api_build/class_px_rigid_body.html), [PhysX articulation solver API](https://nvidia-omniverse.github.io/PhysX/physx/5.3.0/_api_build/class_px_articulation_reduced_coordinate.html).
 
 #### 단계별 영상·공개 정책
 

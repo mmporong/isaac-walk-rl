@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "experiment": "rev13_cpu_runtime_failure",
+  "status": "rejected",
+  "diagnostic_only": true,
+  "public_claim_eligible": false,
+  "learned_policy_qualified": false,
+  "qualification_status": "not_run",
+  "conclusion": "rev13 is rejected before GPU, Gate01, Gate10, or PPO",
+  "lineage": {
+    "source_commit": "e3734b728fcf546fea4ee05b9c8733800d6ab536",
+    "source_bundle_sha256": "df6c6aa46181ca033791fb11ccfa76d9eab8643822da1c6cdc2e288409cabe3d",
+    "contract_sha256": "ebee855c503c77bce93c0884535d4fdf66ee5a01538fa59eef0e1b7aabba7558",
+    "actual_articulation_solver_iterations": {
+      "position": 8,
+      "velocity": 1
+    }
+  },
+  "repeatability": {
+    "required_runs": 3,
+    "validated_runs": 3,
+    "distinct_execution_ids": true,
+    "identical_failure": true,
+    "inputs": [
+      {
+        "path": "reports/runs/g009_r0_runtime_probe_rev13_cpu_rep01_s42.json",
+        "sha256": "c4ffa272f3974f059e7b281452c40d4685ade6ef2dcfd626496f9f4e67ff38a3",
+        "execution_id": "9e66cca532f64a7eaba06b615f38f37d",
+        "started_at_utc": "2026-08-28T11:29:14.327058Z",
+        "peak_bodyweights": 15.97161865234375,
+        "peak_body": "base",
+        "peak_time_s": 0.645,
+        "peak_physics_step": 129,
+        "failed_checks": [
+          "nonfoot_peak_force_bounded"
+        ],
+        "numeric_invalid_terminations": 0,
+        "hard_joint_limit_terminations": 0
+      },
+      {
+        "path": "reports/runs/g009_r0_runtime_probe_rev13_cpu_rep02_s42.json",
+        "sha256": "afaa40541b5189db1d77626a875fcdcdc614a4469176b8e4b1a3c5affc283361",
+        "execution_id": "be56124aee694addbf0eebc7305b88d4",
+        "started_at_utc": "2026-08-28T11:30:24.915327Z",
+        "peak_bodyweights": 15.97161865234375,
+        "peak_body": "base",
+        "peak_time_s": 0.645,
+        "peak_physics_step": 129,
+        "failed_checks": [
+          "nonfoot_peak_force_bounded"
+        ],
+        "numeric_invalid_terminations": 0,
+        "hard_joint_limit_terminations": 0
+      },
+      {
+        "path": "reports/runs/g009_r0_runtime_probe_rev13_cpu_rep03_s42.json",
+        "sha256": "4cee3f906921dbc9e4ab123ae5c2ffe1559b7717f8a6b316415285061dd5635b",
+        "execution_id": "263d6b8c7430441fb4eb26c4afe1abd3",
+        "started_at_utc": "2026-08-28T11:30:44.921819Z",
+        "peak_bodyweights": 15.97161865234375,
+        "peak_body": "base",
+        "peak_time_s": 0.645,
+        "peak_physics_step": 129,
+        "failed_checks": [
+          "nonfoot_peak_force_bounded"
+        ],
+        "numeric_invalid_terminations": 0,
+        "hard_joint_limit_terminations": 0
+      }
+    ]
+  },
+  "failure": {
+    "failed_check": "nonfoot_peak_force_bounded",
+    "threshold_bodyweights": 15.0,
+    "right_side_reset_pose_hold_peak_bodyweights": 15.97161865234375,
+    "peak_body": "base",
+    "peak_time_s": 0.645,
+    "peak_physics_step": 129,
+    "numeric_invalid_terminations": 0,
+    "hard_joint_limit_terminations": 0
+  },
+  "rev12_comparison": {
+    "input": {
+      "path": "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep01_s42.json",
+      "sha256": "fb8bad2190389c3e964d1807a0f54ea700ddfd6919765105c04b93bfa8c7dd75"
+    },
+    "solver_velocity_iterations": 0,
+    "right_side_reset_pose_hold_peak_bodyweights": 9.332860946655273,
+    "absolute_increase_bodyweights": 6.638757705688477,
+    "relative_increase_percent": 71.1331470985613,
+    "right_side_reset_pose_hold": {
+      "max_root_angular_speed_rad_s": {
+        "rev12": 6.586225986480713,
+        "rev13": 9.659443855285645,
+        "relative_change_percent": 46.661287892538226
+      },
+      "max_joint_speed_rad_s": {
+        "rev12": 10.620381355285645,
+        "rev13": 7.199735164642334,
+        "relative_change_percent": -32.208317914505905
+      },
+      "excess_contact_delta_v_m_s": {
+        "rev12": 1.1110174655914307,
+        "rev13": 1.0345003604888916,
+        "relative_change_percent": -6.887119912359485
+      },
+      "peak_step_excess_contact_delta_v_m_s": {
+        "rev12": 0.9402111768722534,
+        "rev13": 0.8841875791549683,
+        "relative_change_percent": -5.958618563082352
+      }
+    },
+    "peak_time_s": {
+      "rev12": 0.655,
+      "rev13": 0.645
+    },
+    "careful_interpretation": "The lower total and peak-step excess delta-v do not indicate improvement: the force peak and root angular-rate peak increased. This is consistent with, but does not prove, a more temporally concentrated and rotational contact response."
+  },
+  "blocked_stages": {
+    "gpu_runtime": true,
+    "gate01": true,
+    "gate10": true,
+    "ppo_training": true
+  }
+}

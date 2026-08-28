@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "rejected",
+  "diagnostic_only": true,
+  "telemetry_animation": true,
+  "camera_footage": false,
+  "public_claim_eligible": false,
+  "qualification_status": "not_run",
+  "learned_policy_qualified": false,
+  "ppo_training_run": false,
+  "source": {
+    "path": "reports/runs/g009_r0_runtime_probe_rev13_cpu_failure_synthesis_s42.json",
+    "sha256": "020398b3af73b8911021f23eac125807288aa839147b8a31b69991db8ae19bc6"
+  },
+  "png": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev13_cpu_runtime_failure.png",
+    "sha256": "6e39bbd56d67ffca5239c3bb9e4fc09b949a62c7f01b22150c6cf7b8acb4d58d",
+    "bytes": 107617,
+    "width": 1280,
+    "height": 720
+  },
+  "gif": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev13_cpu_runtime_failure.gif",
+    "sha256": "cf1e7103b79d6e2a81a177e35b259ce4f14cde6d676e421013a95ae80101bc7d",
+    "bytes": 89506,
+    "frames": 6,
+    "duration_ms": 5400
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev13_cpu_runtime_failure_s42.mp4",
+    "sha256": "2e6c38bc9ce2df3b6f50113985433d23f3f06645371e13d8cf9f0dc44940fcd0",
+    "bytes": 86534,
+    "tracked_in_git": false,
+    "codec": "h264",
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "duration_seconds": 5.4
+  },
+  "labels": [
+    "PUBLIC DIAGNOSTIC",
+    "TELEMETRY ANIMATION",
+    "NOT CAMERA FOOTAGE",
+    "NO PPO",
+    "REJECTED"
+  ]
+}
