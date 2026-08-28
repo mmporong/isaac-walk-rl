@@ -40,6 +40,38 @@ CONTROL_DECIMATION = 4
 VELOCITY_SOLVER_ITERATIONS = 0
 MAX_DEPENETRATION_VELOCITY_M_S = 1.0
 CALLBACK_DT_ABS_TOLERANCE_S = 2.5e-10
+MASS_ACCUMULATION_CONTRACT = {
+    "component_source": "event_readback:_g009_r0_body_mass",
+    "component_storage_dtype": "torch.float32",
+    "serialized_component_dtype": "python.float",
+    "canonical_sum_method": "math.fsum(serialized_float32_components)",
+    "runtime_native_reduction": "not_serialized_and_not_used",
+    "decision_uses_native_total": False,
+}
+MASS_EVIDENCE_FIELDS = (
+    "mass_accumulation",
+    "body_mass_kg",
+    "all_env_body_mass_kg",
+    "total_mass_kg",
+    "all_env_total_mass_kg",
+    "body_weight_n",
+)
+CLOCK_EVIDENCE_FIELDS = (
+    "source",
+    "evidence_kind",
+    "contract_expected_dt_s",
+    "callback_expected_float32_dt_s",
+    "callback_dt_abs_tolerance_s",
+    "observed_dt_min_s",
+    "observed_dt_max_s",
+    "max_abs_error_s",
+    "mismatch_count",
+    "nonfinite_count",
+    "first_mismatch",
+    "callback_count",
+    "expected_callback_count",
+    "passed",
+)
 ARM_POSITION_ITERATIONS = {"A": 8, "B": 16}
 HISTORICAL_REFERENCES = {
     "A": {
@@ -283,6 +315,13 @@ def _float32(value: float) -> float:
     return struct.unpack("f", struct.pack("f", value))[0]
 
 
+def _is_exact_float32(value: float) -> bool:
+    try:
+        return _float32(value) == value
+    except (OverflowError, struct.error):
+        return False
+
+
 class PhysicsStepClock:
     """Count pre-step notifications and audit their C++ float32 dt values."""
 
@@ -362,9 +401,77 @@ class PhysicsStepClock:
 class PhysicsStepClockEvidenceError(RuntimeError):
     """Carry partial clock evidence into the fail-closed report."""
 
-    def __init__(self, evidence: dict[str, Any]) -> None:
+    def __init__(
+        self,
+        evidence: dict[str, Any],
+        mass_evidence: dict[str, Any] | None = None,
+    ) -> None:
         super().__init__("physics pre-step notification clock validation failed")
         self.evidence = evidence
+        self.mass_evidence = mass_evidence
+
+
+class MassEvidenceError(RuntimeError):
+    """Carry canonical mass evidence while preserving the original failure."""
+
+    def __init__(self, evidence: dict[str, Any], original_error: BaseException) -> None:
+        super().__init__(str(original_error))
+        self.evidence = evidence
+        self.original_error = original_error
+
+
+class DiagnosticEvidenceError(RuntimeError):
+    """Preserve completed diagnostic preflight evidence on report rejection."""
+
+    def __init__(
+        self,
+        original_error: BaseException,
+        *,
+        physics_step_clock: dict[str, Any],
+        mass_evidence: dict[str, Any],
+    ) -> None:
+        super().__init__(str(original_error))
+        self.original_error = original_error
+        self.physics_step_clock = physics_step_clock
+        self.mass_evidence = mass_evidence
+
+
+def build_mass_evidence(body_mass_tensor: Any, source_env_index: int) -> dict[str, Any]:
+    """Serialize native float32 components and compute canonical Python totals."""
+
+    require(str(body_mass_tensor.dtype) == "torch.float32", "mass dtype changed")
+    require(
+        body_mass_tensor.ndim == 2
+        and tuple(body_mass_tensor.shape) == (NUM_ENVS, 19)
+        and 0 <= source_env_index < NUM_ENVS,
+        "all-env body mass shape mismatch",
+    )
+    require(
+        bool(body_mass_tensor.isfinite().all().item())
+        and bool((body_mass_tensor > 0.0).all().item()),
+        "runtime body mass readback is invalid",
+    )
+    all_components = [
+        [float(value) for value in row]
+        for row in body_mass_tensor.detach().cpu().tolist()
+    ]
+    canonical_totals = [math.fsum(row) for row in all_components]
+    return {
+        "mass_accumulation": dict(MASS_ACCUMULATION_CONTRACT),
+        "body_mass_kg": all_components[source_env_index],
+        "all_env_body_mass_kg": all_components,
+        "total_mass_kg": canonical_totals[source_env_index],
+        "all_env_total_mass_kg": canonical_totals,
+        "body_weight_n": canonical_totals[source_env_index] * 9.81,
+    }
+
+
+def _allowlisted_evidence(
+    evidence: dict[str, Any] | None, fields: tuple[str, ...]
+) -> dict[str, Any] | None:
+    if evidence is None:
+        return None
+    return {field: evidence.get(field) for field in fields}
 
 
 def _contact_event_name(value: Any, contact_event_types: Any | None) -> str:
@@ -635,9 +742,8 @@ def physics_history_rows(
                 ),
                 "per_body_impulse_vector_n_s": impulses.detach().cpu().tolist(),
                 "base_force_magnitude_n": float(base_force_magnitude.item()),
-                "base_force_bodyweights": float(
-                    (base_force_magnitude / body_weight_n).item()
-                ),
+                "base_force_bodyweights": float(base_force_magnitude.item())
+                / body_weight_n,
                 "base_impulse_n_s": float((base_force_magnitude * physics_dt_s).item()),
                 "foot_total_force_n": float(foot_force_magnitude_sum.item()),
                 "foot_impulse_n_s": float(
@@ -768,6 +874,65 @@ def _close(left: float, right: float, label: str, tolerance: float = 1.0e-6) -> 
     )
 
 
+def validate_mass_evidence(topology: dict[str, Any]) -> None:
+    retired_native_fields = {
+        "native_total_mass_kg",
+        "native_minus_canonical_kg",
+        "all_env_native_total_mass_kg",
+        "all_env_native_minus_canonical_kg",
+    }
+    require(
+        set(MASS_EVIDENCE_FIELDS) <= set(topology)
+        and not retired_native_fields & set(topology),
+        "mass evidence fields mismatch",
+    )
+    require(
+        topology.get("mass_accumulation") == MASS_ACCUMULATION_CONTRACT,
+        "mass accumulation contract changed",
+    )
+    body_mass = _finite_vector(topology.get("body_mass_kg"), 19, "body mass")
+    require(
+        all(value > 0.0 and _is_exact_float32(value) for value in body_mass),
+        "body mass must be positive exact float32 values",
+    )
+    all_components = topology.get("all_env_body_mass_kg")
+    require(
+        isinstance(all_components, list) and len(all_components) == NUM_ENVS,
+        "all-env body mass shape mismatch",
+    )
+    all_components = cast(list[Any], all_components)
+    all_components = [
+        _finite_vector(row, 19, "all-env body mass") for row in all_components
+    ]
+    require(
+        all(
+            value > 0.0 and _is_exact_float32(value)
+            for row in all_components
+            for value in row
+        ),
+        "all-env body mass must be positive exact float32 values",
+    )
+    require(
+        body_mass == all_components[SOURCE_ENV_INDEX],
+        "controlled-cell body mass row mismatch",
+    )
+    canonical_totals = [math.fsum(row) for row in all_components]
+    reported_canonical = _finite_vector(
+        topology.get("all_env_total_mass_kg"), NUM_ENVS, "all-env canonical total"
+    )
+    for env_index, canonical in enumerate(canonical_totals):
+        _close(
+            reported_canonical[env_index],
+            canonical,
+            "all-env canonical total",
+            1.0e-12,
+        )
+    total_mass = _finite_number(topology.get("total_mass_kg"), "total mass")
+    _close(total_mass, canonical_totals[SOURCE_ENV_INDEX], "total mass", 1.0e-12)
+    body_weight = _finite_number(topology.get("body_weight_n"), "body weight")
+    _close(body_weight, total_mass * 9.81, "body weight", 1.0e-12)
+
+
 def validate_physics_telemetry(report: dict[str, Any]) -> None:
     """Recompute every physics-row force, impulse and body-weight derivative."""
 
@@ -784,8 +949,11 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
             "foot_force_body_ids",
             "nonfoot_force_body_ids",
             "body_mass_body_names",
+            "mass_accumulation",
             "body_mass_kg",
+            "all_env_body_mass_kg",
             "total_mass_kg",
+            "all_env_total_mass_kg",
             "body_weight_n",
         },
         "runtime topology keys mismatch",
@@ -811,12 +979,8 @@ def validate_physics_telemetry(report: dict[str, Any]) -> None:
         and set(body_names) == set(link_body_names),
         "force/link/mass body topology mismatch",
     )
-    body_mass = _finite_vector(topology.get("body_mass_kg"), 19, "body mass")
-    require(all(value > 0.0 for value in body_mass), "body mass must be positive")
-    total_mass = _finite_number(topology.get("total_mass_kg"), "total mass")
-    _close(total_mass, sum(body_mass), "total mass")
+    validate_mass_evidence(topology)
     body_weight = _finite_number(topology.get("body_weight_n"), "body weight")
-    _close(body_weight, total_mass * 9.81, "body weight")
     base_id = topology.get("base_force_body_id")
     foot_ids = topology.get("foot_force_body_ids")
     nonfoot_ids = topology.get("nonfoot_force_body_ids")
@@ -2092,16 +2256,22 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         nonfoot_ids = [
             index for index, name in enumerate(body_names) if not name.endswith("_foot")
         ]
-        body_mass_kg = raw_env._g009_r0_body_mass[SOURCE_ENV_INDEX]
-        require(
-            body_mass_kg.shape == (len(link_body_names),)
-            and bool(body_mass_kg.isfinite().all().item())
-            and bool((body_mass_kg > 0.0).all().item()),
-            "runtime body mass readback is invalid",
+        mass_evidence = build_mass_evidence(
+            raw_env._g009_r0_body_mass, SOURCE_ENV_INDEX
         )
-        total_mass_kg = float(body_mass_kg.sum().item())
-        all_env_total_mass_kg = raw_env._g009_r0_body_mass.sum(dim=1)
-        max_nonfoot_force_bw = torch.zeros(NUM_ENVS, device=raw_env.device)
+        try:
+            validate_mass_evidence(mass_evidence)
+        except Exception as error:
+            raise MassEvidenceError(mass_evidence, error) from error
+        total_mass_kg = float(mass_evidence["total_mass_kg"])
+        all_env_total_mass_kg = torch.tensor(
+            mass_evidence["all_env_total_mass_kg"],
+            dtype=torch.float64,
+            device=raw_env.device,
+        )
+        max_nonfoot_force_bw = torch.zeros(
+            NUM_ENVS, dtype=torch.float64, device=raw_env.device
+        )
         max_nonfoot_force_step = torch.full(
             (NUM_ENVS,), -1, dtype=torch.long, device=raw_env.device
         )
@@ -2138,7 +2308,9 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
             all_force_magnitudes = history.norm(dim=-1)
             nonfoot_history = all_force_magnitudes[:, :, nonfoot_ids]
             step_force_n, flat_index = nonfoot_history.reshape(NUM_ENVS, -1).max(dim=1)
-            step_force_bw = step_force_n / (all_env_total_mass_kg * 9.81)
+            step_force_bw = step_force_n.to(torch.float64) / (
+                all_env_total_mass_kg * 9.81
+            )
             new_force_max = step_force_bw > max_nonfoot_force_bw
             history_slot = flat_index // len(nonfoot_ids)
             nonfoot_offset = flat_index % len(nonfoot_ids)
@@ -2188,7 +2360,7 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         contact_authority = authority.snapshot(args.device)
         clock_snapshot = physics_clock.snapshot()
         if clock_snapshot["passed"] is not True:
-            raise PhysicsStepClockEvidenceError(clock_snapshot)
+            raise PhysicsStepClockEvidenceError(clock_snapshot, mass_evidence)
         if normalized_device == "cpu":
             require(
                 contact_authority["error"] is None,
@@ -2295,9 +2467,7 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
                 "foot_force_body_ids": foot_ids,
                 "nonfoot_force_body_ids": nonfoot_ids,
                 "body_mass_body_names": link_body_names,
-                "body_mass_kg": body_mass_kg.detach().cpu().tolist(),
-                "total_mass_kg": total_mass_kg,
-                "body_weight_n": total_mass_kg * 9.81,
+                **mass_evidence,
             },
             "telemetry_timing": {
                 "physics_dt_s": float(raw_env.physics_dt),
@@ -2332,7 +2502,14 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
                 )
             ),
         }
-        validate_report_contract(report)
+        try:
+            validate_report_contract(report)
+        except Exception as error:
+            raise DiagnosticEvidenceError(
+                error,
+                physics_step_clock=clock_snapshot,
+                mass_evidence=mass_evidence,
+            ) from error
         return report
     finally:
         contact_subscription = None
@@ -2380,9 +2557,27 @@ def failure_envelope(
             "clean": False,
             "error": f"{type(envelope_error).__name__}: {envelope_error}",
         }
-    clock_evidence = (
-        error.evidence if isinstance(error, PhysicsStepClockEvidenceError) else None
+    original_error = (
+        error.original_error
+        if isinstance(error, (MassEvidenceError, DiagnosticEvidenceError))
+        else error
     )
+    clock_evidence = (
+        error.evidence
+        if isinstance(error, PhysicsStepClockEvidenceError)
+        else error.physics_step_clock
+        if isinstance(error, DiagnosticEvidenceError)
+        else None
+    )
+    mass_evidence = (
+        error.evidence
+        if isinstance(error, MassEvidenceError)
+        else error.mass_evidence
+        if isinstance(error, (PhysicsStepClockEvidenceError, DiagnosticEvidenceError))
+        else None
+    )
+    clock_evidence = _allowlisted_evidence(clock_evidence, CLOCK_EVIDENCE_FIELDS)
+    mass_evidence = _allowlisted_evidence(mass_evidence, MASS_EVIDENCE_FIELDS)
     return {
         "schema_version": "g009.r0.rev16.backend_divergence_failure.v1",
         "goal_id": "g009",
@@ -2410,7 +2605,11 @@ def failure_envelope(
         "governance": governance(),
         "diagnostic_capture_complete": False,
         "physics_step_clock": clock_evidence,
-        "error": {"type": type(error).__name__, "message": str(error)},
+        "mass_evidence": mass_evidence,
+        "error": {
+            "type": type(original_error).__name__,
+            "message": str(original_error),
+        },
         "failure_envelope_errors": envelope_errors,
     }
 

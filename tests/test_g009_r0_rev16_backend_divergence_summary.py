@@ -4,6 +4,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import math
 import uuid
 from pathlib import Path
 
@@ -101,8 +102,33 @@ LINK_BODY_NAMES = [
 ]
 
 
-def _physics_rows(peak_step: int, peak_bw: float, neighbor_bw: float) -> list[dict]:
-    body_weight = 19.0 * 9.81
+def _mass_evidence() -> dict:
+    all_components = [[1.0] * 19 for _ in range(8)]
+    all_components[7][0] = 2.0
+    canonical_totals = [math.fsum(row) for row in all_components]
+    return {
+        "mass_accumulation": dict(SUMMARY.raw_probe.MASS_ACCUMULATION_CONTRACT),
+        "body_mass_kg": all_components[7].copy(),
+        "all_env_body_mass_kg": all_components,
+        "total_mass_kg": canonical_totals[7],
+        "all_env_total_mass_kg": canonical_totals,
+        "body_weight_n": canonical_totals[7] * 9.81,
+    }
+
+
+def _forge_non_float32_mass_component(topology: dict) -> None:
+    forged = 2.000000000000001
+    topology["body_mass_kg"][0] = forged
+    topology["all_env_body_mass_kg"][7][0] = forged
+    canonical = math.fsum(topology["all_env_body_mass_kg"][7])
+    topology["all_env_total_mass_kg"][7] = canonical
+    topology["total_mass_kg"] = canonical
+    topology["body_weight_n"] = canonical * 9.81
+
+
+def _physics_rows(
+    peak_step: int, peak_bw: float, neighbor_bw: float, body_weight: float
+) -> list[dict]:
     rows = RAW_TEST._zero_physics_rows()
     for row in rows:
         base_bw = peak_bw if row["physics_step"] == peak_step else neighbor_bw
@@ -141,6 +167,7 @@ def _report(arm: str, device: str, replicate: int) -> tuple[dict, dict[str, str]
     contract = _contract(arm, device)
     path = f"reports/runs/rev16_{arm}_{device.replace(':', '_')}_{replicate}.json"
     physics_clock = RAW_TEST._valid_clock_snapshot()
+    mass_evidence = _mass_evidence()
     predecessor_requirement = SUMMARY.PREDECESSOR_REQUIREMENTS[(arm, device)]
     predecessor = None
     if predecessor_requirement is not None:
@@ -248,9 +275,7 @@ def _report(arm: str, device: str, replicate: int) -> tuple[dict, dict[str, str]
             "foot_force_body_ids": list(range(15, 19)),
             "nonfoot_force_body_ids": list(range(15)),
             "body_mass_body_names": LINK_BODY_NAMES.copy(),
-            "body_mass_kg": [1.0] * 19,
-            "total_mass_kg": 19.0,
-            "body_weight_n": 19.0 * 9.81,
+            **mass_evidence,
         },
         "telemetry_timing": {
             "physics_dt_s": 0.005,
@@ -259,7 +284,9 @@ def _report(arm: str, device: str, replicate: int) -> tuple[dict, dict[str, str]
             "history_order": "newest_to_oldest",
             "peak_window_radius_physics_steps": 8,
         },
-        "physics_substep_telemetry": _physics_rows(peak_step, peak_bw, neighbor_bw),
+        "physics_substep_telemetry": _physics_rows(
+            peak_step, peak_bw, neighbor_bw, mass_evidence["body_weight_n"]
+        ),
         "control_step_telemetry": _control_rows(speed),
         "active_terminations": [
             "time_out",
@@ -564,6 +591,30 @@ def test_only_complete_sequential_group_counts_are_allowed(count: int) -> None:
 def test_raw_report_mutations_fail_closed(mutation, _message: str) -> None:
     entries = _entries(3)
     mutation(entries[0][0])
+    with pytest.raises(ValueError):
+        SUMMARY.synthesize_loaded(entries)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        _forge_non_float32_mass_component,
+        lambda topology: topology.__setitem__("native_total_mass_kg", 20.0),
+        lambda topology: topology.__setitem__("native_minus_canonical_kg", 0.0),
+        lambda topology: topology.__setitem__(
+            "total_mass_kg", topology["total_mass_kg"] + 1.0
+        ),
+        lambda topology: topology["mass_accumulation"].__setitem__(
+            "canonical_sum_method", "sum(serialized_components)"
+        ),
+    ],
+)
+def test_mass_provenance_and_canonical_derivation_mutations_fail_closed(
+    mutation,
+) -> None:
+    entries = _entries(3)
+    mutation(entries[0][0]["runtime_topology"])
+
     with pytest.raises(ValueError):
         SUMMARY.synthesize_loaded(entries)
 

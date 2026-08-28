@@ -442,6 +442,9 @@ def _complete_report(
     ]
     link_body_names = link_body_names or body_names.copy()
     joint_names = [f"joint_{index}" for index in range(12)]
+    mass_evidence = PROBE.build_mass_evidence(
+        torch.ones((8, 19), dtype=torch.float32), 7
+    )
     return {
         "schema_version": "g009.r0.rev16.backend_divergence.v1",
         "goal_id": "g009",
@@ -490,9 +493,7 @@ def _complete_report(
             "foot_force_body_ids": list(range(15, 19)),
             "nonfoot_force_body_ids": list(range(15)),
             "body_mass_body_names": link_body_names,
-            "body_mass_kg": [1.0] * 19,
-            "total_mass_kg": 19.0,
-            "body_weight_n": 19.0 * 9.81,
+            **mass_evidence,
         },
         "telemetry_timing": {
             "physics_dt_s": 0.005,
@@ -728,6 +729,89 @@ def test_report_contract_rejects_mass_order_not_bound_to_robot_links() -> None:
 
     with pytest.raises(ValueError, match="force/link/mass body topology mismatch"):
         PROBE.validate_report_contract(report)
+
+
+def test_canonical_mass_fsum_excludes_large_native_float32_reduction_error() -> None:
+    components = torch.tensor([1.0e8, *([1.0] * 18)], dtype=torch.float32)
+    masses = components.repeat(8, 1)
+    evidence = PROBE.build_mass_evidence(masses, 7)
+
+    PROBE.validate_mass_evidence(evidence)
+
+    native_total = float(masses[7].sum().item())
+    assert evidence["total_mass_kg"] == 100000018.0
+    assert native_total == 100000000.0
+    assert abs(native_total - evidence["total_mass_kg"]) > 1.0e-6
+    force_history = torch.zeros((4, 19, 3), dtype=torch.float32)
+    force_history[:, 0, 0] = 1000.0
+    rows = PROBE.physics_history_rows(
+        force_history,
+        control_step=1,
+        physics_dt_s=0.005,
+        body_names=["base", *[f"link_{index}" for index in range(1, 19)]],
+        nonfoot_ids=list(range(19)),
+        foot_ids=[],
+        base_body_id=0,
+        total_mass_kg=evidence["total_mass_kg"],
+    )
+    canonical_bw = 1000.0 / (evidence["total_mass_kg"] * 9.81)
+    native_bw = 1000.0 / (native_total * 9.81)
+    assert rows[0]["base_force_bodyweights"] == pytest.approx(canonical_bw, abs=1.0e-15)
+    assert rows[0]["base_force_bodyweights"] != native_bw
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda evidence: evidence.__setitem__(
+            "total_mass_kg", evidence["total_mass_kg"] + 1.0
+        ),
+        lambda evidence: evidence["body_mass_kg"].__setitem__(0, 2.0),
+        lambda evidence: evidence["mass_accumulation"].__setitem__(
+            "canonical_sum_method", "sum"
+        ),
+        lambda evidence: evidence["mass_accumulation"].__setitem__(
+            "component_storage_dtype", "torch.float64"
+        ),
+        lambda evidence: evidence["all_env_total_mass_kg"].pop(),
+        lambda evidence: evidence["all_env_total_mass_kg"].__setitem__(0, True),
+    ],
+)
+def test_mass_evidence_rejects_forged_components_methods_and_derivations(
+    mutation,
+) -> None:
+    evidence = PROBE.build_mass_evidence(torch.ones((8, 19), dtype=torch.float32), 7)
+    mutation(evidence)
+
+    with pytest.raises(ValueError):
+        PROBE.validate_mass_evidence(evidence)
+
+
+@pytest.mark.parametrize("forged_component", [1.000000000000001, -1000.0, 1.0e100])
+def test_mass_evidence_rejects_rehashed_non_float32_or_nonpositive_components(
+    forged_component: float,
+) -> None:
+    evidence = PROBE.build_mass_evidence(torch.ones((8, 19), dtype=torch.float32), 7)
+    evidence["body_mass_kg"][0] = forged_component
+    evidence["all_env_body_mass_kg"][7][0] = forged_component
+    canonical = math.fsum(evidence["all_env_body_mass_kg"][7])
+    evidence["total_mass_kg"] = canonical
+    evidence["all_env_total_mass_kg"][7] = canonical
+    evidence["body_weight_n"] = canonical * 9.81
+
+    with pytest.raises(ValueError, match="exact float32"):
+        PROBE.validate_mass_evidence(evidence)
+
+
+@pytest.mark.parametrize("forged_native_total", [-1000.0, 1.0e100, 20.0])
+def test_mass_evidence_rejects_retired_native_total_provenance(
+    forged_native_total: float,
+) -> None:
+    evidence = PROBE.build_mass_evidence(torch.ones((8, 19), dtype=torch.float32), 7)
+    evidence["native_total_mass_kg"] = forged_native_total
+
+    with pytest.raises(ValueError, match="mass evidence fields"):
+        PROBE.validate_mass_evidence(evidence)
 
 
 @pytest.mark.parametrize(
@@ -1046,6 +1130,65 @@ def test_failure_envelope_keeps_structured_partial_clock_evidence() -> None:
         "type": "PhysicsStepClockEvidenceError",
         "message": "physics pre-step notification clock validation failed",
     }
+
+
+def test_failure_envelope_preserves_mass_evidence_and_original_error() -> None:
+    evidence = PROBE.build_mass_evidence(torch.ones((8, 19), dtype=torch.float32), 7)
+    args = SimpleNamespace(
+        arm="A",
+        replicate_index=1,
+        headless=True,
+        device="cpu",
+        seed=42,
+        task=PROBE.DEFAULT_TASK,
+    )
+
+    report = PROBE.failure_envelope(
+        args,
+        {"execution_id": "fresh", "no_overwrite": True},
+        PROBE.MassEvidenceError(evidence, ValueError("forged canonical total")),
+    )
+
+    assert report["mass_evidence"] == evidence
+    assert report["physics_step_clock"] is None
+    assert report["error"] == {
+        "type": "ValueError",
+        "message": "forged canonical total",
+    }
+
+
+def test_failure_envelope_preserves_completed_clock_and_mass_without_telemetry() -> (
+    None
+):
+    clock = _valid_clock_snapshot()
+    mass = PROBE.build_mass_evidence(torch.ones((8, 19), dtype=torch.float32), 7)
+    args = SimpleNamespace(
+        arm="A",
+        replicate_index=1,
+        headless=True,
+        device="cpu",
+        seed=42,
+        task=PROBE.DEFAULT_TASK,
+    )
+
+    report = PROBE.failure_envelope(
+        args,
+        {"execution_id": "fresh", "no_overwrite": True},
+        PROBE.DiagnosticEvidenceError(
+            ValueError("final report rejected"),
+            physics_step_clock=clock,
+            mass_evidence=mass,
+        ),
+    )
+
+    assert report["physics_step_clock"] == clock
+    assert report["mass_evidence"] == mass
+    assert report["error"] == {
+        "type": "ValueError",
+        "message": "final report rejected",
+    }
+    assert "physics_substep_telemetry" not in report
+    assert "control_step_telemetry" not in report
 
 
 def test_contact_event_rejects_callback_stamp_and_lost_data_mutations() -> None:
