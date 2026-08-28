@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "public_claim_eligible": false,
+  "qualification_status": "not_run",
+  "source_report": "reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_fullstate_gpu_rep01_s42.json",
+  "source_report_sha256": "cfec0751b8f5825642cccdb8da9e38d61436fe265666b6311399623dfc657de7",
+  "event_count": 3,
+  "gif": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.gif",
+    "sha256": "b30dd623443b0132508a213ae6fb0d51216fe8644760eca5042f43b9790830c1",
+    "frame_count": 3,
+    "duration_ms_per_frame": 1800
+  },
+  "png": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png",
+    "sha256": "9821cbbb4c952dc86044d4aedd0f230afd0bd08cda21157fe70b8e47424f3fd8",
+    "width": 1280,
+    "height": 2160
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev12_gate10_fullstate_dynamics_s42.mp4",
+    "sha256": "6320c4d83f470dcb97ccc2e4c11a016aa38d19d32c6a902c7dfa1ab0a5d4c739",
+    "tracked_in_git": false,
+    "codec": "h264",
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "duration_seconds": 5.4
+  },
+  "learned_policy_qualified": false
+}

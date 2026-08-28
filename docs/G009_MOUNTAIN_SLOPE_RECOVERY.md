@@ -5,8 +5,8 @@
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0·S0 완료, G009-5 R0 rev9 진단 미디어 완료, rev10 CPU 안전 실패 재현, rev11 scratch `gate01` 안전 실패·fresh attribution `3/3` 완료, rev12 solver A/B runtime `6/6`·gate01 안전 통과 후 gate10 hard-limit 재발·단계 미디어 완료
-- 현재 한계: rev12 gate10은 iterations `1/2/3`에서 hard-limit 종료가 각각 한 건 상당 발생했고 stable support·upright hold·strict success도 전 구간 0이다. gate50은 닫았으며 승인된 learned checkpoint가 없으므로 전복 복구 성능은 주장하지 않는다.
+- 현재 단계: C0·S0 완료, G009-5 R0 rev9 진단 미디어 완료, rev10 CPU 안전 실패 재현, rev11 scratch `gate01` 안전 실패·fresh attribution `3/3` 완료, rev12 solver A/B runtime `6/6`·gate01 안전 통과 후 gate10 hard-limit 재발, full-state GPU fresh attribution `3/3`과 역학 진단 미디어 완료
+- 현재 한계: rev12 gate10은 iterations `1/2/3`에서 hard-limit 종료가 각각 한 건 상당 발생했고 stable support·upright hold·strict success도 전 구간 `0`이다. full-state 귀속은 세 사건에서 policy의 직접 lower-limit 명령 가설을 배제했지만 안전 실패를 해결한 것은 아니다. gate50은 닫았으며 `learned_policy_qualified=false`이므로 전복 복구 성능은 주장하지 않는다.
 
 ## 작업 순번
 
@@ -18,7 +18,7 @@
 | `G009-2` | `S0` | 6개 경사 × 4개 방위 analytic gate | `24/24` 통과 |
 | `G009-3` | `S0` | collision mesh, material, support-normal reset의 Isaac runtime readback | 완료 |
 | `G009-4` | `S0` | 5°·15°·25° 동일 조건 headless 재생 | 완료, 25°는 실패 경계 |
-| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | rev11 gate01 기각·귀속 완료, rev12 runtime `6/6`·gate01 통과 후 gate10 기각, 귀속 대기 |
+| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO | rev12 gate10 기각·full-state 귀속 완료, rev13 solver velocity `0 → 1` 검증 예정 |
 | `G009-6` | `S1-low` | 5°·10° 횡경사 WALK PPO | R0·calibration 뒤 실행 |
 
 이후 `S1-high`, 외란, residual terrain, 발별·공간 마찰, 경사 RECOVER와 link-mass를 순차적으로 연다. 전체 stage 순서는 [다음 학습과 검증 순서](#다음-학습과-검증-순서)에 있다.
@@ -32,7 +32,7 @@ G009는 산 비탈에서 보행 영상을 만드는 작업이 아니라, 경사�
 3. 네 발이 서로 다른 마찰을 받거나 공간 마찰 지도가 이동 경로에 따라 바뀌어도 복구한다.
 4. 외란을 버틴 경우와 실제 낙상 뒤 RECOVER 정책으로 전환한 경우를 구분해 평가한다.
 
-현재 C0·S0와 R0 rev12 학습 전 runtime calibration을 완료하고 첫 scratch safety gate까지 열었지만 gate10에서 중단했다. 경사 `0/5/10/15/20/25°`와 방위 `0/90/180/270°`를 교차한 24개 analytic cell이 모두 통과했다. R0는 네 canonical 전복 자세, P-RECOVER-83/C-RECOVER-107 관측, EMA action, 엄격 성공 latch, 할인 호환 잠재 보상, pose curriculum을 코드와 manifest로 고정했다. 최신 rev12 canonical 계약 SHA-256은 `d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0`이다. CPU·GPU runtime `6/6`과 `1,024×1` scratch gate01은 통과했지만 `1,024×10` gate10에서 hard-limit이 세 번 상당 재발했다.
+현재 C0·S0와 R0 rev12 학습 전 runtime calibration을 완료하고 첫 scratch safety gate까지 열었지만 gate10에서 중단했다. 경사 `0/5/10/15/20/25°`와 방위 `0/90/180/270°`를 교차한 24개 analytic cell이 모두 통과했다. R0는 네 canonical 전복 자세, P-RECOVER-83/C-RECOVER-107 관측, EMA action, 엄격 성공 latch, 할인 호환 잠재 보상, pose curriculum을 코드와 manifest로 고정했다. 최신 rev12 canonical 계약 SHA-256은 `d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0`이다. CPU·GPU runtime `6/6`과 `1,024×1` scratch gate01은 통과했지만 `1,024×10` gate10에서 hard-limit이 세 번 상당 재발했다. 이후 같은 10-iteration 경로를 fresh GPU 프로세스 세 번으로 다시 실행한 full-state attribution에서 사건 topology와 canonical full-event payload가 모두 재현됐고, 다음 단일변수 후보를 solver velocity iteration `0 → 1`로 좁혔다.
 
 이 결과는 지형 생성·계측 수학과 R0 실행 계약이 맞는다는 뜻이다. G009 정책이 경사에서 걷거나 전복 뒤 일어난다는 뜻은 아니다. 기존 G008 checkpoint는 S0 지형과 카메라 연결을 확인하는 시각 재생용이며, R0 rev1~rev8 체크포인트는 성공 경험이 없어 전부 기각했다.
 
@@ -47,7 +47,7 @@ G009는 산 비탈에서 보행 영상을 만드는 작업이 아니라, 경사�
 | S0 Isaac 구성·runtime | PASS | G009 7개 구성·spawn·reset 검사, G008 8개 회귀 검사, `5/15/25°` USD geometry·material readback | PPO 학습 성능 |
 | support-plane 수학 모듈 | 순수 수학 PASS | robust fit, fallback, 접평면 투영, COM, 지지 영역 수학 | 매 step RayCaster runtime 연결 완료 |
 | G009 WALK PPO | 미실행 | 학습 계약과 stage 순서가 사전 등록됨 | 경사 횡단 성공 |
-| G009 RECOVER PPO | rev12 runtime `6/6`, gate01 PASS, gate10 safety FAIL | scratch rev1~rev9, 실패 동작 증거, rev10 CPU 실패 재현, rev11 gate01 실패 미디어·fresh attribution, rev12 runtime·gate01·gate10 단계 미디어 | gate10 세 사건의 joint/contact 귀속, learned checkpoint의 전복 복구 성공, 공식 qualification |
+| G009 RECOVER PPO | rev12 runtime `6/6`, gate01 PASS, gate10 safety FAIL, full-state attribution `3/3` | scratch rev1~rev9, 실패 동작 증거, rev10 CPU 실패 재현, rev11 gate01 실패 미디어·fresh attribution, rev12 runtime·gate01·gate10 단계 미디어, 세 hard-limit 사건의 joint·target·torque·contact 귀속 | hard-limit 제거, learned checkpoint의 전복 복구 성공, 공식 qualification |
 | supervisor | 미구현 | 상태 전이와 평가 계약이 정해짐 | `fall -> recover -> walk` 연결 성공 |
 | S0 미디어 녹화 | 완료 | 3개 로컬 MP4, 공개 GIF·PNG, capture JSON·summary·sidecar 해시 결합 | G009 WALK 성공 |
 | 실물 로봇 | 범위 밖 | Mini Pupper 재학습 원칙만 정함 | Go2 정책의 직접 전이, sim-to-real 완료 |
@@ -833,48 +833,46 @@ Gate10 run directory의 `model_0.pt` SHA-256은 Gate01 checkpoint와 정확히 �
 - [rev12 gate10 visual summary](../reports/runs/g009_5_r0_diag_rev12_gate10_01_prone_visual_summary.json)
 - [rev12 gate10 visual sidecar](../reports/runs/g009_5_r0_diag_rev12_gate10_01_prone_visual_evidence.json)
 
-Gate10은 기각하며 gate50은 실행하지 않는다. 다음 작업은 이 10-iteration PPO update 경로를 유지한 pre-reset attribution이다. env·joint·actual/hard-limit·action·EMA target·velocity·torque와 직전 contact history를 귀속하기 전에는 calf reset, noise, torque, tolerance, reward를 동시에 바꾸지 않는다.
+Gate10은 기각하며 gate50은 실행하지 않았다. 이어서 같은 10-iteration PPO update 경로를 유지한 pre-reset attribution으로 env·joint·actual/hard-limit·action·EMA target·velocity·torque와 직전 contact history를 귀속했다. 이 결과를 얻는 동안 calf reset, noise, torque, tolerance, reward는 바꾸지 않았다.
 
-#### Gate10 full-update attribution과 조건부 rev13
+#### Gate10 full-state attribution 결과와 rev13
 
-현재 확인된 근본 문제는 물리적 원인이 아니라 **Gate10 terminal 역학 상태가 aggregate scalar에서 소실된 계측 공백**이다. 기존 Gate01 attribution은 첫 rollout에서 PPO update 직전에 멈추므로 update 뒤 발생한 Gate10 세 사건을 볼 수 없다. 다음 도구는 같은 10-iteration 학습 경로를 끝까지 실행해야 한다.
+Gate10 aggregate scalar에 사라졌던 terminal 역학 상태를 복원하기 위해 동일한 10-iteration 학습 경로를 full-state attribution으로 다시 실행했다. 조건은 seed `42`, `cuda:0`, headless, scratch, `1,024 env × 24 step × 10 iterations`, 공식 `OnPolicyRunner.learn()`, action `240회`, PPO update `10회`다. 기존 `RecorderManager.record_pre_reset()`을 RNG-neutral하게 감싸고 각 사건 직전 16 control step의 action, EMA target, joint position·velocity, applied torque, root state, body contact를 기록했다.
 
-실행 불변 조건은 다음과 같다.
+첫 GPU fresh 3회 보고서는 원 gate10의 hard-limit series, checkpoint hash, action stream과 사건 topology를 재현해 **historical trajectory identity 근거**를 만들었다. 다만 당시 16-step ring에 EMA target·applied torque 전체 이력이 없어 인과 판정에는 부족했다. 이 세 보고서는 삭제하거나 성공 근거로 재해석하지 않고 provenance 자료로 남긴다.
 
-- 진단 도구를 포함한 새 clean commit에서 Gate10 training source binding 10개와 aggregate SHA-256 `2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa`를 원본과 같게 유지한다.
-- seed `42`, `cuda:0`, headless, `1,024 env × 24 step × 10 iterations`, scratch, `init_at_random_ep_len=True`를 유지한다.
-- 공식 `OnPolicyRunner.learn()`과 원 `alg.update()`를 호출한다. update wrapper는 원본을 반드시 실행하고 전후 policy·optimizer hash만 기록한다.
-- `alg.act()` 호출 수 `240`을 기준으로 `iteration=(act_count-1)//24`, `rollout_step=(act_count-1)%24+1`을 태깅한다.
-- active RecorderTerm은 `0`으로 두고 기존 `RecorderManager.record_pre_reset()` 인스턴스만 감싼다. observer 전후 CPU·CUDA RNG state가 같아야 한다.
+- [preliminary attribution rep01](../reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_gpu_rep01_s42.json)
+- [preliminary attribution rep02](../reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_gpu_rep02_s42.json)
+- [preliminary attribution rep03](../reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_gpu_rep03_s42.json)
 
-각 hard-limit 사건에서 저장할 항목은 다음과 같다.
+누락된 제어 이력을 추가한 뒤 별도 fresh GPU 프로세스 세 번을 다시 실행했다. 세 보고서는 서로 다른 execution ID를 가지면서도 action stream SHA-256 `5e119de4310c393d7b847d3d460c03533dbcc0ad82f9bcc090e6cf8b83880138`, 전체 `events` 배열의 canonical JSON SHA-256 `28fd03a57d50738cedff01af51ea5fb2f4f1a9ba9d81ee56d84103de9acb2df2`, 사건 수열 `[0,1,1,1,0,0,0,0,0,0]`, 아래 세 사건을 동일하게 재현했다. canonicalization은 `json.dumps(events, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)`로 고정했고 검증 스크립트가 세 보고서에서 직접 다시 계산한다. 모든 attribution·historical identity check가 true였고 `model_0.pt`와 `model_9.pt` hash도 원 gate10과 일치했다.
 
-1. iteration, rollout step, global action count, episode step, simulation step, env index, pose
-2. 12개 joint actual/lower/upper, 위반 joint·방향·raw excess·`0.01rad` tolerance 밖 excess
-3. wrapper clip 전 PPO sample, clip 후 action, EMA processed target
-4. joint position·velocity·applied torque와 root pose·linear/angular velocity
-5. 기존 contact sensor 설정을 바꾸지 않은 body별 `net_forces_w_history`
-6. 별도 RNG-neutral ring buffer의 직전 16 control-step action·joint·root·body contact summary
-7. dominant foot/non-foot body, force/BW, 위반 joint와 같은 leg chain인지 여부
+| iteration / rollout | env / episode step | 위반 | tolerance 밖 excess | 16-step EMA target 최소 여유 | 16-step applied torque | terminal same-leg contact |
+| --- | --- | --- | ---: | ---: | --- | ---: |
+| `1 / 5` | `338 / 381` | `FR_calf_joint` lower | `0.001749rad` | `0.744803rad` | `2.797093~23.5Nm`, 복원 방향 `16/16` | `FR_foot`, `4.257184 BW` |
+| `2 / 19` | `501 / 26` | `RL_calf_joint` lower | `0.003106rad` | `0.592072rad` | `4.457584~17.263412Nm`, 복원 방향 `16/16` | `RL_foot`, `3.023106 BW` |
+| `3 / 5` | `629 / 71` | `RL_calf_joint` lower | `0.001625rad` | `0.573438rad` | `0.461164~22.377861Nm`, 복원 방향 `16/16` | `RL_foot`, `3.155098 BW` |
 
-Fail-closed 조건은 termination `(iteration, rollout_step, env)` multiset과 attribution multiset exact match, 원 hard-limit predicate 재계산, vector finite, action clamp·EMA 재계산, action `240회`, PPO update `10회`다. 원 hard series `[0,1/24,1/24,1/24,0,0,0,0,0,0]`와 아래 checkpoint 두 개가 모두 같으면 원 Gate10 trajectory identity를 강하게 확인할 수 있다.
+세 사건은 모두 calf lower-limit 위반이었다. 그러나 48개 이력 step의 EMA target은 hard lower limit보다 최소 `0.573438rad` 안쪽에 있었고 applied calf torque도 전부 관절을 limit 반대 방향으로 되돌리는 부호였다. 따라서 **이 세 사건에서 policy가 lower limit 쪽 target을 직접 명령했다는 가설은 배제한다.** 반대로 사건 직전 calf의 lower 방향 속도와 terminal same-leg foot의 `3.023~4.257 BW` 접촉이 함께 관측돼 impact·inertia와 constraint-resolution overshoot 가설을 지지한다. 이는 귀속 결과이지 rev12 안전 통과나 learned policy qualification이 아니다.
 
-- `model_0.pt`: `52f45ef5ae9d3c98ced51132e7fb6b5e8d78d0721a7efd9657f3fdc46ea17017`
-- `model_9.pt`: `b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2`
+calf reset `-2.37 → -2.34rad` 변경은 현재 증거로 승인하지 않는다. 사건의 episode step은 `26`, `71`, `381`이고, 16-step ring 시작 위치는 각각 `-2.228901`, `-1.949555`, `-1.971275rad`였다. reset 직후 여유 부족과 사건 사이 직접 연결이 관측되지 않았고 16-step 창만으로 reset 영향 자체를 배제할 수도 없다. 따라서 초기 각도를 `0.03rad` 펴는 변경이 세 사건을 줄인다는 근거가 생길 때까지 다음 revision으로 채택하지 않는다.
 
-하나라도 다르면 `historical_event_identity_confirmed=false`인 동일 조건 fresh reproduction으로만 기록한다. 같은 계측을 새 프로세스 세 번 실행해 사건 topology가 반복되는지도 확인한다.
+다음 rev13은 articulation solver **velocity iteration만 `0 → 1`**로 바꾸는 단일변수 실험이며 현재 `planned_not_executed` 상태다. 이 후보는 [PhysX articulation API](https://nvidia-omniverse.github.io/PhysX/physx/5.3.0/_api_build/class_px_articulation_reduced_coordinate.html)가 교차한 body의 depenetration이 지나치게 격렬할 때 velocity iteration 증가를 제시하는 점과, 세 사건에서 복원 target·torque와 큰 same-leg 접촉이 동시에 관측된 점을 근거로 선택했다. position iteration `8`, calf reset `-2.37rad`, physics/control timestep `0.005/0.02s`, action scale/EMA `0.70/0.2`, PPO noise `0.5`, torque `23.5Nm`, hard-limit tolerance `0.01rad`, reward·curriculum·observation noise는 그대로 둔다. 검증 순서는 `CPU runtime 3회 → GPU runtime 3회 → scratch Gate01 → scratch Gate10`이다. 모든 hard-limit·numeric-invalid가 `0`일 때만 Gate50을 연다. Gate01이나 Gate10에서 한 건이라도 재발하면 gate50은 실행하지 않고 rev13을 기각한다.
 
-rev13 calf reset `-2.37 → -2.34rad`는 다음 조건을 모두 만족할 때만 채택한다.
+![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
 
-- 모든 사건이 calf lower-limit이다.
-- 사건 순간 EMA target은 limit 안쪽이고 applied torque는 복원 방향이다.
-- 직전 calf/thigh/base 접촉 충격 또는 lower 방향 관성이 반복된다.
-- 사건이 reset 직후 과도구간과 연결되거나 reset 접촉 형상이 같은 링크 하중을 지속시킨다.
-- non-calf 사건이나 policy-command가 limit 방향인 사건이 하나라도 없을 것.
+![rev12 gate10 full-state 사건별 GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.gif)
 
-승인되면 rev13은 calf reset만 `-2.37 → -2.34rad`로 바꾼다. solver `8/0`, timestep `0.005/0.02s`, action scale/EMA `0.70/0.2`, PPO noise `0.5`, torque `23.5Nm`, tolerance `0.01rad`, reward·curriculum·observation noise는 고정한다. `CPU/GPU runtime 각 3회 → scratch Gate01 → scratch Gate10`을 다시 실행하고 모든 hard-limit·numeric-invalid가 0일 때만 Gate50으로 간다. strict success가 계속 0이면 안전 수정만 통과한 것이며 학습 성공으로 올리지 않는다.
+- [full-state attribution rep01](../reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_fullstate_gpu_rep01_s42.json)
+- [full-state attribution rep02](../reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_fullstate_gpu_rep02_s42.json)
+- [full-state attribution rep03](../reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_fullstate_gpu_rep03_s42.json)
+- [full-state 3회 synthesis](../reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_fullstate_synthesis_3x3_s42.json)
+- [full-state synthesis 재검증 도구](../scripts/verify_g009_r0_gate10_fullstate_synthesis.py)
+- [full-state visual summary](../reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_fullstate_visual_summary.json)
+- [공개 진단 PNG](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
+- [공개 진단 GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.gif)
 
-사전 계획에서 solver A/B가 실패할 때의 다음 후보는 calf reset `-2.37 → -2.34rad` 단일변수였다. rev12는 runtime과 gate01은 통과했지만 gate10에서 hard-limit이 재발했다. 이 backup을 바로 적용하지 않고 gate10 terminal state를 먼저 귀속한다. 귀속 결과가 접촉 초기 calf 여유 부족을 지지할 때만 새 rev13의 별도 한 변수로 검사해 초기 자세 완화와 solver 수렴 효과를 분리한다. torque 상한이나 hard-limit tolerance 확대는 실물 타당성과 안전 판정을 약화하므로 후보에서 제외한다.
+원본 MP4는 Git에 추적하지 않고 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev12_gate10_fullstate_dynamics_s42.mp4`에만 둔다. H.264 `1280×720`, 30fps, 5.4초이며 SHA-256은 `6320c4d83f470dcb97ccc2e4c11a016aa38d19d32c6a902c7dfa1ab0a5d4c739`다. 공개 PNG·GIF와 visual summary에도 `diagnostic_only=true`, `public_claim_eligible=false`, `learned_policy_qualified=false`를 유지한다. strict success는 현재 `0`이고, 네 자세별 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`의 최종 자격 조건은 바꾸지 않는다.
 
 ### rev9 actor/critic, action, 성공 gate
 
@@ -1024,25 +1022,27 @@ G009 R0에서는 scratch PPO smoke와 50회 진단 pilot을 실제로 실행했�
 4. **R0 rev11 runtime gate — 완료**: calf reset만 `-2.40 → -2.37 rad`로 옮겼다. CPU/GPU 독립 실행 각 3회에서 hold 비포화, target 오차 `≤1e-6 rad`, 전체 runtime contract를 모두 통과했다.
 5. **R0 rev11 safety gates — gate01 기각**: `1,024×1`에서 numeric-invalid는 `0`이었지만 hard-joint-limit maximum이 `0.0416667`이었다. 로컬 MP4와 공개 GIF·PNG·JSON을 남기고 gate10·gate50은 실행하지 않았다.
 6. **R0 gate01 attribution — 완료**: 같은 core source·seed·초기 학습 경로의 fresh 24-step rollout 세 번에서 같은 `FR_calf_joint` lower-limit 사건을 reset 직전에 귀속했다. 과거 사건과의 bitwise identity는 주장하지 않으며 safety·qualification은 계속 FAIL이다.
-7. **R0 rev12 solver A/B — gate10 기각, attribution 다음**: hard-limit tolerance, torque, reward, curriculum, PPO noise를 유지하고 articulation solver position iteration만 `4 → 8`로 바꿨다. CPU/GPU 각 3회 runtime과 새 scratch gate01은 통과했지만 gate10 iterations `1/2/3`에서 hard-limit이 각 한 건 상당 재발했다. gate50은 닫고 10-iteration pre-reset attribution으로 원인을 귀속한다.
-8. **R0 qualification**: 모든 안전 gate를 통과한 revision에서 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch로 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
-9. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
-10. **S1-low WALK**: `5/10°` contour-left/right를 G008 WALK parent에서 seed별 독립 lineage로 학습한다.
-11. **S1-high WALK**: `15/20°`를 순차적으로 연다. `25°`는 stress로 유지한다.
-12. **D0A/D0B/D0C**: G006 exact 회귀, G009 0도 transfer, 통과한 경사별 delta-velocity를 분리한다.
-13. **D1 external wrench**: 힘·시간·충격량 pulse를 mild에서 strong 순서로 추가한다.
-14. **S2 residual height**: nominal friction에서 base slope에 G008 도로 residual만 더한다.
-15. **S3-controlled**: 발별 비대칭 마찰을 통제한다.
-16. **S3-spatial**: 비주기 공간 마찰 mosaic로 옮긴다.
-17. **F0A와 R0B**: 실제 WALK 낙상 snapshot을 수집하고 curated/replay `50/50` reset으로 RECOVER를 다시 학습한다.
-18. **R1/R2**: 낮은 경사, 높은 경사 self-righting을 차례로 연다.
-19. **R3-controlled/R3-spatial**: controlled 마찰 뒤 spatial 마찰 복구를 연다.
-20. **D2**: 외란이 만든 live fall을 RECOVER로 넘겨 `push -> fall -> recover -> stand -> command resume`를 평가한다.
-21. **F0B-TV와 R4**: training/validation natural-fall inventory로 최종 bridge를 학습한다.
-22. **I0**: 세 WALK/RECOVER seed pair의 live·snapshot validation을 통과한 뒤 checkpoint, gate, trigger, component SHA를 동결한다.
-23. **F0B-FINAL과 I1**: sealed final-heldout을 처음 열어 한 번만 평가한다.
-24. **D3**: `25°`, physical-limit friction, strong wrench를 결합한 stress 평가를 수행한다.
-25. **M1 link-mass**: G009 final-heldout을 고정한 뒤 hip, thigh, calf, foot 질량·관성을 한 그룹씩 바꾸는 별도 goal로 연다.
+7. **R0 rev12 solver A/B — gate10 기각**: hard-limit tolerance, torque, reward, curriculum, PPO noise를 유지하고 articulation solver position iteration만 `4 → 8`로 바꿨다. CPU/GPU 각 3회 runtime과 새 scratch gate01은 통과했지만 gate10 iterations `1/2/3`에서 hard-limit이 각 한 건 상당 재발했다. gate50은 닫았다.
+8. **R0 rev12 Gate10 full-state attribution — 완료**: preliminary GPU fresh 3회로 historical identity를 고정하고, target·torque·contact 16-step 이력을 보강한 full-state GPU fresh 3회에서 동일 사건 topology와 canonical full-event payload를 재현했다. policy 직접 명령 가설은 배제했지만 reset 영향 자체는 배제하지 않았으며, 직접 연결이 없어 reset `-2.34rad` 변경을 다음 revision으로 승인하지 않았다. impact·inertia·constraint-resolution overshoot를 다음 검사 대상으로 좁혔고 safety와 qualification은 FAIL을 유지한다.
+9. **R0 rev13 velocity solver A/B — 다음 실행**: position iteration `8`과 나머지 계약을 유지하고 velocity iteration만 `0 → 1`로 바꾼다. `CPU runtime 3회 → GPU runtime 3회 → scratch Gate01 → scratch Gate10`을 순서대로 실행하며 모든 safety·numeric 값이 `0`일 때만 Gate50을 연다.
+10. **R0 qualification**: 모든 안전 gate를 통과한 revision에서 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch로 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
+11. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
+12. **S1-low WALK**: `5/10°` contour-left/right를 G008 WALK parent에서 seed별 독립 lineage로 학습한다.
+13. **S1-high WALK**: `15/20°`를 순차적으로 연다. `25°`는 stress로 유지한다.
+14. **D0A/D0B/D0C**: G006 exact 회귀, G009 0도 transfer, 통과한 경사별 delta-velocity를 분리한다.
+15. **D1 external wrench**: 힘·시간·충격량 pulse를 mild에서 strong 순서로 추가한다.
+16. **S2 residual height**: nominal friction에서 base slope에 G008 도로 residual만 더한다.
+17. **S3-controlled**: 발별 비대칭 마찰을 통제한다.
+18. **S3-spatial**: 비주기 공간 마찰 mosaic로 옮긴다.
+19. **F0A와 R0B**: 실제 WALK 낙상 snapshot을 수집하고 curated/replay `50/50` reset으로 RECOVER를 다시 학습한다.
+20. **R1/R2**: 낮은 경사, 높은 경사 self-righting을 차례로 연다.
+21. **R3-controlled/R3-spatial**: controlled 마찰 뒤 spatial 마찰 복구를 연다.
+22. **D2**: 외란이 만든 live fall을 RECOVER로 넘겨 `push -> fall -> recover -> stand -> command resume`를 평가한다.
+23. **F0B-TV와 R4**: training/validation natural-fall inventory로 최종 bridge를 학습한다.
+24. **I0**: 세 WALK/RECOVER seed pair의 live·snapshot validation을 통과한 뒤 checkpoint, gate, trigger, component SHA를 동결한다.
+25. **F0B-FINAL과 I1**: sealed final-heldout을 처음 열어 한 번만 평가한다.
+26. **D3**: `25°`, physical-limit friction, strong wrench를 결합한 stress 평가를 수행한다.
+27. **M1 link-mass**: G009 final-heldout을 고정한 뒤 hip, thigh, calf, foot 질량·관성을 한 그룹씩 바꾸는 별도 goal로 연다.
 
 각 stage는 새 평가 JSON과 미디어 세트를 가져야 한다. 한 방향, 한 자세, 한 friction pattern의 blocking cell이 실패하면 평균 성능이 높아도 다음 stage를 열지 않는다.
 
@@ -1094,8 +1094,10 @@ G009를 포트폴리오에 넣을 때 핵심은 “Isaac Sim에서 로봇을 걸
 6. 평균 점수 대신 방향·자세·마찰·seed별 worst cell을 blocking gate로 삼았다.
 7. 기존 checkpoint 재생과 새 PPO 학습을 문서에서 구분했다.
 8. stage마다 영상과 정량 report를 checkpoint SHA-256으로 결합한다.
+9. Gate10 aggregate 실패를 pre-reset full-state로 재계측해 policy 명령, 접촉, 관성, constraint 해석을 분리했다.
+10. 실패를 숨기지 않고 preliminary identity 증거와 보강된 causal evidence를 따로 보존해 다음 단일변수 실험을 선택했다.
 
-현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생, R0의 actor privilege 경계·보상/성공 계약, rev1~rev9 실패 진단, rev10 CPU 실패 재현과 rev11 CPU/GPU `6/6` runtime A/B다. 25°에서 기존 정책이 크게 기울고 아래로 밀린 결과와 R0의 sparse-reward·hard-joint-limit 실패도 경계 조건으로 공개한다. 성공한 전복 복구 영상은 향후 revision이 공식 qualification gate를 통과한 뒤 별도로 추가한다.
+현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생, R0의 actor privilege 경계·보상/성공 계약, rev1~rev9 실패 진단, rev10 CPU 실패 재현, rev11·rev12 runtime 및 safety gate, rev12 Gate10 full-state GPU fresh `3/3` 귀속이다. 특히 세 calf lower-limit 사건에서 EMA target이 최소 `0.573438rad` 안쪽이고 applied torque가 48개 이력 step 모두 복원 방향인데도 same-leg foot 접촉이 `3.023~4.257 BW`였다는 자료로 policy 직접 명령 가설을 배제하고 다음 실험을 solver velocity iteration `0 → 1`로 좁혔다. 25°에서 기존 정책이 크게 기울고 아래로 밀린 결과, R0 strict success `0`, hard-joint-limit 실패도 경계 조건으로 함께 공개한다. 성공한 전복 복구 영상은 향후 revision이 네 자세별 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`의 qualification gate를 통과한 뒤 별도로 추가한다.
 
 ## 실물 로봇과 Mini Pupper에 대한 범위 제한
 

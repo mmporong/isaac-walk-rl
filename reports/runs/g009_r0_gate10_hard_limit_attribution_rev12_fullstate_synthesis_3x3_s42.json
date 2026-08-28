@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "goal_id": "g009",
+  "stage_number": "G009-5",
+  "stage_id": "R0",
+  "synthesis_id": "g009_r0_gate10_hard_limit_attribution_rev12_fullstate_3x3_s42",
+  "status": "attributed_historical_identity",
+  "source_commit": "397f56441e7e957252733bea8b2f9440cb324005",
+  "training_core_sha256": "2471c64c7fa107005c199ce8c27f42d4e9782b59452c4376e7ca981125aafffa",
+  "diagnostic_source_sha256": "c5070642c34ae349a918dad836f75ac310f38afa143e2275fe4578716e5c8b64",
+  "ppo_action_stream_sha256": "5e119de4310c393d7b847d3d460c03533dbcc0ad82f9bcc090e6cf8b83880138",
+  "full_event_payload_sha256": "28fd03a57d50738cedff01af51ea5fb2f4f1a9ba9d81ee56d84103de9acb2df2",
+  "full_event_payload_canonicalization": "json.dumps(events, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)",
+  "reports": [
+    {
+      "path": "reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_fullstate_gpu_rep01_s42.json",
+      "sha256": "cfec0751b8f5825642cccdb8da9e38d61436fe265666b6311399623dfc657de7",
+      "execution_id": "9e84284db90f4095a7818c82ddc186f2"
+    },
+    {
+      "path": "reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_fullstate_gpu_rep02_s42.json",
+      "sha256": "3bca5e682c7535749553c3702312fa8a6faddb6eccdda3d34deca482dc144549",
+      "execution_id": "2123a32bacdc41558292afa39f473449"
+    },
+    {
+      "path": "reports/runs/g009_r0_gate10_hard_limit_attribution_rev12_fullstate_gpu_rep03_s42.json",
+      "sha256": "aaa5e533ca6998fa26198ff6ee7eee19e8901c0127866015f64b9c7c97d48cd7",
+      "execution_id": "6fcc4483200e4874a7875227f2169763"
+    }
+  ],
+  "protocol": {
+    "device": "cuda:0",
+    "seed": 42,
+    "headless": true,
+    "scratch": true,
+    "num_envs": 1024,
+    "rollout_steps_per_iteration": 24,
+    "iterations": 10,
+    "act_count": 240,
+    "ppo_update_count": 10,
+    "optimizer_steps_per_iteration": 20,
+    "checkpoint_loaded": false,
+    "official_runner_method": "OnPolicyRunner.learn",
+    "pre_reset_hook": "RecorderManager.record_pre_reset instance wrapper",
+    "ring_buffer_control_steps": 16
+  },
+  "reproduction": {
+    "fresh_process_count": 3,
+    "all_reports_parse": true,
+    "all_attribution_checks_true": true,
+    "all_historical_identity_checks_true": true,
+    "all_action_stream_hashes_equal": true,
+    "all_event_payload_hashes_equal": true,
+    "hard_limit_event_counts_by_iteration": [0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    "model_0_sha256": "52f45ef5ae9d3c98ced51132e7fb6b5e8d78d0721a7efd9657f3fdc46ea17017",
+    "model_9_sha256": "b4bf026c446a72072ddf464aef8e5b3275b4d3f1cb1ad8980718139de2702cd2"
+  },
+  "events": [
+    {
+      "iteration": 1,
+      "rollout_control_step": 5,
+      "global_action_step": 29,
+      "episode_control_step": 381,
+      "env_index": 338,
+      "joint_name": "FR_calf_joint",
+      "violated_side": "lower",
+      "actual_position_rad": -2.7344493865966797,
+      "hard_lower_rad": -2.7227001190185547,
+      "raw_excess_rad": 0.011749267578125,
+      "excess_beyond_margin_rad": 0.0017492675781249998,
+      "ring_start_position_rad": -1.971275,
+      "ring_min_velocity_rad_s": -4.276555,
+      "ring_min_ema_target_clearance_from_lower_rad": 0.744803,
+      "ring_torque_nm_min_max": [2.797093, 23.5],
+      "ring_restoring_torque_steps": 16,
+      "terminal_same_leg_contact_body": "FR_foot",
+      "terminal_same_leg_contact_force_n": 627.2380981445369,
+      "terminal_same_leg_contact_force_bw": 4.257183551774827
+    },
+    {
+      "iteration": 2,
+      "rollout_control_step": 19,
+      "global_action_step": 67,
+      "episode_control_step": 26,
+      "env_index": 501,
+      "joint_name": "RL_calf_joint",
+      "violated_side": "lower",
+      "actual_position_rad": -2.7358057498931885,
+      "hard_lower_rad": -2.7227001190185547,
+      "raw_excess_rad": 0.013105630874633789,
+      "excess_beyond_margin_rad": 0.003105630874633789,
+      "ring_start_position_rad": -2.228901,
+      "ring_min_velocity_rad_s": -4.705214,
+      "ring_min_ema_target_clearance_from_lower_rad": 0.592072,
+      "ring_torque_nm_min_max": [4.457584, 17.263412],
+      "ring_restoring_torque_steps": 16,
+      "terminal_same_leg_contact_body": "RL_foot",
+      "terminal_same_leg_contact_force_n": 445.41348266601966,
+      "terminal_same_leg_contact_force_bw": 3.0231055124900443
+    },
+    {
+      "iteration": 3,
+      "rollout_control_step": 5,
+      "global_action_step": 77,
+      "episode_control_step": 71,
+      "env_index": 629,
+      "joint_name": "RL_calf_joint",
+      "violated_side": "lower",
+      "actual_position_rad": -2.7343246936798096,
+      "hard_lower_rad": -2.7227001190185547,
+      "raw_excess_rad": 0.011624574661254883,
+      "excess_beyond_margin_rad": 0.0016245746612548826,
+      "ring_start_position_rad": -1.949555,
+      "ring_min_velocity_rad_s": -5.859066,
+      "ring_min_ema_target_clearance_from_lower_rad": 0.573438,
+      "ring_torque_nm_min_max": [0.461164, 22.377861],
+      "ring_restoring_torque_steps": 16,
+      "terminal_same_leg_contact_body": "RL_foot",
+      "terminal_same_leg_contact_force_n": 464.86077880859796,
+      "terminal_same_leg_contact_force_bw": 3.155097987930528
+    }
+  ],
+  "evidence": {
+    "all_events_are_calf_lower_limit": true,
+    "all_16_step_ema_targets_remain_inside_hard_lower_limit": true,
+    "minimum_ema_target_clearance_rad": 0.573438,
+    "all_16_step_torques_are_restoring": true,
+    "terminal_same_leg_contact_force_bw_range": [3.0231055124900443, 4.257183551774827],
+    "reset_angle_direct_causal_link_observed": false
+  },
+  "decision": {
+    "rev13_reset_minus_2_34_approved": false,
+    "reason": "The failures occur after episode steps 26, 71, and 381; the 16-step histories start far inside the limit, every EMA target stays at least 0.573438 rad inside the lower limit, and every applied calf torque is restoring. These observations do not establish a direct causal link from the reset angle to the failures, so the reset change is not approved as the next revision.",
+    "next_single_variable_candidate": "increase articulation_solver_velocity_iteration_count from 0 to 1 while retaining position iterations at 8",
+    "candidate_status": "planned_not_executed",
+    "candidate_basis": [
+      "PhysX recommends more velocity iterations when intersecting bodies are depenetrated too violently.",
+      "The three terminal same-leg foot contact forces are 3.023 to 4.257 times body weight while targets and torques remain restorative."
+    ],
+    "invariants": [
+      "articulation_solver_position_iteration_count=8",
+      "physics_dt_s=0.005",
+      "control_dt_s=0.02",
+      "action_scale=0.70",
+      "action_ema_alpha=0.2",
+      "ppo_initial_noise_std=0.5",
+      "calf_effort_limit_nm=23.5",
+      "hard_joint_limit_tolerance_rad=0.01",
+      "reset_pose_unchanged",
+      "reward_curriculum_and_observation_noise_unchanged"
+    ],
+    "next_gate_sequence": [
+      "CPU runtime probe x3",
+      "GPU runtime probe x3",
+      "scratch Gate01",
+      "scratch Gate10",
+      "Gate50 only if every safety and numeric check remains zero"
+    ]
+  },
+  "qualification": {
+    "gate10_safety_passed": false,
+    "learned_policy_qualified": false,
+    "gate50_allowed": false,
+    "required_final_success_rate_per_pose": 0.8,
+    "required_median_recovery_time_s_max": 4.0,
+    "required_safety_terminations": 0
+  },
+  "references": [
+    "https://docs.omniverse.nvidia.com/py/isaacsim/source/extensions/omni.isaac.core/docs/index.html",
+    "https://nvidia-omniverse.github.io/PhysX/physx/5.4.0/docs/RigidBodyDynamics.html",
+    "https://nvidia-omniverse.github.io/PhysX/physx/5.3.0/_api_build/class_px_articulation_reduced_coordinate.html"
+  ]
+}
