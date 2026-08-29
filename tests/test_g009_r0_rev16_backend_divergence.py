@@ -578,7 +578,10 @@ def _complete_report(
             "all_env_minimum_separation_m": [-0.001] * 8 if device == "cpu" else None,
         },
         "historical_runtime_summary": PROBE.build_historical_runtime_summary(
-            arm, device, observed_metrics
+            arm,
+            device,
+            copy.deepcopy(observed_metrics),
+            copy.deepcopy(observed_metrics),
         ),
         "diagnostic_capture_complete": True,
     }
@@ -607,10 +610,15 @@ def test_diagnostic_snapshot_binds_cpu_and_gpu_contact_contracts() -> None:
 
 def test_diagnostic_snapshot_names_historical_float_mismatch() -> None:
     report = _complete_report("cuda:0")
-    metrics = copy.deepcopy(report["historical_runtime_summary"]["pose_metrics"])
+    metrics = copy.deepcopy(
+        report["historical_runtime_summary"]["historical_comparison_pose_metrics"]
+    )
     metrics[7]["max_nonfoot_force_bodyweights"] += 2.0e-6
     report["historical_runtime_summary"] = PROBE.build_historical_runtime_summary(
-        "A", "cuda:0", metrics
+        "A",
+        "cuda:0",
+        report["historical_runtime_summary"]["pose_metrics"],
+        metrics,
     )
 
     snapshot = PROBE.build_diagnostic_check_snapshot(report)
@@ -632,10 +640,19 @@ def test_diagnostic_snapshot_names_historical_float_mismatch() -> None:
 
 def test_diagnostic_snapshot_flattens_termination_mismatch() -> None:
     report = _complete_report("cuda:0")
-    metrics = copy.deepcopy(report["historical_runtime_summary"]["pose_metrics"])
+    candidate_metrics = copy.deepcopy(
+        report["historical_runtime_summary"]["pose_metrics"]
+    )
+    metrics = copy.deepcopy(
+        report["historical_runtime_summary"]["historical_comparison_pose_metrics"]
+    )
+    candidate_metrics[2]["termination_counts"]["numeric_invalid"] = 1
     metrics[2]["termination_counts"]["numeric_invalid"] = 1
     report["historical_runtime_summary"] = PROBE.build_historical_runtime_summary(
-        "A", "cuda:0", metrics
+        "A",
+        "cuda:0",
+        candidate_metrics,
+        metrics,
     )
 
     mismatch = PROBE.build_diagnostic_check_snapshot(report)["historical"][
@@ -1034,6 +1051,162 @@ def test_all_env_force_preflight_returns_canonical_candidate() -> None:
     }
 
 
+def test_legacy_historical_force_projection_reproduces_rev12_gpu_bit_exact() -> None:
+    history = torch.zeros((8, 4, 19, 3), dtype=torch.float32)
+    history[7, 2, 0, 2] = 1295.82470703125
+    native_mass = torch.full((8,), 15.019001007080078, dtype=torch.float32)
+
+    candidates = PROBE.legacy_historical_all_env_nonfoot_force_candidates(
+        history,
+        native_total_mass_kg=native_mass,
+        nonfoot_ids=list(range(15)),
+        control_step=33,
+    )
+
+    assert candidates[7] == {
+        "force_n": 1295.82470703125,
+        "force_bodyweights": 8.79500675201416,
+        "physics_step": 130,
+        "body_index": 0,
+    }
+    canonical_bw = 1295.82470703125 / (15.01900016865693 * 9.81)
+    assert canonical_bw == pytest.approx(8.79500775388683, abs=1.0e-15)
+    assert abs(canonical_bw - candidates[7]["force_bodyweights"]) > 1.0e-6
+
+
+def test_historical_summary_separates_reference_and_runtime_candidate_math() -> None:
+    report = _complete_report("cuda:0")
+    historical = copy.deepcopy(
+        report["historical_runtime_summary"]["historical_comparison_pose_metrics"]
+    )
+    runtime_candidate = copy.deepcopy(
+        report["historical_runtime_summary"]["pose_metrics"]
+    )
+    runtime_candidate[7]["max_nonfoot_force_bodyweights"] = (
+        historical[7]["max_nonfoot_force_bodyweights"] + 2.0e-6
+    )
+
+    summary = PROBE.build_historical_runtime_summary(
+        "A", "cuda:0", runtime_candidate, historical
+    )
+
+    assert summary["historical_projection_derivation"] == (
+        PROBE.HISTORICAL_PROJECTION_DERIVATION
+    )
+    assert summary["passed"] is True
+    assert summary["matches_historical_reference"] is True
+    assert summary["runtime_candidate_passed"] is True
+    assert summary["projection_pair_crosscheck"]["passed"] is True
+    assert summary["projection_pair_crosscheck"][
+        "max_force_bw_abs_delta"
+    ] == pytest.approx(2.0e-6, abs=1.0e-15)
+
+
+def test_historical_summary_preserves_arm_b_gpu_candidate_failure() -> None:
+    summary = _complete_report("cuda:0", "B")["historical_runtime_summary"]
+
+    assert summary["passed"] is True
+    assert summary["runtime_candidate_passed"] is False
+    assert summary["projection_pair_crosscheck"]["passed"] is True
+    assert (
+        summary["runtime_candidate_checks"]["max_nonfoot_force_at_most_15_bodyweights"]
+        is False
+    )
+
+
+@pytest.mark.parametrize(
+    ("candidate_bw", "historical_bw", "message"),
+    [
+        (0.0, 16.0, "compatibility tolerance"),
+        (14.0, 16.0, "compatibility tolerance"),
+        (15.000001, 14.999999, "threshold classification"),
+        (-1.0, -1.0, "finite and nonnegative"),
+        (float("inf"), float("inf"), "finite and nonnegative"),
+    ],
+)
+def test_projection_pair_rejects_force_forgery_and_invalid_values(
+    candidate_bw: float,
+    historical_bw: float,
+    message: str,
+) -> None:
+    report = _complete_report("cuda:0")
+    candidate = copy.deepcopy(report["historical_runtime_summary"]["pose_metrics"])
+    historical = copy.deepcopy(
+        report["historical_runtime_summary"]["historical_comparison_pose_metrics"]
+    )
+    candidate[7]["max_nonfoot_force_bodyweights"] = candidate_bw
+    historical[7]["max_nonfoot_force_bodyweights"] = historical_bw
+
+    with pytest.raises(ValueError, match=message):
+        PROBE.validate_projection_pair(candidate, historical)
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("max_nonfoot_force_physics_step", 999),
+        ("max_nonfoot_force_body_index", 14),
+        ("max_nonfoot_force_body_name", "forged_body"),
+        ("max_root_angular_speed_rad_s", 123.0),
+        ("max_joint_speed_rad_s", 456.0),
+        ("min_contact_separation_m", -0.009),
+        (
+            "termination_counts",
+            {
+                "time_out": 0,
+                "stable_success": 0,
+                "numeric_invalid": 1,
+                "hard_joint_limit": 0,
+            },
+        ),
+    ],
+)
+def test_projection_pair_rejects_shared_field_mismatch(
+    field: str,
+    replacement,
+) -> None:
+    report = _complete_report()
+    candidate = copy.deepcopy(report["historical_runtime_summary"]["pose_metrics"])
+    historical = copy.deepcopy(
+        report["historical_runtime_summary"]["historical_comparison_pose_metrics"]
+    )
+    candidate[7][field] = replacement
+
+    with pytest.raises(ValueError, match=f"shared field {field} mismatch"):
+        PROBE.validate_projection_pair(candidate, historical)
+
+
+def test_projection_pair_rejects_missing_field() -> None:
+    report = _complete_report()
+    candidate = copy.deepcopy(report["historical_runtime_summary"]["pose_metrics"])
+    historical = copy.deepcopy(
+        report["historical_runtime_summary"]["historical_comparison_pose_metrics"]
+    )
+    candidate[7].pop("max_joint_speed_rad_s")
+
+    with pytest.raises(ValueError, match="field set mismatch"):
+        PROBE.validate_projection_pair(candidate, historical)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda summary: summary["historical_projection_derivation"].update(
+            scope="all_decisions"
+        ),
+        lambda summary: summary["historical_comparison_pose_metrics"][0].update(
+            pose_id="forged"
+        ),
+    ],
+)
+def test_historical_summary_rejects_projection_contract_mutations(mutation) -> None:
+    report = _complete_report()
+    mutation(report["historical_runtime_summary"])
+
+    with pytest.raises(ValueError, match="historical|projection pair"):
+        PROBE.validate_report_contract(report)
+
+
 def test_report_contract_accepts_distinct_sensor_and_robot_body_orders() -> None:
     force_order = _complete_report()["runtime_topology"]["force_body_names"]
     link_order = [*force_order[1:], force_order[0]]
@@ -1372,11 +1545,11 @@ def test_raw_control_validator_rejects_mutations(mutation, message: str) -> None
 
 def test_historical_summary_rejects_reference_fingerprint_mutation() -> None:
     report = _complete_report()
-    report["historical_runtime_summary"]["pose_metrics"][0][
+    report["historical_runtime_summary"]["historical_comparison_pose_metrics"][0][
         "max_root_angular_speed_rad_s"
     ] += 2.0e-6
 
-    with pytest.raises(ValueError, match="historical runtime summary"):
+    with pytest.raises(ValueError, match="projection pair"):
         PROBE.validate_report_contract(report)
 
 

@@ -341,6 +341,144 @@ def test_sequential_prefixes_are_valid_and_bound_for_next_group(
     }
 
 
+def test_historical_target_initializes_distinct_equal_projections() -> None:
+    target = SUMMARY.load_historical_target("A", "cpu")
+
+    assert target["historical_projection_derivation"] == (
+        SUMMARY.raw_probe.HISTORICAL_PROJECTION_DERIVATION
+    )
+    assert target["historical_comparison_pose_metrics"] == target["pose_metrics"]
+    assert target["historical_comparison_pose_metrics"] is not target["pose_metrics"]
+    assert all(
+        candidate is not historical
+        for historical, candidate in zip(
+            target["pose_metrics"],
+            target["historical_comparison_pose_metrics"],
+            strict=True,
+        )
+    )
+
+
+def test_legacy_projection_can_reproduce_while_canonical_candidate_fails() -> None:
+    report, _ = _report("B", "cuda:0", 1)
+    summary = report["historical_runtime_summary"]
+
+    historical_reproduced, runtime_candidate_passed = (
+        SUMMARY._validate_historical_summary(report, "B", "cuda:0")
+    )
+
+    assert historical_reproduced is True
+    assert runtime_candidate_passed is False
+    assert summary["projection_pair_crosscheck"]["passed"] is True
+    assert summary["checks"]["pose_metric_fingerprint_within_1e_6"] is True
+    assert (
+        summary["runtime_candidate_checks"]["max_nonfoot_force_at_most_15_bodyweights"]
+        is False
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        (
+            lambda summary: summary["historical_projection_derivation"].update(
+                scope="canonical_runtime_candidate"
+            ),
+            "projection derivation",
+        ),
+        (
+            lambda summary: summary.pop("historical_comparison_pose_metrics"),
+            "historical comparison summary must contain 8 pose metrics",
+        ),
+        (
+            lambda summary: summary["historical_comparison_pose_metrics"][0].update(
+                pose_id="supine"
+            ),
+            "historical comparison summary pose/action mapping",
+        ),
+        (
+            lambda summary: summary["pose_metrics"][0].update(
+                max_nonfoot_force_bodyweights=15.1
+            ),
+            "compatibility tolerance",
+        ),
+        (
+            lambda summary: summary["pose_metrics"][0].pop("max_joint_speed_rad_s"),
+            "runtime candidate summary pose metric field set mismatch",
+        ),
+        (
+            lambda summary: summary["projection_pair_crosscheck"].update(passed=False),
+            "projection pair crosscheck",
+        ),
+    ],
+)
+def test_projection_derivation_identity_missing_and_forgery_fail_closed(
+    mutation, message: str
+) -> None:
+    report, _ = _report("A", "cpu", 1)
+    mutation(report["historical_runtime_summary"])
+
+    with pytest.raises(ValueError, match=message):
+        SUMMARY._validate_historical_summary(report, "A", "cpu")
+
+
+def test_projection_pair_blocks_self_consistent_candidate_force_forgery() -> None:
+    report, _ = _report("B", "cuda:0", 1)
+    summary = report["historical_runtime_summary"]
+    summary["pose_metrics"][7]["max_nonfoot_force_bodyweights"] = 0.0
+    candidate_checks = SUMMARY._runtime_candidate_checks(
+        summary["pose_metrics"], "cuda:0"
+    )
+    summary["runtime_candidate_checks"] = candidate_checks
+    summary["runtime_candidate_passed"] = all(candidate_checks.values())
+
+    with pytest.raises(ValueError, match="compatibility tolerance"):
+        SUMMARY._validate_historical_summary(report, "B", "cuda:0")
+
+
+def test_projection_pair_rejects_split_15_bw_classification_within_tolerance() -> None:
+    report, _ = _report("A", "cpu", 1)
+    summary = report["historical_runtime_summary"]
+    summary["pose_metrics"][0]["max_nonfoot_force_bodyweights"] = 15.000001
+    summary["historical_comparison_pose_metrics"][0][
+        "max_nonfoot_force_bodyweights"
+    ] = 14.999999
+
+    with pytest.raises(ValueError, match="threshold classification"):
+        SUMMARY._validate_historical_summary(report, "A", "cpu")
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("max_nonfoot_force_physics_step", 999),
+        ("max_nonfoot_force_body_index", 14),
+        ("max_nonfoot_force_body_name", "forged_body"),
+        ("max_root_angular_speed_rad_s", 123.0),
+        ("max_joint_speed_rad_s", 456.0),
+        ("min_contact_separation_m", -0.009),
+        (
+            "termination_counts",
+            {
+                "time_out": 0,
+                "stable_success": 0,
+                "numeric_invalid": 1,
+                "hard_joint_limit": 0,
+            },
+        ),
+    ],
+)
+def test_projection_pair_rejects_shared_field_mutation(
+    field: str,
+    replacement,
+) -> None:
+    report, _ = _report("A", "cpu", 1)
+    report["historical_runtime_summary"]["pose_metrics"][7][field] = replacement
+
+    with pytest.raises(ValueError, match=f"shared field {field} mismatch"):
+        SUMMARY._validate_historical_summary(report, "A", "cpu")
+
+
 def test_full_matrix_supports_hypothesis_three_of_three_without_accepting_arm_b() -> (
     None
 ):

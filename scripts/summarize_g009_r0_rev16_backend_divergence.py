@@ -70,6 +70,9 @@ POSE_FIELDS = (
     "min_contact_separation_m",
     "termination_counts",
 )
+PROJECTION_PAIR_EXACT_FIELDS = tuple(
+    field for field in POSE_FIELDS if field != "max_nonfoot_force_bodyweights"
+)
 TRACE_FIELDS = (
     "input_action",
     "raw_action",
@@ -85,6 +88,7 @@ PREDECESSOR_REQUIREMENTS = {
     ("B", "cuda:0"): (9, "B.cuda:0"),
 }
 FORCE_THRESHOLD_BODYWEIGHTS = 15.0
+PROJECTION_PAIR_FORCE_BW_ABS_TOLERANCE = 4.0e-6
 CONCENTRATION_RATIO_THRESHOLD = 1.20
 TRACE_TOLERANCE = 1.0e-6
 DIVERGENCE_TOLERANCES = {
@@ -196,6 +200,7 @@ def load_historical_target(arm: str, device: str) -> dict[str, Any]:
     require(isinstance(report, dict), "historical target root must be an object")
     assert isinstance(report, dict)
     pose_metrics = _historical_pose_projection(report, device)
+    historical_comparison_pose_metrics = copy_pose_metrics(pose_metrics)
     candidate_checks = _runtime_candidate_checks(pose_metrics, device)
     checks = {
         "reference_report_sha256_exact": True,
@@ -207,7 +212,15 @@ def load_historical_target(arm: str, device: str) -> dict[str, Any]:
         "reference_contract_sha256": EXPECTED_REFERENCE[arm][1],
         "reference_report_path": relative_path,
         "reference_report_sha256": expected_sha,
+        "historical_projection_derivation": dict(
+            raw_probe.HISTORICAL_PROJECTION_DERIVATION
+        ),
         "pose_metrics": pose_metrics,
+        "historical_comparison_pose_metrics": historical_comparison_pose_metrics,
+        "projection_pair_crosscheck": _projection_pair_crosscheck(
+            pose_metrics,
+            historical_comparison_pose_metrics,
+        ),
         "checks": checks,
         "passed": True,
         "runtime_candidate_checks": candidate_checks,
@@ -215,6 +228,16 @@ def load_historical_target(arm: str, device: str) -> dict[str, Any]:
         "matches_historical_reference": True,
         "progression_allowed": False,
     }
+
+
+def copy_pose_metrics(metrics: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            **item,
+            "termination_counts": dict(item["termination_counts"]),
+        }
+        for item in metrics
+    ]
 
 
 def _metric_matches(observed: dict[str, Any], expected: dict[str, Any]) -> bool:
@@ -243,7 +266,8 @@ def _runtime_candidate_checks(
             for item in metrics
         ),
         "max_nonfoot_force_at_most_15_bodyweights": all(
-            float(item["max_nonfoot_force_bodyweights"]) <= 15.0 for item in metrics
+            float(item["max_nonfoot_force_bodyweights"]) <= FORCE_THRESHOLD_BODYWEIGHTS
+            for item in metrics
         ),
         "safety_termination_zero": all(
             item["termination_counts"].get("numeric_invalid") == 0
@@ -259,6 +283,71 @@ def _runtime_candidate_checks(
             if device == "cpu"
             else True
         ),
+    }
+
+
+def _projection_pair_crosscheck(
+    candidate_metrics: list[dict[str, Any]],
+    historical_metrics: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Independently verify that both projections describe the same events."""
+
+    require(
+        len(candidate_metrics) == 8 and len(historical_metrics) == 8,
+        "projection pair must contain 8 pose metrics per projection",
+    )
+    max_force_bw_abs_delta = 0.0
+    for row_index, (candidate, historical) in enumerate(
+        zip(candidate_metrics, historical_metrics, strict=True)
+    ):
+        require(
+            set(candidate) == set(POSE_FIELDS) and set(historical) == set(POSE_FIELDS),
+            f"projection pair row {row_index} field set mismatch",
+        )
+        for field in PROJECTION_PAIR_EXACT_FIELDS:
+            require(
+                type(candidate[field]) is type(historical[field])
+                and candidate[field] == historical[field],
+                f"projection pair row {row_index} shared field {field} mismatch",
+            )
+
+        candidate_value = candidate["max_nonfoot_force_bodyweights"]
+        historical_value = historical["max_nonfoot_force_bodyweights"]
+        require(
+            type(candidate_value) in (int, float)
+            and type(historical_value) in (int, float),
+            f"projection pair row {row_index} force BW values must be numeric",
+        )
+        candidate_bw = float(candidate_value)
+        historical_bw = float(historical_value)
+        require(
+            math.isfinite(candidate_bw)
+            and math.isfinite(historical_bw)
+            and candidate_bw >= 0.0
+            and historical_bw >= 0.0,
+            f"projection pair row {row_index} force BW values must be finite and nonnegative",
+        )
+        force_bw_abs_delta = abs(candidate_bw - historical_bw)
+        require(
+            force_bw_abs_delta <= PROJECTION_PAIR_FORCE_BW_ABS_TOLERANCE,
+            f"projection pair row {row_index} force BW compatibility tolerance exceeded",
+        )
+        require(
+            (candidate_bw <= FORCE_THRESHOLD_BODYWEIGHTS)
+            == (historical_bw <= FORCE_THRESHOLD_BODYWEIGHTS),
+            f"projection pair row {row_index} force threshold classification mismatch",
+        )
+        max_force_bw_abs_delta = max(max_force_bw_abs_delta, force_bw_abs_delta)
+
+    return {
+        "force_bw_abs_tolerance": PROJECTION_PAIR_FORCE_BW_ABS_TOLERANCE,
+        "force_threshold_bodyweights": FORCE_THRESHOLD_BODYWEIGHTS,
+        "max_force_bw_abs_delta": max_force_bw_abs_delta,
+        "all_shared_fields_exact": True,
+        "all_force_bw_finite_nonnegative": True,
+        "all_force_bw_within_tolerance": True,
+        "all_force_threshold_classifications_equal": True,
+        "passed": True,
     }
 
 
@@ -347,6 +436,29 @@ def _expected_pose_identity() -> list[tuple[int, str, str]]:
     ]
 
 
+def _validated_pose_projection(value: Any, label: str) -> list[dict[str, Any]]:
+    metrics = require_list(value, f"{label} must contain 8 pose metrics")
+    require(len(metrics) == 8, f"{label} must contain 8 pose metrics")
+    require(
+        all(isinstance(item, dict) for item in metrics),
+        f"{label} pose metrics must all be objects",
+    )
+    typed_metrics = [item for item in metrics if isinstance(item, dict)]
+    require(
+        all(set(item) == set(POSE_FIELDS) for item in typed_metrics),
+        f"{label} pose metric field set mismatch",
+    )
+    observed_identity = [
+        (item["env_index"], item["pose_id"], item["action_mode"])
+        for item in typed_metrics
+    ]
+    require(
+        observed_identity == _expected_pose_identity(),
+        f"{label} pose/action mapping mismatch",
+    )
+    return typed_metrics
+
+
 def _validate_historical_summary(
     report: dict[str, Any], arm: str, device: str
 ) -> tuple[bool, bool]:
@@ -372,22 +484,27 @@ def _validate_historical_summary(
         summary.get("reference_report_sha256") == reference_sha,
         "historical report hash mismatch",
     )
+    require(
+        summary.get("historical_projection_derivation")
+        == raw_probe.HISTORICAL_PROJECTION_DERIVATION,
+        "historical projection derivation mismatch",
+    )
     projection = summary
-    metrics = require_list(
-        projection["pose_metrics"], "historical summary must contain 8 pose metrics"
+    candidate_metrics = _validated_pose_projection(
+        projection.get("pose_metrics"),
+        "runtime candidate summary",
+    )
+    historical_metrics = _validated_pose_projection(
+        projection.get("historical_comparison_pose_metrics"),
+        "historical comparison summary",
+    )
+    projection_pair_crosscheck = _projection_pair_crosscheck(
+        candidate_metrics,
+        historical_metrics,
     )
     require(
-        len(metrics) == 8,
-        "historical summary must contain 8 pose metrics",
-    )
-    observed_identity = [
-        (item.get("env_index"), item.get("pose_id"), item.get("action_mode"))
-        for item in metrics
-        if isinstance(item, dict)
-    ]
-    require(
-        observed_identity == _expected_pose_identity(),
-        "historical pose/action mapping mismatch",
+        projection.get("projection_pair_crosscheck") == projection_pair_crosscheck,
+        "projection pair crosscheck does not match independent verification",
     )
     checks = require_dict(
         projection["checks"], "historical checks must be a non-empty bool map"
@@ -397,9 +514,9 @@ def _validate_historical_summary(
     assert isinstance(target_metrics, list)
     reproduced = all(
         _metric_matches(observed, expected)
-        for observed, expected in zip(metrics, target_metrics, strict=True)
-        if isinstance(observed, dict) and isinstance(expected, dict)
-    ) and len(metrics) == len(target_metrics)
+        for observed, expected in zip(historical_metrics, target_metrics, strict=True)
+        if isinstance(expected, dict)
+    ) and len(historical_metrics) == len(target_metrics)
     expected_checks = {
         "reference_report_sha256_exact": True,
         "reference_contract_sha256_exact": True,
@@ -409,9 +526,7 @@ def _validate_historical_summary(
         checks == expected_checks,
         "historical check map does not match independent verification",
     )
-    typed_metrics = [item for item in metrics if isinstance(item, dict)]
-    require(len(typed_metrics) == 8, "historical pose metrics must all be objects")
-    candidate_checks = _runtime_candidate_checks(typed_metrics, device)
+    candidate_checks = _runtime_candidate_checks(candidate_metrics, device)
     require(
         projection.get("runtime_candidate_checks") == candidate_checks,
         "runtime candidate checks do not match independent verification",

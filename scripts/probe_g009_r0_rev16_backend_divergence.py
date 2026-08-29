@@ -41,6 +41,20 @@ VELOCITY_SOLVER_ITERATIONS = 0
 MAX_DEPENETRATION_VELOCITY_M_S = 1.0
 CALLBACK_DT_ABS_TOLERANCE_S = 2.5e-10
 PHYSICS_ROW_DERIVATION = "torch.float32_source_to_python_float_then_math_fsum_sqrt"
+FORCE_THRESHOLD_BODYWEIGHTS = 15.0
+PROJECTION_PAIR_FORCE_BW_ABS_TOLERANCE = 4.0e-6
+HISTORICAL_PROJECTION_DERIVATION = {
+    "reference_semantics": "rev12_rev15_native_torch_float32",
+    "force_norm": "torch.linalg.vector_norm(force_history[:,:,nonfoot_ids],dim=-1)",
+    "mass_reduction": "body_mass_tensor.sum(dim=1,float32_native_backend)",
+    "bodyweight_normalization": "force/(total_mass*9.81)_in_float32",
+    "peak_reduction": "reshape_nonfoot_history.max(dim=1)_first_index",
+    "scope": "historical_fingerprint_only",
+    "canonical_physics_telemetry_unchanged": True,
+    "projection_pair_force_bw_abs_tolerance": (PROJECTION_PAIR_FORCE_BW_ABS_TOLERANCE),
+    "projection_pair_force_threshold_bodyweights": FORCE_THRESHOLD_BODYWEIGHTS,
+    "projection_pair_threshold_classification_must_match": True,
+}
 MASS_ACCUMULATION_CONTRACT = {
     "component_source": "event_readback:_g009_r0_body_mass",
     "component_storage_dtype": "torch.float32",
@@ -105,6 +119,11 @@ HISTORICAL_TERMINATION_FIELDS = (
 HISTORICAL_MISMATCH_FIELDS = HISTORICAL_SCALAR_FIELDS + tuple(
     f"termination_counts.{name}" for name in HISTORICAL_TERMINATION_FIELDS
 )
+PROJECTION_PAIR_EXACT_FIELDS = tuple(
+    field
+    for field in HISTORICAL_SCALAR_FIELDS
+    if field != "max_nonfoot_force_bodyweights"
+) + ("termination_counts",)
 LIVE_CHECK_NAMES = (
     "articulation_solver_iteration_counts_match_contract",
     "rigid_body_max_depenetration_velocity_matches_contract",
@@ -1123,6 +1142,68 @@ def canonical_all_env_nonfoot_force_candidates(
     return candidates
 
 
+def legacy_historical_all_env_nonfoot_force_candidates(
+    force_history: Any,
+    *,
+    native_total_mass_kg: Any,
+    nonfoot_ids: list[int],
+    control_step: int,
+) -> list[dict[str, Any]]:
+    """Reproduce the rev12/rev15 float32 historical projection exactly."""
+
+    import torch
+
+    require(
+        str(force_history.dtype) == "torch.float32"
+        and force_history.ndim == 4
+        and tuple(force_history.shape) == (NUM_ENVS, CONTROL_DECIMATION, 19, 3),
+        "legacy historical force history contract mismatch",
+    )
+    require(
+        bool(force_history.isfinite().all().item()),
+        "legacy historical force history must be finite",
+    )
+    require(
+        str(native_total_mass_kg.dtype) == "torch.float32"
+        and native_total_mass_kg.ndim == 1
+        and tuple(native_total_mass_kg.shape) == (NUM_ENVS,)
+        and native_total_mass_kg.device == force_history.device,
+        "legacy historical native mass contract mismatch",
+    )
+    require(
+        bool(native_total_mass_kg.isfinite().all().item())
+        and bool((native_total_mass_kg > 0.0).all().item()),
+        "legacy historical native mass must be finite and positive",
+    )
+    require(
+        len(nonfoot_ids) == 15
+        and all(type(index) is int and 0 <= index < 19 for index in nonfoot_ids)
+        and len(set(nonfoot_ids)) == 15,
+        "legacy historical nonfoot topology mismatch",
+    )
+    nonfoot_history = torch.linalg.vector_norm(force_history[:, :, nonfoot_ids], dim=-1)
+    step_force_n, flat_index = nonfoot_history.reshape(NUM_ENVS, -1).max(dim=1)
+    step_force_bw = step_force_n / (native_total_mass_kg * 9.81)
+    flat_indices = [int(value) for value in flat_index.detach().cpu().tolist()]
+    force_values = [float(value) for value in step_force_n.detach().cpu().tolist()]
+    bodyweight_values = [
+        float(value) for value in step_force_bw.detach().cpu().tolist()
+    ]
+    candidates = []
+    for env_index, flattened_index in enumerate(flat_indices):
+        history_slot = flattened_index // len(nonfoot_ids)
+        body_offset = flattened_index % len(nonfoot_ids)
+        candidates.append(
+            {
+                "force_n": force_values[env_index],
+                "force_bodyweights": bodyweight_values[env_index],
+                "physics_step": control_step * CONTROL_DECIMATION - history_slot,
+                "body_index": nonfoot_ids[body_offset],
+            }
+        )
+    return candidates
+
+
 def control_step_row(
     *,
     control_step: int,
@@ -2022,10 +2103,89 @@ def _metric_matches(observed: dict[str, Any], reference: dict[str, Any]) -> bool
     return True
 
 
+def validate_projection_pair(
+    observed_pose_metrics: list[dict[str, Any]],
+    historical_comparison_pose_metrics: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Bind canonical and rev12-compatible metrics to the same physical events."""
+
+    require(
+        len(observed_pose_metrics) == NUM_ENVS,
+        "runtime candidate projection must contain 8 pose metrics",
+    )
+    require(
+        len(historical_comparison_pose_metrics) == NUM_ENVS,
+        "historical comparison projection must contain 8 pose metrics",
+    )
+    expected_fields = set(HISTORICAL_SCALAR_FIELDS) | {"termination_counts"}
+    max_force_bw_abs_delta = 0.0
+    for row_index, (candidate, historical) in enumerate(
+        zip(
+            observed_pose_metrics,
+            historical_comparison_pose_metrics,
+            strict=True,
+        )
+    ):
+        require(
+            isinstance(candidate, dict) and isinstance(historical, dict),
+            f"projection pair row {row_index} must contain objects",
+        )
+        require(
+            set(candidate) == expected_fields and set(historical) == expected_fields,
+            f"projection pair row {row_index} field set mismatch",
+        )
+        for field in PROJECTION_PAIR_EXACT_FIELDS:
+            require(
+                type(candidate[field]) is type(historical[field])
+                and candidate[field] == historical[field],
+                f"projection pair row {row_index} shared field {field} mismatch",
+            )
+
+        candidate_value = candidate["max_nonfoot_force_bodyweights"]
+        historical_value = historical["max_nonfoot_force_bodyweights"]
+        require(
+            type(candidate_value) in (int, float)
+            and type(historical_value) in (int, float),
+            f"projection pair row {row_index} force BW values must be numeric",
+        )
+        candidate_bw = float(candidate_value)
+        historical_bw = float(historical_value)
+        require(
+            math.isfinite(candidate_bw)
+            and math.isfinite(historical_bw)
+            and candidate_bw >= 0.0
+            and historical_bw >= 0.0,
+            f"projection pair row {row_index} force BW values must be finite and nonnegative",
+        )
+        force_bw_abs_delta = abs(candidate_bw - historical_bw)
+        require(
+            force_bw_abs_delta <= PROJECTION_PAIR_FORCE_BW_ABS_TOLERANCE,
+            f"projection pair row {row_index} force BW compatibility tolerance exceeded",
+        )
+        require(
+            (candidate_bw <= FORCE_THRESHOLD_BODYWEIGHTS)
+            == (historical_bw <= FORCE_THRESHOLD_BODYWEIGHTS),
+            f"projection pair row {row_index} force threshold classification mismatch",
+        )
+        max_force_bw_abs_delta = max(max_force_bw_abs_delta, force_bw_abs_delta)
+
+    return {
+        "force_bw_abs_tolerance": PROJECTION_PAIR_FORCE_BW_ABS_TOLERANCE,
+        "force_threshold_bodyweights": FORCE_THRESHOLD_BODYWEIGHTS,
+        "max_force_bw_abs_delta": max_force_bw_abs_delta,
+        "all_shared_fields_exact": True,
+        "all_force_bw_finite_nonnegative": True,
+        "all_force_bw_within_tolerance": True,
+        "all_force_threshold_classifications_equal": True,
+        "passed": True,
+    }
+
+
 def build_historical_runtime_summary(
     arm: str,
     device: str,
     observed_pose_metrics: list[dict[str, Any]],
+    historical_comparison_pose_metrics: list[dict[str, Any]],
 ) -> dict[str, Any]:
     reference = HISTORICAL_REPORTS[(arm, device)]
     path = REPO_ROOT / reference["path"]
@@ -2042,10 +2202,18 @@ def build_historical_runtime_summary(
     require(
         len(observed_pose_metrics) == 8, "observed all-env summary must contain 8 cells"
     )
+    require(
+        len(historical_comparison_pose_metrics) == 8,
+        "historical comparison all-env summary must contain 8 cells",
+    )
+    projection_pair_crosscheck = validate_projection_pair(
+        observed_pose_metrics,
+        historical_comparison_pose_metrics,
+    )
     matches = all(
         _metric_matches(observed, expected)
         for observed, expected in zip(
-            observed_pose_metrics, expected_metrics, strict=True
+            historical_comparison_pose_metrics, expected_metrics, strict=True
         )
     )
     candidate_checks = {
@@ -2056,7 +2224,7 @@ def build_historical_runtime_summary(
             for item in observed_pose_metrics
         ),
         "max_nonfoot_force_at_most_15_bodyweights": all(
-            float(item["max_nonfoot_force_bodyweights"]) <= 15.0
+            float(item["max_nonfoot_force_bodyweights"]) <= FORCE_THRESHOLD_BODYWEIGHTS
             for item in observed_pose_metrics
         ),
         "safety_termination_zero": all(
@@ -2084,7 +2252,10 @@ def build_historical_runtime_summary(
         "reference_contract_sha256": expected_contract["canonical_sha256"],
         "reference_report_path": reference["path"],
         "reference_report_sha256": reference["sha256"],
+        "historical_projection_derivation": dict(HISTORICAL_PROJECTION_DERIVATION),
         "pose_metrics": observed_pose_metrics,
+        "historical_comparison_pose_metrics": historical_comparison_pose_metrics,
+        "projection_pair_crosscheck": projection_pair_crosscheck,
         "checks": checks,
         "passed": all(checks.values()),
         "runtime_candidate_checks": candidate_checks,
@@ -2115,7 +2286,7 @@ def historical_fingerprint_mismatches(report: dict[str, Any]) -> list[dict[str, 
     summary = report.get("historical_runtime_summary")
     require(isinstance(summary, dict), "historical summary is required")
     summary = cast(dict[str, Any], summary)
-    observed = summary.get("pose_metrics")
+    observed = summary.get("historical_comparison_pose_metrics")
     require(
         isinstance(observed, list) and len(observed) == NUM_ENVS,
         "historical observed projection must contain 8 rows",
@@ -2615,8 +2786,18 @@ def validate_historical_runtime_summary(report: dict[str, Any]) -> None:
     summary = cast(dict[str, Any], summary)
     pose_metrics = summary.get("pose_metrics")
     require(isinstance(pose_metrics, list), "historical pose metrics are required")
+    historical_comparison_pose_metrics = summary.get(
+        "historical_comparison_pose_metrics"
+    )
+    require(
+        isinstance(historical_comparison_pose_metrics, list),
+        "historical comparison pose metrics are required",
+    )
     expected = build_historical_runtime_summary(
-        arm, device, cast(list[dict[str, Any]], pose_metrics)
+        arm,
+        device,
+        cast(list[dict[str, Any]], pose_metrics),
+        cast(list[dict[str, Any]], historical_comparison_pose_metrics),
     )
     require(summary == expected, "historical runtime summary validation mismatch")
 
@@ -2961,9 +3142,14 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         all_env_total_mass_kg = [
             float(value) for value in mass_evidence["all_env_total_mass_kg"]
         ]
-        max_nonfoot_force_bw = [0.0] * NUM_ENVS
-        max_nonfoot_force_step = [-1] * NUM_ENVS
-        max_nonfoot_body_index = [-1] * NUM_ENVS
+        historical_native_total_mass_kg = raw_env._g009_r0_body_mass.sum(dim=1)
+        canonical_max_nonfoot_force_bw = [0.0] * NUM_ENVS
+        canonical_max_nonfoot_force_step = [-1] * NUM_ENVS
+        canonical_max_nonfoot_body_index = [-1] * NUM_ENVS
+        historical_max_nonfoot_force_n = [0.0] * NUM_ENVS
+        historical_max_nonfoot_force_bw = [0.0] * NUM_ENVS
+        historical_max_nonfoot_force_step = [-1] * NUM_ENVS
+        historical_max_nonfoot_body_index = [-1] * NUM_ENVS
         max_root_angular_speed = torch.zeros(NUM_ENVS, device=raw_env.device)
         max_joint_speed = torch.zeros(NUM_ENVS, device=raw_env.device)
         all_env_termination_counts = {
@@ -3001,10 +3187,33 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
             )
             for env_index, candidate in enumerate(force_candidates):
                 force_bw = candidate["force_bodyweights"]
-                if force_bw > max_nonfoot_force_bw[env_index]:
-                    max_nonfoot_force_bw[env_index] = force_bw
-                    max_nonfoot_force_step[env_index] = candidate["physics_step"]
-                    max_nonfoot_body_index[env_index] = candidate["body_index"]
+                if force_bw > canonical_max_nonfoot_force_bw[env_index]:
+                    canonical_max_nonfoot_force_bw[env_index] = force_bw
+                    canonical_max_nonfoot_force_step[env_index] = candidate[
+                        "physics_step"
+                    ]
+                    canonical_max_nonfoot_body_index[env_index] = candidate[
+                        "body_index"
+                    ]
+            historical_candidates = legacy_historical_all_env_nonfoot_force_candidates(
+                history,
+                native_total_mass_kg=historical_native_total_mass_kg,
+                nonfoot_ids=nonfoot_ids,
+                control_step=control_step,
+            )
+            for env_index, candidate in enumerate(historical_candidates):
+                force_n = candidate["force_n"]
+                if force_n > historical_max_nonfoot_force_n[env_index]:
+                    historical_max_nonfoot_force_n[env_index] = force_n
+                    historical_max_nonfoot_force_bw[env_index] = candidate[
+                        "force_bodyweights"
+                    ]
+                    historical_max_nonfoot_force_step[env_index] = candidate[
+                        "physics_step"
+                    ]
+                    historical_max_nonfoot_body_index[env_index] = candidate[
+                        "body_index"
+                    ]
             max_root_angular_speed = torch.maximum(
                 max_root_angular_speed,
                 robot.data.root_ang_vel_b.norm(dim=1),
@@ -3041,45 +3250,76 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         if clock_snapshot["passed"] is not True:
             raise PhysicsStepClockEvidenceError(clock_snapshot, mass_evidence)
         all_env_separation = contact_authority["all_env_minimum_separation_m"]
-        observed_pose_metrics: list[dict[str, Any]] = []
+        historical_pose_metrics: list[dict[str, Any]] = []
+        runtime_candidate_pose_metrics: list[dict[str, Any]] = []
         pose_names = ("prone", "supine", "left_side", "right_side")
         for env_index in range(NUM_ENVS):
-            body_index = max_nonfoot_body_index[env_index]
-            observed_pose_metrics.append(
+            shared_metric = {
+                "env_index": env_index,
+                "pose_id": pose_names[env_index % 4],
+                "action_mode": (
+                    "zero_normalized" if env_index < 4 else "reset_pose_hold"
+                ),
+                "max_root_angular_speed_rad_s": float(
+                    max_root_angular_speed[env_index].item()
+                ),
+                "max_joint_speed_rad_s": float(max_joint_speed[env_index].item()),
+                "termination_counts": {
+                    name: int(counts[env_index].item())
+                    for name, counts in all_env_termination_counts.items()
+                },
+                "min_contact_separation_m": (
+                    all_env_separation[env_index]
+                    if normalized_device == "cpu"
+                    else None
+                ),
+            }
+            historical_body_index = historical_max_nonfoot_body_index[env_index]
+            historical_pose_metrics.append(
                 {
-                    "env_index": env_index,
-                    "pose_id": pose_names[env_index % 4],
-                    "action_mode": (
-                        "zero_normalized" if env_index < 4 else "reset_pose_hold"
-                    ),
-                    "max_nonfoot_force_bodyweights": max_nonfoot_force_bw[env_index],
-                    "max_nonfoot_force_physics_step": max_nonfoot_force_step[env_index],
-                    "max_nonfoot_force_body_index": body_index,
+                    **shared_metric,
+                    "max_nonfoot_force_bodyweights": historical_max_nonfoot_force_bw[
+                        env_index
+                    ],
+                    "max_nonfoot_force_physics_step": historical_max_nonfoot_force_step[
+                        env_index
+                    ],
+                    "max_nonfoot_force_body_index": historical_body_index,
                     "max_nonfoot_force_body_name": (
-                        body_names[body_index] if body_index >= 0 else None
+                        body_names[historical_body_index]
+                        if historical_body_index >= 0
+                        else None
                     ),
-                    "max_root_angular_speed_rad_s": float(
-                        max_root_angular_speed[env_index].item()
-                    ),
-                    "max_joint_speed_rad_s": float(max_joint_speed[env_index].item()),
-                    "termination_counts": {
-                        name: int(counts[env_index].item())
-                        for name, counts in all_env_termination_counts.items()
-                    },
-                    "min_contact_separation_m": (
-                        all_env_separation[env_index]
-                        if normalized_device == "cpu"
+                }
+            )
+            canonical_body_index = canonical_max_nonfoot_body_index[env_index]
+            runtime_candidate_pose_metrics.append(
+                {
+                    **shared_metric,
+                    "max_nonfoot_force_bodyweights": canonical_max_nonfoot_force_bw[
+                        env_index
+                    ],
+                    "max_nonfoot_force_physics_step": canonical_max_nonfoot_force_step[
+                        env_index
+                    ],
+                    "max_nonfoot_force_body_index": canonical_body_index,
+                    "max_nonfoot_force_body_name": (
+                        body_names[canonical_body_index]
+                        if canonical_body_index >= 0
                         else None
                     ),
                 }
             )
         historical_summary = build_historical_runtime_summary(
-            normalized_arm, normalized_device, observed_pose_metrics
+            normalized_arm,
+            normalized_device,
+            runtime_candidate_pose_metrics,
+            historical_pose_metrics,
         )
         safety_termination_counts = {
             name: sum(
                 metric["termination_counts"].get(name, 0)
-                for metric in observed_pose_metrics
+                for metric in runtime_candidate_pose_metrics
             )
             for name in ("numeric_invalid", "hard_joint_limit")
         }
