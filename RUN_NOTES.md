@@ -406,6 +406,57 @@ clean source commit `9da3e87e4be9142035d24e8a4a22e204f8b229d5`에서 CPU·GPU �
 - 다음 rev15는 기각된 rev13·rev14 계보에서 resume하거나 누적 변경하지 않는다. 마지막 승인 runtime인 rev12의 articulation `position=8 / velocity=0`, `max_depenetration_velocity=1.0m/s`를 baseline으로 새 scratch를 만든다. 단일변수는 position iteration `8 → 16`이며 contact offset과 rest offset은 그대로 둔다. CPU separation을 progression gate에 포함해 CPU strict `3/3` 전에는 GPU와 PPO를 열지 않는다.
 - 근거: [Isaac Lab rigid-body schema](https://isaac-sim.github.io/IsaacLab/v2.0.0/source/api/lab/isaaclab.sim.schemas.html), [PhysX PxRigidBody API](https://nvidia-omniverse.github.io/PhysX/physx/5.3.1/_api_build/class_px_rigid_body.html), [PhysX articulation solver API](https://nvidia-omniverse.github.io/PhysX/physx/5.3.0/_api_build/class_px_articulation_reduced_coordinate.html).
 
+#### rev15 position iteration 단일변수와 backend force divergence
+
+- rev15는 마지막 승인 runtime rev12 `position=8 / velocity=0`, rigid-body `max_depenetration_velocity=1.0m/s`로 돌아간 뒤 position iteration만 `8 → 16`으로 바꾼 scratch 진단이다. source commit `bc999d504e226011ff3d83e68a416b9049b406cb`, source bundle SHA-256 `218671a84f2748f7b94a426490057318b0896e2160454f6928c4277dee7435df`, canonical contract SHA-256 `5f29ba19458404b5009d3734294c57e79294efecc7fe03bf8c71c71656129832`다.
+- seed `42`, headless, `8 env × 150 control step`, physics/control `0.005/0.02s`, 네 pose와 zero-normalized/reset-pose-hold action을 고정했다. CPU와 `cuda:0`에서 독립 프로세스 세 번씩 실행했고 live articulation 8개는 solver `16/0`, 152개 rigid body는 `max_depenetration_velocity=1.0m/s`였다.
+- CPU는 non-foot peak `13.2482814789 BW`, authoritative separation `-0.00935308635m`, numeric-invalid `0`, hard-joint-limit `0`으로 `3/3` 통과했다. GPU는 env 7/right-side/reset-pose-hold/base, physics step `129`에서 `16.7882747650 BW`를 `3/3` 재현했다. `15 BW`보다 `11.92%` 높으므로 strict synthesis는 `rejected_before_gate01`이다.
+- GPU contact separation은 authority가 없어 `unavailable`이다. 값이 비어 있다는 사실을 PASS로 해석하지 않았다. Gate01·Gate10·PPO는 실행하지 않았고, rollout batch·mini-batch·epoch·optimizer update는 모두 `0`이다. qualification은 `not_run`, `learned=false`다.
+- 번호 `06`은 `cuda:0` right-side/reset-hold를 실제 Isaac Sim headless off-screen camera로 촬영한 진단 영상이고, `07`은 CPU/GPU 수치를 그린 텔레메트리다. MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev15_06_gpu_right_side_force_fail_s42.mp4`에만 보관한다.
+
+#### rev16 backend divergence attribution 12-run 실제 결과
+
+- rev16 source commit은 `9ac874f48a1403e0ed838beb5e75938db5873d1c`, source bundle SHA-256은 `8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a`다. Arm A는 rev12 solver `8/0`, Arm B는 rev15 solver `16/0`이며 두 arm 모두 rigid-body `max_depenetration_velocity=1.0m/s`다. position iteration 외 timestep, pose/action assignment, contact threshold, reward, curriculum, termination, motor와 action 계약은 바꾸지 않았다.
+- 실행 순서는 A CPU 3회 → A GPU 3회 → B CPU 3회 → B GPU 3회다. 각 그룹의 세 report를 fail-closed synthesis하고 `evidence_synthesis_valid=true`와 다음 그룹 ID를 확인한 뒤에만 다음 그룹을 열었다. 최종 입력은 12개 report, 네 그룹이며 모두 서로 다른 execution ID다.
+- 각 실행은 seed `42`, headless, `8 env`, `600 physics step`, `150 control step`, physics/control timestep `0.005/0.02s`, decimation `4`다. physics row에는 env 7의 19 body force, base/non-foot force와 impulse, history slot과 clock을 기록했다. control row에는 root pose/twist, 19 link velocity, 12 joint position·velocity·torque, raw action, processed/previous EMA target을 기록했다. peak window는 physics step 기준 ±8이다.
+- 실행은 GUI 창을 띄우지 않는 headless 방식이지만 PhysX와 control loop를 모두 수행했다. 진단에는 PPO runner를 만들지 않았고 rollout batch `0`, mini-batch `0`, epoch `0`, optimizer update `0`이다. RECOVER reward 식과 PPO 계약은 그대로 보존했지만 이번 결과 계산에는 사용하지 않았다.
+
+재현 명령의 기본 형태는 다음과 같다. 실제 실행에서는 `replicate-index 1..3`과 그룹별 output 파일명을 사용하고, GPU와 다음 arm에는 직전 synthesis 파일을 `--predecessor-synthesis`로 전달했다.
+
+```powershell
+cd "$HOME\isaac-walk-rl"
+$isaacPython = "$HOME\IsaacLab\_isaac_sim\python.bat"
+
+& $isaacPython .\scripts\probe_g009_r0_rev16_backend_divergence.py `
+  --arm A --replicate-index 1 --device cpu --headless `
+  --output .\reports\runs\g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json
+
+py -X utf8 .\scripts\summarize_g009_r0_rev16_backend_divergence.py `
+  .\reports\runs\g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json `
+  .\reports\runs\g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json `
+  .\reports\runs\g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json `
+  --output .\reports\runs\g009_r0_rev16_synthesis_03_a_cpu_retry02_s42.json
+```
+
+- historical reproduction은 rev12·rev15 당시의 native Torch float32 norm, mass sum, BW normalization, first-max index를 별도 projection으로 복원한다. 현재 canonical physics telemetry는 float32 source를 Python float로 옮긴 뒤 `math.fsum`과 제곱근으로 계산한다. historical fingerprint의 `abs_tol=1e-6`은 완화하지 않았다.
+- 두 projection에는 별도 pair crosscheck를 적용했다. shared body/step 필드 exact, force finite/nonnegative, force delta `≤4e-6 BW`, `15 BW` 기준 양쪽 classification 동일을 모두 요구했다. 12회 모두 PASS이며 최대 delta는 B GPU `2.3343854494e-6 BW`다.
+
+| 그룹 | right-side/reset-hold base peak | step | peak/window impulse | concentration | peak-window root/joint speed |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| A CPU `8/0` | `9.3328602041 BW` | `131` | `6.87535/14.06690 N·s` | `0.4887608254` | `6.58623/10.62038` |
+| A GPU `8/0` | `8.7950077539 BW` | `130` | `6.47912/14.26115 N·s` | `0.4543198511` | `6.78388/7.71533` |
+| B CPU `16/0` | `13.2482805877 BW` | `130` | `9.75977/14.48611 N·s` | `0.6737326952` | `6.81454/7.28135` |
+| B GPU `16/0` | `16.7882770994 BW` | `129` | `12.36762/15.50992 N·s` | `0.7974004593` | `11.18898/10.78476` |
+
+- 사전 가설의 아홉 검사는 세 replicate에 똑같이 나왔다. B GPU `>15 BW`, B CPU와 A GPU보다 한 substep 이른 peak, A GPU보다 큰 concentration, action·EMA 최대 오차 `0`, B GPU root/joint speed 상승, safety `0`은 PASS다. 유일한 FAIL은 `B GPU/B CPU concentration ≥1.20`이며 실제 비는 `1.183556126964255`다.
+- 검사 하나라도 실패하면 다수결로 통과시키지 않는 계약에 따라 `hypothesis=inconclusive`, `supported_3_of_3=false`다. `18.36%`를 보고 사후 임계값을 낮추지 않았다. B GPU force도 `15 BW`를 넘으므로 position 16은 계속 기각한다.
+- B CPU/GPU first-control divergence는 control step `1`의 joint velocity, first-physics divergence는 physics step `128`의 base force다. 이는 관측 시작점이지 인과 확정이 아니다. contact point·body pair·normal·separation은 CPU authority이고 GPU에서는 `unavailable`로 남겼다.
+- 최종 synthesis는 `reports/runs/g009_r0_rev16_synthesis_12_full_retry01_s42.json`이다. 중간 synthesis는 `03_a_cpu`, `06_a_cpu_gpu`, `09_a_all_b_cpu` 순으로 보존한다. 최종 governance는 position16 accepted `false`, Gate01/Gate10 `forbidden`, PPO `not_run`, qualification `not_run`, `learned=false`다.
+- 번호 `08`은 Arm B `cuda:0`, env 7, `right_side / reset_pose_hold`, solver `16/0`, max depenetration `1.0m/s`의 실제 Isaac Sim headless off-screen camera footage다. 조건 일치 재생이며 원 report의 force를 영상 픽셀에서 측정했다는 뜻은 아니다. 공개 GIF·PNG와 capture/visual sidecar에는 `DIAGNOSTIC`, `REJECTED`, `NO PPO`, `NOT QUALIFIED`를 고정했다.
+- `08` 로컬 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev16_08_b_gpu_right_side_force_repro_s42.mp4`다. H.264 `1280×720`, `50fps`, `151 frames`, `3.02s`, `267,188 bytes`, SHA-256 `151146e078ce19f113e197fef931c4e32014424af2d7ce0ef20db7f6c40618b0`이며 Git 경로에는 MP4가 없다. 실행 데이터는 커밋 `9ac874f48a1403e0ed838beb5e75938db5873d1c`·bundle `8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a`, 카메라 recorder는 clean capture 커밋 `51f2c63eaf408525fc5ddce3249f8138b8c5baaa`·bundle `599487d4669b90472688428b2c9feb6f1d527235eec4e7017f0f2f2edd9962e1`로 분리해 검증했다.
+- 번호 `09`는 A CPU/A GPU/B CPU/B GPU의 force·peak step·17-step impulse concentration·`5/10/15 BW` exposure와 `1.183556 < 1.20`을 표시한 텔레메트리다. camera footage가 아니며 GIF·PNG·JSON sidecar만 공개한다.
+- 다음 rev17은 B CPU/GPU physics step `128~130`에서 peak/window impulse 분자·분모와 base·link별 하중 경로를 분리하는 진단이다. 그 결과로 물리 lever 하나를 고른 뒤 rev12 `8/0`에서 새 scratch 후보를 만든다. CPU·GPU 각 독립 `3/3`에서 force, CPU separation, numeric/hard safety를 통과하기 전에는 Gate01과 PPO를 열지 않는다.
+
 #### 단계별 영상·공개 정책
 
 - 원본 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0` 아래에만 보관하고 Git에 넣지 않는다. 사용자가 확인할 원본과 합성 MP4도 `local_only`다.

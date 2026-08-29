@@ -1,0 +1,173 @@
+{
+  "schema_version": "g009.r0.rev16.camera_capture.v1",
+  "capture_id": "aaf4aa627c7c483589ef587e0f19fada",
+  "captured_at_utc": "2026-08-29T08:56:24Z",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "stage_number": "08",
+  "revision": "rev16",
+  "status": "rejected",
+  "diagnostic_only": true,
+  "camera_footage": true,
+  "telemetry_animation": false,
+  "headless": true,
+  "offscreen": true,
+  "labels": [
+    "DIAGNOSTIC",
+    "REJECTED",
+    "NO PPO",
+    "NOT QUALIFIED",
+    "RIGHT_SIDE",
+    "RESET_POSE_HOLD"
+  ],
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+  "seed": 42,
+  "device": "cuda:0",
+  "source_env_index": 7,
+  "pose_id": "right_side",
+  "action_mode": "reset_pose_hold",
+  "physics": {
+    "arm": "B",
+    "solver": "16/0",
+    "max_depenetration_velocity_m_s": 1.0
+  },
+  "source": {
+    "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep01_retry01_s42.json",
+    "sha256": "9cb36810c81f892001557fd6ac3772ae3b8370e3ca1e3daab01e79b17080886d",
+    "commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+    "bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+  },
+  "capture_source": {
+    "capture_commit": "51f2c63eaf408525fc5ddce3249f8138b8c5baaa",
+    "source_bundle": {
+      "schema_version": 1,
+      "git_commit": "51f2c63eaf408525fc5ddce3249f8138b8c5baaa",
+      "runtime_source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+      "runtime_source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+      "hash_validation": "runtime hash must equal raw checkout or CRLF-to-LF canonical SHA-256",
+      "source_binding_files": {
+        "configs/g009_r0.json": "88f9d5e7f7c4025fce4ee921fcee690a771e042a6861ab19975514757b774eb1",
+        "reports/runs/g009_r0_rev16_arm_b_gpu_rep01_retry01_s42.json": "9cb36810c81f892001557fd6ac3772ae3b8370e3ca1e3daab01e79b17080886d",
+        "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep01_s42.json": "fb8bad2190389c3e964d1807a0f54ea700ddfd6919765105c04b93bfa8c7dd75",
+        "reports/runs/g009_r0_runtime_probe_rev12_gpu_rep01_s42.json": "e485a3fcab5d8f8e6a793d30f76fb0a3ce346e27ed89a158409862e3e32414d1",
+        "reports/runs/g009_r0_runtime_probe_rev15_cpu_rep01_s42.json": "426f4fe1085aeddad52c77d98fc74a55907dcc90d7084ebe8b4fde736b60e9d5",
+        "reports/runs/g009_r0_runtime_probe_rev15_gpu_rep01_s42.json": "e24674a1ed33c38fbe5f12d19dc068167b9787e75323efbe55629bf059839b91",
+        "scripts/probe_g009_r0_rev16_backend_divergence.py": "206db008303bd4ca13de0997c9648dc54d6f6f8aa09862834d78da43deeed19a",
+        "scripts/probe_g009_recover_runtime.py": "48d66ef07da8e38ca1d327363838f5cc352e4de1a355c568bce8322b3dd4d8dd",
+        "scripts/record_g009_r0_rev15_gpu_right_side.py": "147e40f58fce3f8a2f0588cf6814d9544a824b65bc2f221f895ba764437cf5c1",
+        "scripts/record_g009_r0_rev16_b_gpu_right_side.py": "aaa4f82224a1952a5da555e12c0598345944996b3a2dd0a052656a24bb781f7d",
+        "scripts/summarize_g009_r0_rev16_backend_divergence.py": "98442c116ef7644e230b07842655efe1f01a2cb12525def541084cd42f94bf69",
+        "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+        "src/isaac_walk_g009/recover_contracts.py": "a55dddd8d245d06b20c3cd943c6f8d53949657b229bb63cfdcdea7eb0a787546",
+        "src/isaac_walk_g009/recover_env_cfg.py": "db548cf339d92243e2037951a8d6b475c4bff5f8458036d04568d67aee05dd81",
+        "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+      },
+      "checkout_raw_sha256": {
+        "configs/g009_r0.json": "88f9d5e7f7c4025fce4ee921fcee690a771e042a6861ab19975514757b774eb1",
+        "reports/runs/g009_r0_rev16_arm_b_gpu_rep01_retry01_s42.json": "9cb36810c81f892001557fd6ac3772ae3b8370e3ca1e3daab01e79b17080886d",
+        "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep01_s42.json": "2582d940c49a30970ab9dcc9a67e5ce759663a319425bee511e153914f091222",
+        "reports/runs/g009_r0_runtime_probe_rev12_gpu_rep01_s42.json": "3802cc0abe28162c237a4d4d446597c125d186cf8bcb1a671d9c4cfd1cbf08aa",
+        "reports/runs/g009_r0_runtime_probe_rev15_cpu_rep01_s42.json": "dcddaa037edbb09078c1a68dd34005da0c547dbc7d0543bd389ca1ec926f2e9f",
+        "reports/runs/g009_r0_runtime_probe_rev15_gpu_rep01_s42.json": "30116722f8453651f06d403021784fcc4a40981e674dce8c2efab99ba5e158e7",
+        "scripts/probe_g009_r0_rev16_backend_divergence.py": "e1ec2fdc848afcb98a9cc1755ec8294cc538ad735b0a78eb5bcdaf76390e3ba9",
+        "scripts/probe_g009_recover_runtime.py": "2483b12ad796d5584f74fbbac8b9b9a499bf1269b61ecb7c172ef02774f6f979",
+        "scripts/record_g009_r0_rev15_gpu_right_side.py": "e8d01e05af28c818443b9ef3a870101b30b12af9abd28c7145bf9107f9729f8b",
+        "scripts/record_g009_r0_rev16_b_gpu_right_side.py": "0b9857d4339b55f32a8c6fbd3337802ee3ff2121b3b1a93089937818d66c14c8",
+        "scripts/summarize_g009_r0_rev16_backend_divergence.py": "91ce8371c6e7a9d0566aa305eddffc25e300765781fc5a16b7b52f79b844832d",
+        "src/isaac_walk_g009/mdp/events.py": "da474178b54d89f7a70bb80872869a486ec7751d8b7e185c72401f44e343cfdb",
+        "src/isaac_walk_g009/recover_contracts.py": "1855eb7f48a34b153e47cd552588c75377c95eaa72777fe321ab3331cae1f1be",
+        "src/isaac_walk_g009/recover_env_cfg.py": "f944d067033382d7c762af346733d7a7c4c98aa48717d298e323dee7092f682c",
+        "src/isaac_walk_g009/registry.py": "deaae59b271d12199e5c436ef32a1972bc62f77702fbe0fae3f41e9f24cb62bc"
+      },
+      "checkout_canonical_lf_sha256": {
+        "configs/g009_r0.json": "869747af4e57a51f5ae2a687c9e704a8eb16a0efe700d5877ba2b4859b90d8ab",
+        "reports/runs/g009_r0_rev16_arm_b_gpu_rep01_retry01_s42.json": "9cb36810c81f892001557fd6ac3772ae3b8370e3ca1e3daab01e79b17080886d",
+        "reports/runs/g009_r0_runtime_probe_rev12_cpu_rep01_s42.json": "fb8bad2190389c3e964d1807a0f54ea700ddfd6919765105c04b93bfa8c7dd75",
+        "reports/runs/g009_r0_runtime_probe_rev12_gpu_rep01_s42.json": "e485a3fcab5d8f8e6a793d30f76fb0a3ce346e27ed89a158409862e3e32414d1",
+        "reports/runs/g009_r0_runtime_probe_rev15_cpu_rep01_s42.json": "426f4fe1085aeddad52c77d98fc74a55907dcc90d7084ebe8b4fde736b60e9d5",
+        "reports/runs/g009_r0_runtime_probe_rev15_gpu_rep01_s42.json": "e24674a1ed33c38fbe5f12d19dc068167b9787e75323efbe55629bf059839b91",
+        "scripts/probe_g009_r0_rev16_backend_divergence.py": "206db008303bd4ca13de0997c9648dc54d6f6f8aa09862834d78da43deeed19a",
+        "scripts/probe_g009_recover_runtime.py": "48d66ef07da8e38ca1d327363838f5cc352e4de1a355c568bce8322b3dd4d8dd",
+        "scripts/record_g009_r0_rev15_gpu_right_side.py": "147e40f58fce3f8a2f0588cf6814d9544a824b65bc2f221f895ba764437cf5c1",
+        "scripts/record_g009_r0_rev16_b_gpu_right_side.py": "aaa4f82224a1952a5da555e12c0598345944996b3a2dd0a052656a24bb781f7d",
+        "scripts/summarize_g009_r0_rev16_backend_divergence.py": "98442c116ef7644e230b07842655efe1f01a2cb12525def541084cd42f94bf69",
+        "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+        "src/isaac_walk_g009/recover_contracts.py": "a55dddd8d245d06b20c3cd943c6f8d53949657b229bb63cfdcdea7eb0a787546",
+        "src/isaac_walk_g009/recover_env_cfg.py": "db548cf339d92243e2037951a8d6b475c4bff5f8458036d04568d67aee05dd81",
+        "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+      },
+      "source_bundle_sha256": "599487d4669b90472688428b2c9feb6f1d527235eec4e7017f0f2f2edd9962e1",
+      "all_files_present": true,
+      "clean": true,
+      "dirty_paths": []
+    },
+    "contract_sha256": "6ba6c43c0c1f1f2c8357666a4749c2aef7520a0d9579fa6c0afeedab976043e6"
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "qualification_eligible": false,
+    "learned": false,
+    "ppo": {
+      "allowed": false,
+      "status": "not_run"
+    },
+    "gate01": {
+      "allowed": false,
+      "status": "forbidden"
+    },
+    "gate10": {
+      "allowed": false,
+      "status": "forbidden"
+    },
+    "qualification": {
+      "eligible": false,
+      "status": "not_run",
+      "passed": null
+    }
+  },
+  "blocking_cell": {
+    "env_index": 7,
+    "pose_id": "right_side",
+    "action_mode": "reset_pose_hold",
+    "max_nonfoot_force_bodyweights": 16.788277099400098,
+    "max_nonfoot_force_threshold_bodyweights": 15.0,
+    "max_nonfoot_force_body_name": "base",
+    "max_nonfoot_force_physics_step": 129,
+    "result": "reproduced_over_limit"
+  },
+  "camera": {
+    "resolution": [
+      1280,
+      720
+    ],
+    "eye_world": [
+      -2.2,
+      2.8,
+      0.95
+    ],
+    "lookat_world": [
+      -3.75,
+      1.25,
+      0.22
+    ]
+  },
+  "timing": {
+    "physics_dt_s": 0.005,
+    "control_dt_s": 0.02,
+    "decimation": 4,
+    "rollout_steps": 150,
+    "rollout_duration_s": 3.0
+  },
+  "evidence_scope": "off-screen Isaac Sim camera playback; force values are bound to the input JSON, not inferred from pixels",
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev16_08_b_gpu_right_side_force_repro_s42.mp4",
+    "sha256": "151146e078ce19f113e197fef931c4e32014424af2d7ce0ef20db7f6c40618b0",
+    "bytes": 267188,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 720,
+    "frame_rate": "50/1",
+    "duration_s": 3.02
+  }
+}

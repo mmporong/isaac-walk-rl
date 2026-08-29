@@ -1,0 +1,114 @@
+{
+  "schema_version": "g009.r0.rev16.four_group_visual_evidence.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "stage_number": "09",
+  "revision": "rev16",
+  "status": "rejected",
+  "diagnostic_only": true,
+  "camera_footage": false,
+  "telemetry_animation": true,
+  "headless": true,
+  "labels": [
+    "PUBLIC DIAGNOSTIC",
+    "TELEMETRY ANIMATION · NOT CAMERA FOOTAGE",
+    "09 FOUR-GROUP DYNAMICS",
+    "NO PPO",
+    "REJECTED",
+    "NOT QUALIFIED"
+  ],
+  "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+  "source": {
+    "path": "reports/runs/g009_r0_rev16_synthesis_12_full_retry01_s42.json",
+    "sha256": "d39931ad6ddf6104095a6276e9b6db3a047d044d203e034f2d38f1f172e0288d"
+  },
+  "governance": {
+    "position16_accepted": false,
+    "position16_status": "rejected_even_if_hypothesis_supported",
+    "diagnostic_only": true,
+    "learned": false,
+    "ppo": {
+      "allowed": false,
+      "status": "not_run"
+    },
+    "gate01": {
+      "allowed": false,
+      "status": "forbidden"
+    },
+    "gate10": {
+      "allowed": false,
+      "status": "forbidden"
+    },
+    "qualification": {
+      "eligible": false,
+      "status": "not_run",
+      "passed": null
+    }
+  },
+  "hypothesis": {
+    "decision": "inconclusive",
+    "concentration_ratio": 1.183556126964255,
+    "required_ratio": 1.2,
+    "passed": false
+  },
+  "groups": [
+    {
+      "label": "A CPU",
+      "peak_force_bodyweights": 9.332860204105899,
+      "peak_step": 131,
+      "concentration_index": 0.48876082535996307,
+      "exposure_steps": {
+        "5": 2,
+        "10": 0,
+        "15": 0
+      }
+    },
+    {
+      "label": "A GPU",
+      "peak_force_bodyweights": 8.79500775388691,
+      "peak_step": 130,
+      "concentration_index": 0.4543198511243181,
+      "exposure_steps": {
+        "5": 2,
+        "10": 0,
+        "15": 0
+      }
+    },
+    {
+      "label": "B CPU",
+      "peak_force_bodyweights": 13.248280587723672,
+      "peak_step": 130,
+      "concentration_index": 0.6737326951635448,
+      "exposure_steps": {
+        "5": 1,
+        "10": 1,
+        "15": 0
+      }
+    },
+    {
+      "label": "B GPU",
+      "peak_force_bodyweights": 16.788277099400098,
+      "peak_step": 129,
+      "concentration_index": 0.7974004592969541,
+      "exposure_steps": {
+        "5": 1,
+        "10": 1,
+        "15": 1
+      }
+    }
+  ],
+  "png": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev16_09_four_group_telemetry.png",
+    "sha256": "173e6546f243fc257475d4d02191a33d93b5fb85dbe7200a24450b7c1893b5d6",
+    "bytes": 70554,
+    "width": 1280,
+    "height": 720
+  },
+  "gif": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev16_09_four_group_telemetry.gif",
+    "sha256": "504295795e9651cab65a91251fefdb924ff6f25f9d3f0957e1dda121360c337d",
+    "bytes": 117686,
+    "frames": 6,
+    "duration_ms": 5100
+  }
+}

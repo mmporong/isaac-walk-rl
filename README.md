@@ -62,7 +62,7 @@ G008-1 command smoke -> G008-2 command PPO
 | `G009-2` | 6개 경사 × 4개 방위 analytic gate (`S0`) | 지형 검증 | `24/24` 통과 |
 | `G009-3` | collision mesh·마찰·support-normal reset (`S0`) | Isaac runtime 검증 | 완료 |
 | `G009-4` | 5°·15°·25° 동일 조건 재생 (`S0`) | 시각 증거 | 완료, 25°는 실패 경계 |
-| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전 귀속 | rev12 gate10 기각·full-state 귀속 완료, rev13·rev14 기각, rev15 CPU·GPU runtime 각 `3/3` 완료 후 GPU force strict 기각, Gate01·Gate10·PPO 미실행 |
+| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전 귀속 | rev12 gate10 기각·full-state 귀속 완료, rev13·rev14·rev15 기각, rev16 12-run attribution 완료·가설 `inconclusive`, Gate01·Gate10·PPO 미실행 |
 | `G009-6` | 5°·10° 횡경사 WALK (`S1-low`) | 다음 강화학습 | R0·calibration 뒤 실행 |
 
 G008의 상세 번호표는 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md), G009의 전체 후속 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에서 이어집니다.
@@ -212,7 +212,27 @@ CPU는 세 번 모두 non-foot peak force `13.2482814789 BW`, worst contact sepa
 
 `06`은 `cuda:0` physics를 headless로 실행하면서 off-screen 카메라로 촬영한 실제 Isaac Sim 진단 영상입니다. 창을 띄우지 않았다는 뜻이지 physics를 생략했다는 뜻이 아니며, PPO checkpoint를 사용한 보행·복구 영상도 아닙니다. `07`은 `TELEMETRY ANIMATION · NOT CAMERA FOOTAGE`로 표시한 CPU/GPU 수치 비교입니다. 로컬 전용 H.264 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev15_06_gpu_right_side_force_fail_s42.mp4`, SHA-256은 `5c3436ce16edc3ea904b609d5a2a975db0b1fef052a78e233cd03f958f129b86`입니다. 정량 결론은 [`rev15 3×3 rejection synthesis`](reports/runs/g009_r0_runtime_probe_rev15_rejection_synthesis_3x3_s42.json)에 있습니다.
 
-다음 단계는 PPO 학습이 아니라 rev12와 rev15의 동일 pose/action 경로에서 CPU/GPU contact impulse, normal force, root 상태와 solver readback을 physics step 단위로 맞춰 최초 divergence 시점을 찾는 진단입니다. 그 원인이 분리되고 새 단일변수 후보가 CPU·GPU 각각 `3/3` 관문을 통과한 뒤에만 scratch Gate01을 엽니다.
+다음 단계는 PPO 학습이 아니라 rev12와 rev15의 동일 pose/action 경로에서 CPU/GPU contact impulse, normal force, root 상태와 solver readback을 physics step 단위로 맞춰 최초 divergence 시점을 찾는 진단이었습니다. rev16에서 이 계획을 12회 실행했고 결과는 아래와 같습니다.
+
+## G009-5 R0 rev16 backend divergence attribution
+
+rev16은 source commit `9ac874f48a1403e0ed838beb5e75938db5873d1c`에서 rev12 solver `8/0`을 Arm A, rev15 solver `16/0`을 Arm B로 두고 CPU·GPU를 각각 세 번 실행했습니다. 모든 실행은 seed `42`, headless, `8 env × 600 physics step × 150 control step`이며, Arm A CPU → A GPU → B CPU → B GPU 순서로 앞 단계 synthesis가 유효할 때만 다음 그룹을 열었습니다. 12개 report 모두 historical fingerprint, live solver/depenetration readback, telemetry count, numeric-invalid `0`, hard-joint-limit `0`을 통과했습니다.
+
+right-side/reset-hold base peak는 A CPU `9.3328602041 BW`(step 131), A GPU `8.7950077539 BW`(130), B CPU `13.2482805877 BW`(130), B GPU `16.7882770994 BW`(129)였습니다. B GPU의 peak-window root angular speed `11.1889840753rad/s`와 joint speed `10.7847614288rad/s`도 B CPU와 A GPU보다 높았습니다. action과 EMA trace의 최대 차이는 `0`이었습니다.
+
+그러나 사전에 정한 핵심 판정은 통과하지 못했습니다. B GPU/B CPU impulse concentration ratio가 세 번 모두 `1.18355612696`으로, 기준 `1.20`보다 낮았습니다. 다른 검사 여덟 개가 참이어도 다수결로 바꾸지 않는 계약이므로 최종 가설은 `inconclusive`, `supported_3_of_3=false`입니다. position iteration 16은 B GPU force `16.7882770994 BW > 15 BW` 때문에 계속 기각합니다.
+
+과거 rev12·rev15의 native Torch float32 fingerprint와 현재 canonical telemetry 산식은 별도 projection으로 분리했습니다. historical tolerance `1e-6`은 유지했고, 두 projection의 shared field·finite 값·`15 BW` 분류·force 차이 `≤4e-6 BW`를 별도 crosscheck했습니다. 12회 모두 통과했고 최대 차이는 `2.3343854494e-6 BW`였습니다.
+
+rev16은 학습이 아닙니다. RECOVER 보상 함수와 PPO 계약은 그대로 있지만 rollout batch, mini-batch, epoch, optimizer update는 모두 `0`입니다. Gate01·Gate10은 `forbidden`, PPO·qualification은 `not_run`, `learned=false`입니다. 정량 결론과 12개 입력 report는 [`rev16 12-run final synthesis`](reports/runs/g009_r0_rev16_synthesis_12_full_retry01_s42.json)에서 확인할 수 있습니다.
+
+![G009-5 rev16 08 Arm B GPU right-side 실제 카메라 진단](docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev16_08_b_gpu_right_side_force_repro.gif)
+
+![G009-5 rev16 09 four-group 텔레메트리](docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev16_09_four_group_telemetry.gif)
+
+`08`은 Arm B `cuda:0`의 `right_side / reset_pose_hold`를 실제 headless off-screen camera로 촬영한 조건 일치 시각 재생입니다. 화면의 force는 연결한 runtime report 값이며 영상 픽셀로 측정한 값이 아닙니다. `09`는 네 그룹의 force·peak step·impulse concentration을 그린 텔레메트리입니다. 로컬 전용 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_diag_rev16_08_b_gpu_right_side_force_repro_s42.mp4`, `267,188 bytes`, SHA-256 `151146e078ce19f113e197fef931c4e32014424af2d7ce0ef20db7f6c40618b0`입니다. 실행 데이터 커밋 `9ac874f48a1403e0ed838beb5e75938db5873d1c`와 clean capture 커밋 `51f2c63eaf408525fc5ddce3249f8138b8c5baaa`는 sidecar에서 분리해 추적합니다. Git에는 GIF·PNG·JSON만 둡니다.
+
+다음 진단은 B CPU/GPU physics step `128~130`의 impulse 분자·분모와 link별 하중 경로를 분리한 뒤 rev12 `8/0`에서 새 단일변수 후보를 정하는 작업입니다.
 
 ## RBQ 외부 자산 호환성 게이트
 

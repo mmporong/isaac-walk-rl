@@ -1,0 +1,1973 @@
+{
+  "schema_version": "g009.r0.rev16.backend_divergence_synthesis.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev16",
+  "status": "complete",
+  "evidence_synthesis_valid": true,
+  "input_report_count": 12,
+  "input_reports": [
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+      "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+      "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+      "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep01_retry02_s42.json",
+      "sha256": "6fc88560942b2ebcb7f5aed075589deb880d80c4c0b54c5f355579bf63c979b4"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep02_retry02_s42.json",
+      "sha256": "03ee3902af56bb3e65fcf6afcd0e61eebd26c766a3ca7c33a74e222555c4572b"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep03_retry02_s42.json",
+      "sha256": "f477a47fc652f16bec4cf6623c8b1a82529acf8f70d7b4c4bbdb0811b0aa0f1a"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep01_retry01_s42.json",
+      "sha256": "6d3466cb43f46035278f11da13bf202bb7a727c7e3243e053525c1c835b7c47e"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep02_retry01_s42.json",
+      "sha256": "3335c5f898f1c392823f1b6f019d228e5f411cb943259671dc8cc3a3fc55c9ac"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep03_retry01_s42.json",
+      "sha256": "d8fc1b96a284cd51a147ff9aabecc42d8083dddc918c58433db1263e9c458c22"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep01_retry01_s42.json",
+      "sha256": "9cb36810c81f892001557fd6ac3772ae3b8370e3ca1e3daab01e79b17080886d"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep02_retry01_s42.json",
+      "sha256": "c75e884d6ba9607d79c6a592493f81b8aef4ad2126fab8e97f92351f8c482e64"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep03_retry01_s42.json",
+      "sha256": "ea6ed3dbc6c4902f0b7ed522f1e0706a547e8274e8933d2d5fa486390e77372a"
+    }
+  ],
+  "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+  "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+  "run_matrix": {
+    "validated_run_count": 12,
+    "validated_group_count": 4
+  },
+  "next_group": null,
+  "required_sequence": [
+    "A.cpu",
+    "A.cuda:0",
+    "B.cpu",
+    "B.cuda:0"
+  ],
+  "completed_group_count": 4,
+  "groups": [
+    {
+      "sequence_index": 1,
+      "arm": "A",
+      "device": "cpu",
+      "replicate_count": 3,
+      "historical_reproduction_3_of_3": true,
+      "runtime_candidate_expected_3_of_3": true,
+      "sequence_gate_passed": true,
+      "progression_allowed": true,
+      "runs": [
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+            "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+          },
+          "execution_id": "b4b58c51688b4119b5d04a47d326cde9",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "f463e9e8d18f63fe35081bc099e907ec01a49e91fc43f86e987ba2b6fb455815",
+          "arm": "A",
+          "device": "cpu",
+          "replicate_index": 1,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": true,
+          "predecessor_synthesis": null,
+          "predecessor_input_reports": [],
+          "peak_base_force_bodyweights": 9.332860204105899,
+          "peak_base_force_physics_step": 131,
+          "peak_base_force_time_s": 0.655,
+          "peak_base_impulse_n_s": 6.875349731445361,
+          "window_base_impulse_n_s": 14.066900157928567,
+          "concentration_index": 0.48876082535996307,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 2,
+                "duration_s": 0.01,
+                "max_consecutive_steps": 2,
+                "max_consecutive_duration_s": 0.01,
+                "integrated_base_impulse_n_s": 12.585848999023527
+              },
+              "over_10_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              },
+              "over_15_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 131,
+            "first_base_contact_time_s": 0.655,
+            "base_contact_to_peak_physics_steps": 0,
+            "base_contact_to_peak_duration_s": 0.0
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 6.586225496388249,
+          "peak_window_max_joint_speed_rad_s": 10.620381355285645
+        },
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+            "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+          },
+          "execution_id": "e8d19eb23f84493db37a1423e1bac93d",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "f463e9e8d18f63fe35081bc099e907ec01a49e91fc43f86e987ba2b6fb455815",
+          "arm": "A",
+          "device": "cpu",
+          "replicate_index": 2,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": true,
+          "predecessor_synthesis": null,
+          "predecessor_input_reports": [],
+          "peak_base_force_bodyweights": 9.332860204105899,
+          "peak_base_force_physics_step": 131,
+          "peak_base_force_time_s": 0.655,
+          "peak_base_impulse_n_s": 6.875349731445361,
+          "window_base_impulse_n_s": 14.066900157928567,
+          "concentration_index": 0.48876082535996307,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 2,
+                "duration_s": 0.01,
+                "max_consecutive_steps": 2,
+                "max_consecutive_duration_s": 0.01,
+                "integrated_base_impulse_n_s": 12.585848999023527
+              },
+              "over_10_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              },
+              "over_15_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 131,
+            "first_base_contact_time_s": 0.655,
+            "base_contact_to_peak_physics_steps": 0,
+            "base_contact_to_peak_duration_s": 0.0
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 6.586225496388249,
+          "peak_window_max_joint_speed_rad_s": 10.620381355285645
+        },
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+            "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+          },
+          "execution_id": "c5791558e21d471280b55b8614655919",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "f463e9e8d18f63fe35081bc099e907ec01a49e91fc43f86e987ba2b6fb455815",
+          "arm": "A",
+          "device": "cpu",
+          "replicate_index": 3,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": true,
+          "predecessor_synthesis": null,
+          "predecessor_input_reports": [],
+          "peak_base_force_bodyweights": 9.332860204105899,
+          "peak_base_force_physics_step": 131,
+          "peak_base_force_time_s": 0.655,
+          "peak_base_impulse_n_s": 6.875349731445361,
+          "window_base_impulse_n_s": 14.066900157928567,
+          "concentration_index": 0.48876082535996307,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 2,
+                "duration_s": 0.01,
+                "max_consecutive_steps": 2,
+                "max_consecutive_duration_s": 0.01,
+                "integrated_base_impulse_n_s": 12.585848999023527
+              },
+              "over_10_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              },
+              "over_15_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 131,
+            "first_base_contact_time_s": 0.655,
+            "base_contact_to_peak_physics_steps": 0,
+            "base_contact_to_peak_duration_s": 0.0
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 6.586225496388249,
+          "peak_window_max_joint_speed_rad_s": 10.620381355285645
+        }
+      ]
+    },
+    {
+      "sequence_index": 2,
+      "arm": "A",
+      "device": "cuda:0",
+      "replicate_count": 3,
+      "historical_reproduction_3_of_3": true,
+      "runtime_candidate_expected_3_of_3": true,
+      "sequence_gate_passed": true,
+      "progression_allowed": true,
+      "runs": [
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep01_retry02_s42.json",
+            "sha256": "6fc88560942b2ebcb7f5aed075589deb880d80c4c0b54c5f355579bf63c979b4"
+          },
+          "execution_id": "917a6a6445334e579cc46fa7f6ad69e9",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "babbf2fbac10991ee4b6e86866da96c697b98ea044e93e0ddc850bbe509f8498",
+          "arm": "A",
+          "device": "cuda:0",
+          "replicate_index": 1,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": true,
+          "predecessor_synthesis": {
+            "path": "reports/runs/g009_r0_rev16_synthesis_03_a_cpu_retry02_s42.json",
+            "sha256": "3e7a746f53aabee70a88d5ad8d974fa48db2f067e7fdfb116e4b89fea68c2b4f",
+            "evidence_synthesis_valid": true,
+            "validated_run_count": 3,
+            "next_group": "A.cuda:0",
+            "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+            "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+          },
+          "predecessor_input_reports": [
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+              "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+              "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+              "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+            }
+          ],
+          "peak_base_force_bodyweights": 8.79500775388691,
+          "peak_base_force_physics_step": 130,
+          "peak_base_force_time_s": 0.65,
+          "peak_base_impulse_n_s": 6.479123535156308,
+          "window_base_impulse_n_s": 14.261149978637823,
+          "concentration_index": 0.4543198511243181,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 2,
+                "duration_s": 0.01,
+                "max_consecutive_steps": 2,
+                "max_consecutive_duration_s": 0.01,
+                "integrated_base_impulse_n_s": 12.93105285644543
+              },
+              "over_10_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              },
+              "over_15_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 130,
+            "first_base_contact_time_s": 0.65,
+            "base_contact_to_peak_physics_steps": 0,
+            "base_contact_to_peak_duration_s": 0.0
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 6.7838828192382765,
+          "peak_window_max_joint_speed_rad_s": 7.715329647064209
+        },
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep02_retry02_s42.json",
+            "sha256": "03ee3902af56bb3e65fcf6afcd0e61eebd26c766a3ca7c33a74e222555c4572b"
+          },
+          "execution_id": "9aae469532874b29b4830f40cd1e2e89",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "babbf2fbac10991ee4b6e86866da96c697b98ea044e93e0ddc850bbe509f8498",
+          "arm": "A",
+          "device": "cuda:0",
+          "replicate_index": 2,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": true,
+          "predecessor_synthesis": {
+            "path": "reports/runs/g009_r0_rev16_synthesis_03_a_cpu_retry02_s42.json",
+            "sha256": "3e7a746f53aabee70a88d5ad8d974fa48db2f067e7fdfb116e4b89fea68c2b4f",
+            "evidence_synthesis_valid": true,
+            "validated_run_count": 3,
+            "next_group": "A.cuda:0",
+            "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+            "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+          },
+          "predecessor_input_reports": [
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+              "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+              "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+              "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+            }
+          ],
+          "peak_base_force_bodyweights": 8.79500775388691,
+          "peak_base_force_physics_step": 130,
+          "peak_base_force_time_s": 0.65,
+          "peak_base_impulse_n_s": 6.479123535156308,
+          "window_base_impulse_n_s": 14.261149978637823,
+          "concentration_index": 0.4543198511243181,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 2,
+                "duration_s": 0.01,
+                "max_consecutive_steps": 2,
+                "max_consecutive_duration_s": 0.01,
+                "integrated_base_impulse_n_s": 12.93105285644543
+              },
+              "over_10_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              },
+              "over_15_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 130,
+            "first_base_contact_time_s": 0.65,
+            "base_contact_to_peak_physics_steps": 0,
+            "base_contact_to_peak_duration_s": 0.0
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 6.7838828192382765,
+          "peak_window_max_joint_speed_rad_s": 7.715329647064209
+        },
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep03_retry02_s42.json",
+            "sha256": "f477a47fc652f16bec4cf6623c8b1a82529acf8f70d7b4c4bbdb0811b0aa0f1a"
+          },
+          "execution_id": "7e57a279761c443f91a51db69320faaf",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "babbf2fbac10991ee4b6e86866da96c697b98ea044e93e0ddc850bbe509f8498",
+          "arm": "A",
+          "device": "cuda:0",
+          "replicate_index": 3,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": true,
+          "predecessor_synthesis": {
+            "path": "reports/runs/g009_r0_rev16_synthesis_03_a_cpu_retry02_s42.json",
+            "sha256": "3e7a746f53aabee70a88d5ad8d974fa48db2f067e7fdfb116e4b89fea68c2b4f",
+            "evidence_synthesis_valid": true,
+            "validated_run_count": 3,
+            "next_group": "A.cuda:0",
+            "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+            "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+          },
+          "predecessor_input_reports": [
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+              "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+              "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+              "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+            }
+          ],
+          "peak_base_force_bodyweights": 8.79500775388691,
+          "peak_base_force_physics_step": 130,
+          "peak_base_force_time_s": 0.65,
+          "peak_base_impulse_n_s": 6.479123535156308,
+          "window_base_impulse_n_s": 14.261149978637823,
+          "concentration_index": 0.4543198511243181,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 2,
+                "duration_s": 0.01,
+                "max_consecutive_steps": 2,
+                "max_consecutive_duration_s": 0.01,
+                "integrated_base_impulse_n_s": 12.93105285644543
+              },
+              "over_10_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              },
+              "over_15_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 130,
+            "first_base_contact_time_s": 0.65,
+            "base_contact_to_peak_physics_steps": 0,
+            "base_contact_to_peak_duration_s": 0.0
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 6.7838828192382765,
+          "peak_window_max_joint_speed_rad_s": 7.715329647064209
+        }
+      ]
+    },
+    {
+      "sequence_index": 3,
+      "arm": "B",
+      "device": "cpu",
+      "replicate_count": 3,
+      "historical_reproduction_3_of_3": true,
+      "runtime_candidate_expected_3_of_3": true,
+      "sequence_gate_passed": true,
+      "progression_allowed": true,
+      "runs": [
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep01_retry01_s42.json",
+            "sha256": "6d3466cb43f46035278f11da13bf202bb7a727c7e3243e053525c1c835b7c47e"
+          },
+          "execution_id": "b3c201f597874cd6a4dbb21f26fabdd1",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "fd484079e22b976cff9748d9b0cba508c5d2215338bc9805bd632a1048b98a58",
+          "arm": "B",
+          "device": "cpu",
+          "replicate_index": 1,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": true,
+          "predecessor_synthesis": {
+            "path": "reports/runs/g009_r0_rev16_synthesis_06_a_cpu_gpu_retry01_s42.json",
+            "sha256": "37e1bb72d04ef3828e8d7e30e8fae4ec2c0bfecbc11fc903bc0db86725ae039e",
+            "evidence_synthesis_valid": true,
+            "validated_run_count": 6,
+            "next_group": "B.cpu",
+            "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+            "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+          },
+          "predecessor_input_reports": [
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+              "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+              "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+              "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep01_retry02_s42.json",
+              "sha256": "6fc88560942b2ebcb7f5aed075589deb880d80c4c0b54c5f355579bf63c979b4"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep02_retry02_s42.json",
+              "sha256": "03ee3902af56bb3e65fcf6afcd0e61eebd26c766a3ca7c33a74e222555c4572b"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep03_retry02_s42.json",
+              "sha256": "f477a47fc652f16bec4cf6623c8b1a82529acf8f70d7b4c4bbdb0811b0aa0f1a"
+            }
+          ],
+          "peak_base_force_bodyweights": 13.248280587723672,
+          "peak_base_force_physics_step": 130,
+          "peak_base_force_time_s": 0.65,
+          "peak_base_impulse_n_s": 9.759769287109444,
+          "window_base_impulse_n_s": 14.486114978790386,
+          "concentration_index": 0.6737326951635448,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 9.759769287109444
+              },
+              "over_10_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 9.759769287109444
+              },
+              "over_15_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 129,
+            "first_base_contact_time_s": 0.645,
+            "base_contact_to_peak_physics_steps": 1,
+            "base_contact_to_peak_duration_s": 0.005
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 6.814536020998354,
+          "peak_window_max_joint_speed_rad_s": 7.281347751617432
+        },
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep02_retry01_s42.json",
+            "sha256": "3335c5f898f1c392823f1b6f019d228e5f411cb943259671dc8cc3a3fc55c9ac"
+          },
+          "execution_id": "a839da795a754ce99f7e82530aecaabd",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "fd484079e22b976cff9748d9b0cba508c5d2215338bc9805bd632a1048b98a58",
+          "arm": "B",
+          "device": "cpu",
+          "replicate_index": 2,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": true,
+          "predecessor_synthesis": {
+            "path": "reports/runs/g009_r0_rev16_synthesis_06_a_cpu_gpu_retry01_s42.json",
+            "sha256": "37e1bb72d04ef3828e8d7e30e8fae4ec2c0bfecbc11fc903bc0db86725ae039e",
+            "evidence_synthesis_valid": true,
+            "validated_run_count": 6,
+            "next_group": "B.cpu",
+            "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+            "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+          },
+          "predecessor_input_reports": [
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+              "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+              "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+              "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep01_retry02_s42.json",
+              "sha256": "6fc88560942b2ebcb7f5aed075589deb880d80c4c0b54c5f355579bf63c979b4"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep02_retry02_s42.json",
+              "sha256": "03ee3902af56bb3e65fcf6afcd0e61eebd26c766a3ca7c33a74e222555c4572b"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep03_retry02_s42.json",
+              "sha256": "f477a47fc652f16bec4cf6623c8b1a82529acf8f70d7b4c4bbdb0811b0aa0f1a"
+            }
+          ],
+          "peak_base_force_bodyweights": 13.248280587723672,
+          "peak_base_force_physics_step": 130,
+          "peak_base_force_time_s": 0.65,
+          "peak_base_impulse_n_s": 9.759769287109444,
+          "window_base_impulse_n_s": 14.486114978790386,
+          "concentration_index": 0.6737326951635448,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 9.759769287109444
+              },
+              "over_10_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 9.759769287109444
+              },
+              "over_15_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 129,
+            "first_base_contact_time_s": 0.645,
+            "base_contact_to_peak_physics_steps": 1,
+            "base_contact_to_peak_duration_s": 0.005
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 6.814536020998354,
+          "peak_window_max_joint_speed_rad_s": 7.281347751617432
+        },
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep03_retry01_s42.json",
+            "sha256": "d8fc1b96a284cd51a147ff9aabecc42d8083dddc918c58433db1263e9c458c22"
+          },
+          "execution_id": "784e6ec3d07645d890333639d92682a8",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "fd484079e22b976cff9748d9b0cba508c5d2215338bc9805bd632a1048b98a58",
+          "arm": "B",
+          "device": "cpu",
+          "replicate_index": 3,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": true,
+          "predecessor_synthesis": {
+            "path": "reports/runs/g009_r0_rev16_synthesis_06_a_cpu_gpu_retry01_s42.json",
+            "sha256": "37e1bb72d04ef3828e8d7e30e8fae4ec2c0bfecbc11fc903bc0db86725ae039e",
+            "evidence_synthesis_valid": true,
+            "validated_run_count": 6,
+            "next_group": "B.cpu",
+            "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+            "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+          },
+          "predecessor_input_reports": [
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+              "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+              "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+              "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep01_retry02_s42.json",
+              "sha256": "6fc88560942b2ebcb7f5aed075589deb880d80c4c0b54c5f355579bf63c979b4"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep02_retry02_s42.json",
+              "sha256": "03ee3902af56bb3e65fcf6afcd0e61eebd26c766a3ca7c33a74e222555c4572b"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep03_retry02_s42.json",
+              "sha256": "f477a47fc652f16bec4cf6623c8b1a82529acf8f70d7b4c4bbdb0811b0aa0f1a"
+            }
+          ],
+          "peak_base_force_bodyweights": 13.248280587723672,
+          "peak_base_force_physics_step": 130,
+          "peak_base_force_time_s": 0.65,
+          "peak_base_impulse_n_s": 9.759769287109444,
+          "window_base_impulse_n_s": 14.486114978790386,
+          "concentration_index": 0.6737326951635448,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 9.759769287109444
+              },
+              "over_10_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 9.759769287109444
+              },
+              "over_15_bodyweights": {
+                "step_count": 0,
+                "duration_s": 0.0,
+                "max_consecutive_steps": 0,
+                "max_consecutive_duration_s": 0.0,
+                "integrated_base_impulse_n_s": 0
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 129,
+            "first_base_contact_time_s": 0.645,
+            "base_contact_to_peak_physics_steps": 1,
+            "base_contact_to_peak_duration_s": 0.005
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 6.814536020998354,
+          "peak_window_max_joint_speed_rad_s": 7.281347751617432
+        }
+      ]
+    },
+    {
+      "sequence_index": 4,
+      "arm": "B",
+      "device": "cuda:0",
+      "replicate_count": 3,
+      "historical_reproduction_3_of_3": true,
+      "runtime_candidate_expected_3_of_3": true,
+      "sequence_gate_passed": true,
+      "progression_allowed": false,
+      "runs": [
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep01_retry01_s42.json",
+            "sha256": "9cb36810c81f892001557fd6ac3772ae3b8370e3ca1e3daab01e79b17080886d"
+          },
+          "execution_id": "f5cc61cc785e4df69183f6230256b89d",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "6ba6c43c0c1f1f2c8357666a4749c2aef7520a0d9579fa6c0afeedab976043e6",
+          "arm": "B",
+          "device": "cuda:0",
+          "replicate_index": 1,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": false,
+          "predecessor_synthesis": {
+            "path": "reports/runs/g009_r0_rev16_synthesis_09_a_all_b_cpu_retry01_s42.json",
+            "sha256": "a8dfc27bd9bfa988732bd4968e2305f4335a80fe0397d3e582b4dc7f06a98c7f",
+            "evidence_synthesis_valid": true,
+            "validated_run_count": 9,
+            "next_group": "B.cuda:0",
+            "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+            "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+          },
+          "predecessor_input_reports": [
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+              "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+              "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+              "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep01_retry02_s42.json",
+              "sha256": "6fc88560942b2ebcb7f5aed075589deb880d80c4c0b54c5f355579bf63c979b4"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep02_retry02_s42.json",
+              "sha256": "03ee3902af56bb3e65fcf6afcd0e61eebd26c766a3ca7c33a74e222555c4572b"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep03_retry02_s42.json",
+              "sha256": "f477a47fc652f16bec4cf6623c8b1a82529acf8f70d7b4c4bbdb0811b0aa0f1a"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep01_retry01_s42.json",
+              "sha256": "6d3466cb43f46035278f11da13bf202bb7a727c7e3243e053525c1c835b7c47e"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep02_retry01_s42.json",
+              "sha256": "3335c5f898f1c392823f1b6f019d228e5f411cb943259671dc8cc3a3fc55c9ac"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep03_retry01_s42.json",
+              "sha256": "d8fc1b96a284cd51a147ff9aabecc42d8083dddc918c58433db1263e9c458c22"
+            }
+          ],
+          "peak_base_force_bodyweights": 16.788277099400098,
+          "peak_base_force_physics_step": 129,
+          "peak_base_force_time_s": 0.645,
+          "peak_base_impulse_n_s": 12.367620849609487,
+          "window_base_impulse_n_s": 15.509924411773822,
+          "concentration_index": 0.7974004592969541,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 12.367620849609487
+              },
+              "over_10_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 12.367620849609487
+              },
+              "over_15_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 12.367620849609487
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 128,
+            "first_base_contact_time_s": 0.64,
+            "base_contact_to_peak_physics_steps": 1,
+            "base_contact_to_peak_duration_s": 0.005
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 11.188984075271225,
+          "peak_window_max_joint_speed_rad_s": 10.784761428833008
+        },
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep02_retry01_s42.json",
+            "sha256": "c75e884d6ba9607d79c6a592493f81b8aef4ad2126fab8e97f92351f8c482e64"
+          },
+          "execution_id": "a720eb551a6a43138f53d83281fe60e3",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "6ba6c43c0c1f1f2c8357666a4749c2aef7520a0d9579fa6c0afeedab976043e6",
+          "arm": "B",
+          "device": "cuda:0",
+          "replicate_index": 2,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": false,
+          "predecessor_synthesis": {
+            "path": "reports/runs/g009_r0_rev16_synthesis_09_a_all_b_cpu_retry01_s42.json",
+            "sha256": "a8dfc27bd9bfa988732bd4968e2305f4335a80fe0397d3e582b4dc7f06a98c7f",
+            "evidence_synthesis_valid": true,
+            "validated_run_count": 9,
+            "next_group": "B.cuda:0",
+            "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+            "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+          },
+          "predecessor_input_reports": [
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+              "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+              "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+              "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep01_retry02_s42.json",
+              "sha256": "6fc88560942b2ebcb7f5aed075589deb880d80c4c0b54c5f355579bf63c979b4"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep02_retry02_s42.json",
+              "sha256": "03ee3902af56bb3e65fcf6afcd0e61eebd26c766a3ca7c33a74e222555c4572b"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep03_retry02_s42.json",
+              "sha256": "f477a47fc652f16bec4cf6623c8b1a82529acf8f70d7b4c4bbdb0811b0aa0f1a"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep01_retry01_s42.json",
+              "sha256": "6d3466cb43f46035278f11da13bf202bb7a727c7e3243e053525c1c835b7c47e"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep02_retry01_s42.json",
+              "sha256": "3335c5f898f1c392823f1b6f019d228e5f411cb943259671dc8cc3a3fc55c9ac"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep03_retry01_s42.json",
+              "sha256": "d8fc1b96a284cd51a147ff9aabecc42d8083dddc918c58433db1263e9c458c22"
+            }
+          ],
+          "peak_base_force_bodyweights": 16.788277099400098,
+          "peak_base_force_physics_step": 129,
+          "peak_base_force_time_s": 0.645,
+          "peak_base_impulse_n_s": 12.367620849609487,
+          "window_base_impulse_n_s": 15.509924411773822,
+          "concentration_index": 0.7974004592969541,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 12.367620849609487
+              },
+              "over_10_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 12.367620849609487
+              },
+              "over_15_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 12.367620849609487
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 128,
+            "first_base_contact_time_s": 0.64,
+            "base_contact_to_peak_physics_steps": 1,
+            "base_contact_to_peak_duration_s": 0.005
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 11.188984075271225,
+          "peak_window_max_joint_speed_rad_s": 10.784761428833008
+        },
+        {
+          "evidence": {
+            "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep03_retry01_s42.json",
+            "sha256": "ea6ed3dbc6c4902f0b7ed522f1e0706a547e8274e8933d2d5fa486390e77372a"
+          },
+          "execution_id": "ff47796740b649d18916b4d168c1f62c",
+          "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+          "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a",
+          "contract_sha256": "6ba6c43c0c1f1f2c8357666a4749c2aef7520a0d9579fa6c0afeedab976043e6",
+          "arm": "B",
+          "device": "cuda:0",
+          "replicate_index": 3,
+          "historical_reproduction_passed": true,
+          "runtime_candidate_passed": false,
+          "predecessor_synthesis": {
+            "path": "reports/runs/g009_r0_rev16_synthesis_09_a_all_b_cpu_retry01_s42.json",
+            "sha256": "a8dfc27bd9bfa988732bd4968e2305f4335a80fe0397d3e582b4dc7f06a98c7f",
+            "evidence_synthesis_valid": true,
+            "validated_run_count": 9,
+            "next_group": "B.cuda:0",
+            "source_commit": "9ac874f48a1403e0ed838beb5e75938db5873d1c",
+            "source_bundle_sha256": "8b4031ad519a7487aff4eda83638c571d6494524b8872f229eba11fdb618541a"
+          },
+          "predecessor_input_reports": [
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+              "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+              "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+              "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep01_retry02_s42.json",
+              "sha256": "6fc88560942b2ebcb7f5aed075589deb880d80c4c0b54c5f355579bf63c979b4"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep02_retry02_s42.json",
+              "sha256": "03ee3902af56bb3e65fcf6afcd0e61eebd26c766a3ca7c33a74e222555c4572b"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep03_retry02_s42.json",
+              "sha256": "f477a47fc652f16bec4cf6623c8b1a82529acf8f70d7b4c4bbdb0811b0aa0f1a"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep01_retry01_s42.json",
+              "sha256": "6d3466cb43f46035278f11da13bf202bb7a727c7e3243e053525c1c835b7c47e"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep02_retry01_s42.json",
+              "sha256": "3335c5f898f1c392823f1b6f019d228e5f411cb943259671dc8cc3a3fc55c9ac"
+            },
+            {
+              "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep03_retry01_s42.json",
+              "sha256": "d8fc1b96a284cd51a147ff9aabecc42d8083dddc918c58433db1263e9c458c22"
+            }
+          ],
+          "peak_base_force_bodyweights": 16.788277099400098,
+          "peak_base_force_physics_step": 129,
+          "peak_base_force_time_s": 0.645,
+          "peak_base_impulse_n_s": 12.367620849609487,
+          "window_base_impulse_n_s": 15.509924411773822,
+          "concentration_index": 0.7974004592969541,
+          "contact_exposure": {
+            "thresholds": {
+              "over_5_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 12.367620849609487
+              },
+              "over_10_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 12.367620849609487
+              },
+              "over_15_bodyweights": {
+                "step_count": 1,
+                "duration_s": 0.005,
+                "max_consecutive_steps": 1,
+                "max_consecutive_duration_s": 0.005,
+                "integrated_base_impulse_n_s": 12.367620849609487
+              }
+            },
+            "first_any_contact_physics_step": 1,
+            "first_any_contact_time_s": 0.005,
+            "first_base_contact_physics_step": 128,
+            "first_base_contact_time_s": 0.64,
+            "base_contact_to_peak_physics_steps": 1,
+            "base_contact_to_peak_duration_s": 0.005
+          },
+          "peak_window_control_step_first": 31,
+          "peak_window_control_step_last": 35,
+          "peak_window_max_root_angular_speed_rad_s": 11.188984075271225,
+          "peak_window_max_joint_speed_rad_s": 10.784761428833008
+        }
+      ],
+      "hypothesis_supported": false
+    }
+  ],
+  "hypothesis": {
+    "decision": "inconclusive",
+    "supported_3_of_3": false,
+    "replicates": [
+      {
+        "replicate_index": 1,
+        "checks": {
+          "b_gpu_force_exceeds_15_bodyweights": true,
+          "b_gpu_peak_at_least_one_substep_earlier_than_b_cpu": true,
+          "b_gpu_peak_at_least_one_substep_earlier_than_a_gpu": true,
+          "b_gpu_concentration_over_b_cpu_at_least_1_20": false,
+          "b_gpu_concentration_exceeds_a_gpu": true,
+          "action_and_ema_trace_error_at_most_1e_6": true,
+          "b_gpu_peak_window_root_angular_speed_exceeds_b_cpu_and_a_gpu": true,
+          "b_gpu_peak_window_joint_speed_exceeds_b_cpu_and_a_gpu": true,
+          "safety_termination_zero": true
+        },
+        "passed": false,
+        "derived": {
+          "b_gpu_over_b_cpu_concentration_ratio": 1.183556126964255,
+          "max_action_ema_trace_abs_error": 0.0,
+          "trace_pair_errors": {
+            "a_cpu_vs_a_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_cpu_vs_b_cpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_cpu_vs_b_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_gpu_vs_b_cpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_gpu_vs_b_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "b_cpu_vs_b_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            }
+          },
+          "first_divergence_pairs": {
+            "a_cpu_vs_a_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 130,
+                "time_s": 0.65,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 8.79500775388691,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4613638147711754,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4613638147711754,
+                "tolerance": 1e-06
+              }
+            },
+            "a_cpu_vs_b_cpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 129,
+                "time_s": 0.645,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.154418782306828,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.42733820155262947,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.42733820155262947,
+                "tolerance": 1e-06
+              }
+            },
+            "a_cpu_vs_b_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 128,
+                "time_s": 0.64,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.1033276173468844,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4328877925872803,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4328877925872803,
+                "tolerance": 1e-06
+              }
+            },
+            "a_gpu_vs_b_cpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 129,
+                "time_s": 0.645,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.154418782306828,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3774540424346924,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3774540424346924,
+                "tolerance": 1e-06
+              }
+            },
+            "a_gpu_vs_b_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 128,
+                "time_s": 0.64,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.1033276173468844,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3965785503387451,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3965785503387451,
+                "tolerance": 1e-06
+              }
+            },
+            "b_cpu_vs_b_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 128,
+                "time_s": 0.64,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.1033276173468844,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.3666485548019409,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.3666485548019409,
+                "tolerance": 1e-06
+              }
+            }
+          }
+        }
+      },
+      {
+        "replicate_index": 2,
+        "checks": {
+          "b_gpu_force_exceeds_15_bodyweights": true,
+          "b_gpu_peak_at_least_one_substep_earlier_than_b_cpu": true,
+          "b_gpu_peak_at_least_one_substep_earlier_than_a_gpu": true,
+          "b_gpu_concentration_over_b_cpu_at_least_1_20": false,
+          "b_gpu_concentration_exceeds_a_gpu": true,
+          "action_and_ema_trace_error_at_most_1e_6": true,
+          "b_gpu_peak_window_root_angular_speed_exceeds_b_cpu_and_a_gpu": true,
+          "b_gpu_peak_window_joint_speed_exceeds_b_cpu_and_a_gpu": true,
+          "safety_termination_zero": true
+        },
+        "passed": false,
+        "derived": {
+          "b_gpu_over_b_cpu_concentration_ratio": 1.183556126964255,
+          "max_action_ema_trace_abs_error": 0.0,
+          "trace_pair_errors": {
+            "a_cpu_vs_a_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_cpu_vs_b_cpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_cpu_vs_b_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_gpu_vs_b_cpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_gpu_vs_b_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "b_cpu_vs_b_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            }
+          },
+          "first_divergence_pairs": {
+            "a_cpu_vs_a_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 130,
+                "time_s": 0.65,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 8.79500775388691,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4613638147711754,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4613638147711754,
+                "tolerance": 1e-06
+              }
+            },
+            "a_cpu_vs_b_cpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 129,
+                "time_s": 0.645,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.154418782306828,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.42733820155262947,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.42733820155262947,
+                "tolerance": 1e-06
+              }
+            },
+            "a_cpu_vs_b_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 128,
+                "time_s": 0.64,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.1033276173468844,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4328877925872803,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4328877925872803,
+                "tolerance": 1e-06
+              }
+            },
+            "a_gpu_vs_b_cpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 129,
+                "time_s": 0.645,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.154418782306828,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3774540424346924,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3774540424346924,
+                "tolerance": 1e-06
+              }
+            },
+            "a_gpu_vs_b_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 128,
+                "time_s": 0.64,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.1033276173468844,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3965785503387451,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3965785503387451,
+                "tolerance": 1e-06
+              }
+            },
+            "b_cpu_vs_b_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 128,
+                "time_s": 0.64,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.1033276173468844,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.3666485548019409,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.3666485548019409,
+                "tolerance": 1e-06
+              }
+            }
+          }
+        }
+      },
+      {
+        "replicate_index": 3,
+        "checks": {
+          "b_gpu_force_exceeds_15_bodyweights": true,
+          "b_gpu_peak_at_least_one_substep_earlier_than_b_cpu": true,
+          "b_gpu_peak_at_least_one_substep_earlier_than_a_gpu": true,
+          "b_gpu_concentration_over_b_cpu_at_least_1_20": false,
+          "b_gpu_concentration_exceeds_a_gpu": true,
+          "action_and_ema_trace_error_at_most_1e_6": true,
+          "b_gpu_peak_window_root_angular_speed_exceeds_b_cpu_and_a_gpu": true,
+          "b_gpu_peak_window_joint_speed_exceeds_b_cpu_and_a_gpu": true,
+          "safety_termination_zero": true
+        },
+        "passed": false,
+        "derived": {
+          "b_gpu_over_b_cpu_concentration_ratio": 1.183556126964255,
+          "max_action_ema_trace_abs_error": 0.0,
+          "trace_pair_errors": {
+            "a_cpu_vs_a_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_cpu_vs_b_cpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_cpu_vs_b_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_gpu_vs_b_cpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "a_gpu_vs_b_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            },
+            "b_cpu_vs_b_gpu": {
+              "input_action": 0.0,
+              "raw_action": 0.0,
+              "processed_ema_target_rad": 0.0,
+              "ema_previous_before_rad": 0.0,
+              "ema_previous_after_rad": 0.0
+            }
+          },
+          "first_divergence_pairs": {
+            "a_cpu_vs_a_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 130,
+                "time_s": 0.65,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 8.79500775388691,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4613638147711754,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4613638147711754,
+                "tolerance": 1e-06
+              }
+            },
+            "a_cpu_vs_b_cpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 129,
+                "time_s": 0.645,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.154418782306828,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.42733820155262947,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.42733820155262947,
+                "tolerance": 1e-06
+              }
+            },
+            "a_cpu_vs_b_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 128,
+                "time_s": 0.64,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.1033276173468844,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4328877925872803,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.4328877925872803,
+                "tolerance": 1e-06
+              }
+            },
+            "a_gpu_vs_b_cpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 129,
+                "time_s": 0.645,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.154418782306828,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3774540424346924,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3774540424346924,
+                "tolerance": 1e-06
+              }
+            },
+            "a_gpu_vs_b_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 128,
+                "time_s": 0.64,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.1033276173468844,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3965785503387451,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "applied_torque_nm",
+                "max_abs_delta": 0.3965785503387451,
+                "tolerance": 1e-06
+              }
+            },
+            "b_cpu_vs_b_gpu": {
+              "tolerances": {
+                "base_force_bodyweights": 1e-06,
+                "root_state_w": 1e-06,
+                "joint_position_rad": 1e-06,
+                "joint_velocity_rad_s": 1e-06,
+                "applied_torque_nm": 1e-06,
+                "raw_action": 1e-06,
+                "processed_ema_target_rad": 1e-06,
+                "ema_previous_before_rad": 1e-06,
+                "ema_previous_after_rad": 1e-06
+              },
+              "first_physics_divergence": {
+                "step": 128,
+                "time_s": 0.64,
+                "variable": "base_force_bodyweights",
+                "max_abs_delta": 3.1033276173468844,
+                "tolerance": 1e-06
+              },
+              "first_control_divergence": {
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.3666485548019409,
+                "tolerance": 1e-06
+              },
+              "first_overall_divergence": {
+                "domain": "control",
+                "step": 1,
+                "time_s": 0.02,
+                "variable": "joint_velocity_rad_s",
+                "max_abs_delta": 0.3666485548019409,
+                "tolerance": 1e-06
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "governance": {
+    "position16_accepted": false,
+    "position16_status": "rejected_even_if_hypothesis_supported",
+    "diagnostic_only": true,
+    "learned": false,
+    "ppo": {
+      "allowed": false,
+      "status": "not_run"
+    },
+    "gate01": {
+      "allowed": false,
+      "status": "forbidden"
+    },
+    "gate10": {
+      "allowed": false,
+      "status": "forbidden"
+    },
+    "qualification": {
+      "eligible": false,
+      "status": "not_run",
+      "passed": null
+    }
+  },
+  "created_at_utc": "2026-08-29T08:20:18.053056Z",
+  "synthesis_execution_id": "3ebd5995b8e54ebdaffe3757b10d70b4"
+}
