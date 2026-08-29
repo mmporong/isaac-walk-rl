@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import math
@@ -468,7 +469,7 @@ def _complete_report(
     mass_evidence = PROBE.build_mass_evidence(
         torch.ones((8, 19), dtype=torch.float32), 7
     )
-    return {
+    report = {
         "schema_version": "g009.r0.rev16.backend_divergence.v1",
         "goal_id": "g009",
         "stage_id": "R0",
@@ -507,7 +508,12 @@ def _complete_report(
             "class_ids": [0, 1, 2, 3, 0, 1, 2, 3],
             "mapping": PROBE.expected_pose_action_assignment(),
         },
-        "live_physics_readback": {"checks": {"solver": True, "depenetration": True}},
+        "live_physics_readback": {
+            "checks": {
+                "articulation_solver_iteration_counts_match_contract": True,
+                "rigid_body_max_depenetration_velocity_matches_contract": True,
+            }
+        },
         "runtime_topology": {
             "force_body_names": body_names,
             "link_body_names": link_body_names,
@@ -575,6 +581,209 @@ def _complete_report(
             arm, device, observed_metrics
         ),
         "diagnostic_capture_complete": True,
+    }
+    report["diagnostic_check_snapshot"] = PROBE.build_diagnostic_check_snapshot(report)
+    report["diagnostic_capture_complete"] = report["diagnostic_check_snapshot"][
+        "all_passed"
+    ]
+    return report
+
+
+def test_diagnostic_snapshot_binds_cpu_and_gpu_contact_contracts() -> None:
+    cpu = _complete_report("cpu")
+    gpu = _complete_report("cuda:0")
+
+    assert cpu["diagnostic_check_snapshot"]["all_passed"] is True
+    assert cpu["diagnostic_check_snapshot"]["failed_check_names"] == []
+    assert all(
+        cpu["diagnostic_check_snapshot"]["contact_authority"]["cpu_contract"].values()
+    )
+    assert gpu["diagnostic_check_snapshot"]["all_passed"] is True
+    assert gpu["diagnostic_check_snapshot"]["failed_check_names"] == []
+    assert all(
+        gpu["diagnostic_check_snapshot"]["contact_authority"]["gpu_contract"].values()
+    )
+
+
+def test_diagnostic_snapshot_names_historical_float_mismatch() -> None:
+    report = _complete_report("cuda:0")
+    metrics = copy.deepcopy(report["historical_runtime_summary"]["pose_metrics"])
+    metrics[7]["max_nonfoot_force_bodyweights"] += 2.0e-6
+    report["historical_runtime_summary"] = PROBE.build_historical_runtime_summary(
+        "A", "cuda:0", metrics
+    )
+
+    snapshot = PROBE.build_diagnostic_check_snapshot(report)
+
+    assert snapshot["all_passed"] is False
+    assert snapshot["failed_check_names"] == [
+        "historical.pose_metric_fingerprint_within_1e_6"
+    ]
+    assert snapshot["historical"]["historical_fingerprint_mismatches"] == [
+        {
+            "env_index": 7,
+            "field": "max_nonfoot_force_bodyweights",
+            "observed": metrics[7]["max_nonfoot_force_bodyweights"],
+            "reference": (metrics[7]["max_nonfoot_force_bodyweights"] - 2.0e-6),
+            "abs_delta": pytest.approx(2.0e-6),
+        }
+    ]
+
+
+def test_diagnostic_snapshot_flattens_termination_mismatch() -> None:
+    report = _complete_report("cuda:0")
+    metrics = copy.deepcopy(report["historical_runtime_summary"]["pose_metrics"])
+    metrics[2]["termination_counts"]["numeric_invalid"] = 1
+    report["historical_runtime_summary"] = PROBE.build_historical_runtime_summary(
+        "A", "cuda:0", metrics
+    )
+
+    mismatch = PROBE.build_diagnostic_check_snapshot(report)["historical"][
+        "historical_fingerprint_mismatches"
+    ]
+
+    assert mismatch == [
+        {
+            "env_index": 2,
+            "field": "termination_counts.numeric_invalid",
+            "observed": 1,
+            "reference": 0,
+            "abs_delta": 1.0,
+        }
+    ]
+    assert all(not isinstance(value, dict) for value in mismatch[0].values())
+
+
+def test_diagnostic_snapshot_gpu_null_contract_fails_closed_by_name() -> None:
+    report = _complete_report(
+        "cuda:0",
+        predecessor={
+            "evidence_synthesis_valid": True,
+            "validated_run_count": 3,
+            "next_group": "A.cuda:0",
+            "source_commit": "1" * 40,
+            "source_bundle_sha256": "2" * 64,
+        },
+    )
+    report["cpu_contact_authority"]["events"] = []
+    report["diagnostic_check_snapshot"] = PROBE.build_diagnostic_check_snapshot(report)
+    report["diagnostic_capture_complete"] = report["diagnostic_check_snapshot"][
+        "all_passed"
+    ]
+
+    with pytest.raises(PROBE.ValidationStageError) as error:
+        PROBE.validate_report_contract(report)
+
+    assert error.value.stage == "diagnostic_capture_checks"
+    assert error.value.failed_check_names == ["contact.gpu.events_is_null"]
+
+
+@pytest.mark.parametrize(
+    ("device", "field"),
+    [
+        ("cpu", "subsequent_error_count"),
+        ("cuda:0", "subsequent_error_count"),
+        ("cuda:0", "callback_event_count"),
+    ],
+)
+def test_diagnostic_snapshot_rejects_boolean_contact_counters(
+    device: str, field: str
+) -> None:
+    report = _complete_report(device)
+    report["cpu_contact_authority"][field] = False
+
+    snapshot = PROBE.build_diagnostic_check_snapshot(report)
+
+    contract_name = "cpu" if device == "cpu" else "gpu"
+    assert snapshot["failed_check_names"] == [
+        f"contact.{contract_name}.metadata_contract"
+    ]
+
+
+def test_diagnostic_snapshot_mutation_is_rejected_after_raw_validation() -> None:
+    report = _complete_report()
+    report["diagnostic_check_snapshot"]["all_passed"] = False
+
+    with pytest.raises(PROBE.ValidationStageError) as error:
+        PROBE.validate_report_contract(report)
+
+    assert error.value.stage == "diagnostic_check_snapshot"
+
+
+def test_diagnostic_snapshot_rejects_extra_live_check_key() -> None:
+    report = _complete_report()
+    report["live_physics_readback"]["checks"]["forged"] = True
+
+    with pytest.raises(ValueError, match="live physics checks are invalid"):
+        PROBE.build_diagnostic_check_snapshot(report)
+
+
+def test_failure_envelope_strips_raw_snapshot_payloads_and_unknown_checks() -> None:
+    report = _complete_report("cuda:0")
+    snapshot = copy.deepcopy(report["diagnostic_check_snapshot"])
+    snapshot["physics_substep_telemetry"] = [{"secret": "raw-force-marker"}]
+    snapshot["historical"]["pose_metrics"] = [{"secret": "pose-marker"}]
+    snapshot["contact_authority"]["events"] = [{"secret": "contact-marker"}]
+    snapshot["historical"]["historical_fingerprint_mismatches"] = [
+        {
+            "env_index": 7,
+            "field": "max_nonfoot_force_bodyweights",
+            "observed": {"secret": "nested-marker"},
+            "reference": 1.0,
+            "abs_delta": 2.0e-6,
+            "raw": {"secret": "extra-marker"},
+        }
+    ]
+    args = SimpleNamespace(
+        arm="A",
+        replicate_index=1,
+        headless=True,
+        device="cuda:0",
+        seed=42,
+        task=PROBE.DEFAULT_TASK,
+    )
+    envelope = PROBE.failure_envelope(
+        args,
+        {"execution_id": "fresh", "no_overwrite": True},
+        PROBE.DiagnosticEvidenceError(
+            ValueError("diagnostic checks failed"),
+            physics_step_clock=report["physics_step_clock"],
+            mass_evidence={
+                key: report["runtime_topology"][key]
+                for key in PROBE.MASS_EVIDENCE_FIELDS
+            },
+            validation_failure={
+                "stage": "diagnostic_capture_checks",
+                "error_type": "ValueError",
+                "message": "diagnostic checks failed",
+                "failed_check_names": [
+                    "historical.pose_metric_fingerprint_within_1e_6",
+                    "raw.telemetry.injection",
+                ],
+            },
+            diagnostic_check_snapshot=snapshot,
+        ),
+    )
+
+    encoded = json.dumps(envelope, allow_nan=False)
+    assert "raw-force-marker" not in encoded
+    assert "pose-marker" not in encoded
+    assert "contact-marker" not in encoded
+    assert "nested-marker" not in encoded
+    assert "extra-marker" not in encoded
+    assert envelope["validation_failure"]["failed_check_names"] == [
+        "historical.pose_metric_fingerprint_within_1e_6"
+    ]
+    mismatch = envelope["diagnostic_check_snapshot"]["historical"][
+        "historical_fingerprint_mismatches"
+    ][0]
+    assert mismatch["observed"] is None
+    assert set(mismatch) == {
+        "env_index",
+        "field",
+        "observed",
+        "reference",
+        "abs_delta",
     }
 
 
@@ -1324,6 +1533,7 @@ def test_failure_envelope_preserves_completed_clock_and_mass_without_telemetry()
         "stage": "physics_substep_telemetry",
         "error_type": "ValueError",
         "message": "final report rejected",
+        "failed_check_names": [],
     }
     assert "physics_substep_telemetry" not in report
     assert "control_step_telemetry" not in report

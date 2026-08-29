@@ -225,7 +225,12 @@ def _report(arm: str, device: str, replicate: int) -> tuple[dict, dict[str, str]
             "numeric_invalid": 0,
             "hard_joint_limit": 0,
         },
-        "live_physics_readback": {"checks": {"solver": True, "depenetration": True}},
+        "live_physics_readback": {
+            "checks": {
+                "articulation_solver_iteration_counts_match_contract": True,
+                "rigid_body_max_depenetration_velocity_matches_contract": True,
+            }
+        },
         "physics_step_clock": physics_clock,
         "cpu_contact_authority": {
             "authority_device": "cpu",
@@ -297,6 +302,12 @@ def _report(arm: str, device: str, replicate: int) -> tuple[dict, dict[str, str]
             "hard_joint_limit",
         ],
     }
+    report["diagnostic_check_snapshot"] = (
+        SUMMARY.raw_probe.build_diagnostic_check_snapshot(report)
+    )
+    report["diagnostic_capture_complete"] = report["diagnostic_check_snapshot"][
+        "all_passed"
+    ]
     evidence = {"path": path, "sha256": hashlib.sha256(path.encode()).hexdigest()}
     return report, evidence
 
@@ -516,7 +527,7 @@ def test_only_complete_sequential_group_counts_are_allowed(count: int) -> None:
         ),
         (
             lambda report: report["live_physics_readback"]["checks"].update(
-                solver=False
+                articulation_solver_iteration_counts_match_contract=False
             ),
             "readback",
         ),
@@ -772,14 +783,25 @@ def test_predecessor_binding_reopens_direct_child_and_verifies_bytes(
         )
 
 
-def test_later_group_after_failed_predecessor_is_invalid() -> None:
+def test_later_group_after_failed_predecessor_is_invalid(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     entries = _entries(6)
-    for report, _ in entries[:3]:
-        summary = report["historical_runtime_summary"]
-        summary["pose_metrics"][0]["max_nonfoot_force_bodyweights"] += 0.01
-        summary["checks"]["pose_metric_fingerprint_within_1e_6"] = False
-        summary["passed"] = False
-        summary["matches_historical_reference"] = False
+    validated = []
+    for index, (report, evidence) in enumerate(entries):
+        arm, device = SUMMARY.GROUP_ORDER[index // 3]
+        validated.append(
+            SUMMARY.validate_raw_report(report, evidence, arm, device, index % 3 + 1)
+        )
+    for run in validated[:3]:
+        run["runtime_candidate_passed"] = False
+    validated_iterator = iter(validated)
+    monkeypatch.setattr(
+        SUMMARY,
+        "validate_raw_report",
+        lambda *_args: next(validated_iterator),
+    )
+
     with pytest.raises(ValueError, match="later group"):
         SUMMARY.synthesize_loaded(entries)
 

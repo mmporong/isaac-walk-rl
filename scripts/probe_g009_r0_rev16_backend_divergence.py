@@ -73,6 +73,63 @@ CLOCK_EVIDENCE_FIELDS = (
     "expected_callback_count",
     "passed",
 )
+HISTORICAL_CHECK_NAMES = (
+    "reference_report_sha256_exact",
+    "reference_contract_sha256_exact",
+    "pose_metric_fingerprint_within_1e_6",
+)
+RUNTIME_CANDIDATE_CHECK_NAMES = (
+    "all_cells_finite",
+    "max_nonfoot_force_at_most_15_bodyweights",
+    "safety_termination_zero",
+    "cpu_separation_at_least_minus_1cm",
+)
+HISTORICAL_SCALAR_FIELDS = (
+    "env_index",
+    "pose_id",
+    "action_mode",
+    "max_nonfoot_force_bodyweights",
+    "max_nonfoot_force_physics_step",
+    "max_nonfoot_force_body_index",
+    "max_nonfoot_force_body_name",
+    "max_root_angular_speed_rad_s",
+    "max_joint_speed_rad_s",
+    "min_contact_separation_m",
+)
+HISTORICAL_TERMINATION_FIELDS = (
+    "time_out",
+    "stable_success",
+    "numeric_invalid",
+    "hard_joint_limit",
+)
+HISTORICAL_MISMATCH_FIELDS = HISTORICAL_SCALAR_FIELDS + tuple(
+    f"termination_counts.{name}" for name in HISTORICAL_TERMINATION_FIELDS
+)
+LIVE_CHECK_NAMES = (
+    "articulation_solver_iteration_counts_match_contract",
+    "rigid_body_max_depenetration_velocity_matches_contract",
+)
+DIAGNOSTIC_CHECK_NAMES = (
+    "solver.articulation_solver_iteration_counts_match_contract",
+    "depenetration.rigid_body_max_depenetration_velocity_matches_contract",
+    "telemetry.physics_count_matches",
+    "telemetry.control_count_matches",
+    "clock.passed",
+    "clock.callback_count_matches",
+    "safety.zero",
+    *(f"historical.{name}" for name in HISTORICAL_CHECK_NAMES),
+    "historical.passed",
+    "historical.matches_historical_reference",
+    "contact.cpu.metadata_contract",
+    "contact.cpu.events_present",
+    "contact.cpu.separations_present",
+    "contact.cpu.clock_bound",
+    "contact.gpu.metadata_contract",
+    "contact.gpu.passed_is_null",
+    "contact.gpu.events_is_null",
+    "contact.gpu.all_env_separation_is_null",
+    "contact.gpu.clock_bound",
+)
 ARM_POSITION_ITERATIONS = {"A": 8, "B": 16}
 HISTORICAL_REFERENCES = {
     "A": {
@@ -431,21 +488,29 @@ class DiagnosticEvidenceError(RuntimeError):
         physics_step_clock: dict[str, Any],
         mass_evidence: dict[str, Any],
         validation_failure: dict[str, Any] | None = None,
+        diagnostic_check_snapshot: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(str(original_error))
         self.original_error = original_error
         self.physics_step_clock = physics_step_clock
         self.mass_evidence = mass_evidence
         self.validation_failure = validation_failure
+        self.diagnostic_check_snapshot = diagnostic_check_snapshot
 
 
 class ValidationStageError(ValueError):
     """Identify a rejected validation stage without copying raw telemetry."""
 
-    def __init__(self, stage: str, original_error: BaseException) -> None:
+    def __init__(
+        self,
+        stage: str,
+        original_error: BaseException,
+        failed_check_names: list[str] | None = None,
+    ) -> None:
         super().__init__(str(original_error))
         self.stage = stage
         self.original_error = original_error
+        self.failed_check_names = failed_check_names or []
 
 
 def build_mass_evidence(body_mass_tensor: Any, source_env_index: int) -> dict[str, Any]:
@@ -484,6 +549,184 @@ def _allowlisted_evidence(
     if evidence is None:
         return None
     return {field: evidence.get(field) for field in fields}
+
+
+def _allowlisted_diagnostic_snapshot(
+    snapshot: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if not isinstance(snapshot, dict):
+        return None
+
+    def source_dict(value: Any) -> dict[str, Any]:
+        return value if isinstance(value, dict) else {}
+
+    def clean_bool(value: Any) -> bool | None:
+        return value if type(value) is bool else None
+
+    def clean_int(value: Any) -> int | None:
+        return value if type(value) is int and value >= 0 else None
+
+    def clean_string(value: Any, allowed: set[str] | None = None) -> str | None:
+        if not isinstance(value, str) or (allowed is not None and value not in allowed):
+            return None
+        return value
+
+    def clean_primitive(value: Any) -> str | int | float | None:
+        if value is None or isinstance(value, str):
+            return value
+        if type(value) is int:
+            return value
+        if type(value) is float and math.isfinite(value):
+            return value
+        return None
+
+    def bool_map(value: Any, fields: tuple[str, ...]) -> dict[str, bool | None]:
+        source = source_dict(value)
+        return {field: clean_bool(source.get(field)) for field in fields}
+
+    historical = source_dict(snapshot.get("historical"))
+    mismatch_values = historical.get("historical_fingerprint_mismatches")
+    mismatches: list[dict[str, Any]] = []
+    if isinstance(mismatch_values, list):
+        for item in mismatch_values:
+            if not isinstance(item, dict):
+                continue
+            env_index = item.get("env_index")
+            field = item.get("field")
+            if not (
+                type(env_index) is int
+                and 0 <= env_index < NUM_ENVS
+                and isinstance(field, str)
+                and field in HISTORICAL_MISMATCH_FIELDS
+            ):
+                continue
+            delta = item.get("abs_delta")
+            clean_delta = None
+            if type(delta) in (int, float):
+                numeric_delta = float(cast(int | float, delta))
+                if math.isfinite(numeric_delta) and numeric_delta >= 0.0:
+                    clean_delta = numeric_delta
+            mismatches.append(
+                {
+                    "env_index": env_index,
+                    "field": field,
+                    "observed": clean_primitive(item.get("observed")),
+                    "reference": clean_primitive(item.get("reference")),
+                    "abs_delta": clean_delta,
+                }
+            )
+    safety = source_dict(snapshot.get("safety"))
+    contact = source_dict(snapshot.get("contact_authority"))
+    metadata = source_dict(contact.get("metadata"))
+    telemetry = source_dict(snapshot.get("telemetry_counts"))
+    clock = source_dict(snapshot.get("clock"))
+    failed_values = snapshot.get("failed_check_names")
+    failed = (
+        sorted(
+            {
+                value
+                for value in failed_values
+                if isinstance(value, str) and value in DIAGNOSTIC_CHECK_NAMES
+            }
+        )
+        if isinstance(failed_values, list)
+        else []
+    )
+    return {
+        "schema_version": clean_string(
+            snapshot.get("schema_version"),
+            {"g009.r0.rev16.diagnostic_check_snapshot.v1"},
+        ),
+        "solver_checks": bool_map(
+            snapshot.get("solver_checks"),
+            ("articulation_solver_iteration_counts_match_contract",),
+        ),
+        "depenetration_checks": bool_map(
+            snapshot.get("depenetration_checks"),
+            ("rigid_body_max_depenetration_velocity_matches_contract",),
+        ),
+        "telemetry_counts": {
+            "physics_actual": clean_int(telemetry.get("physics_actual")),
+            "physics_expected": clean_int(telemetry.get("physics_expected")),
+            "physics_count_matches": clean_bool(telemetry.get("physics_count_matches")),
+            "control_actual": clean_int(telemetry.get("control_actual")),
+            "control_expected": clean_int(telemetry.get("control_expected")),
+            "control_count_matches": clean_bool(telemetry.get("control_count_matches")),
+        },
+        "clock": {
+            "passed": clean_bool(clock.get("passed")),
+            "callback_count": clean_int(clock.get("callback_count")),
+            "expected_callback_count": clean_int(clock.get("expected_callback_count")),
+            "callback_count_matches": clean_bool(clock.get("callback_count_matches")),
+        },
+        "safety": {
+            "counts": {
+                name: clean_int(source_dict(safety.get("counts")).get(name))
+                for name in ("numeric_invalid", "hard_joint_limit")
+            },
+            "zero": clean_bool(safety.get("zero")),
+        },
+        "historical": {
+            "checks": bool_map(historical.get("checks"), HISTORICAL_CHECK_NAMES),
+            "passed": clean_bool(historical.get("passed")),
+            "matches_historical_reference": clean_bool(
+                historical.get("matches_historical_reference")
+            ),
+            "historical_fingerprint_mismatches": sorted(
+                mismatches,
+                key=lambda item: (item["env_index"], item["field"]),
+            ),
+            "runtime_candidate_checks": bool_map(
+                historical.get("runtime_candidate_checks"),
+                RUNTIME_CANDIDATE_CHECK_NAMES,
+            ),
+            "runtime_candidate_passed": clean_bool(
+                historical.get("runtime_candidate_passed")
+            ),
+        },
+        "contact_authority": {
+            "metadata": {
+                "authority_device": clean_string(
+                    metadata.get("authority_device"), {"cpu"}
+                ),
+                "this_run_is_authority": clean_bool(
+                    metadata.get("this_run_is_authority")
+                ),
+                "status": clean_string(
+                    metadata.get("status"), {"observed", "unavailable_on_gpu"}
+                ),
+                "data_available": clean_bool(metadata.get("data_available")),
+                "error_is_null": clean_bool(metadata.get("error_is_null")),
+                "subsequent_error_count": clean_int(
+                    metadata.get("subsequent_error_count")
+                ),
+                "callback_event_count": clean_int(metadata.get("callback_event_count")),
+            },
+            "cpu_contract": bool_map(
+                contact.get("cpu_contract"),
+                (
+                    "applicable",
+                    "metadata_contract",
+                    "events_present",
+                    "separations_present",
+                    "clock_bound",
+                ),
+            ),
+            "gpu_contract": bool_map(
+                contact.get("gpu_contract"),
+                (
+                    "applicable",
+                    "metadata_contract",
+                    "passed_is_null",
+                    "events_is_null",
+                    "all_env_separation_is_null",
+                    "clock_bound",
+                ),
+            ),
+        },
+        "failed_check_names": failed,
+        "all_passed": clean_bool(snapshot.get("all_passed")),
+    }
 
 
 def _contact_event_name(value: Any, contact_event_types: Any | None) -> str:
@@ -1545,44 +1788,89 @@ def validate_physics_step_clock(report: dict[str, Any]) -> None:
     )
 
 
-def validate_contact_authority(report: dict[str, Any]) -> None:
+def contact_authority_contract_snapshot(report: dict[str, Any]) -> dict[str, Any]:
+    """Summarize CPU/GPU authority predicates without copying contact payloads."""
+
     authority = report.get("cpu_contact_authority")
     require(isinstance(authority, dict), "contact authority object is required")
     authority = cast(dict[str, Any], authority)
-    require(
-        type(authority.get("subsequent_error_count")) is int
-        and authority["subsequent_error_count"] >= 0,
-        "contact authority subsequent-error count mismatch",
+    device = str(report.get("device", "")).lower()
+    require(device in {"cpu", "cuda:0"}, "contact authority device mismatch")
+    events = authority.get("events")
+    separations = authority.get("all_env_minimum_separation_m")
+    clock_bound = authority.get("physics_step_clock") == report.get(
+        "physics_step_clock"
     )
-    require(
-        authority.get("authority_device") == "cpu", "contact authority device changed"
-    )
+    return {
+        "metadata": {
+            "authority_device": authority.get("authority_device"),
+            "this_run_is_authority": authority.get("this_run_is_authority"),
+            "status": authority.get("status"),
+            "data_available": authority.get("data_available"),
+            "error_is_null": authority.get("error") is None,
+            "subsequent_error_count": authority.get("subsequent_error_count"),
+            "callback_event_count": authority.get("callback_event_count"),
+        },
+        "cpu_contract": {
+            "applicable": device == "cpu",
+            "metadata_contract": (
+                authority.get("authority_device") == "cpu"
+                and authority.get("this_run_is_authority") is True
+                and authority.get("status") == "observed"
+                and authority.get("data_available") is True
+                and authority.get("error") is None
+                and type(authority.get("subsequent_error_count")) is int
+                and authority["subsequent_error_count"] == 0
+                and authority.get("passed") is True
+                and type(authority.get("callback_event_count")) is int
+                and authority["callback_event_count"] > 0
+            ),
+            "events_present": isinstance(events, list) and len(events) > 0,
+            "separations_present": isinstance(separations, list)
+            and len(separations) == NUM_ENVS
+            and all(
+                type(value) in (int, float) and math.isfinite(float(value))
+                for value in separations
+            ),
+            "clock_bound": clock_bound,
+        },
+        "gpu_contract": {
+            "applicable": device == "cuda:0",
+            "metadata_contract": (
+                authority.get("authority_device") == "cpu"
+                and authority.get("this_run_is_authority") is False
+                and authority.get("status") == "unavailable_on_gpu"
+                and authority.get("data_available") is False
+                and authority.get("error") is None
+                and type(authority.get("subsequent_error_count")) is int
+                and authority["subsequent_error_count"] == 0
+                and type(authority.get("callback_event_count")) is int
+                and authority["callback_event_count"] == 0
+            ),
+            "passed_is_null": authority.get("passed") is None,
+            "events_is_null": events is None,
+            "all_env_separation_is_null": separations is None,
+            "clock_bound": clock_bound,
+        },
+    }
+
+
+def validate_contact_authority(report: dict[str, Any]) -> None:
+    authority = cast(dict[str, Any], report.get("cpu_contact_authority"))
+    contract = contact_authority_contract_snapshot(report)
     device = report["device"]
+    applicable = contract["cpu_contract" if device == "cpu" else "gpu_contract"]
+    require(
+        all(value is True for value in applicable.values()),
+        "CPU contact authority is incomplete"
+        if device == "cpu"
+        else "GPU fabricated CPU contact authority",
+    )
     if device != "cpu":
-        require(
-            authority.get("this_run_is_authority") is False
-            and authority.get("status") == "unavailable_on_gpu"
-            and authority.get("data_available") is False
-            and authority.get("error") is None
-            and authority.get("subsequent_error_count") == 0
-            and authority.get("passed") is None
-            and authority.get("events") is None
-            and authority.get("all_env_minimum_separation_m") is None,
-            "GPU fabricated CPU contact authority",
-        )
         return
     require(
-        authority.get("this_run_is_authority") is True
-        and authority.get("status") == "observed"
-        and authority.get("data_available") is True
-        and authority.get("error") is None
-        and authority.get("subsequent_error_count") == 0
-        and authority.get("passed") is True,
-        "CPU contact authority is incomplete",
-    )
-    require(
-        authority.get("physics_step_clock") == report.get("physics_step_clock"),
-        "contact authority clock binding mismatch",
+        type(authority.get("subsequent_error_count")) is int,
+        "contact authority subsequent-error count mismatch",
     )
     separations = authority.get("all_env_minimum_separation_m")
     require(
@@ -1803,6 +2091,261 @@ def build_historical_runtime_summary(
         "runtime_candidate_passed": all(candidate_checks.values()),
         "matches_historical_reference": matches,
         "progression_allowed": False,
+    }
+
+
+def historical_fingerprint_mismatches(report: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return only allowlisted historical projection mismatches, never all metrics."""
+
+    contract = report.get("contract")
+    require(isinstance(contract, dict), "diagnostic snapshot contract is required")
+    contract = cast(dict[str, Any], contract)
+    arm_contract = contract.get("arm")
+    require(isinstance(arm_contract, dict), "diagnostic snapshot arm is required")
+    arm = cast(dict[str, Any], arm_contract).get("id")
+    device = report.get("device")
+    require(
+        isinstance(arm, str)
+        and isinstance(device, str)
+        and (arm, device) in HISTORICAL_REPORTS,
+        "diagnostic snapshot historical identity mismatch",
+    )
+    arm = cast(str, arm)
+    device = cast(str, device)
+    summary = report.get("historical_runtime_summary")
+    require(isinstance(summary, dict), "historical summary is required")
+    summary = cast(dict[str, Any], summary)
+    observed = summary.get("pose_metrics")
+    require(
+        isinstance(observed, list) and len(observed) == NUM_ENVS,
+        "historical observed projection must contain 8 rows",
+    )
+    observed = cast(list[Any], observed)
+    reference_path = REPO_ROOT / HISTORICAL_REPORTS[(arm, device)]["path"]
+    reference_report = json.loads(reference_path.read_text(encoding="utf-8"))
+    reference = _historical_pose_projection(reference_report, device)
+    mismatches: list[dict[str, Any]] = []
+
+    def flattened(row: Any, label: str) -> dict[str, Any]:
+        require(isinstance(row, dict), f"{label} historical row must be an object")
+        require(
+            set(row) == set(HISTORICAL_SCALAR_FIELDS) | {"termination_counts"},
+            f"{label} historical projection fields mismatch",
+        )
+        counts = row.get("termination_counts")
+        require(
+            isinstance(counts, dict)
+            and set(counts) == set(HISTORICAL_TERMINATION_FIELDS),
+            f"{label} historical termination fields mismatch",
+        )
+        result = {field: row[field] for field in HISTORICAL_SCALAR_FIELDS}
+        result.update(
+            {
+                f"termination_counts.{name}": counts[name]
+                for name in HISTORICAL_TERMINATION_FIELDS
+            }
+        )
+        return result
+
+    def safe_primitive(value: Any) -> str | int | float | None:
+        if value is None or isinstance(value, str):
+            return value
+        if type(value) is int:
+            return value
+        if type(value) is float:
+            return value if math.isfinite(value) else None
+        raise ValueError("historical mismatch value must be a primitive")
+
+    for env_index, (actual_row, expected_row) in enumerate(
+        zip(observed, reference, strict=True)
+    ):
+        actual_values = flattened(actual_row, "observed")
+        expected_values = flattened(expected_row, "reference")
+        for field in HISTORICAL_MISMATCH_FIELDS:
+            actual = actual_values[field]
+            expected = expected_values[field]
+            abs_delta: float | None = None
+            if type(actual) in (int, float) and type(expected) in (int, float):
+                actual_number = float(actual)
+                expected_number = float(expected)
+                if math.isfinite(actual_number) and math.isfinite(expected_number):
+                    abs_delta = abs(actual_number - expected_number)
+                    matches = math.isclose(
+                        actual_number,
+                        expected_number,
+                        rel_tol=0.0,
+                        abs_tol=1.0e-6,
+                    )
+                else:
+                    matches = False
+            else:
+                matches = actual == expected
+            if not matches:
+                mismatches.append(
+                    {
+                        "env_index": env_index,
+                        "field": field,
+                        "observed": safe_primitive(actual),
+                        "reference": safe_primitive(expected),
+                        "abs_delta": abs_delta,
+                    }
+                )
+    return sorted(mismatches, key=lambda item: (item["env_index"], item["field"]))
+
+
+def build_diagnostic_check_snapshot(report: dict[str, Any]) -> dict[str, Any]:
+    """Build fixed-schema aggregate evidence without copying raw diagnostic payloads."""
+
+    live = report.get("live_physics_readback")
+    require(isinstance(live, dict), "live physics readback is required")
+    live = cast(dict[str, Any], live)
+    live_checks = live.get("checks")
+    require(
+        isinstance(live_checks, dict)
+        and set(live_checks) == set(LIVE_CHECK_NAMES)
+        and all(type(value) is bool for value in live_checks.values()),
+        "live physics checks are invalid",
+    )
+    live_checks = cast(dict[str, Any], live_checks)
+    solver = {
+        "articulation_solver_iteration_counts_match_contract": live_checks.get(
+            "articulation_solver_iteration_counts_match_contract"
+        )
+        is True
+    }
+    depenetration = {
+        "rigid_body_max_depenetration_velocity_matches_contract": live_checks.get(
+            "rigid_body_max_depenetration_velocity_matches_contract"
+        )
+        is True
+    }
+    physics_rows = report.get("physics_substep_telemetry")
+    control_rows = report.get("control_step_telemetry")
+    physics_actual = len(physics_rows) if isinstance(physics_rows, list) else -1
+    control_actual = len(control_rows) if isinstance(control_rows, list) else -1
+    telemetry_counts = {
+        "physics_actual": physics_actual,
+        "physics_expected": ROLLOUT_STEPS * CONTROL_DECIMATION,
+        "physics_count_matches": physics_actual == ROLLOUT_STEPS * CONTROL_DECIMATION,
+        "control_actual": control_actual,
+        "control_expected": ROLLOUT_STEPS,
+        "control_count_matches": control_actual == ROLLOUT_STEPS,
+    }
+    clock_value = report.get("physics_step_clock")
+    require(isinstance(clock_value, dict), "physics step clock is required")
+    clock_value = cast(dict[str, Any], clock_value)
+    callback_count = clock_value.get("callback_count")
+    expected_callback_count = clock_value.get("expected_callback_count")
+    clock = {
+        "passed": clock_value.get("passed") is True,
+        "callback_count": callback_count,
+        "expected_callback_count": expected_callback_count,
+        "callback_count_matches": type(callback_count) is int
+        and type(expected_callback_count) is int
+        and callback_count == expected_callback_count,
+    }
+    safety_value = report.get("safety_termination_counts")
+    require(
+        isinstance(safety_value, dict)
+        and set(safety_value) == {"numeric_invalid", "hard_joint_limit"},
+        "safety counts are required",
+    )
+    safety_value = cast(dict[str, Any], safety_value)
+    safety_counts = {
+        "numeric_invalid": safety_value.get("numeric_invalid"),
+        "hard_joint_limit": safety_value.get("hard_joint_limit"),
+    }
+    safety_counts_valid = all(
+        type(value) is int and value >= 0 for value in safety_counts.values()
+    )
+    safety = {
+        "counts": safety_counts,
+        "zero": safety_counts_valid
+        and safety_counts == {"numeric_invalid": 0, "hard_joint_limit": 0},
+    }
+    historical_value = report.get("historical_runtime_summary")
+    require(isinstance(historical_value, dict), "historical summary is required")
+    historical_value = cast(dict[str, Any], historical_value)
+    historical_checks_value = historical_value.get("checks")
+    runtime_checks_value = historical_value.get("runtime_candidate_checks")
+    require(
+        isinstance(historical_checks_value, dict)
+        and set(historical_checks_value) == set(HISTORICAL_CHECK_NAMES)
+        and all(type(value) is bool for value in historical_checks_value.values())
+        and isinstance(runtime_checks_value, dict)
+        and set(runtime_checks_value) == set(RUNTIME_CANDIDATE_CHECK_NAMES)
+        and all(type(value) is bool for value in runtime_checks_value.values()),
+        "historical check maps are required",
+    )
+    historical_checks_value = cast(dict[str, Any], historical_checks_value)
+    runtime_checks_value = cast(dict[str, Any], runtime_checks_value)
+    historical_checks = {
+        name: historical_checks_value.get(name) is True
+        for name in HISTORICAL_CHECK_NAMES
+    }
+    runtime_checks = {
+        name: runtime_checks_value.get(name) is True
+        for name in RUNTIME_CANDIDATE_CHECK_NAMES
+    }
+    mismatches = historical_fingerprint_mismatches(report)
+    historical_passed = historical_value.get("passed") is True
+    matches_historical = historical_value.get("matches_historical_reference") is True
+    runtime_candidate_passed = historical_value.get("runtime_candidate_passed") is True
+    historical = {
+        "checks": historical_checks,
+        "passed": historical_passed,
+        "matches_historical_reference": matches_historical,
+        "historical_fingerprint_mismatches": mismatches,
+        "runtime_candidate_checks": runtime_checks,
+        "runtime_candidate_passed": runtime_candidate_passed,
+    }
+    device = str(report.get("device", "")).lower()
+    require(device in {"cpu", "cuda:0"}, "diagnostic snapshot device mismatch")
+    contact = contact_authority_contract_snapshot(report)
+    required_checks: dict[str, bool] = {
+        **{f"solver.{name}": value for name, value in solver.items()},
+        **{f"depenetration.{name}": value for name, value in depenetration.items()},
+        "telemetry.physics_count_matches": telemetry_counts["physics_count_matches"],
+        "telemetry.control_count_matches": telemetry_counts["control_count_matches"],
+        "clock.passed": clock["passed"],
+        "clock.callback_count_matches": clock["callback_count_matches"],
+        "safety.zero": safety["zero"],
+        **{f"historical.{name}": value for name, value in historical_checks.items()},
+    }
+    if all(historical_checks.values()):
+        required_checks["historical.passed"] = historical["passed"]
+        required_checks["historical.matches_historical_reference"] = historical[
+            "matches_historical_reference"
+        ]
+    if device == "cpu":
+        for name in (
+            "metadata_contract",
+            "events_present",
+            "separations_present",
+            "clock_bound",
+        ):
+            required_checks[f"contact.cpu.{name}"] = contact["cpu_contract"][name]
+    else:
+        for name in (
+            "metadata_contract",
+            "passed_is_null",
+            "events_is_null",
+            "all_env_separation_is_null",
+            "clock_bound",
+        ):
+            required_checks[f"contact.gpu.{name}"] = contact["gpu_contract"][name]
+    failed = sorted(name for name, passed in required_checks.items() if not passed)
+    return {
+        "schema_version": "g009.r0.rev16.diagnostic_check_snapshot.v1",
+        "solver_checks": solver,
+        "depenetration_checks": depenetration,
+        "telemetry_counts": telemetry_counts,
+        "clock": clock,
+        "safety": safety,
+        "historical": historical,
+        "contact_authority": contact,
+        "failed_check_names": failed,
+        "all_passed": not failed,
     }
 
 
@@ -2188,19 +2731,24 @@ def validate_report_contract(report: dict[str, Any]) -> None:
         and cell.get("target_body_name") == "base",
         "controlled cell mismatch",
     )
-    live = report.get("live_physics_readback")
-    require(
-        isinstance(live, dict)
-        and isinstance(live.get("checks"), dict)
-        and bool(live["checks"])
-        and all(value is True for value in live["checks"].values()),
-        "live physics readback failed",
-    )
     if report.get("status") == "complete":
-        require(
-            report.get("diagnostic_capture_complete") is True,
-            "complete report must pass every diagnostic capture check",
+        expected_snapshot = build_diagnostic_check_snapshot(report)
+        snapshot_matches = report.get("diagnostic_check_snapshot") == expected_snapshot
+        capture_matches = (
+            type(report.get("diagnostic_capture_complete")) is bool
+            and report["diagnostic_capture_complete"] is expected_snapshot["all_passed"]
         )
+        if (
+            snapshot_matches
+            and capture_matches
+            and expected_snapshot["all_passed"] is not True
+        ):
+            failed = cast(list[str], expected_snapshot["failed_check_names"])
+            raise ValidationStageError(
+                "diagnostic_capture_checks",
+                ValueError("diagnostic checks failed: " + ", ".join(failed)),
+                failed,
+            )
         try:
             validate_physics_telemetry(report)
         except Exception as error:
@@ -2214,6 +2762,15 @@ def validate_report_contract(report: dict[str, Any]) -> None:
             "safety termination telemetry is nonzero or missing",
         )
         validate_contact_authority(report)
+        if not snapshot_matches:
+            raise ValidationStageError(
+                "diagnostic_check_snapshot",
+                ValueError("diagnostic check snapshot derivation mismatch"),
+            )
+        require(
+            capture_matches,
+            "diagnostic capture must derive only from snapshot all_passed",
+        )
 
 
 def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, Any]:
@@ -2483,16 +3040,6 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
         clock_snapshot = physics_clock.snapshot()
         if clock_snapshot["passed"] is not True:
             raise PhysicsStepClockEvidenceError(clock_snapshot, mass_evidence)
-        if normalized_device == "cpu":
-            require(
-                contact_authority["error"] is None,
-                f"CPU contact callback failed: {contact_authority['error']}",
-            )
-            require(
-                contact_authority["passed"] is True,
-                "CPU contact authority did not cover env7 details and all 8 "
-                "environment separation values",
-            )
         all_env_separation = contact_authority["all_env_minimum_separation_m"]
         observed_pose_metrics: list[dict[str, Any]] = []
         pose_names = ("prone", "supine", "left_side", "right_side")
@@ -2604,23 +3151,10 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
             "safety_termination_counts": safety_termination_counts,
             "cpu_contact_authority": contact_authority,
             "historical_runtime_summary": historical_summary,
-            "diagnostic_capture_complete": (
-                all(solver_checks.values())
-                and all(depenetration_checks.values())
-                and len(physics_rows) == ROLLOUT_STEPS * CONTROL_DECIMATION
-                and len(control_rows) == ROLLOUT_STEPS
-                and clock_snapshot["passed"] is True
-                and safety_termination_counts
-                == {"numeric_invalid": 0, "hard_joint_limit": 0}
-                and historical_summary["passed"] is True
-                and (
-                    contact_authority["passed"] is True
-                    if args.device.lower() == "cpu"
-                    else contact_authority["passed"] is None
-                    and contact_authority["events"] is None
-                )
-            ),
         }
+        diagnostic_snapshot = build_diagnostic_check_snapshot(report)
+        report["diagnostic_check_snapshot"] = diagnostic_snapshot
+        report["diagnostic_capture_complete"] = diagnostic_snapshot["all_passed"]
         try:
             validate_report_contract(report)
         except Exception as error:
@@ -2629,12 +3163,14 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
                     "stage": error.stage,
                     "error_type": type(error.original_error).__name__,
                     "message": str(error.original_error),
+                    "failed_check_names": error.failed_check_names,
                 }
                 if isinstance(error, ValidationStageError)
                 else {
                     "stage": "full_report_validation",
                     "error_type": type(error).__name__,
                     "message": str(error),
+                    "failed_check_names": [],
                 }
             )
             original_error = (
@@ -2647,6 +3183,7 @@ def diagnose(args: argparse.Namespace, execution: dict[str, Any]) -> dict[str, A
                 physics_step_clock=clock_snapshot,
                 mass_evidence=mass_evidence,
                 validation_failure=validation_failure,
+                diagnostic_check_snapshot=diagnostic_snapshot,
             ) from error
         return report
     finally:
@@ -2716,14 +3253,37 @@ def failure_envelope(
     )
     clock_evidence = _allowlisted_evidence(clock_evidence, CLOCK_EVIDENCE_FIELDS)
     mass_evidence = _allowlisted_evidence(mass_evidence, MASS_EVIDENCE_FIELDS)
+    raw_failed_check_names = (
+        error.validation_failure.get("failed_check_names")
+        if isinstance(error, DiagnosticEvidenceError)
+        and isinstance(error.validation_failure, dict)
+        else None
+    )
+    failed_check_names = (
+        sorted(
+            {
+                value
+                for value in raw_failed_check_names
+                if isinstance(value, str) and value in DIAGNOSTIC_CHECK_NAMES
+            }
+        )
+        if isinstance(raw_failed_check_names, list)
+        else []
+    )
     validation_failure = (
         {
             "stage": error.validation_failure.get("stage"),
             "error_type": error.validation_failure.get("error_type"),
             "message": error.validation_failure.get("message"),
+            "failed_check_names": failed_check_names,
         }
         if isinstance(error, DiagnosticEvidenceError)
         and isinstance(error.validation_failure, dict)
+        else None
+    )
+    diagnostic_snapshot = _allowlisted_diagnostic_snapshot(
+        error.diagnostic_check_snapshot
+        if isinstance(error, DiagnosticEvidenceError)
         else None
     )
     return {
@@ -2755,6 +3315,7 @@ def failure_envelope(
         "physics_step_clock": clock_evidence,
         "mass_evidence": mass_evidence,
         "validation_failure": validation_failure,
+        "diagnostic_check_snapshot": diagnostic_snapshot,
         "error": {
             "type": type(original_error).__name__,
             "message": str(original_error),
