@@ -1,4 +1,6 @@
 /.gitattributes text eol=lf
 /configs/g007_rbq_asset_manifest.json text eol=lf
 /reports/g007_rbq_compatibility_spike.json text eol=lf
+/reports/runs/g009_r0_rev16_*.json text eol=lf
+/reports/runs/g009_5_r0_diag_rev16_*.json text eol=lf
 /scripts/validate_rbq_assets.py text eol=lf
