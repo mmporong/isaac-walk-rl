@@ -1149,6 +1149,10 @@ c_A'=c,\qquad c_B'=1.5c,\qquad r_A'=r_B'=r,\qquad c'>r
 
 실행 절차는 CPU 네 report를 먼저 만든 뒤 요약기에 `--mode cpu-preflight`와 정확한 `A1,A2,B1,B2` 순서로 전달하는 방식이다. GPU 네 probe에는 모두 `--cpu-preflight reports/runs/g009_r0_rev19_contact_offset_cpu_preflight_2x2_s42.json`을 넣는다. 마지막 합성은 `--mode final`, 동일 preflight, CPU-first 8 report 순서와 canonical 출력 `reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json`을 요구한다. final 단계는 preflight의 CPU binding과 실제 첫 네 입력이 같고 GPU 네 report의 preflight path/SHA/commit/bundle이 모두 같은지 fail-closed로 대조한다. 판정 우선순위는 report/probe integrity → safety availability → CPU preflight validity → safety threshold → replicate split/repeatability다.
 
+첫 CPU A1은 source commit `d3462069ab8dc52024730ea55287cb8382e4d50c`에서 rollout 전에 fail-closed 됐다. 원인은 `stage.Traverse()`가 Go2 robot subtree의 USD instance proxy를 기본 순회하지 않는데도 env별 collision prim 27개가 직접 나온다고 가정한 관찰 하네스였다. 이는 보행·복구 정책, 접촉 오프셋의 물리 효과, 강화학습 결과 실패가 아니다. Kit 로그에서는 articulation과 19 rigid body가 정상 초기화됐고, contact-offset tensor 자체도 `[8,27]`이었다.
+
+수정본은 env별 robot root를 확인한 뒤 `Usd.PrimRange(robot_root, Usd.TraverseInstanceProxies())`로 읽기 순회한다. [OpenUSD의 instancing 문서](https://openusd.org/release/api/_usd__page__scenegraph_instancing.html)는 기본 prim range가 instance proxy를 반환하지 않으며 이 predicate를 명시해야 한다고 설명한다. report는 env별 collision path 수·unique 수·instance-proxy 수와 8환경 relative template 동일성을 남긴다. USD schema를 적용하거나 instanceable 상태를 바꾸지 않으며, 27개 path inventory를 PhysX tensor 열 순서와 매핑하는 권위는 계속 `false`다. 실패 attempt의 report·Kit 로그·SHA manifest는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\failed_attempts\rev19`에 로컬 보존하고, 수정 커밋에서 CPU A1부터 fresh execution으로 다시 시작한다.
+
 ![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
 
 ![rev12 gate10 full-state 사건별 GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.gif)

@@ -4,9 +4,13 @@ import copy
 import hashlib
 import importlib.util
 import json
+import random
+import sys
+import types
 import uuid
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
@@ -23,12 +27,42 @@ def topology_fixture() -> dict:
     template = [f"link_{index:02d}/collision" for index in range(27)]
     return {
         "source": "read_only_usd_collision_api_traversal",
+        "traversal_predicate": "Usd.PrimRange(robot_root, Usd.TraverseInstanceProxies())",
+        "instance_proxy_traversal_enabled": True,
+        "robot_root_paths": [f"/World/envs/env_{env}/Robot" for env in range(8)],
+        "per_env_robot_root_instance_state": {
+            str(env): {
+                "path": f"/World/envs/env_{env}/Robot",
+                "is_instance": False,
+                "is_instanceable": False,
+                "is_instance_proxy": False,
+            }
+            for env in range(8)
+        },
+        "robot_root_scope_validated": True,
         "collision_shapes_per_articulation": 27,
+        "collision_shape_paths_total": 8 * 27,
         "sorted_unique_template_paths": template,
         "per_env_sorted_paths": {
             str(env): [f"/World/envs/env_{env}/Robot/{path}" for path in template]
             for env in range(8)
         },
+        "per_env_sorted_path_records": {
+            str(env): [
+                {
+                    "path": f"/World/envs/env_{env}/Robot/{path}",
+                    "is_instance_proxy": env > 0,
+                }
+                for path in template
+            ]
+            for env in range(8)
+        },
+        "per_env_collision_path_counts": {str(env): 27 for env in range(8)},
+        "per_env_unique_collision_path_counts": {str(env): 27 for env in range(8)},
+        "per_env_instance_proxy_collision_path_counts": {
+            str(env): 0 if env == 0 else 27 for env in range(8)
+        },
+        "instance_proxy_collision_path_count": 7 * 27,
         "all_envs_topology_identical": True,
         "setter_call_scope": "robot.root_physx_view_only",
         "ground_setter_called": False,
@@ -36,6 +70,147 @@ def topology_fixture() -> dict:
         "ground_runtime_offset_unchanged_claimed": False,
         "tensor_column_path_mapping_authority": False,
     }
+
+
+class FakeCollisionPrim:
+    def __init__(self, path: str, *, collision: bool = True, instance_proxy: bool = False) -> None:
+        self.path = path
+        self.collision = collision
+        self.instance_proxy = instance_proxy
+
+    def GetPath(self) -> str:
+        return self.path
+
+    def HasAPI(self, _api: object) -> bool:
+        return self.collision
+
+    def IsInstanceProxy(self) -> bool:
+        return self.instance_proxy
+
+
+def collision_prims() -> list[FakeCollisionPrim]:
+    prims = [
+        FakeCollisionPrim(
+            f"/World/envs/env_{env}/Robot/link_{shape:02d}/collision",
+            instance_proxy=env > 0,
+        )
+        for env in range(8)
+        for shape in range(27)
+    ]
+    prims.extend(
+        [
+            FakeCollisionPrim("/World/ground", collision=True),
+            FakeCollisionPrim("/World/envs/env_0/Robot/debug_visual", collision=False),
+        ]
+    )
+    random.Random(42).shuffle(prims)
+    return prims
+
+
+def test_collision_topology_uses_instance_proxy_predicate_and_is_deterministic(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    predicate = object()
+
+    class FakeStage:
+        def __init__(self) -> None:
+            self.requested_root_paths: list[str] = []
+
+        def GetPrimAtPath(self, path: str):
+            self.requested_root_paths.append(path)
+            return types.SimpleNamespace(
+                path=path,
+                IsValid=lambda: True,
+                IsInstance=lambda: False,
+                IsInstanceable=lambda: False,
+                IsInstanceProxy=lambda: False,
+            )
+
+    stage = FakeStage()
+    all_prims = collision_prims()
+
+    def prim_range(root: Any, value: object):
+        assert value is predicate
+        prefix = f"{root.path}/"
+        return [prim for prim in all_prims if prim.path.startswith(prefix)]
+
+    usd_module = types.SimpleNamespace(
+        TraverseInstanceProxies=lambda: predicate,
+        PrimRange=prim_range,
+    )
+    usd_physics_module = types.SimpleNamespace(CollisionAPI=object())
+    omni_usd_module = types.ModuleType("omni.usd")
+    setattr(omni_usd_module, "get_context", lambda: types.SimpleNamespace(get_stage=lambda: stage))
+    omni_module = types.ModuleType("omni")
+    setattr(omni_module, "usd", omni_usd_module)
+    pxr_module = types.ModuleType("pxr")
+    setattr(pxr_module, "Usd", usd_module)
+    setattr(pxr_module, "UsdPhysics", usd_physics_module)
+    monkeypatch.setitem(sys.modules, "omni", omni_module)
+    monkeypatch.setitem(sys.modules, "omni.usd", omni_usd_module)
+    monkeypatch.setitem(sys.modules, "pxr", pxr_module)
+
+    result = PROBE.collision_topology_evidence(SimpleNamespace())
+
+    assert stage.requested_root_paths == [f"/World/envs/env_{env}/Robot" for env in range(8)]
+    assert result["collision_shape_paths_total"] == 216
+    assert result["per_env_collision_path_counts"] == {str(env): 27 for env in range(8)}
+    assert result["per_env_instance_proxy_collision_path_counts"] == {
+        str(env): 0 if env == 0 else 27 for env in range(8)
+    }
+    assert result["sorted_unique_template_paths"] == sorted(result["sorted_unique_template_paths"])
+
+
+def test_collision_topology_fails_closed_with_observed_counts() -> None:
+    prims = collision_prims()
+    prims = [prim for prim in prims if prim.path != "/World/envs/env_3/Robot/link_26/collision"]
+
+    with pytest.raises(ValueError, match=r'observed_counts=.*"3": 26'):
+        PROBE._collision_topology_from_prims(prims, object())
+
+
+def test_collision_topology_fails_closed_on_duplicate_path() -> None:
+    prims = collision_prims()
+    prims.append(FakeCollisionPrim("/World/envs/env_2/Robot/link_00/collision", instance_proxy=True))
+
+    with pytest.raises(ValueError, match=r'observed_counts=.*"2": 28'):
+        PROBE._collision_topology_from_prims(prims, object())
+
+
+def test_collision_topology_fails_closed_on_cross_env_template_drift() -> None:
+    prims = collision_prims()
+    target = next(prim for prim in prims if prim.path == "/World/envs/env_6/Robot/link_26/collision")
+    target.path = "/World/envs/env_6/Robot/link_drift/collision"
+
+    with pytest.raises(ValueError, match="collision topology differs across envs; env_index=6"):
+        PROBE._collision_topology_from_prims(prims, object())
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    ["forged_prefix", "serialized_template", "stale_count", "proxy_redistribution"],
+)
+def test_offset_validator_recomputes_topology_relationships(tamper: str) -> None:
+    value = offset_fixture("A")
+    topology = value["topology"]
+    if tamper == "forged_prefix":
+        forged = [f"/forged/not-env3/path_{index:02d}" for index in range(27)]
+        topology["per_env_sorted_paths"]["3"] = forged
+        topology["per_env_sorted_path_records"]["3"] = [
+            {"path": path, "is_instance_proxy": True} for path in forged
+        ]
+    elif tamper == "serialized_template":
+        topology["sorted_unique_template_paths"][0] = "unrelated/collision"
+        topology["sorted_unique_template_paths"].sort()
+    elif tamper == "stale_count":
+        topology["per_env_collision_path_counts"]["4"] = 26
+        topology["collision_shape_paths_total"] = 215
+    elif tamper == "proxy_redistribution":
+        topology["per_env_instance_proxy_collision_path_counts"]["0"] = 1
+        topology["per_env_instance_proxy_collision_path_counts"]["1"] = 26
+
+    with pytest.raises(ValueError):
+        PROBE.validate_offset_integrity(value, "A")
 
 
 def offset_fixture(arm: str = "A") -> dict:
@@ -197,6 +372,9 @@ def test_preregistration_locks_new_control_and_measured_topology() -> None:
     assert value["design"]["rest_offset_setter_called"] is False
     assert value["measured_shape_topology"]["tensor_column_labels"] == "shape_index_00..shape_index_26"
     assert value["measured_shape_topology"]["tensor_column_path_mapping_authority"] is False
+    assert value["measured_shape_topology"]["collision_path_inventory_traversal"] == "Usd.PrimRange(robot_root, Usd.TraverseInstanceProxies())"
+    assert value["measured_shape_topology"]["collision_path_inventory_read_only"] is True
+    assert value["measured_shape_topology"]["collision_path_inventory_can_map_tensor_columns"] is False
 
 
 @pytest.mark.parametrize(("arm", "scale"), [("A", 1.0), ("B", 1.5)])

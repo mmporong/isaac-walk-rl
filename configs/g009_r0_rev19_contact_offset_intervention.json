@@ -80,7 +80,11 @@
     "absolute_contact_offset_hardcode_allowed": false,
     "rest_offset_baseline_expected_m": 0.0,
     "tensor_column_labels": "shape_index_00..shape_index_26",
-    "tensor_column_path_mapping_authority": false
+    "tensor_column_path_mapping_authority": false,
+    "collision_path_inventory_source": "robot_root_scoped_usd_traversal_with_instance_proxies",
+    "collision_path_inventory_traversal": "Usd.PrimRange(robot_root, Usd.TraverseInstanceProxies())",
+    "collision_path_inventory_read_only": true,
+    "collision_path_inventory_can_map_tensor_columns": false
   },
   "manual_probe_safety": {
     "gate_execution": false,

@@ -584,36 +584,76 @@ def startup_scale_contact_offsets(env: Any, env_ids: Any, arm: str) -> None:
     env._g009_rev19_contact_offset_evidence = copy.deepcopy(evidence)
 
 
-def collision_topology_evidence(env: Any) -> dict[str, Any]:
-    """Read collision prim topology without applying or mutating USD schemas."""
+def _collision_topology_from_prims(prims: Any, collision_api: Any) -> dict[str, Any]:
+    """Normalize read-only collision prim observations across cloned environments."""
 
-    import omni.usd  # pyright: ignore[reportMissingImports]
-    from pxr import UsdPhysics  # pyright: ignore[reportMissingImports]
-
-    stage = omni.usd.get_context().get_stage()
-    require(stage is not None, "USD stage unavailable for collision topology")
+    records = [
+        {
+            "path": str(prim.GetPath()),
+            "is_instance_proxy": bool(prim.IsInstanceProxy()),
+        }
+        for prim in prims
+        if str(prim.GetPath()).startswith("/World/envs/env_")
+        and prim.HasAPI(collision_api)
+    ]
     per_env: dict[str, list[str]] = {}
+    per_env_records: dict[str, list[dict[str, Any]]] = {}
+    per_env_counts: dict[str, int] = {}
+    per_env_unique_counts: dict[str, int] = {}
+    per_env_instance_proxy_counts: dict[str, int] = {}
     template: list[str] | None = None
     for env_index in range(NUM_ENVS):
         prefix = f"/World/envs/env_{env_index}/Robot/"
-        paths = sorted(
-            str(prim.GetPath())
-            for prim in stage.Traverse()
-            if str(prim.GetPath()).startswith(prefix)
-            and prim.HasAPI(UsdPhysics.CollisionAPI)
+        env_records = sorted(
+            (
+                {
+                    "path": record["path"],
+                    "is_instance_proxy": record["is_instance_proxy"],
+                }
+                for record in records
+                if record["path"].startswith(prefix)
+            ),
+            key=lambda record: record["path"],
         )
-        require(len(paths) == COLLISION_SHAPES_PER_ARTICULATION and len(set(paths)) == len(paths), "collision topology must contain 27 unique paths per env")
+        paths = [record["path"] for record in env_records]
+        unique_count = len(set(paths))
+        per_env_counts[str(env_index)] = len(paths)
+        per_env_unique_counts[str(env_index)] = unique_count
+        per_env_instance_proxy_counts[str(env_index)] = sum(
+            1
+            for record in records
+            if record["path"].startswith(prefix) and record["is_instance_proxy"]
+        )
+        require(
+            len(paths) == COLLISION_SHAPES_PER_ARTICULATION and unique_count == len(paths),
+            "collision topology must contain 27 unique paths per env; "
+            f"observed_counts={json.dumps(per_env_counts, sort_keys=True)}; "
+            f"observed_unique_counts={json.dumps(per_env_unique_counts, sort_keys=True)}",
+        )
         relative = [path[len(prefix):] for path in paths]
         if template is None:
             template = relative
-        require(relative == template, "collision topology differs across envs")
+        require(
+            relative == template,
+            "collision topology differs across envs; "
+            f"env_index={env_index}; observed_relative_paths={json.dumps(relative)}",
+        )
         per_env[str(env_index)] = paths
+        per_env_records[str(env_index)] = env_records
     require(template is not None and len(template) == COLLISION_SHAPES_PER_ARTICULATION, "collision topology template unavailable")
     return {
         "source": "read_only_usd_collision_api_traversal",
+        "traversal_predicate": "Usd.PrimRange(robot_root, Usd.TraverseInstanceProxies())",
+        "instance_proxy_traversal_enabled": True,
         "collision_shapes_per_articulation": COLLISION_SHAPES_PER_ARTICULATION,
+        "collision_shape_paths_total": sum(per_env_counts.values()),
         "sorted_unique_template_paths": template,
         "per_env_sorted_paths": per_env,
+        "per_env_sorted_path_records": per_env_records,
+        "per_env_collision_path_counts": per_env_counts,
+        "per_env_unique_collision_path_counts": per_env_unique_counts,
+        "per_env_instance_proxy_collision_path_counts": per_env_instance_proxy_counts,
+        "instance_proxy_collision_path_count": sum(per_env_instance_proxy_counts.values()),
         "all_envs_topology_identical": True,
         "setter_call_scope": "robot.root_physx_view_only",
         "ground_setter_called": False,
@@ -621,6 +661,38 @@ def collision_topology_evidence(env: Any) -> dict[str, Any]:
         "ground_runtime_offset_unchanged_claimed": False,
         "tensor_column_path_mapping_authority": False,
     }
+
+
+def collision_topology_evidence(env: Any) -> dict[str, Any]:
+    """Read collision prim topology without applying or mutating USD schemas."""
+
+    import omni.usd  # pyright: ignore[reportMissingImports]
+    from pxr import Usd, UsdPhysics  # pyright: ignore[reportMissingImports]
+
+    stage = omni.usd.get_context().get_stage()
+    require(stage is not None, "USD stage unavailable for collision topology")
+    predicate = Usd.TraverseInstanceProxies()
+    robot_root_paths = [f"/World/envs/env_{env_index}/Robot" for env_index in range(NUM_ENVS)]
+    robot_root_instance_state: dict[str, dict[str, Any]] = {}
+    collision_scope_prims: list[Any] = []
+    for env_index, robot_root_path in enumerate(robot_root_paths):
+        robot_root = stage.GetPrimAtPath(robot_root_path)
+        require(
+            bool(robot_root.IsValid()),
+            f"robot root unavailable for collision topology: {robot_root_path}",
+        )
+        robot_root_instance_state[str(env_index)] = {
+            "path": robot_root_path,
+            "is_instance": bool(robot_root.IsInstance()),
+            "is_instanceable": bool(robot_root.IsInstanceable()),
+            "is_instance_proxy": bool(robot_root.IsInstanceProxy()),
+        }
+        collision_scope_prims.extend(Usd.PrimRange(robot_root, predicate))
+    evidence = _collision_topology_from_prims(collision_scope_prims, UsdPhysics.CollisionAPI)
+    evidence["robot_root_paths"] = robot_root_paths
+    evidence["per_env_robot_root_instance_state"] = robot_root_instance_state
+    evidence["robot_root_scope_validated"] = True
+    return evidence
 
 
 class SafetyAccumulator:
@@ -775,6 +847,147 @@ def derive_feasibility(report: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def validate_collision_topology(value: Any) -> dict[str, Any]:
+    require(isinstance(value, Mapping), "collision topology must be an object")
+    topology = cast(Mapping[str, Any], value)
+    expected_keys = {
+        "source",
+        "traversal_predicate",
+        "instance_proxy_traversal_enabled",
+        "robot_root_paths",
+        "per_env_robot_root_instance_state",
+        "robot_root_scope_validated",
+        "collision_shapes_per_articulation",
+        "collision_shape_paths_total",
+        "sorted_unique_template_paths",
+        "per_env_sorted_paths",
+        "per_env_sorted_path_records",
+        "per_env_collision_path_counts",
+        "per_env_unique_collision_path_counts",
+        "per_env_instance_proxy_collision_path_counts",
+        "instance_proxy_collision_path_count",
+        "all_envs_topology_identical",
+        "setter_call_scope",
+        "ground_setter_called",
+        "usd_schema_apply_called",
+        "ground_runtime_offset_unchanged_claimed",
+        "tensor_column_path_mapping_authority",
+    }
+    require(set(topology) == expected_keys, "collision topology schema mismatch")
+    require(
+        topology.get("source") == "read_only_usd_collision_api_traversal"
+        and topology.get("traversal_predicate") == "Usd.PrimRange(robot_root, Usd.TraverseInstanceProxies())"
+        and topology.get("instance_proxy_traversal_enabled") is True
+        and topology.get("robot_root_scope_validated") is True
+        and topology.get("collision_shapes_per_articulation") == COLLISION_SHAPES_PER_ARTICULATION
+        and topology.get("all_envs_topology_identical") is True
+        and topology.get("setter_call_scope") == "robot.root_physx_view_only"
+        and topology.get("ground_setter_called") is False
+        and topology.get("usd_schema_apply_called") is False
+        and topology.get("ground_runtime_offset_unchanged_claimed") is False
+        and topology.get("tensor_column_path_mapping_authority") is False,
+        "collision topology identity mismatch",
+    )
+
+    expected_env_keys = {str(index) for index in range(NUM_ENVS)}
+    expected_root_paths = [f"/World/envs/env_{env_index}/Robot" for env_index in range(NUM_ENVS)]
+    require(topology.get("robot_root_paths") == expected_root_paths, "collision topology robot roots mismatch")
+    root_states = topology.get("per_env_robot_root_instance_state")
+    per_env_paths = topology.get("per_env_sorted_paths")
+    per_env_records = topology.get("per_env_sorted_path_records")
+    serialized_counts = topology.get("per_env_collision_path_counts")
+    serialized_unique_counts = topology.get("per_env_unique_collision_path_counts")
+    serialized_proxy_counts = topology.get("per_env_instance_proxy_collision_path_counts")
+    require(
+        isinstance(root_states, Mapping)
+        and isinstance(per_env_paths, Mapping)
+        and isinstance(per_env_records, Mapping)
+        and isinstance(serialized_counts, Mapping)
+        and isinstance(serialized_unique_counts, Mapping)
+        and isinstance(serialized_proxy_counts, Mapping)
+        and set(root_states) == expected_env_keys
+        and set(per_env_paths) == expected_env_keys
+        and set(per_env_records) == expected_env_keys
+        and set(serialized_counts) == expected_env_keys
+        and set(serialized_unique_counts) == expected_env_keys
+        and set(serialized_proxy_counts) == expected_env_keys,
+        "collision topology per-env schema mismatch",
+    )
+    root_states = cast(Mapping[str, Any], root_states)
+    per_env_paths = cast(Mapping[str, Any], per_env_paths)
+    per_env_records = cast(Mapping[str, Any], per_env_records)
+    serialized_counts = cast(Mapping[str, Any], serialized_counts)
+    serialized_unique_counts = cast(Mapping[str, Any], serialized_unique_counts)
+    serialized_proxy_counts = cast(Mapping[str, Any], serialized_proxy_counts)
+
+    computed_template: list[str] | None = None
+    computed_counts: dict[str, int] = {}
+    computed_unique_counts: dict[str, int] = {}
+    computed_proxy_counts: dict[str, int] = {}
+    for env_index in range(NUM_ENVS):
+        env_key = str(env_index)
+        root_path = expected_root_paths[env_index]
+        prefix = f"{root_path}/"
+        root_state = root_states[env_key]
+        require(
+            isinstance(root_state, Mapping)
+            and set(root_state) == {"path", "is_instance", "is_instanceable", "is_instance_proxy"}
+            and root_state.get("path") == root_path
+            and all(isinstance(root_state.get(name), bool) for name in ("is_instance", "is_instanceable", "is_instance_proxy")),
+            f"collision topology robot root state mismatch for env {env_index}",
+        )
+
+        paths = per_env_paths[env_key]
+        path_records = per_env_records[env_key]
+        require(
+            isinstance(paths, list)
+            and all(isinstance(path, str) and path.startswith(prefix) for path in paths)
+            and paths == sorted(set(paths)),
+            f"collision topology canonical paths mismatch for env {env_index}",
+        )
+        require(
+            isinstance(path_records, list)
+            and all(
+                isinstance(record, Mapping)
+                and set(record) == {"path", "is_instance_proxy"}
+                and isinstance(record.get("path"), str)
+                and isinstance(record.get("is_instance_proxy"), bool)
+                for record in path_records
+            )
+            and [record["path"] for record in path_records] == paths,
+            f"collision topology path records mismatch for env {env_index}",
+        )
+        relative_paths = [path[len(prefix):] for path in paths]
+        if computed_template is None:
+            computed_template = relative_paths
+        require(relative_paths == computed_template, f"collision topology relative template mismatch for env {env_index}")
+        computed_counts[env_key] = len(paths)
+        computed_unique_counts[env_key] = len(set(paths))
+        computed_proxy_counts[env_key] = sum(1 for record in path_records if record["is_instance_proxy"])
+
+    require(computed_template is not None, "collision topology serialized template missing")
+    computed_template = cast(list[str], computed_template)
+    require(
+        len(computed_template) == COLLISION_SHAPES_PER_ARTICULATION
+        and computed_template == sorted(set(computed_template))
+        and topology.get("sorted_unique_template_paths") == computed_template,
+        "collision topology serialized template mismatch",
+    )
+    require(
+        computed_counts == {env_key: COLLISION_SHAPES_PER_ARTICULATION for env_key in expected_env_keys}
+        and serialized_counts == computed_counts
+        and serialized_unique_counts == computed_unique_counts
+        and topology.get("collision_shape_paths_total") == sum(computed_counts.values()),
+        "collision topology count relationship mismatch",
+    )
+    require(
+        serialized_proxy_counts == computed_proxy_counts
+        and topology.get("instance_proxy_collision_path_count") == sum(computed_proxy_counts.values()),
+        "collision topology instance-proxy count relationship mismatch",
+    )
+    return dict(topology)
+
+
 def validate_offset_integrity(value: Any, arm: str) -> dict[str, Any]:
     require(isinstance(value, dict), "offset integrity must be an object")
     value = cast(dict[str, Any], value)
@@ -802,25 +1015,7 @@ def validate_offset_integrity(value: Any, arm: str) -> dict[str, Any]:
     require((arm != "A") or _snapshots_equal(before_contact_record, after_contact_record), "Arm A contact offset changed")
     checks = value.get("checks")
     require(isinstance(checks, Mapping) and set(checks) == {"all_envs_all_shapes_recorded", "heterogeneous_baseline_observed", "rest_baseline_zero", "contact_after_matches_scale", "contact_unchanged_for_control", "rest_bitwise_unchanged", "contact_strictly_above_rest", "symmetric_setter_policy"} and all(checks.get(name) is True for name in checks), "offset integrity check failed")
-    topology = value.get("topology")
-    require(
-        isinstance(topology, Mapping)
-        and topology.get("source") == "read_only_usd_collision_api_traversal"
-        and topology.get("collision_shapes_per_articulation") == COLLISION_SHAPES_PER_ARTICULATION
-        and isinstance(topology.get("sorted_unique_template_paths"), list)
-        and len(topology["sorted_unique_template_paths"]) == COLLISION_SHAPES_PER_ARTICULATION
-        and topology["sorted_unique_template_paths"] == sorted(set(topology["sorted_unique_template_paths"]))
-        and isinstance(topology.get("per_env_sorted_paths"), Mapping)
-        and set(topology["per_env_sorted_paths"]) == {str(index) for index in range(NUM_ENVS)}
-        and all(len(paths) == COLLISION_SHAPES_PER_ARTICULATION and paths == sorted(set(paths)) for paths in topology["per_env_sorted_paths"].values())
-        and topology.get("all_envs_topology_identical") is True
-        and topology.get("setter_call_scope") == "robot.root_physx_view_only"
-        and topology.get("ground_setter_called") is False
-        and topology.get("usd_schema_apply_called") is False
-        and topology.get("ground_runtime_offset_unchanged_claimed") is False
-        and topology.get("tensor_column_path_mapping_authority") is False,
-        "collision/ground topology evidence mismatch",
-    )
+    validate_collision_topology(value.get("topology"))
     return value
 
 
