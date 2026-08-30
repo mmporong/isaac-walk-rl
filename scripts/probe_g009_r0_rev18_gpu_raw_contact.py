@@ -519,7 +519,7 @@ def _proxy_row(
 
 
 class ResidualReader:
-    """Enable and read USD scene/source-articulation residual reporting."""
+    """Observe pre-authored residual APIs without mutating live physics state."""
 
     _ATTRS = {
         "position_rms": "GetPhysxResidualReportingRmsResidualPositionIterationAttr",
@@ -538,8 +538,12 @@ class ResidualReader:
         self._scene_api = None
         self._root_api = None
         self.capability: dict[str, Any] = {
-            "enable_attempted": True,
-            "enable_succeeded": False,
+            "lifecycle_policy": (
+                "observe_existing_only_after_articulation_tensor_view_initialization"
+            ),
+            "mutation_attempted": False,
+            "physics_context_enable_attempted": False,
+            "api_apply_attempted": False,
             "scene": {"status": "unavailable", "prim_path": None, "error": None},
             "source_articulation_root": {
                 "status": "unavailable",
@@ -547,16 +551,11 @@ class ResidualReader:
                 "error": None,
             },
         }
-        try:
-            physics_context.enable_residual_reporting(True)
-            self.capability["enable_succeeded"] = True
-        except Exception as error:
-            self.capability["enable_error"] = f"{type(error).__name__}: {error}"
-            return
-        self._scene_api = self._apply(
+        del physics_context
+        self._scene_api = self._get_existing(
             scene_prim, PhysxSchema, self.capability["scene"]
         )
-        self._root_api = self._apply(
+        self._root_api = self._get_existing(
             source_root_prim,
             PhysxSchema,
             self.capability["source_articulation_root"],
@@ -570,19 +569,23 @@ class ResidualReader:
             return None
         return path if path.startswith("/") else None
 
-    def _apply(self, prim: Any, PhysxSchema: Any, state: dict[str, Any]) -> Any:
+    def _get_existing(
+        self, prim: Any, PhysxSchema: Any, state: dict[str, Any]
+    ) -> Any:
         path = self._prim_path(prim)
         state["prim_path"] = path
         if path is None:
             state["error"] = "invalid USD prim"
             return None
         try:
-            PhysxSchema.PhysxResidualReportingAPI.Apply(prim)
             api = PhysxSchema.PhysxResidualReportingAPI.Get(
                 prim.GetStage(), prim.GetPath()
             )
-            require(bool(api), "PhysxResidualReportingAPI.Get returned invalid API")
-            state["status"] = "enabled"
+            require(
+                bool(api),
+                "pre-authored PhysxResidualReportingAPI is unavailable",
+            )
+            state["status"] = "preauthored_observed"
             return api
         except Exception as error:
             state["error"] = f"{type(error).__name__}: {error}"

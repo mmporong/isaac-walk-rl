@@ -163,7 +163,14 @@ def _report(device: str = "cuda:0", replicate_index: int = 1) -> dict:
             "class_ids": [0, 1, 2, 3, 0, 1, 2, 3]
         },
         "live_physics_readback": {"solver": {}, "max_depenetration_velocity": {}},
-        "residual_capability": {"enable_attempted": True},
+        "residual_capability": {
+            "lifecycle_policy": (
+                "observe_existing_only_after_articulation_tensor_view_initialization"
+            ),
+            "mutation_attempted": False,
+            "physics_context_enable_attempted": False,
+            "api_apply_attempted": False,
+        },
         "contract": contract,
         "contract_sha256": PROBE.canonical_sha256(contract),
         "predecessor": {
@@ -382,7 +389,7 @@ class _FakeResidualReportingApiType:
     @classmethod
     def Apply(cls, prim: _FakePrim) -> object:
         cls.applied.append(str(prim.GetPath()))
-        return object()
+        raise AssertionError("ResidualReader must never apply a live USD API")
 
     @staticmethod
     def Get(stage: object, path: _FakePath) -> _FakeResidualApi:
@@ -397,9 +404,10 @@ class _FakeContext:
 
     def enable_residual_reporting(self, enabled: bool) -> None:
         self.enable_calls.append(enabled)
+        raise AssertionError("ResidualReader must never mutate PhysicsContext")
 
 
-def test_residual_reader_enables_and_reads_scene_and_source_root() -> None:
+def test_residual_reader_observes_preauthored_api_without_mutation() -> None:
     _FakeResidualReportingApiType.applied = []
     schema = type(
         "Schema",
@@ -416,14 +424,17 @@ def test_residual_reader_enables_and_reads_scene_and_source_root() -> None:
     )
     sample = reader.read()
 
-    assert context.enable_calls == [True]
-    assert _FakeResidualReportingApiType.applied == [
-        "/physicsScene",
-        "/World/envs/env_7/Robot",
-    ]
-    assert reader.capability["enable_succeeded"] is True
-    assert reader.capability["scene"]["status"] == "enabled"
-    assert reader.capability["source_articulation_root"]["status"] == "enabled"
+    assert context.enable_calls == []
+    assert _FakeResidualReportingApiType.applied == []
+    assert reader.capability["mutation_attempted"] is False
+    assert reader.capability["physics_context_enable_attempted"] is False
+    assert reader.capability["api_apply_attempted"] is False
+    assert "observe_existing_only" in reader.capability["lifecycle_policy"]
+    assert reader.capability["scene"]["status"] == "preauthored_observed"
+    assert (
+        reader.capability["source_articulation_root"]["status"]
+        == "preauthored_observed"
+    )
     assert sample["status"] == "observed"
     assert sample["scene"]["position_rms"] == pytest.approx(0.1)
     assert sample["source_articulation_root"]["velocity_max"] == pytest.approx(
@@ -431,28 +442,39 @@ def test_residual_reader_enables_and_reads_scene_and_source_root() -> None:
     )
 
 
-def test_residual_reader_preserves_enable_failure_as_null_capability() -> None:
-    class BrokenContext:
-        def enable_residual_reporting(self, enabled: bool) -> None:
-            assert enabled is True
-            raise RuntimeError("unsupported")
+def test_residual_reader_preserves_missing_preauthored_api_as_null() -> None:
+    class MissingResidualReportingApiType:
+        @staticmethod
+        def Apply(prim: _FakePrim) -> object:
+            raise AssertionError("Apply must never be called")
+
+        @staticmethod
+        def Get(stage: object, path: _FakePath) -> object:
+            class InvalidApi:
+                def __bool__(self) -> bool:
+                    return False
+
+            return InvalidApi()
 
     schema = type(
         "Schema",
         (),
-        {"PhysxResidualReportingAPI": _FakeResidualReportingApiType},
+        {"PhysxResidualReportingAPI": MissingResidualReportingApiType},
     )
+    context = _FakeContext()
 
     reader = PROBE.ResidualReader(
-        BrokenContext(),
+        context,
         _FakePrim("/physicsScene"),
         _FakePrim("/World/envs/env_7/Robot"),
         schema,
     )
     sample = reader.read()
 
-    assert reader.capability["enable_succeeded"] is False
-    assert "unsupported" in reader.capability["enable_error"]
+    assert context.enable_calls == []
+    assert reader.capability["mutation_attempted"] is False
+    assert reader.capability["scene"]["status"] == "unavailable"
+    assert "pre-authored" in reader.capability["scene"]["error"]
     assert sample["status"] == "unavailable"
     assert sample["samples"] is None
 
