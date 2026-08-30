@@ -159,7 +159,15 @@ def load_preregistration() -> dict[str, Any]:
         and value.get("cpu_preflight", {}).get("required_before_gpu_app_launcher") is True
         and safety.get("hard_joint_limit_margin_rad") == HARD_JOINT_LIMIT_MARGIN_RAD
         and safety.get("non_foot_peak_force_body_weight_max") == NON_FOOT_PEAK_FORCE_BODY_WEIGHT_MAX
-        and safety.get("cpu_raw_minimum_separation_m") == CPU_RAW_MINIMUM_SEPARATION_M,
+        and safety.get("cpu_raw_minimum_separation_m") == CPU_RAW_MINIMUM_SEPARATION_M
+        and safety.get("required_scopes") == ["all_envs", "source_env_7"]
+        and safety.get("mass_tensor_body_order_source") == "robot.body_names"
+        and safety.get("contact_force_body_order_source") == "sensor.body_names"
+        and safety.get("contact_force_tensor_shape") == [NUM_ENVS, BODY_COUNT, 3]
+        and safety.get("body_name_inventory_relation") == "same_unique_set_order_may_differ"
+        and safety.get("per_body_force_mass_mapping_used") is False
+        and safety.get("body_weight_denominator") == "sum(robot.data.default_mass,dim=1)*9.81"
+        and safety.get("missing_observation_policy") == "fail_closed",
         "rev19 preregistration constants changed",
     )
     return value
@@ -387,7 +395,7 @@ def validate_cpu_preflight_artifact(
     integrity = value.get("integrity")
     require(
         isinstance(integrity, Mapping)
-        and set(integrity) == {"passed", "hash_bound", "unique_execution_ids", "exact_slots", "git_commit", "probe_source_bundle_sha256", "synthesis_source_bundle_sha256", "mass_tensor_sha256", "mass_body_names_sha256"}
+        and set(integrity) == {"passed", "hash_bound", "unique_execution_ids", "exact_slots", "git_commit", "probe_source_bundle_sha256", "synthesis_source_bundle_sha256", "mass_tensor_sha256", "mass_body_names_sha256", "force_body_names_sha256"}
         and integrity.get("passed") is True
         and integrity.get("hash_bound") is True
         and integrity.get("unique_execution_ids") is True
@@ -427,6 +435,7 @@ def validate_cpu_preflight_artifact(
     repeatability_rows: dict[str, list[dict[str, Any]]] = {"A": [], "B": []}
     mass_tensor_hashes: set[str] = set()
     mass_body_hashes: set[str] = set()
+    force_body_hashes: set[str] = set()
     for binding in cast(list[Mapping[str, Any]], bindings):
         relative = binding.get("path")
         digest = binding.get("sha256")
@@ -447,11 +456,20 @@ def validate_cpu_preflight_artifact(
         mass = cast(Mapping[str, Any], cast(Mapping[str, Any], report["manual_probe_safety"])["mass_evidence"])
         mass_tensor_hashes.add(cast(str, cast(Mapping[str, Any], mass["tensor"])["sha256"]))
         mass_body_hashes.add(cast(str, mass["body_names_sha256"]))
+        force_body_hashes.add(cast(str, mass["contact_force_body_names_sha256"]))
         if source_payload is None:
             source_payload = report["source_bundle"]
         require(report["source_bundle"] == source_payload, "CPU preflight report source bundle drift")
     require(len(set(execution_ids)) == 4 and source_payload == dict(expected_source_bundle), "CPU preflight execution/source uniqueness mismatch")
-    require(len(mass_tensor_hashes) == 1 and integrity.get("mass_tensor_sha256") == next(iter(mass_tensor_hashes)) and len(mass_body_hashes) == 1 and integrity.get("mass_body_names_sha256") == next(iter(mass_body_hashes)), "CPU preflight mass integrity mismatch")
+    require(
+        len(mass_tensor_hashes) == 1
+        and integrity.get("mass_tensor_sha256") == next(iter(mass_tensor_hashes))
+        and len(mass_body_hashes) == 1
+        and integrity.get("mass_body_names_sha256") == next(iter(mass_body_hashes))
+        and len(force_body_hashes) == 1
+        and integrity.get("force_body_names_sha256") == next(iter(force_body_hashes)),
+        "CPU preflight mass/force body integrity mismatch",
+    )
     recomputed_repeatability = {f"{arm}.cpu": cell_repeatability(repeatability_rows[arm]) for arm in ("A", "B")}
     require(all(item.get("repeatable") is True for item in recomputed_repeatability.values()), "CPU preflight source reports are not repeatable")
     require(value.get("cpu_preflight") == {"passed": True, "raw_pass_probe_valid_safety_pass": True, "within_arm_repeatability_passed": True, "gpu_stage_allowed": True}, "CPU preflight did not authorize GPU")
@@ -711,16 +729,23 @@ class SafetyAccumulator:
         self.mass_snapshot: dict[str, Any] | None = None
         self.mass_body_names: list[str] | None = None
         self.mass_body_names_sha256: str | None = None
+        self.force_body_names: list[str] | None = None
+        self.force_body_names_sha256: str | None = None
+        self.force_tensor_shape: list[int] | None = None
         self.mass_changed_steps: list[int] = []
         self.mass_tensor_reference: Any = None
         self.error: str | None = None
 
     def observe(self, sensor: Any, robot: Any, torch_module: Any) -> None:
+        if self.error is not None:
+            return
         try:
             forces = sensor.data.net_forces_w.detach()
             positions = robot.data.joint_pos.detach()
             limits = robot.data.joint_pos_limits.detach()
-            require(forces.shape[0] == NUM_ENVS and positions.shape[0] == NUM_ENVS, "safety env dimension mismatch")
+            force_tensor_shape = [int(value) for value in forces.shape]
+            require(force_tensor_shape == [NUM_ENVS, BODY_COUNT, 3], "contact force tensor must be 8x19x3")
+            require(positions.shape[0] == NUM_ENVS, "safety env dimension mismatch")
             step = self.sample_count + 1
             finite_by_env = torch_module.isfinite(forces).all(dim=(1, 2)) & torch_module.isfinite(positions).all(dim=1)
             if not bool(finite_by_env.all().item()):
@@ -736,22 +761,35 @@ class SafetyAccumulator:
             if not bool(hard_ok_by_env[SOURCE_ENV_INDEX].item()):
                 self.hard_limit_violation_steps_source_env.append(step)
             self.hard_limit_with_margin = self.hard_limit_with_margin and bool(hard_ok_by_env.all().item())
-            names = list(sensor.body_names)
-            non_foot = [index for index, name in enumerate(names) if "foot" not in name.lower()]
+            force_body_names = list(sensor.body_names)
+            mass_body_names = list(robot.body_names)
+            require(
+                len(force_body_names) == BODY_COUNT
+                and len(mass_body_names) == BODY_COUNT
+                and len(set(force_body_names)) == BODY_COUNT
+                and len(set(mass_body_names)) == BODY_COUNT
+                and set(force_body_names) == set(mass_body_names),
+                "mass/contact body inventory mismatch",
+            )
+            non_foot = [index for index, name in enumerate(force_body_names) if "foot" not in name.lower()]
             require(non_foot, "non-foot body set is empty")
             magnitudes = torch_module.linalg.vector_norm(forces[:, non_foot, :], dim=-1)
             peak = magnitudes.amax(dim=1)
             mass_tensor = robot.data.default_mass.detach().to(device=forces.device)
             require(tuple(int(value) for value in mass_tensor.shape) == (NUM_ENVS, BODY_COUNT), "default_mass must be 8x19")
-            body_names = list(robot.body_names)
-            require(len(body_names) == BODY_COUNT and body_names == list(sensor.body_names) and len(set(body_names)) == BODY_COUNT, "mass/contact body ordering mismatch")
             if self.mass_snapshot is None:
                 self.mass_tensor_reference = mass_tensor.clone()
                 self.mass_snapshot = tensor_snapshot(mass_tensor)
-                self.mass_body_names = body_names
-                self.mass_body_names_sha256 = sha256_bytes(json.dumps(body_names, separators=(",", ":")).encode("utf-8"))
-            elif not bool(torch_module.equal(mass_tensor, self.mass_tensor_reference)):
-                self.mass_changed_steps.append(step)
+                self.mass_body_names = mass_body_names
+                self.mass_body_names_sha256 = sha256_bytes(json.dumps(mass_body_names, separators=(",", ":")).encode("utf-8"))
+                self.force_body_names = force_body_names
+                self.force_body_names_sha256 = sha256_bytes(json.dumps(force_body_names, separators=(",", ":")).encode("utf-8"))
+                self.force_tensor_shape = force_tensor_shape
+            else:
+                require(mass_body_names == self.mass_body_names, "mass body ordering changed during probe")
+                require(force_body_names == self.force_body_names, "contact force body ordering changed during probe")
+                if not bool(torch_module.equal(mass_tensor, self.mass_tensor_reference)):
+                    self.mass_changed_steps.append(step)
             masses = mass_tensor.sum(dim=1)
             require(bool(torch_module.isfinite(mass_tensor).all().item()) and bool((mass_tensor > 0.0).all().item()), "default_mass must be finite and strictly positive")
             ratios = peak / (masses * 9.81)
@@ -794,20 +832,55 @@ class SafetyAccumulator:
             "source_env_non_foot_peak_force_within_15_bw": self.source_non_foot_peak_bw <= NON_FOOT_PEAK_FORCE_BODY_WEIGHT_MAX,
             "cpu_raw_minimum_separation_observed": cpu_separation_observed,
             "cpu_raw_minimum_separation_within_limit": device != "cpu" or (all_env_minimum is not None and all_env_minimum >= CPU_RAW_MINIMUM_SEPARATION_M and source_minimum is not None and source_minimum >= CPU_RAW_MINIMUM_SEPARATION_M),
+            "force_and_mass_body_name_inventories_match": self.force_body_names is not None and self.mass_body_names is not None and set(self.force_body_names) == set(self.mass_body_names),
             "default_mass_8x19_finite_positive_unchanged": self.mass_snapshot is not None and self.mass_changed_steps == [] and self.sample_count == PHYSICS_SUBSTEPS,
             "collection_error_absent": self.error is None,
         }
         complete = all(checks.values())
         available = self.error is None and self.sample_count == PHYSICS_SUBSTEPS and cpu_separation_observed
-        require(self.mass_snapshot is not None and self.mass_body_names is not None and self.mass_body_names_sha256 is not None, "mass evidence unavailable")
+        require(
+            self.mass_snapshot is not None
+            and self.mass_body_names is not None
+            and self.mass_body_names_sha256 is not None
+            and self.force_body_names is not None
+            and self.force_body_names_sha256 is not None
+            and self.force_tensor_shape is not None,
+            f"mass evidence unavailable; observer_error={self.error}",
+        )
         mass_snapshot = cast(dict[str, Any], self.mass_snapshot)
+        mass_body_names = cast(list[str], self.mass_body_names)
+        mass_body_names_sha256 = cast(str, self.mass_body_names_sha256)
+        force_body_names = cast(list[str], self.force_body_names)
+        force_body_names_sha256 = cast(str, self.force_body_names_sha256)
+        force_tensor_shape = cast(list[int], self.force_tensor_shape)
         mass_values = cast(list[list[float]], mass_snapshot["values"])
         total_mass = [math.fsum(float(item) for item in row) for row in mass_values]
         return {
             "label": "manual_probe_observation_not_gate",
             "required_scopes": ["all_envs", "source_env_7"],
             "thresholds": {"hard_joint_limit_margin_rad": HARD_JOINT_LIMIT_MARGIN_RAD, "non_foot_peak_force_body_weight_max": NON_FOOT_PEAK_FORCE_BODY_WEIGHT_MAX, "cpu_raw_minimum_separation_m": CPU_RAW_MINIMUM_SEPARATION_M},
-            "mass_evidence": {"source": "robot.data.default_mass", "shape": [NUM_ENVS, BODY_COUNT], "body_names": self.mass_body_names, "body_names_sha256": self.mass_body_names_sha256, "tensor": mass_snapshot, "per_env_total_mass_kg": total_mass, "per_env_body_weight_n": [mass * 9.81 for mass in total_mass], "unchanged_for_150_steps": self.mass_changed_steps == [] and self.sample_count == PHYSICS_SUBSTEPS, "changed_steps": self.mass_changed_steps},
+            "mass_evidence": {
+                "source": "robot.data.default_mass",
+                "shape": [NUM_ENVS, BODY_COUNT],
+                "body_names_source": "robot.body_names",
+                "body_names": mass_body_names,
+                "body_names_sha256": mass_body_names_sha256,
+                "contact_force_source": "sensor.data.net_forces_w",
+                "contact_force_tensor_shape": force_tensor_shape,
+                "contact_force_body_names_source": "sensor.body_names",
+                "contact_force_body_names": force_body_names,
+                "contact_force_body_names_sha256": force_body_names_sha256,
+                "body_name_inventory_equal": set(force_body_names) == set(mass_body_names),
+                "ordered_body_names_equal": force_body_names == mass_body_names,
+                "per_body_force_mass_mapping_used": False,
+                "body_weight_denominator": "sum(robot.data.default_mass,dim=1)*9.81",
+                "body_weight_denominator_order_invariant": True,
+                "tensor": mass_snapshot,
+                "per_env_total_mass_kg": total_mass,
+                "per_env_body_weight_n": [mass * 9.81 for mass in total_mass],
+                "unchanged_for_150_steps": self.mass_changed_steps == [] and self.sample_count == PHYSICS_SUBSTEPS,
+                "changed_steps": self.mass_changed_steps,
+            },
             "observations": {"sample_count": self.sample_count, "finite_violation_steps": {"all_envs": self.finite_violation_steps_all_env, "source_env_7": self.finite_violation_steps_source_env}, "hard_joint_limit_violation_steps": {"all_envs": self.hard_limit_violation_steps_all_env, "source_env_7": self.hard_limit_violation_steps_source_env}, "non_foot_peak_force_n_per_env": {str(index): value for index, value in enumerate(self.per_env_non_foot_peak_n)}, "non_foot_peak_force_body_weight_per_env": {str(index): value for index, value in enumerate(self.per_env_non_foot_peak_bw)}, "all_env_non_foot_peak_force_body_weight": self.all_env_non_foot_peak_bw, "source_env_non_foot_peak_force_body_weight": self.source_non_foot_peak_bw, "cpu_raw_minimum_separation_m": {"per_env": per_env_minimum, "all_env_minimum": all_env_minimum, "source_env_7_minimum": source_minimum}, "error": self.error},
             "checks": checks,
             "available": available,
@@ -1054,7 +1127,7 @@ def validate_manual_probe_safety(value: Any, device: str) -> dict[str, Any]:
     require(isinstance(observations, Mapping) and isinstance(checks, Mapping), "manual probe safety payload missing")
     observations = cast(Mapping[str, Any], observations)
     checks = cast(Mapping[str, Any], checks)
-    expected_check_names = {"exact_150_manual_samples", "finite_joint_position_and_contact_force", "hard_joint_limit_with_margin", "all_env_non_foot_peak_force_within_15_bw", "source_env_non_foot_peak_force_within_15_bw", "cpu_raw_minimum_separation_observed", "cpu_raw_minimum_separation_within_limit", "default_mass_8x19_finite_positive_unchanged", "collection_error_absent"}
+    expected_check_names = {"exact_150_manual_samples", "finite_joint_position_and_contact_force", "hard_joint_limit_with_margin", "all_env_non_foot_peak_force_within_15_bw", "source_env_non_foot_peak_force_within_15_bw", "cpu_raw_minimum_separation_observed", "cpu_raw_minimum_separation_within_limit", "force_and_mass_body_name_inventories_match", "default_mass_8x19_finite_positive_unchanged", "collection_error_absent"}
     require(set(checks) == expected_check_names, "manual probe safety check set mismatch")
     all_force = observations.get("all_env_non_foot_peak_force_body_weight")
     source_force = observations.get("source_env_non_foot_peak_force_body_weight")
@@ -1076,10 +1149,45 @@ def validate_manual_probe_safety(value: Any, device: str) -> dict[str, Any]:
     per_env_force_n = cast(Mapping[str, float | int], per_env_force_n)
     require(float(all_force) == max(float(item) for item in per_env_force.values()) and float(source_force) == float(per_env_force[str(SOURCE_ENV_INDEX)]), "force scope summary mismatch")
     mass = value.get("mass_evidence")
-    require(isinstance(mass, Mapping) and mass.get("source") == "robot.data.default_mass" and mass.get("shape") == [NUM_ENVS, BODY_COUNT], "mass evidence identity mismatch")
+    expected_mass_keys = {
+        "source", "shape", "body_names_source", "body_names", "body_names_sha256",
+        "contact_force_source", "contact_force_tensor_shape", "contact_force_body_names_source", "contact_force_body_names",
+        "contact_force_body_names_sha256", "body_name_inventory_equal", "ordered_body_names_equal",
+        "per_body_force_mass_mapping_used", "body_weight_denominator",
+        "body_weight_denominator_order_invariant", "tensor", "per_env_total_mass_kg",
+        "per_env_body_weight_n", "unchanged_for_150_steps", "changed_steps",
+    }
+    require(
+        isinstance(mass, Mapping)
+        and set(mass) == expected_mass_keys
+        and mass.get("source") == "robot.data.default_mass"
+        and mass.get("shape") == [NUM_ENVS, BODY_COUNT]
+        and mass.get("body_names_source") == "robot.body_names"
+        and mass.get("contact_force_source") == "sensor.data.net_forces_w"
+        and mass.get("contact_force_tensor_shape") == [NUM_ENVS, BODY_COUNT, 3]
+        and mass.get("contact_force_body_names_source") == "sensor.body_names"
+        and mass.get("per_body_force_mass_mapping_used") is False
+        and mass.get("body_weight_denominator") == "sum(robot.data.default_mass,dim=1)*9.81"
+        and mass.get("body_weight_denominator_order_invariant") is True,
+        "mass evidence identity mismatch",
+    )
+    mass = cast(Mapping[str, Any], mass)
     body_names = mass.get("body_names")
     require(isinstance(body_names, list) and len(body_names) == BODY_COUNT and len(set(body_names)) == BODY_COUNT and all(isinstance(name, str) and name for name in body_names), "mass body ordering invalid")
+    body_names = cast(list[str], body_names)
     require(mass.get("body_names_sha256") == sha256_bytes(json.dumps(body_names, separators=(",", ":")).encode("utf-8")), "mass body ordering hash mismatch")
+    force_body_names = mass.get("contact_force_body_names")
+    require(isinstance(force_body_names, list) and len(force_body_names) == BODY_COUNT and len(set(force_body_names)) == BODY_COUNT and all(isinstance(name, str) and name for name in force_body_names), "contact force body ordering invalid")
+    force_body_names = cast(list[str], force_body_names)
+    require(mass.get("contact_force_body_names_sha256") == sha256_bytes(json.dumps(force_body_names, separators=(",", ":")).encode("utf-8")), "contact force body ordering hash mismatch")
+    inventory_equal = set(force_body_names) == set(body_names)
+    ordered_equal = force_body_names == body_names
+    require(
+        inventory_equal
+        and mass.get("body_name_inventory_equal") is inventory_equal
+        and mass.get("ordered_body_names_equal") is ordered_equal,
+        "mass/contact body inventory relation mismatch",
+    )
     tensor = mass.get("tensor")
     require(isinstance(tensor, Mapping) and tensor.get("shape") == [NUM_ENVS, BODY_COUNT], "mass tensor shape mismatch")
     tensor = cast(Mapping[str, Any], tensor)
@@ -1117,6 +1225,7 @@ def validate_manual_probe_safety(value: Any, device: str) -> dict[str, Any]:
         "source_env_non_foot_peak_force_within_15_bw": float(source_force) <= NON_FOOT_PEAK_FORCE_BODY_WEIGHT_MAX,
         "cpu_raw_minimum_separation_observed": device != "cpu" or all(item is not None for item in per_env.values()),
         "cpu_raw_minimum_separation_within_limit": device != "cpu" or min(cpu_values) >= CPU_RAW_MINIMUM_SEPARATION_M,
+        "force_and_mass_body_name_inventories_match": inventory_equal,
         "default_mass_8x19_finite_positive_unchanged": mass.get("unchanged_for_150_steps") is True and mass.get("changed_steps") == [],
         "collection_error_absent": observations.get("error") is None,
     }

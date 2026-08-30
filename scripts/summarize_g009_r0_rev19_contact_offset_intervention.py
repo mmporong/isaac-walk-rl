@@ -188,6 +188,7 @@ def _validated_rows(
             "safety_passed": safety.get("passed") is True,
             "mass_tensor_sha256": mass_tensor["sha256"],
             "mass_body_names_sha256": mass["body_names_sha256"],
+            "force_body_names_sha256": mass["contact_force_body_names_sha256"],
             "offset_scale": offset["contact_offset_scale"],
             "offset_baseline_contact_sha256": cast(Mapping[str, Any], before["contact_offset"])["sha256"],
             "offset_baseline_rest_sha256": cast(Mapping[str, Any], before["rest_offset"])["sha256"],
@@ -201,6 +202,7 @@ def _validated_rows(
     require(len(set(source_digests)) == 1 and all(payload == source_payloads[0] for payload in source_payloads), "source bundle changed across rev19 runs")
     require(len({row["mass_tensor_sha256"] for row in rows}) == 1, "default mass tensor changed across rev19 runs")
     require(len({row["mass_body_names_sha256"] for row in rows}) == 1, "mass body ordering changed across rev19 runs")
+    require(len({row["force_body_names_sha256"] for row in rows}) == 1, "contact force body ordering changed across rev19 runs")
     baseline_contact = {row["offset_baseline_contact_sha256"] for row in rows}
     baseline_rest = {row["offset_baseline_rest_sha256"] for row in rows}
     require(len(baseline_contact) == 1 and len(baseline_rest) == 1, "A/B baseline offset vectors differ")
@@ -252,7 +254,7 @@ def synthesize_cpu_preflight_loaded(entries: Sequence[tuple[dict[str, Any], dict
         "mode": "cpu_preflight_2x2",
         "input_report_count": 4,
         "input_reports": [row["binding"] for row in rows],
-        "integrity": {"passed": True, "hash_bound": True, "unique_execution_ids": True, "exact_slots": [f"{arm}.cpu.rep{replicate}" for arm, _, replicate in CPU_SLOTS], "git_commit": source_payload["git_commit"], "probe_source_bundle_sha256": source_digest, "synthesis_source_bundle_sha256": synthesis_bundle["source_bundle_sha256"], "mass_tensor_sha256": rows[0]["mass_tensor_sha256"], "mass_body_names_sha256": rows[0]["mass_body_names_sha256"]},
+        "integrity": {"passed": True, "hash_bound": True, "unique_execution_ids": True, "exact_slots": [f"{arm}.cpu.rep{replicate}" for arm, _, replicate in CPU_SLOTS], "git_commit": source_payload["git_commit"], "probe_source_bundle_sha256": source_digest, "synthesis_source_bundle_sha256": synthesis_bundle["source_bundle_sha256"], "mass_tensor_sha256": rows[0]["mass_tensor_sha256"], "mass_body_names_sha256": rows[0]["mass_body_names_sha256"], "force_body_names_sha256": rows[0]["force_body_names_sha256"]},
         "cpu_preflight": {"passed": True, "raw_pass_probe_valid_safety_pass": True, "within_arm_repeatability_passed": True, "gpu_stage_allowed": True},
         "decision": {"outcome": "gpu_stage_authorized", "selected_lever": None, "third_run_majority_vote_allowed": False, "repeatability": repeatability},
         "governance": _governance(),
@@ -300,7 +302,7 @@ def synthesize_loaded(entries: Sequence[tuple[dict[str, Any], dict[str, str]]], 
         "mode": "offline_fail_closed_2x2x2_synthesis",
         "input_report_count": 8,
         "input_reports": [row["binding"] for row in public_rows],
-        "integrity": {"passed": True, "hash_bound": True, "unique_execution_ids": True, "exact_slots": [f"{arm}.{device}.rep{replicate}" for arm, device, replicate in EXPECTED_SLOTS], "source_bundle_sha256": source_digest, "synthesis_source_bundle_sha256": synthesis_bundle["source_bundle_sha256"], "mass_tensor_sha256": rows[0]["mass_tensor_sha256"], "mass_body_names_sha256": rows[0]["mass_body_names_sha256"], "predecessor": probe.validate_predecessor(), "preregistration": probe.probe_contract("A", "cpu", 1)["preregistration"], "single_variable_difference": {"solver": "8/0_both_arms", "rest_offset": "unchanged_both_arms", "contact_offset_scale": {"A": 1.0, "B": 1.5}, "baseline_contact_sha256": next(iter(baseline_contact)), "baseline_rest_sha256": next(iter(baseline_rest)), "comparison_authority": "rev19_arm_A_vs_arm_B_only"}},
+        "integrity": {"passed": True, "hash_bound": True, "unique_execution_ids": True, "exact_slots": [f"{arm}.{device}.rep{replicate}" for arm, device, replicate in EXPECTED_SLOTS], "source_bundle_sha256": source_digest, "synthesis_source_bundle_sha256": synthesis_bundle["source_bundle_sha256"], "mass_tensor_sha256": rows[0]["mass_tensor_sha256"], "mass_body_names_sha256": rows[0]["mass_body_names_sha256"], "force_body_names_sha256": rows[0]["force_body_names_sha256"], "predecessor": probe.validate_predecessor(), "preregistration": probe.probe_contract("A", "cpu", 1)["preregistration"], "single_variable_difference": {"solver": "8/0_both_arms", "rest_offset": "unchanged_both_arms", "contact_offset_scale": {"A": 1.0, "B": 1.5}, "baseline_contact_sha256": next(iter(baseline_contact)), "baseline_rest_sha256": next(iter(baseline_rest)), "comparison_authority": "rev19_arm_A_vs_arm_B_only"}},
         "synthesis_source_bundle": synthesis_bundle,
         "cpu_preflight": {"required_before_gpu": True, "binding": preflight_binding, "passed": cpu_preflight_passed, "gpu_stage_allowed": cpu_preflight_passed},
         "raw_callback_observation": {"outcome": outcome, "physics_ground_truth_authority": False, "gpu_contact_absence_claimed": False, "physics_failure_claimed": False, "third_run_majority_vote_allowed": False, "states": raw_states, "repeatability": repeatability, "runs": public_rows},

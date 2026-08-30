@@ -132,6 +132,14 @@ def test_duplicate_execution_slot_order_and_mass_drift_fail_closed(synthesis_har
     entries[-1][0]["manual_probe_safety"]["mass_evidence"]["tensor"]["sha256"] = "0" * 64
     with pytest.raises(ValueError, match="mass tensor hash"):
         SUMMARY.synthesize_loaded(entries, synthesis_harness(entries))
+    entries = entries_fixture()
+    mass = entries[-1][0]["manual_probe_safety"]["mass_evidence"]
+    force_names = list(reversed(mass["contact_force_body_names"]))
+    mass["contact_force_body_names"] = force_names
+    mass["contact_force_body_names_sha256"] = hashlib.sha256(json.dumps(force_names, separators=(",", ":")).encode()).hexdigest()
+    mass["ordered_body_names_equal"] = force_names == mass["body_names"]
+    with pytest.raises(ValueError, match="contact force body ordering changed"):
+        SUMMARY.synthesize_loaded(entries, synthesis_harness(entries))
 
 
 def test_gpu_binding_and_preflight_cpu_inputs_are_immutable(synthesis_harness) -> None:

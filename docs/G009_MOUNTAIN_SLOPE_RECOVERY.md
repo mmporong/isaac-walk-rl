@@ -1153,6 +1153,32 @@ c_A'=c,\qquad c_B'=1.5c,\qquad r_A'=r_B'=r,\qquad c'>r
 
 수정본은 env별 robot root를 확인한 뒤 `Usd.PrimRange(robot_root, Usd.TraverseInstanceProxies())`로 읽기 순회한다. [OpenUSD의 instancing 문서](https://openusd.org/release/api/_usd__page__scenegraph_instancing.html)는 기본 prim range가 instance proxy를 반환하지 않으며 이 predicate를 명시해야 한다고 설명한다. report는 env별 collision path 수·unique 수·instance-proxy 수와 8환경 relative template 동일성을 남긴다. USD schema를 적용하거나 instanceable 상태를 바꾸지 않으며, 27개 path inventory를 PhysX tensor 열 순서와 매핑하는 권위는 계속 `false`다. 실패 attempt의 report·Kit 로그·SHA manifest는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\failed_attempts\rev19`에 로컬 보존하고, 수정 커밋에서 CPU A1부터 fresh execution으로 다시 시작한다.
 
+#### rev19 E012 attempt02/03: force와 mass의 본체 순서는 같은 축이 아니다
+
+topology 수정 commit `4b993a06039598ee1918f48761179bc201c4a437`에서 다시 실행한 CPU A1 attempt02는 environment 초기화와 150-step manual physics loop를 완료했다. 하지만 final safety snapshot이 `mass evidence unavailable`로 fail-closed 됐다. 따라서 이것도 접촉 오프셋의 효과나 로봇 복구 성공·실패를 판정한 실행이 아니다. PPO rollout batch, mini-batch, epoch, optimizer update, Gate01, qualification은 여전히 모두 `0/not_run`이다.
+
+외부 로컬 wrapper를 사용한 attempt03은 canonical 결과를 만들지 않고 observer 내부 상태만 계측했다. runtime shape는 다음과 같이 정상이다.
+
+| 데이터 | shape | 두 번째 축의 권위 |
+| --- | ---: | --- |
+| `sensor.data.net_forces_w` | `[8,19,3]` | `sensor.body_names` |
+| `robot.data.default_mass` | `[8,19]` | `robot.body_names` |
+| `robot.data.joint_pos` | `[8,12]` | articulation joint order |
+| `robot.data.joint_pos_limits` | `[8,12,2]` | articulation joint order |
+
+두 19-body 목록은 unique 집합이 정확히 같았지만 ordered list는 달랐다. contact sensor는 각 다리를 hip→thigh→calf→foot 순으로 모은 뒤 다음 다리로 진행했고, articulation mass tensor는 tree/articulation link 순서를 사용했다. 이전 observer는 이 둘을 같은 ordered list라고 요구해 첫 sample에서 `ValueError: mass/contact body ordering mismatch`를 냈다. 150회 호출은 예외를 내부에 저장했지만 최종 snapshot이 원 오류를 일반 메시지로 덮어 attempt02에서 원인이 바로 보이지 않았다.
+
+수정된 역학·계측 계약은 다음과 같다.
+
+1. contact force tensor가 정확히 `[8,19,3]`인지 먼저 확인한다. 이름은 19개인데 미명명 force column이 더 있거나 XYZ가 아닌 벡터 폭이면 즉시 fail-closed한다. 그 다음 `sensor.body_names`에서 non-foot index를 만들어 force tensor에 적용한다.
+2. 체중 분모는 mass tensor에 대응하는 `robot.body_names`와 `robot.data.default_mass`를 함께 snapshot하고, 환경별 19-body 총질량에 중력가속도 `9.81m/s²`를 곱한다.
+3. 총질량 합은 body 순서에 불변이므로 per-body force와 per-body mass를 짝짓지 않는다. report에 `per_body_force_mass_mapping_used=false`를 명시한다.
+4. 두 목록은 각각 길이 19, non-empty string, unique이고 이름 집합이 같아야 한다. `ordered_body_names_equal=false`는 실제 Go2에서 정상 상태다.
+5. mass ordering hash와 contact-force ordering hash를 독립적으로 남긴다. 150 step 동안 어느 한쪽 순서나 mass tensor가 바뀌면 fail-closed하며, CPU preflight와 final 8-run synthesis도 두 ordering hash가 모든 실행에서 같은지 재검증한다.
+6. observer가 처음 오류를 기록하면 이후 sample을 누적하지 않아 부분 성공처럼 보이지 않게 한다. 누락·중복·다른 body inventory와 serialized relation/hash 변조도 validator가 거부한다.
+
+attempt02의 report·Kit 로그·manifest와 attempt03의 instrumented report·Kit 로그·wrapper·관찰 JSON·manifest는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\failed_attempts\rev19`에만 보존한다. attempt03 관찰 JSON SHA-256은 `6eabcd9b1a5b04a1b77b9f81d21cd023b3c239273ea6f4d4708ba1f16858ad19`다. 이 진단 파일은 source 수정의 근거이지 canonical E012 결과가 아니다. 수정본을 검증·push한 뒤 CPU `A1→A2→B1→B2`를 새 execution ID로 다시 시작한다.
+
 ![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
 
 ![rev12 gate10 full-state 사건별 GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.gif)

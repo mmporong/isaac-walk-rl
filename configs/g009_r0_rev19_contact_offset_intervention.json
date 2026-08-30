@@ -95,6 +95,12 @@
       "all_envs",
       "source_env_7"
     ],
+    "mass_tensor_body_order_source": "robot.body_names",
+    "contact_force_body_order_source": "sensor.body_names",
+    "contact_force_tensor_shape": [8, 19, 3],
+    "body_name_inventory_relation": "same_unique_set_order_may_differ",
+    "per_body_force_mass_mapping_used": false,
+    "body_weight_denominator": "sum(robot.data.default_mass,dim=1)*9.81",
     "missing_observation_policy": "fail_closed"
   },
   "decision_matrix": {

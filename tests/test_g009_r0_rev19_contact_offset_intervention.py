@@ -22,6 +22,19 @@ assert SPEC and SPEC.loader
 PROBE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PROBE)
 
+MASS_BODY_NAMES = [
+    "base", "FL_hip", "FR_hip", "Head_upper", "RL_hip", "RR_hip",
+    "FL_thigh", "FR_thigh", "Head_lower", "RL_thigh", "RR_thigh",
+    "FL_calf", "FR_calf", "RL_calf", "RR_calf", "FL_foot", "FR_foot",
+    "RL_foot", "RR_foot",
+]
+FORCE_BODY_NAMES = [
+    "base", "FL_hip", "FL_thigh", "FL_calf", "FL_foot", "FR_hip",
+    "FR_thigh", "FR_calf", "FR_foot", "Head_upper", "Head_lower", "RL_hip",
+    "RL_thigh", "RL_calf", "RL_foot", "RR_hip", "RR_thigh", "RR_calf",
+    "RR_foot",
+]
+
 
 def topology_fixture() -> dict:
     template = [f"link_{index:02d}/collision" for index in range(27)]
@@ -297,10 +310,12 @@ def report_fixture(arm: str = "A", device: str = "cpu", replicate: int = 1) -> d
         }
     )
     body_names = report["live_physics_readback"]["max_depenetration_velocity"]["authoritative_body_names"]
+    assert body_names == MASS_BODY_NAMES
     import torch
     mass_tensor = torch.ones((8, 19))
     mass_snapshot = PROBE.tensor_snapshot(mass_tensor)
     body_names_sha = hashlib.sha256(json.dumps(body_names, separators=(",", ":")).encode()).hexdigest()
+    force_body_names_sha = hashlib.sha256(json.dumps(FORCE_BODY_NAMES, separators=(",", ":")).encode()).hexdigest()
     body_weight = 19.0 * 9.81
     report["manual_probe_safety"] = {
                 "label": "manual_probe_observation_not_gate",
@@ -333,14 +348,26 @@ def report_fixture(arm: str = "A", device: str = "cpu", replicate: int = 1) -> d
                     "source_env_non_foot_peak_force_within_15_bw": True,
                     "cpu_raw_minimum_separation_observed": True,
                     "cpu_raw_minimum_separation_within_limit": True,
+                    "force_and_mass_body_name_inventories_match": True,
                     "default_mass_8x19_finite_positive_unchanged": True,
                     "collection_error_absent": True,
                 },
                 "mass_evidence": {
                     "source": "robot.data.default_mass",
                     "shape": [8, 19],
+                    "body_names_source": "robot.body_names",
                     "body_names": body_names,
                     "body_names_sha256": body_names_sha,
+                    "contact_force_source": "sensor.data.net_forces_w",
+                    "contact_force_tensor_shape": [8, 19, 3],
+                    "contact_force_body_names_source": "sensor.body_names",
+                    "contact_force_body_names": list(FORCE_BODY_NAMES),
+                    "contact_force_body_names_sha256": force_body_names_sha,
+                    "body_name_inventory_equal": True,
+                    "ordered_body_names_equal": False,
+                    "per_body_force_mass_mapping_used": False,
+                    "body_weight_denominator": "sum(robot.data.default_mass,dim=1)*9.81",
+                    "body_weight_denominator_order_invariant": True,
                     "tensor": mass_snapshot,
                     "per_env_total_mass_kg": [19.0] * 8,
                     "per_env_body_weight_n": [body_weight] * 8,
@@ -375,6 +402,12 @@ def test_preregistration_locks_new_control_and_measured_topology() -> None:
     assert value["measured_shape_topology"]["collision_path_inventory_traversal"] == "Usd.PrimRange(robot_root, Usd.TraverseInstanceProxies())"
     assert value["measured_shape_topology"]["collision_path_inventory_read_only"] is True
     assert value["measured_shape_topology"]["collision_path_inventory_can_map_tensor_columns"] is False
+    assert value["manual_probe_safety"]["mass_tensor_body_order_source"] == "robot.body_names"
+    assert value["manual_probe_safety"]["contact_force_body_order_source"] == "sensor.body_names"
+    assert value["manual_probe_safety"]["contact_force_tensor_shape"] == [8, 19, 3]
+    assert value["manual_probe_safety"]["body_name_inventory_relation"] == "same_unique_set_order_may_differ"
+    assert value["manual_probe_safety"]["per_body_force_mass_mapping_used"] is False
+    assert value["manual_probe_safety"]["body_weight_denominator"] == "sum(robot.data.default_mass,dim=1)*9.81"
 
 
 @pytest.mark.parametrize(("arm", "scale"), [("A", 1.0), ("B", 1.5)])
@@ -433,26 +466,126 @@ def test_safety_uses_hard_limits_and_same_device_mass_readback() -> None:
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     forces = torch.zeros((8, 19, 3), device=device)
     forces[:, 0, 2] = 9.81
-    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=forces), body_names=["base"] + [f"link_{i}" for i in range(14)] + [f"foot_{i}" for i in range(4)])
+    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=forces), body_names=FORCE_BODY_NAMES)
     joint_pos = torch.zeros((8, 12), device=device)
     hard = torch.stack((torch.full_like(joint_pos, -1.0), torch.full_like(joint_pos, 1.0)), dim=-1)
-    robot = SimpleNamespace(body_names=sensor.body_names, data=SimpleNamespace(joint_pos=joint_pos, joint_pos_limits=hard, soft_joint_pos_limits=None, default_mass=torch.ones((8, 19), device=device)))
+    robot = SimpleNamespace(body_names=MASS_BODY_NAMES, data=SimpleNamespace(joint_pos=joint_pos, joint_pos_limits=hard, soft_joint_pos_limits=None, default_mass=torch.ones((8, 19), device=device)))
     accumulator = PROBE.SafetyAccumulator()
     accumulator.observe(sensor, robot, torch)
     assert accumulator.error is None
     assert accumulator.sample_count == 1
     assert accumulator.hard_limit_with_margin is True
+    assert accumulator.mass_body_names == MASS_BODY_NAMES
+    assert accumulator.force_body_names == FORCE_BODY_NAMES
+
+
+@pytest.mark.parametrize("shape", [(8, 20, 3), (8, 18, 3), (8, 19, 4)])
+def test_safety_rejects_noncanonical_contact_force_tensor_shape(shape: tuple[int, int, int]) -> None:
+    import torch
+
+    forces = torch.zeros(shape)
+    if shape == (8, 20, 3):
+        forces[0, 19, 2] = 1.0e9
+    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=forces), body_names=FORCE_BODY_NAMES)
+    positions = torch.zeros((8, 12))
+    limits = torch.stack((torch.full_like(positions, -1.0), torch.full_like(positions, 1.0)), dim=-1)
+    robot = SimpleNamespace(body_names=MASS_BODY_NAMES, data=SimpleNamespace(joint_pos=positions, joint_pos_limits=limits, default_mass=torch.ones((8, 19))))
+    accumulator = PROBE.SafetyAccumulator()
+    accumulator.observe(sensor, robot, torch)
+    assert accumulator.sample_count == 0
+    assert accumulator.error == "ValueError: contact force tensor must be 8x19x3"
+    valid_sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=torch.zeros((8, 19, 3))), body_names=FORCE_BODY_NAMES)
+    accumulator.observe(valid_sensor, robot, torch)
+    assert accumulator.sample_count == 0
+    assert accumulator.error == "ValueError: contact force tensor must be 8x19x3"
+
+
+@pytest.mark.parametrize(
+    "force_body_names",
+    [
+        FORCE_BODY_NAMES[:-1],
+        [FORCE_BODY_NAMES[0], *FORCE_BODY_NAMES[:-1]],
+        [*FORCE_BODY_NAMES[:-1], "unknown_body"],
+    ],
+)
+def test_safety_rejects_missing_duplicate_or_different_body_inventory(force_body_names: list[str]) -> None:
+    import torch
+
+    forces = torch.zeros((8, 19, 3))
+    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=forces), body_names=force_body_names)
+    positions = torch.zeros((8, 12))
+    limits = torch.stack((torch.full_like(positions, -1.0), torch.full_like(positions, 1.0)), dim=-1)
+    robot = SimpleNamespace(body_names=MASS_BODY_NAMES, data=SimpleNamespace(joint_pos=positions, joint_pos_limits=limits, default_mass=torch.ones((8, 19))))
+    accumulator = PROBE.SafetyAccumulator()
+    accumulator.observe(sensor, robot, torch)
+    assert accumulator.sample_count == 0
+    assert accumulator.error == "ValueError: mass/contact body inventory mismatch"
+    accumulator.observe(SimpleNamespace(data=SimpleNamespace(net_forces_w=forces), body_names=FORCE_BODY_NAMES), robot, torch)
+    assert accumulator.sample_count == 0
+    assert accumulator.error == "ValueError: mass/contact body inventory mismatch"
+
+
+@pytest.mark.parametrize(
+    "mass_body_names",
+    [
+        MASS_BODY_NAMES[:-1],
+        [MASS_BODY_NAMES[0], *MASS_BODY_NAMES[:-1]],
+        [*MASS_BODY_NAMES[:-1], "unknown_body"],
+    ],
+)
+def test_safety_rejects_invalid_mass_body_inventory(mass_body_names: list[str]) -> None:
+    import torch
+
+    forces = torch.zeros((8, 19, 3))
+    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=forces), body_names=FORCE_BODY_NAMES)
+    positions = torch.zeros((8, 12))
+    limits = torch.stack((torch.full_like(positions, -1.0), torch.full_like(positions, 1.0)), dim=-1)
+    robot = SimpleNamespace(body_names=mass_body_names, data=SimpleNamespace(joint_pos=positions, joint_pos_limits=limits, default_mass=torch.ones((8, 19))))
+    accumulator = PROBE.SafetyAccumulator()
+    accumulator.observe(sensor, robot, torch)
+    assert accumulator.sample_count == 0
+    assert accumulator.error == "ValueError: mass/contact body inventory mismatch"
+
+
+@pytest.mark.parametrize(
+    ("changed_order", "message"),
+    [
+        ("force", "ValueError: contact force body ordering changed during probe"),
+        ("mass", "ValueError: mass body ordering changed during probe"),
+    ],
+)
+def test_safety_preserves_first_runtime_body_order_drift(changed_order: str, message: str) -> None:
+    import torch
+
+    forces = torch.zeros((8, 19, 3))
+    positions = torch.zeros((8, 12))
+    limits = torch.stack((torch.full_like(positions, -1.0), torch.full_like(positions, 1.0)), dim=-1)
+    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=forces), body_names=FORCE_BODY_NAMES)
+    robot = SimpleNamespace(body_names=MASS_BODY_NAMES, data=SimpleNamespace(joint_pos=positions, joint_pos_limits=limits, default_mass=torch.ones((8, 19))))
+    accumulator = PROBE.SafetyAccumulator()
+    accumulator.observe(sensor, robot, torch)
+    assert accumulator.sample_count == 1 and accumulator.error is None
+    changed_sensor = SimpleNamespace(data=sensor.data, body_names=list(reversed(FORCE_BODY_NAMES))) if changed_order == "force" else sensor
+    changed_robot = SimpleNamespace(body_names=list(reversed(MASS_BODY_NAMES)), data=robot.data) if changed_order == "mass" else robot
+    accumulator.observe(changed_sensor, changed_robot, torch)
+    assert accumulator.sample_count == 1
+    assert accumulator.error == message
+    accumulator.observe(sensor, robot, torch)
+    assert accumulator.sample_count == 1
+    assert accumulator.error == message
+    snapshot = accumulator.snapshot({"events": []}, "cuda:0")
+    assert snapshot["observations"]["error"] == message
+    assert snapshot["available"] is False and snapshot["passed"] is None
 
 
 def test_cpu_safety_records_all_env_and_source_minima() -> None:
     import torch
 
     accumulator = PROBE.SafetyAccumulator()
-    names = ["base"] + [f"link_{i}" for i in range(14)] + [f"foot_{i}" for i in range(4)]
-    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=torch.zeros((8, 19, 3))), body_names=names)
+    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=torch.zeros((8, 19, 3))), body_names=FORCE_BODY_NAMES)
     positions = torch.zeros((8, 12))
     limits = torch.stack((torch.full_like(positions, -1.0), torch.full_like(positions, 1.0)), dim=-1)
-    robot = SimpleNamespace(body_names=names, data=SimpleNamespace(joint_pos=positions, joint_pos_limits=limits, default_mass=torch.ones((8, 19))))
+    robot = SimpleNamespace(body_names=MASS_BODY_NAMES, data=SimpleNamespace(joint_pos=positions, joint_pos_limits=limits, default_mass=torch.ones((8, 19))))
     for _ in range(150):
         accumulator.observe(sensor, robot, torch)
     raw = {
@@ -471,17 +604,21 @@ def test_cpu_safety_records_all_env_and_source_minima() -> None:
     assert separation["source_env_7_minimum"] == pytest.approx(-0.0017)
     assert separation["all_env_minimum"] == pytest.approx(-0.0017)
     assert value["available"] is True and value["passed"] is True
+    assert value["mass_evidence"]["body_names"] == MASS_BODY_NAMES
+    assert value["mass_evidence"]["contact_force_body_names"] == FORCE_BODY_NAMES
+    assert value["mass_evidence"]["body_name_inventory_equal"] is True
+    assert value["mass_evidence"]["ordered_body_names_equal"] is False
+    assert value["mass_evidence"]["per_body_force_mass_mapping_used"] is False
 
 
 def test_cpu_safety_fails_closed_when_any_env_separation_missing() -> None:
     import torch
 
     accumulator = PROBE.SafetyAccumulator()
-    names = ["base"] + [f"link_{i}" for i in range(14)] + [f"foot_{i}" for i in range(4)]
-    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=torch.zeros((8, 19, 3))), body_names=names)
+    sensor = SimpleNamespace(data=SimpleNamespace(net_forces_w=torch.zeros((8, 19, 3))), body_names=FORCE_BODY_NAMES)
     positions = torch.zeros((8, 12))
     limits = torch.stack((torch.full_like(positions, -1.0), torch.full_like(positions, 1.0)), dim=-1)
-    robot = SimpleNamespace(body_names=names, data=SimpleNamespace(joint_pos=positions, joint_pos_limits=limits, default_mass=torch.ones((8, 19))))
+    robot = SimpleNamespace(body_names=MASS_BODY_NAMES, data=SimpleNamespace(joint_pos=positions, joint_pos_limits=limits, default_mass=torch.ones((8, 19))))
     for _ in range(150):
         accumulator.observe(sensor, robot, torch)
     raw = {"events": [{"headers": [{"env_index": 7, "contact_points": [{"separation_m": 0.0}]}]}]}
@@ -558,6 +695,23 @@ def test_mass_snapshot_and_body_weight_denominator_are_hash_bound(monkeypatch: p
         PROBE.validate_report(report)
 
 
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (lambda mass: mass["contact_force_body_names"].pop(), "contact force body ordering invalid"),
+        (lambda mass: mass.update(ordered_body_names_equal=True), "inventory relation"),
+        (lambda mass: mass.update(per_body_force_mass_mapping_used=True), "mass evidence identity"),
+        (lambda mass: mass.update(contact_force_tensor_shape=[8, 20, 3]), "mass evidence identity"),
+    ],
+)
+def test_mass_and_force_body_order_contract_fails_closed(monkeypatch: pytest.MonkeyPatch, mutate, message: str) -> None:
+    monkeypatch.setattr(PROBE, "validate_source_bundle", lambda value: value)
+    report = report_fixture()
+    mutate(report["manual_probe_safety"]["mass_evidence"])
+    with pytest.raises(ValueError, match=message):
+        PROBE.validate_report(report)
+
+
 def test_base_validator_is_not_replaced_and_output_path_patch_is_restored() -> None:
     source = PROBE_PATH.read_text(encoding="utf-8")
     assert "base_probe.validate_report =" not in source
@@ -601,7 +755,7 @@ def preflight_artifact_fixture(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         "mode": "cpu_preflight_2x2",
         "input_report_count": 4,
         "input_reports": bindings,
-        "integrity": {"passed": True, "hash_bound": True, "unique_execution_ids": True, "exact_slots": ["A.cpu.rep1", "A.cpu.rep2", "B.cpu.rep1", "B.cpu.rep2"], "git_commit": source_bundle["git_commit"], "probe_source_bundle_sha256": source_bundle["source_bundle_sha256"], "synthesis_source_bundle_sha256": synthesis_bundle["source_bundle_sha256"], "mass_tensor_sha256": mass["tensor"]["sha256"], "mass_body_names_sha256": mass["body_names_sha256"]},
+        "integrity": {"passed": True, "hash_bound": True, "unique_execution_ids": True, "exact_slots": ["A.cpu.rep1", "A.cpu.rep2", "B.cpu.rep1", "B.cpu.rep2"], "git_commit": source_bundle["git_commit"], "probe_source_bundle_sha256": source_bundle["source_bundle_sha256"], "synthesis_source_bundle_sha256": synthesis_bundle["source_bundle_sha256"], "mass_tensor_sha256": mass["tensor"]["sha256"], "mass_body_names_sha256": mass["body_names_sha256"], "force_body_names_sha256": mass["contact_force_body_names_sha256"]},
         "cpu_preflight": {"passed": True, "raw_pass_probe_valid_safety_pass": True, "within_arm_repeatability_passed": True, "gpu_stage_allowed": True},
         "decision": {"outcome": "gpu_stage_authorized", "selected_lever": None, "third_run_majority_vote_allowed": False, "repeatability": repeatability},
         "governance": PROBE.synthesis_governance(),
@@ -627,6 +781,23 @@ def test_cpu_preflight_artifact_binds_exact_four_report_hashes(monkeypatch: pyte
     first_report = tmp_path / artifact["input_reports"][0]["path"]
     first_report.write_text("{}", encoding="utf-8")
     with pytest.raises(ValueError, match="input hash"):
+        PROBE.validate_cpu_preflight_artifact(preflight_path, source_bundle)
+
+
+def test_cpu_preflight_rejects_contact_force_body_order_drift(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    preflight_path, source_bundle, artifact, reports = preflight_artifact_fixture(monkeypatch, tmp_path)
+    report = reports[-1]
+    mass = report["manual_probe_safety"]["mass_evidence"]
+    force_names = list(reversed(mass["contact_force_body_names"]))
+    mass["contact_force_body_names"] = force_names
+    mass["contact_force_body_names_sha256"] = hashlib.sha256(json.dumps(force_names, separators=(",", ":")).encode()).hexdigest()
+    mass["ordered_body_names_equal"] = force_names == mass["body_names"]
+    report_path = tmp_path / artifact["input_reports"][-1]["path"]
+    raw = json.dumps(report, sort_keys=True).encode()
+    report_path.write_bytes(raw)
+    artifact["input_reports"][-1]["sha256"] = hashlib.sha256(raw).hexdigest()
+    write_preflight_fixture(preflight_path, artifact)
+    with pytest.raises(ValueError, match="mass/force body integrity"):
         PROBE.validate_cpu_preflight_artifact(preflight_path, source_bundle)
 
 
@@ -658,6 +829,7 @@ def test_cpu_preflight_recomputes_repeatability_from_reports(monkeypatch: pytest
         (lambda value: value["synthesis_source_bundle"]["source_binding_files"].update({PROBE.SYNTHESIS_SOURCE_BINDING_PATHS[0]: "0" * 64}), "aggregate hash"),
         (lambda value: value["decision"].update(outcome="not_authorized"), "decision/repeatability"),
         (lambda value: value["governance"].update(learned=True), "governance"),
+        (lambda value: value["integrity"].update(unregistered_key=True), "source/integrity"),
         (lambda value: value.update(created_at_utc="not-utc"), "created timestamp"),
         (lambda value: value["execution"].update(execution_id="bad"), "execution UUID"),
         (lambda value: value["execution"].update(started_at_utc="2026-08-30T00:00:01Z"), "execution binding"),
