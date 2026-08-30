@@ -1,0 +1,759 @@
+{
+  "schema_version": "g009.r0.rev20.terrain_contact_matrix_preregistration.v1",
+  "evidence_id": "G009-5-E013",
+  "media_stage_number": "13",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev20",
+  "seed": 42,
+  "predecessor": {
+    "path": "reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json",
+    "sha256": "5d95449398b4168cc8a7d0f73d4248e77fd2257b05f5bce22e4431020f8bf576",
+    "required_outcome_json_pointer": "/decision/outcome",
+    "required_outcome": "gpu_raw_unavailable_both_arms",
+    "required_selected_lever_json_pointer": "/decision/selected_lever",
+    "required_selected_lever": null
+  },
+  "hypothesis": {
+    "null": "terrain-filtered RigidContactView force matrix is unavailable or has no same-body positive-force overlap with net_forces_w on at least one required device",
+    "alternative": "with unchanged rev19 Arm A physics, terrain-filtered RigidContactView force matrix is finite, correctly ordered, and overlaps positive net_forces_w on the same body and physics step on CPU and GPU",
+    "single_changed_axis": "contact observation path only",
+    "callback_role": "diagnostic_only_not_decision_authority"
+  },
+  "design": {
+    "kind": "two_device_by_two_replicate",
+    "canonical_slots": [
+      "cpu.rep1",
+      "cpu.rep2",
+      "cuda:0.rep1",
+      "cuda:0.rep2"
+    ],
+    "canonical_report_paths": [
+      "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep01_s42.json",
+      "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep02_s42.json",
+      "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep01_s42.json",
+      "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep02_s42.json"
+    ],
+    "cpu_preflight_path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_preflight_2x_s42.json",
+    "final_synthesis_path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_synthesis_2x2_s42.json",
+    "immutable_no_overwrite": true,
+    "fresh_process_per_slot": true,
+    "fresh_process_proof": {
+      "execution_id_format": "lowercase_uuid4_hex",
+      "execution_id_unique_across_exact_four_slots": true,
+      "report_sha256_unique_across_exact_four_slots": true,
+      "duplicate_report_path_sha256_or_execution_id_policy": "reject",
+      "report_internal_identity_required": [
+        "slot",
+        "device",
+        "replicate_index",
+        "execution.output_path_repo_relative",
+        "execution.execution_id",
+        "execution.no_overwrite"
+      ],
+      "canonical_output_path_must_equal_slot_path": true,
+      "output_path_must_be_direct_child_of_reports_runs": true,
+      "report_cannot_contain_self_sha256": true,
+      "report_sha256_authority": "offline reader of immutable report bytes"
+    },
+    "third_run_majority_vote_allowed": false,
+    "cross_device_numeric_equality_required": false
+  },
+  "baseline_physics": {
+    "source_cell": "rev19_arm_A_contact_offset_scale_1.0",
+    "solver_position_iterations": 8,
+    "solver_velocity_iterations": 0,
+    "max_depenetration_velocity_m_s": 1.0,
+    "ground_static_friction": 0.8,
+    "ground_dynamic_friction": 0.6,
+    "foot_static_friction": 1.0,
+    "foot_dynamic_friction": 1.0,
+    "action_scale": 0.7,
+    "action_ema_alpha": 0.2,
+    "action_type": "EMAJointPositionToLimitsAction",
+    "asset_soft_joint_limit_factor": 0.9,
+    "reset_assignment_mode": "stratified",
+    "reset_class_ids": [
+      0,
+      1,
+      2,
+      3,
+      0,
+      1,
+      2,
+      3
+    ],
+    "reset_source_env_pose": "right_side",
+    "reset_source_env_action": "reset_pose_hold",
+    "contact_offset_setter_called": false,
+    "rest_offset_setter_called": false,
+    "friction_setter_added": false,
+    "mass_setter_added": false,
+    "motor_setter_added": false,
+    "reset_setter_added": false,
+    "gpu_buffer_change_allowed": false,
+    "direct_gpu_api_change_allowed": false,
+    "expected_contact_offset_tensor_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+    "expected_rest_offset_tensor_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+    "expected_mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+    "expected_mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+    "expected_force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+    "required_unchanged_checks": [
+      "solver_readback",
+      "depenetration_readback",
+      "contact_offset_tensor_hash",
+      "rest_offset_tensor_hash",
+      "mass_tensor_hash",
+      "mass_body_order_hash",
+      "force_body_order_hash",
+      "ground_material_live_readback",
+      "foot_material_live_readback",
+      "effective_friction_multiply_readback",
+      "action_type_scale_ema_and_soft_limit_live_readback",
+      "motor_actuator_and_joint_tensor_snapshot_hash",
+      "reset_class_pose_joint_state_and_hold_target_snapshot_hash",
+      "physics_dt_control_decimation_and_control_dt_readback",
+      "no_friction_mass_motor_reset_or_timing_mutator_added"
+    ],
+    "canonical_snapshot_serialization": "SHA-256 of UTF-8 JSON with ensure_ascii=false, sort_keys=true, separators=(',',':'), no trailing newline",
+    "expected_snapshot_contracts": {
+      "material": {
+        "value": {
+          "effective_static_dynamic": [
+            0.8,
+            0.6
+          ],
+          "foot_static_dynamic": [
+            1.0,
+            1.0
+          ],
+          "friction_combine_mode": "multiply",
+          "ground_static_dynamic": [
+            0.8,
+            0.6
+          ]
+        },
+        "sha256": "913a9dffc600a2e33f581538a4a59629af601147e9fcb96e39a3873257a5bd68"
+      },
+      "action": {
+        "value": {
+          "alpha": 0.2,
+          "asset_soft_joint_limit_factor": 0.9,
+          "rescale_to_limits": true,
+          "scale": 0.7,
+          "type": "EMAJointPositionToLimitsAction"
+        },
+        "sha256": "2f54edc31a78770d607a96b47b4ca13005685a79cdc1672e2138e2fbcca3073b"
+      },
+      "motor": {
+        "value": {
+          "raw_config": {
+            "actuator_class": "DCMotorCfg",
+            "actuator_group": "base_legs",
+            "armature": null,
+            "damping": 0.5,
+            "effort_limit": 23.5,
+            "effort_limit_sim": null,
+            "friction": 0.0,
+            "joint_names_expr": [
+              ".*_hip_joint",
+              ".*_thigh_joint",
+              ".*_calf_joint"
+            ],
+            "saturation_effort": 23.5,
+            "stiffness": 25.0,
+            "velocity_limit": 30.0,
+            "velocity_limit_sim": null
+          },
+          "resolved": {
+            "actuator_class": "DCMotor",
+            "armature": 0.0,
+            "damping": 0.5,
+            "effort_limit": 23.5,
+            "effort_limit_sim": 1000000000.0,
+            "friction": 0.0,
+            "stiffness": 25.0,
+            "velocity_limit": 30.0
+          }
+        },
+        "sha256": "8f6c5c311076f6a1b890646c5d9a8fbc0c47172bb76c955c60e4c46b7df537fe"
+      },
+      "reset": {
+        "value": {
+          "action_modes_by_env": [
+            "zero_normalized",
+            "zero_normalized",
+            "zero_normalized",
+            "zero_normalized",
+            "reset_pose_hold",
+            "reset_pose_hold",
+            "reset_pose_hold",
+            "reset_pose_hold"
+          ],
+          "assignment_mode": "stratified",
+          "class_ids": [
+            0,
+            1,
+            2,
+            3,
+            0,
+            1,
+            2,
+            3
+          ],
+          "folded_joint_angles_rad": {
+            "calf": -2.37,
+            "left_hip": 0.1,
+            "right_hip": -0.1,
+            "thigh": 1.5
+          },
+          "joint_velocity_rad_s": 0.0,
+          "pose_definitions_in_class_id_order": [
+            {
+              "name": "prone",
+              "root_height_m": 0.165,
+              "root_quaternion_wxyz": [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "supine",
+              "root_height_m": 0.06,
+              "root_quaternion_wxyz": [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "left_side",
+              "root_height_m": 0.163,
+              "root_quaternion_wxyz": [
+                0.7071067811865476,
+                0.7071067811865476,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "right_side",
+              "root_height_m": 0.163,
+              "root_quaternion_wxyz": [
+                0.7071067811865476,
+                -0.7071067811865476,
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "pose_xy_range_m": [
+            0.0,
+            0.0
+          ],
+          "root_velocity_m_s_and_rad_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "source_env_index": 7,
+          "source_env_pose": "right_side",
+          "yaw_range_rad": [
+            0.0,
+            0.0
+          ]
+        },
+        "sha256": "81c77c3c87f0af8abac095f7ea7f50847e0bc66931680883f18d073e45d9abfb"
+      },
+      "timing": {
+        "value": {
+          "control_decimation": 4,
+          "control_dt_s": 0.02,
+          "physics_dt_s": 0.005
+        },
+        "sha256": "93516d07f45b53c1fdbef5845169936ba05beb8d6c7f8ddfb86bb49f0f962691"
+      }
+    },
+    "runtime_readback_contract": {
+      "material": {
+        "ground_source": "live bound ground material prim PhysicsMaterialAPI coefficients plus PhysxMaterialAPI frictionCombineMode",
+        "foot_source": "raw_env._g009_foot_material_readback from root_physx_view material properties",
+        "effective_source": "raw_env._g009_effective_foot_friction startup readback",
+        "ground_expected": [
+          0.8,
+          0.6,
+          "multiply"
+        ],
+        "foot_each_of_8x4_expected": [
+          1.0,
+          1.0
+        ],
+        "effective_each_of_8x4_expected": [
+          0.8,
+          0.6
+        ],
+        "foot_combine_override_expected": "no_separate_override; live effective tensor must prove ground multiply authority",
+        "float_tolerance": "abs(actual-expected) <= 1e-6"
+      },
+      "action": {
+        "source": "raw_env.action_manager.get_term('joint_pos').cfg plus robot.cfg.soft_joint_pos_limit_factor",
+        "ema_history_source": "action_term._prev_applied_actions compared with reset joint positions",
+        "ema_history_max_abs_error_rad": 1e-06
+      },
+      "motor": {
+        "raw_config_source": "parse_env_cfg result before gym.make: env_cfg.scene.robot.actuators['base_legs']",
+        "resolved_config_source": "after gym.make: robot.actuators['base_legs'].cfg and actuator instance",
+        "live_tensor_sources": [
+          "robot.actuators['base_legs'].stiffness",
+          "robot.actuators['base_legs'].damping",
+          "robot.actuators['base_legs'].armature",
+          "robot.actuators['base_legs'].friction",
+          "robot.actuators['base_legs'].effort_limit",
+          "robot.actuators['base_legs'].velocity_limit",
+          "robot.actuators['base_legs'].effort_limit_sim",
+          "robot.data.default_joint_armature"
+        ],
+        "shape": [
+          8,
+          12
+        ],
+        "raw_null_and_resolved_value_semantics_must_remain_distinct": true,
+        "raw_config_armature": null,
+        "resolved_armature": 0.0,
+        "raw_config_effort_limit_sim": null,
+        "resolved_effort_limit_sim": 1000000000.0,
+        "resolved_tensor_snapshot_serialization": "SHA-256 of UTF-8 JSON object {'shape':[8,12],'values':tensor.tolist()} with sort_keys=true and separators=(',',':')",
+        "resolved_tensor_expected_sha256": {
+          "stiffness": "40184f8fdaa0c5ac98b4297d15af60511cd0691e8cb20e4c5e1da1d2fcbc2be9",
+          "damping": "c7595f547cee74b67ce3fbf279c0fa19ef701e1586e39a99f489bd1238568fec",
+          "armature": "d975c798333cd48b24f8c80913c779c85cbc6c098d81102d65b5f002ab10f462",
+          "friction": "d975c798333cd48b24f8c80913c779c85cbc6c098d81102d65b5f002ab10f462",
+          "effort_limit": "9dae0118e0dd06b1b3e91c99f683956f93ae5fc9bcbf2a7642919163b93b8d33",
+          "velocity_limit": "8f5604c4ad50fcb5439aa3f106478c0a66bb1319c9d312c97f666f698a6466ca",
+          "effort_limit_sim": "97788fc6a5394924ef418b45bfb7433beb0cb5521e24b608aecf4798fbed1f37",
+          "default_joint_armature": "d975c798333cd48b24f8c80913c779c85cbc6c098d81102d65b5f002ab10f462"
+        },
+        "all_resolved_tensor_values_must_equal_expected_snapshot": true,
+        "config_and_live_tensor_sha256_required": true
+      },
+      "reset": {
+        "source": "g009_recover_reset event log plus robot state and computed reset_pose_hold diagnostics before first physics step",
+        "joint_name_mapping": "suffix based 4 hip + 4 thigh + 4 calf",
+        "class_ids_exact": [
+          0,
+          1,
+          2,
+          3,
+          0,
+          1,
+          2,
+          3
+        ],
+        "pose_xy_range_exact_m": [
+          0.0,
+          0.0
+        ],
+        "yaw_range_exact_rad": [
+          0.0,
+          0.0
+        ],
+        "all_8_env_root_pose_rule": "for env i use class_ids[i] to select the exact height/quaternion from pose_definitions_in_class_id_order; local x=y=0; compare every component with abs error <=1e-6",
+        "all_8_env_root_and_joint_velocity_zero_required": true,
+        "all_8_env_folded_joint_state_rule": "map left/right hip, thigh, calf values by joint suffix and require every env with abs error <=1e-6",
+        "action_modes_by_env_exact": [
+          "zero_normalized",
+          "zero_normalized",
+          "zero_normalized",
+          "zero_normalized",
+          "reset_pose_hold",
+          "reset_pose_hold",
+          "reset_pose_hold",
+          "reset_pose_hold"
+        ],
+        "source_env_7_pose_exact": "right_side",
+        "zero_action_envs_0_to_3_must_be_exact_zero": true,
+        "hold_target_envs_4_to_7_must_equal_folded_joint_state": true,
+        "hold_action_must_be_finite_bounded_and_unsaturated": true,
+        "reachable_target_max_abs_error_rad": 1e-06
+      },
+      "timing": {
+        "physics_dt_sources": [
+          "raw_env.physics_dt",
+          "raw_env.cfg.sim.dt",
+          "physics_step_clock observed deltas"
+        ],
+        "control_decimation_source": "raw_env.cfg.decimation",
+        "control_dt_source": "raw_env.step_dt and raw_env.cfg.decimation*raw_env.cfg.sim.dt",
+        "exact_values_required": true
+      }
+    },
+    "isaaclab_external_source_binding": {
+      "root_resolution": "explicit --isaaclab-root when supplied, otherwise REPO_ROOT.parent/'IsaacLab'; resolved path must exist before AppLauncher",
+      "files": {
+        "source/isaaclab_assets/isaaclab_assets/robots/unitree.py": "d7f05f288fb70292d5bddf5884916f7d28d458a0c7be1fb0f22b17b90c5f4287",
+        "source/isaaclab/isaaclab/actuators/actuator_base.py": "bfb5b5999860f62a069ee2347a794ad82c297bbf5c1ce6ceb5a50b7ab60a415b",
+        "source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/go2/rough_env_cfg.py": "e6a160450fcab16089464763866142cb136df1ecc7b6c0d1809c8325b498b6c7"
+      },
+      "all_hashes_must_match_before_app_launcher": true
+    }
+  },
+  "runtime": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+    "num_envs": 8,
+    "source_env_index": 7,
+    "pose_id": "right_side",
+    "action_mode": "reset_pose_hold",
+    "physics_substeps": 150,
+    "physics_dt_s": 0.005,
+    "control_decimation": 4,
+    "control_dt_s": 0.02,
+    "simulated_duration_s": 0.75,
+    "headless": true,
+    "render": false,
+    "manual_inner_loop": true,
+    "same_step_boundary": "after_sim_step_and_scene_update",
+    "usd_schema_apply_allowed": false
+  },
+  "source_binding_contract": {
+    "runtime_must_use_committed_clean_source": true,
+    "git_commit_must_be_recorded": true,
+    "probe_source_bundle_sha256_required": true,
+    "runtime_source_binding_paths": [
+      "configs/g009_r0.json",
+      "configs/g009_r0_rev20_terrain_contact_matrix.json",
+      "scripts/probe_g009_recover_runtime.py",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+      "reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json",
+      "src/isaac_walk_g009/mdp/events.py",
+      "src/isaac_walk_g009/recover_contracts.py",
+      "src/isaac_walk_g009/recover_env_cfg.py",
+      "src/isaac_walk_g009/registry.py"
+    ],
+    "synthesis_source_binding_paths": [
+      "configs/g009_r0_rev20_terrain_contact_matrix.json",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+      "scripts/summarize_g009_r0_rev20_terrain_contact_matrix.py",
+      "scripts/probe_g009_recover_runtime.py",
+      "src/isaac_walk_g009/recover_contracts.py"
+    ]
+  },
+  "terrain_filter": {
+    "contact_sensor_name": "contact_forces",
+    "filter_prim_paths_expr": [
+      "/World/ground/terrain/GroundPlane/CollisionPlane"
+    ],
+    "path_evidence": "rev19_cpu_raw_contact_actor_and_collider_path",
+    "expected_filter_count": 1,
+    "expected_filter_paths": [
+      "/World/ground/terrain/GroundPlane/CollisionPlane"
+    ],
+    "expected_filter_paths_sha256": "0e7310394b8a9adb8b4cd6fe66f00c662855733094e5252dcd70acf1f7fcf6c0",
+    "expected_filter_name": "CollisionPlane",
+    "filter_path_mutation_after_view_initialization_allowed": false,
+    "filter_path_fallback_or_wildcard_allowed": false,
+    "path_hash_serialization": "SHA-256 of UTF-8 compact JSON array with ensure_ascii=false, separators=(',',':'), ordered values, no trailing newline",
+    "path_hash_serialized_value": "[\"/World/ground/terrain/GroundPlane/CollisionPlane\"]"
+  },
+  "rigid_contact_view": {
+    "required_type": "RigidContactView",
+    "required_method": "get_contact_force_matrix",
+    "required_properties": [
+      "sensor_paths",
+      "filter_paths",
+      "sensor_names",
+      "filter_names",
+      "sensor_count",
+      "filter_count"
+    ],
+    "expected_sensor_count": 152,
+    "expected_num_bodies_per_env": 19,
+    "expected_raw_matrix_shape": [152, 1, 3],
+    "expected_reshaped_matrix_shape": [8, 19, 1, 3],
+    "expected_sensor_buffer_matrix_shape": [8, 19, 1, 3],
+    "expected_net_force_shape": [8, 19, 3],
+    "sensor_paths_unique_required": true,
+    "raw_flatten_order_authority": "view.sensor_paths",
+    "reshape_mapping_validation": "split view.sensor_paths into 8 consecutive chunks of 19; chunk i must be rooted at robot.root_physx_view.prim_paths[i] and its ordered relative leaf names must equal sensor.body_names",
+    "env_major_body_major_mapping_required": true,
+    "per_env_relative_sensor_path_template_equal_required": true,
+    "ordered_sensor_and_filter_path_hashes_required": true,
+    "same_step_read_sequence": [
+      "after sim.step(render=false) and scene.update(dt)",
+      "read and clone sensor.data.net_forces_w",
+      "read and clone sensor.data.force_matrix_w",
+      "call contact_physx_view.get_contact_force_matrix(dt) and clone immediately",
+      "compare cloned direct matrix with the earlier cloned sensor buffer"
+    ],
+    "lazy_sensor_update_must_be_resolved_before_direct_view_call": true,
+    "direct_and_buffer_storage_alias_forbidden": true,
+    "direct_matrix_and_sensor_buffer_exact_equality_required_each_step": true,
+    "get_contact_data_allowed": false,
+    "max_contact_data_count_change_allowed": false
+  },
+  "same_step_overlap": {
+    "force_norm_threshold_n": 0.000001,
+    "net_positive_definition": "norm(net_forces_w[env,body,:]) > threshold",
+    "matrix_positive_definition": "norm(sum(force_matrix_w[env,body,filter,:],dim=filter)) > threshold",
+    "overlap_definition": "net_positive and matrix_positive for the same env, body, and physics step",
+    "per_env_overlap_step_definition": "for each env separately, physics step where any body satisfies overlap_definition",
+    "source_env_overlap_step_definition": "physics step where any body in source env 7 satisfies overlap_definition",
+    "matrix_body_force_magnitude_n": "norm(sum(force_matrix_w,dim=filter),dim=xyz)",
+    "all_env_matrix_peak_force_n": "max over physics_step,env,body of matrix_body_force_magnitude_n",
+    "source_env_matrix_peak_force_n": "max over physics_step,body for env 7 of matrix_body_force_magnitude_n",
+    "all_env_matrix_force_integral_n_s": "sum over physics_step of max over env,body matrix_body_force_magnitude_n multiplied by physics_dt_s",
+    "source_env_matrix_force_integral_n_s": "sum over physics_step of max over body for env 7 matrix_body_force_magnitude_n multiplied by physics_dt_s",
+    "minimum_overlap_steps_per_each_of_8_envs": 1,
+    "required_env_coverage": "8_of_8",
+    "minimum_overlap_steps_source_env_7": 1,
+    "finite_required": true,
+    "exact_150_samples_required": true,
+    "callback_count_used_in_pass_fail": false
+  },
+  "repeatability": {
+    "within_device_replicates": 2,
+    "exact_fields": [
+      "availability_state",
+      "sensor_paths_sha256",
+      "filter_paths_sha256",
+      "force_body_names_sha256",
+      "raw_and_reshaped_tensor_shapes",
+      "per_env_overlap_step_indices",
+      "source_env_overlap_step_indices",
+      "safety_checks"
+    ],
+    "numeric_fields": [
+      "all_env_matrix_peak_force_n",
+      "source_env_matrix_peak_force_n",
+      "all_env_matrix_force_integral_n_s",
+      "source_env_matrix_force_integral_n_s"
+    ],
+    "absolute_tolerance": 0.00001,
+    "relative_tolerance": 0.000001,
+    "numeric_tolerance_formula": "abs(a-b) <= max(absolute_tolerance, relative_tolerance*max(abs(a),abs(b)))",
+    "split_outcome": "inconclusive_nondeterministic",
+    "third_run_allowed": false
+  },
+  "matrix_probe_safety": {
+    "gate_execution": false,
+    "hard_joint_limit_margin_rad": 0.01,
+    "hard_joint_limit_per_env_step_definition": "all joint_pos >= joint_pos_limits[...,0]-0.01 and all joint_pos <= joint_pos_limits[...,1]+0.01",
+    "hard_joint_limit_comparison_operator": "inclusive_greater_equal_and_less_equal",
+    "contact_force_source": "sensor.data.net_forces_w",
+    "contact_force_body_order_source": "sensor.body_names",
+    "contact_force_tensor_shape": [
+      8,
+      19,
+      3
+    ],
+    "non_foot_body_selection": "indices where 'foot' not in sensor.body_names[index].lower()",
+    "non_foot_peak_force_per_env_definition": "max over 150 physics_step and selected non-foot body of norm(net_forces_w[env,body,:])",
+    "mass_source": "robot.data.default_mass",
+    "mass_body_order_source": "robot.body_names",
+    "mass_tensor_shape": [
+      8,
+      19
+    ],
+    "body_name_inventory_relation": "same_unique_set_order_may_differ",
+    "per_body_force_mass_mapping_used": false,
+    "gravity_m_s2": 9.81,
+    "body_weight_denominator_per_env": "sum(robot.data.default_mass[env,:],dim=body)*9.81",
+    "non_foot_peak_force_body_weight_per_env_definition": "non_foot_peak_force_per_env/body_weight_denominator_per_env",
+    "non_foot_peak_force_body_weight_max": 15.0,
+    "non_foot_force_comparison_operator": "less_equal",
+    "all_env_aggregation": "max over the 8 per-env ratios must be <= 15.0",
+    "source_env_7_aggregation": "env 7 ratio must be <= 15.0",
+    "required_scopes": [
+      "all_envs",
+      "source_env_7"
+    ],
+    "required_checks": [
+      "finite_joint_position_and_contact_force",
+      "hard_joint_limit_with_margin",
+      "all_env_non_foot_peak_force_within_15_bw",
+      "source_env_non_foot_peak_force_within_15_bw",
+      "force_and_mass_body_name_inventories_match",
+      "default_mass_8x19_finite_positive_unchanged",
+      "collection_error_absent"
+    ],
+    "cpu_raw_separation_callback_used_in_decision": false,
+    "missing_required_observation_policy": "fail_closed"
+  },
+  "device_authority": {
+    "requested_device_must_match_report": true,
+    "raw_env_device_must_match_requested_device": true,
+    "net_force_tensor_device_must_match_requested_device": true,
+    "matrix_buffer_tensor_device_must_match_requested_device": true,
+    "direct_matrix_tensor_device_must_match_requested_device": true,
+    "cuda_runs_require_gpu_dynamics_readback_pass": true,
+    "cpu_runs_require_gpu_dynamics_disabled_readback": true,
+    "direct_gpu_api_expected": false,
+    "device_or_gpu_dynamics_mismatch_outcome": "probe_invalid"
+  },
+  "cpu_preflight": {
+    "required_before_gpu_app_launcher": true,
+    "immutable_no_overwrite": true,
+    "exact_slots": [
+      "cpu.rep1",
+      "cpu.rep2"
+    ],
+    "required_checks": [
+      "source_and_contract_integrity",
+      "baseline_physics_unchanged",
+      "view_and_filter_contract",
+      "finite_exact_shapes",
+      "direct_matrix_sensor_buffer_parity_150_of_150",
+      "same_body_positive_force_overlap",
+      "matrix_probe_safety",
+      "within_cpu_repeatability"
+    ],
+    "canonical_gpu_cpu_preflight_binding_field": "cpu_preflight_binding",
+    "gpu_report_binding_required_fields": [
+      "status",
+      "path",
+      "sha256",
+      "git_commit",
+      "probe_source_bundle_sha256",
+      "input_reports"
+    ],
+    "exact_ordered_input_report_binding_schema": {
+      "type": "array",
+      "item_key_order": [
+        "path",
+        "sha256"
+      ],
+      "exact_cpu_paths": [
+        "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep01_s42.json",
+        "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep02_s42.json"
+      ],
+      "count": 2,
+      "duplicate_path_or_sha256_allowed": false
+    },
+    "preflight_execution_id_must_differ_from_input_execution_ids": true,
+    "gpu_report_must_exact_bind": [
+      "status",
+      "path",
+      "sha256",
+      "git_commit",
+      "probe_source_bundle_sha256",
+      "input_reports"
+    ],
+    "validation_boundary": "before GPU AppLauncher construction",
+    "final_synthesis_cpu_inputs_must_exactly_equal_preflight_inputs": true,
+    "all_gpu_reports_must_bind_same_preflight": true
+  },
+  "final_synthesis_integrity": {
+    "exact_ordered_input_report_binding_schema": {
+      "type": "array",
+      "item_key_order": [
+        "path",
+        "sha256"
+      ],
+      "exact_paths": [
+        "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep01_s42.json",
+        "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep02_s42.json",
+        "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep01_s42.json",
+        "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep02_s42.json"
+      ],
+      "count": 4,
+      "duplicate_path_or_sha256_allowed": false
+    },
+    "unique_lowercase_uuid4_execution_ids_required": true,
+    "first_two_cpu_bindings_must_exactly_equal_preflight_inputs": true,
+    "both_gpu_reports_must_exactly_bind_same_cpu_preflight": true,
+    "synthesis_execution_id_must_differ_from_all_input_and_preflight_execution_ids": true
+  },
+  "decision_matrix": {
+    "availability_states": {
+      "observed_valid": "view/filter/shape/order/finite/parity valid and required same-body overlap exists",
+      "unavailable": "view/filter API is callable and structurally valid but required same-body overlap does not exist",
+      "invalid": "source, baseline, view, filter, shape, order, finite, or direct-buffer parity contract fails"
+    },
+    "invalid_source_contract_or_baseline": "probe_invalid",
+    "device_or_gpu_dynamics_readback_mismatch": "probe_invalid",
+    "invalid_view_filter_shape_order_or_finite": "terrain_matrix_probe_invalid",
+    "matrix_probe_safety_failed": "safety_limit_exceeded",
+    "cpu_missing_overlap_or_matrix": "cpu_terrain_matrix_unavailable_gpu_forbidden",
+    "cpu_replicate_split": "inconclusive_nondeterministic_gpu_forbidden",
+    "gpu_two_of_two_missing_overlap_or_matrix": "gpu_terrain_matrix_unavailable",
+    "gpu_replicate_split": "inconclusive_nondeterministic",
+    "cpu_two_of_two_and_gpu_two_of_two_valid": "terrain_pair_matrix_authority_candidate_validated",
+    "success_next_step": "preregister_matrix_authority_safety_gate",
+    "failure_next_step": "stop_and_fix_filter_path_or_view_only",
+    "priority": [
+      "source_contract_and_predecessor_integrity",
+      "baseline_physics_unchanged",
+      "device_and_gpu_dynamics_readback",
+      "view_filter_shape_order_and_finite",
+      "matrix_probe_safety",
+      "same_body_same_step_overlap",
+      "within_device_repeatability"
+    ]
+  },
+  "claim_limits": {
+    "gpu_contact_absence_claim_allowed": false,
+    "physics_failure_claim_allowed": false,
+    "contact_point_or_separation_authority_claim_allowed": false,
+    "global_callback_ground_truth_authority": false,
+    "terrain_pair_aggregated_normal_force_authority_candidate_only": true,
+    "successful_self_righting_claim_allowed": false,
+    "learned_policy_claim_allowed": false
+  },
+  "forbidden_changes": [
+    "contact_offset",
+    "rest_offset",
+    "solver_iterations",
+    "friction",
+    "mass_or_inertia",
+    "motor_parameters",
+    "reset_distribution",
+    "physics_dt_or_control_dt",
+    "gpu_buffers",
+    "direct_gpu_api",
+    "detailed_get_contact_data"
+  ],
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "gate_execution_allowed": false,
+    "qualification_eligible": false,
+    "qualification_status": "not_run",
+    "garden_publish_before_success_allowed": false
+  },
+  "media_contract": {
+    "stage_number": "13",
+    "cpu_preflight_phase": "13.01",
+    "final_cpu_gpu_phase": "13.02",
+    "mp4_policy": "local_only",
+    "git_media": [
+      "gif",
+      "representative_png",
+      "hash_bound_json"
+    ],
+    "required_labels": [
+      "TELEMETRY ANIMATION",
+      "NOT CAMERA FOOTAGE",
+      "DIAGNOSTIC ONLY",
+      "NO PPO",
+      "NOT QUALIFIED"
+    ]
+  },
+  "research_basis": [
+    "https://isaac-sim.github.io/IsaacLab/v2.1.1/source/api/lab/isaaclab.sensors.html",
+    "https://docs.omniverse.nvidia.com/kit/docs/omni_physics/107.0/extensions/runtime/source/omni.physics.tensors/docs/api/python.html",
+    "https://docs.omniverse.nvidia.com/kit/docs/omni_physics/latest/extensions/runtime/source/omni.physx/docs/dev_guide/contact_reports.html",
+    "IsaacLab ContactSensor._update_buffers_impl get_net_contact_forces then get_contact_force_matrix",
+    "PhysX tensor create_rigid_contact_view single-static-filter exception"
+  ]
+}

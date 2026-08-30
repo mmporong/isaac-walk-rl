@@ -1255,6 +1255,38 @@ PASS 조건은 다음 네 가지를 모두 만족하는 것이다.
 
 view 생성 실패, filter cardinality/path 불일치, matrix exception/non-finite, 또는 net force가 비영인 모든 step에서 terrain matrix가 0이면 fail-closed다. 그 경우 offset·solver·buffer를 동시에 건드리지 않고 sensor rigid-body와 실제 terrain collider path 선택만 dump하고 수정한다. PASS한 뒤에만 future safety/contact authority를 `RigidContactView` terrain-pair matrix로 전환하는 별도 사전등록을 만들고, 그 다음에 경사 복구 Gate01과 PPO 재개 여부를 판단한다.
 
+#### rev20 E013 사전등록: 번호 13 terrain-pair matrix
+
+실행 전에 [machine-readable preregistration](../configs/g009_r0_rev20_terrain_contact_matrix.json)을 별도 파일로 고정했다. 증거 ID는 `G009-5-E013`, 시각 증거 번호는 `13`이다. canonical 순서는 `cpu.rep1 → cpu.rep2 → cuda:0.rep1 → cuda:0.rep2`이고, CPU 두 실행을 묶은 immutable preflight가 통과하기 전에는 GPU AppLauncher를 시작할 수 없다. 제3회 다수결은 금지한다.
+
+terrain filter는 추측한 terrain root가 아니라 rev19 CPU raw contact에서 actor와 collider로 실제 관찰된 `/World/ground/terrain/GroundPlane/CollisionPlane` 하나를 사용한다. PhysX tensor API의 단일 static filter 예외를 적용하되 다음 구조를 모두 fail-closed로 확인한다.
+
+| 구조 항목 | 사전등록 기대값 |
+| --- | --- |
+| `sensor_count` | `8 env × 19 body = 152` |
+| `filter_count` | `1` |
+| direct matrix raw shape | `[152,1,3]` |
+| reshaped/buffer matrix | `[8,19,1,3]` |
+| net force tensor | `[8,19,3]` |
+| filter path hash | `0e7310394b8a9adb8b4cd6fe66f00c662855733094e5252dcd70acf1f7fcf6c0` |
+| same-step threshold | `1e-6N` |
+
+각 physics step은 `sim.step(render=False) → scene.update(dt=0.005)` 뒤에 읽는다. lazy sensor update를 먼저 해소하고 `net_forces_w` clone → `force_matrix_w` buffer clone → direct `get_contact_force_matrix(dt)` clone 순서를 고정한다. buffer와 direct tensor는 storage alias가 아니어야 하며 두 clone은 150회 모두 exact equality여야 한다. direct raw axis는 `view.sensor_paths`가 권위다. 152개 path를 19개씩 연속 분할했을 때 chunk `i`가 robot root `i` 아래에 있고 ordered leaf가 `sensor.body_names`와 같아야 `[8,19,1,3]` reshape를 허용한다.
+
+terrain matrix는 filter 축을 합산한 뒤 net force와 같은 env·body 축에서 비교한다. 8개 환경 각각에서 같은 body의 두 force norm이 동시에 `1e-6N`을 넘는 step이 최소 1회 있어야 한다. peak와 integral의 반복 허용식은 `abs(a-b) ≤ max(1e-5, 1e-6×max(abs(a),abs(b)))`로 고정한다.
+
+두 반복은 availability, sensor/filter/body order hash, shape, 환경별 overlap step indices, safety checks가 exact하게 같아야 한다. CPU와 GPU 사이의 수치 동일성은 요구하지 않는다. callback은 count/error만 남기며 outcome 계산에는 넣지 않는다. CUDA report는 requested/runtime/tensor device와 GPU dynamics readback을 모두 검증한다.
+
+GPU report는 AppLauncher 생성 전에 CPU preflight의 path·SHA-256·git commit·probe source bundle·정확한 CPU 입력 2개를 검증해 내장한다. final synthesis의 첫 CPU 입력 2개는 preflight 입력과 exact-equal이어야 하고 두 GPU report는 같은 preflight를 가리켜야 한다. matrix safety나 device readback이 실패하면 overlap 수치가 양수여도 PASS할 수 없다.
+
+물리 baseline은 rev19 Arm A다. contact-offset hash `5beda7da...`, rest-offset hash `af9043e1...`, mass tensor hash `db715835...`, mass/force body-order hash `c7dcbdef.../2df70385...`, solver `8/0`, max depenetration `1.0m/s`를 다시 확인한다. 관측 경로만 바뀌었다는 것을 입증하기 위해 ground `0.8/0.6`·foot `1.0/1.0`·multiply effective friction, action `scale=0.70`·EMA `alpha=0.2`, soft-limit factor `0.9`, Go2 DCMotor의 raw config(`armature/effort_limit_sim=null`)와 resolved tensor(`0.0/1e9`)를 분리한 effort `23.5Nm`·velocity `30rad/s`·stiffness `25`·damping `0.5`·armature/friction, XY/yaw 범위가 `[0,0]`인 8환경 stratified reset root/joint state와 env 0~3 zero action·4~7 hold target, physics/control dt `0.005/0.02s`·decimation `4`도 config와 live tensor로 다시 읽고 canonical JSON hash를 만든다. setter는 호출하지 않는다. offset·rest·friction·mass·motor·reset·dt·GPU buffer·Direct GPU API·상세 `get_contact_data`를 바꾸면 결과를 해석하지 않는다.
+
+안전식도 구현 전에 숫자로 고정했다. joint position은 모든 env·step에서 `[hard lower-0.01rad, hard upper+0.01rad]`의 양 끝을 포함해 만족해야 한다. non-foot은 `sensor.body_names`에서 대소문자를 무시하고 `foot`이 없는 body만 고른다. 각 env에서 150 step×body의 `norm(net_forces_w)` 최댓값을 `sum(robot.data.default_mass[env,:])×9.81`로 나눈 비율이 `15BW` 이하인지 확인하며, force/mass body 이름은 같은 unique set이되 per-body mass-force 대응에는 쓰지 않는다.
+
+두 반복이 실제 별도 프로세스였다는 증거도 fail-closed다. raw report마다 canonical slot/device/replicate/output path와 고유 lowercase UUID4 execution ID를 내장한다. CPU preflight는 CPU raw 두 파일을 정확한 순서의 `{path,sha256}`로 묶고 path·hash·execution ID 중복을 거부한다. GPU raw 두 파일은 AppLauncher 전에 동일 preflight의 path·SHA-256·git commit·source bundle·CPU input binding을 확인한다. final synthesis는 네 raw report를 canonical 순서로 hash-bind하고 처음 두 CPU binding이 preflight 입력과 byte-for-byte 같을 때만 결과를 낸다.
+
+CPU/GPU가 각각 `2/2` 통과해도 결론은 `terrain_pair_matrix_authority_candidate_validated`다. 이것은 terrain-pair aggregated normal force의 관측 권위 후보를 검증했다는 뜻이지 contact point·separation·충격량 권위, 자가복구 성공, 학습 정책 자격을 의미하지 않는다. 다음 단계는 matrix 기반 safety authority를 별도로 사전등록하는 것이며 Gate01·PPO·qualification은 계속 닫는다. 미디어는 `13.01 CPU preflight`, `13.02 final CPU→GPU`로 나누고 MP4는 로컬에만 둔다.
+
 ![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
 
 ![rev12 gate10 full-state 사건별 GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.gif)
