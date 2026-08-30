@@ -1,0 +1,241 @@
+{
+  "schema_version": "g009.r0.rev18.gpu_raw_contact_synthesis.v1",
+  "evidence_id": "G009-5-E011",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev18",
+  "status": "pass",
+  "mode": "offline_fail_closed_2x2_synthesis",
+  "input_report_count": 4,
+  "input_reports": [
+    {
+      "path": "reports/runs/g009_r0_rev18_raw_contact_cpu_rep01_s42.json",
+      "sha256": "f7b3f9cfc93c89d8290c645fc875605d67b8a026be9a21be5ef9ff3fa09a3c2e"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev18_raw_contact_cpu_rep02_s42.json",
+      "sha256": "2fd61cfe0551a4326c9d56256f32179df2ff0978a86e3b3db9aa9800dab3b994"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev18_raw_contact_gpu_rep01_s42.json",
+      "sha256": "05bad338aa650f82d94734efdaf753e2b0cee73c4c6154772b0dfb7fdb496570"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev18_raw_contact_gpu_rep02_s42.json",
+      "sha256": "e7cf19001ae371fb2a0f9807a7326e7943da38abfa745dc36766a6562684622d"
+    }
+  ],
+  "integrity": {
+    "passed": true,
+    "hash_bound": true,
+    "unique_execution_ids": true,
+    "exact_slots": [
+      "cpu.rep1",
+      "cpu.rep2",
+      "cuda:0.rep1",
+      "cuda:0.rep2"
+    ],
+    "source_bundle_sha256": "f6c40a35efbb380ca5644494da0e1b9812e9b66acb465aa727d63f8a9eaa2739",
+    "raw_probe_source_bundle_sha256": "f6c40a35efbb380ca5644494da0e1b9812e9b66acb465aa727d63f8a9eaa2739",
+    "synthesis_source_bundle_sha256": "25a5c9e420a2969aaea3a742d0285f01b5b0174a96630c3dfc5fee79fe75340f",
+    "predecessor": {
+      "path": "reports/runs/g009_r0_rev17_mechanism_split_offline_s42.json",
+      "sha256": "48e596a8e61cf2b4fbcff0b1b6072d62431dc7c4c744b58db9107c398fd1cf97"
+    }
+  },
+  "synthesis_source_bundle": {
+    "schema_version": 1,
+    "role": "offline_synthesis_implementation",
+    "git_commit": "6072ac01116b8fd65f40c38d7f644ff4208a0b7e",
+    "git_commit_valid": true,
+    "source_binding_paths": [
+      "scripts/summarize_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_recover_runtime.py",
+      "src/isaac_walk_g009/recover_contracts.py"
+    ],
+    "source_binding_files": {
+      "scripts/summarize_g009_r0_rev18_gpu_raw_contact.py": "d95c52e937e5f5c4e6f8fc3d648cc59542425460b685d75bb7c470da48066060",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py": "5c409bf640887fb058e8b1e034e30c5829a27b650fdef574bfb7c730e893f40e",
+      "scripts/probe_g009_recover_runtime.py": "48d66ef07da8e38ca1d327363838f5cc352e4de1a355c568bce8322b3dd4d8dd",
+      "src/isaac_walk_g009/recover_contracts.py": "a55dddd8d245d06b20c3cd943c6f8d53949657b229bb63cfdcdea7eb0a787546"
+    },
+    "source_bundle_sha256": "25a5c9e420a2969aaea3a742d0285f01b5b0174a96630c3dfc5fee79fe75340f",
+    "all_files_present": true,
+    "missing_files": [],
+    "clean": true,
+    "dirty_source_paths": []
+  },
+  "raw_contact_feasibility": {
+    "outcome": "unavailable_on_gpu",
+    "gpu_pair_attribution_available": false,
+    "cpu_control_2_of_2_passed_repeatable": true,
+    "third_run_majority_vote_allowed": false,
+    "cross_device_numeric_equality_required": false,
+    "within_device_numeric_tolerances": {
+      "position_w_m": {
+        "absolute": 1e-06,
+        "relative": 1e-05
+      },
+      "normal_w": {
+        "absolute": 1e-06,
+        "relative": 1e-05
+      },
+      "impulse_n_s": {
+        "absolute": 1e-07,
+        "relative": 1e-05
+      },
+      "separation_m": {
+        "absolute": 1e-07,
+        "relative": 1e-05
+      }
+    },
+    "repeatability": {
+      "cpu": {
+        "mode": "observed_raw_contact",
+        "repeatable": true,
+        "structure_exact": true,
+        "numeric_within_tolerance": true,
+        "unavailable_signature_exact": null
+      },
+      "cuda:0": {
+        "mode": "unavailable_raw_contact",
+        "repeatable": true,
+        "structure_exact": null,
+        "numeric_within_tolerance": null,
+        "unavailable_signature_exact": true
+      }
+    },
+    "runs": [
+      {
+        "slot": "cpu.rep1",
+        "device": "cpu",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev18_raw_contact_cpu_rep01_s42.json",
+          "sha256": "f7b3f9cfc93c89d8290c645fc875605d67b8a026be9a21be5ef9ff3fa09a3c2e"
+        },
+        "execution_id": "2e3d6e7802a24fd5ad93f1d051af11b2",
+        "probe_valid": true,
+        "positive_force_stimulus_present": true,
+        "raw_observation_passed": true,
+        "instrumentation_bundle_complete": false,
+        "unavailable_signature": null
+      },
+      {
+        "slot": "cpu.rep2",
+        "device": "cpu",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev18_raw_contact_cpu_rep02_s42.json",
+          "sha256": "2fd61cfe0551a4326c9d56256f32179df2ff0978a86e3b3db9aa9800dab3b994"
+        },
+        "execution_id": "e5546313d9c840bda6a0174e7804c770",
+        "probe_valid": true,
+        "positive_force_stimulus_present": true,
+        "raw_observation_passed": true,
+        "instrumentation_bundle_complete": false,
+        "unavailable_signature": null
+      },
+      {
+        "slot": "cuda:0.rep1",
+        "device": "cuda:0",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev18_raw_contact_gpu_rep01_s42.json",
+          "sha256": "05bad338aa650f82d94734efdaf753e2b0cee73c4c6154772b0dfb7fdb496570"
+        },
+        "execution_id": "adebeff90e0f4aa0bac224bff58a1899",
+        "probe_valid": true,
+        "positive_force_stimulus_present": true,
+        "raw_observation_passed": false,
+        "instrumentation_bundle_complete": false,
+        "unavailable_signature": {
+          "scope": "source_env_7_robot_ground_headers_only",
+          "failed_raw_checks": [
+            "raw_steps_monotonic_aligned",
+            "nonempty_source_robot_ground_datum",
+            "absolute_pair_paths",
+            "finite_raw_vectors_and_separation",
+            "unit_normals",
+            "nonzero_impulse"
+          ],
+          "subscription_attempted": true,
+          "subscription_succeeded": true,
+          "subscription_error": null,
+          "malformed_callback_count": 0,
+          "first_callback_error": null,
+          "event_structure": []
+        }
+      },
+      {
+        "slot": "cuda:0.rep2",
+        "device": "cuda:0",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev18_raw_contact_gpu_rep02_s42.json",
+          "sha256": "e7cf19001ae371fb2a0f9807a7326e7943da38abfa745dc36766a6562684622d"
+        },
+        "execution_id": "7115384f463a47698ac15b47bb0dce59",
+        "probe_valid": true,
+        "positive_force_stimulus_present": true,
+        "raw_observation_passed": false,
+        "instrumentation_bundle_complete": false,
+        "unavailable_signature": {
+          "scope": "source_env_7_robot_ground_headers_only",
+          "failed_raw_checks": [
+            "raw_steps_monotonic_aligned",
+            "nonempty_source_robot_ground_datum",
+            "absolute_pair_paths",
+            "finite_raw_vectors_and_separation",
+            "unit_normals",
+            "nonzero_impulse"
+          ],
+          "subscription_attempted": true,
+          "subscription_succeeded": true,
+          "subscription_error": null,
+          "malformed_callback_count": 0,
+          "first_callback_error": null,
+          "event_structure": []
+        }
+      }
+    ]
+  },
+  "instrumentation_bundle": {
+    "status": "unavailable",
+    "complete_report_count": 0,
+    "required_report_count": 4,
+    "independent_of_raw_contact_feasibility": true
+  },
+  "decision": {
+    "outcome": "unavailable_on_gpu",
+    "next_step": "pre_registered_single_variable_intervention",
+    "selected_lever": null
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "selected_lever": null,
+    "learned": false,
+    "ppo": {
+      "allowed": false,
+      "status": "not_run",
+      "updates": 0
+    },
+    "qualification": {
+      "eligible": false,
+      "status": "not_run",
+      "passed": null
+    },
+    "gate01": {
+      "allowed": false,
+      "status": "forbidden"
+    }
+  },
+  "created_at_utc": "2026-08-30T03:47:06.636437Z",
+  "execution": {
+    "execution_id": "e56626a2f7b44ba99127a98a797b07df",
+    "started_at_utc": "2026-08-30T03:47:06.636437Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_rev18_raw_contact_feasibility_synthesis_2x2_s42.json",
+    "no_overwrite": true
+  }
+}

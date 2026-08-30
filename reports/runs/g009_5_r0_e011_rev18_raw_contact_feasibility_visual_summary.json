@@ -1,0 +1,116 @@
+{
+  "schema_version": "g009.r0.rev18.raw_contact_visual_summary.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "stage_number": "11",
+  "revision": "rev18",
+  "evidence_id": "G009-5-E011",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "camera_footage": false,
+  "robot_locomotion_footage": false,
+  "training_footage": false,
+  "telemetry_animation": true,
+  "learned_policy_qualified": false,
+  "physics_ground_truth_authority": false,
+  "labels": [
+    "G009-5-E011",
+    "11 · RAW CONTACT FEASIBILITY",
+    "CPU 2/2 RAW PASS",
+    "GPU 0/2 RAW CALLBACK AVAILABILITY",
+    "DIAGNOSTIC-ONLY",
+    "NOT PPO",
+    "NOT QUALIFIED",
+    "NO LEVER SELECTED",
+    "PHYSICS GROUND TRUTH AUTHORITY: FALSE",
+    "RESIDUAL INSTRUMENTATION: PARTIAL/UNAVAILABLE"
+  ],
+  "decision": {
+    "outcome": "unavailable_on_gpu",
+    "selected_lever": null
+  },
+  "result": {
+    "cpu": {
+      "raw_callback_availability": "2/2 pass"
+    },
+    "gpu": {
+      "raw_callback_availability": "0/2 unavailable"
+    },
+    "instrumentation_bundle": "partial/unavailable",
+    "physics_ground_truth_authority": false
+  },
+  "source_binding": {
+    "synthesis": {
+      "path": "reports/runs/g009_r0_rev18_raw_contact_feasibility_synthesis_2x2_s42.json",
+      "sha256": "9ca8007d88e771a5f24ca68afa46a670097e733f9e613c31fc4cc62f3fb9e01e"
+    },
+    "reports": [
+      {
+        "path": "reports/runs/g009_r0_rev18_raw_contact_cpu_rep01_s42.json",
+        "sha256": "f7b3f9cfc93c89d8290c645fc875605d67b8a026be9a21be5ef9ff3fa09a3c2e"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev18_raw_contact_cpu_rep02_s42.json",
+        "sha256": "2fd61cfe0551a4326c9d56256f32179df2ff0978a86e3b3db9aa9800dab3b994"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev18_raw_contact_gpu_rep01_s42.json",
+        "sha256": "05bad338aa650f82d94734efdaf753e2b0cee73c4c6154772b0dfb7fdb496570"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev18_raw_contact_gpu_rep02_s42.json",
+        "sha256": "e7cf19001ae371fb2a0f9807a7326e7943da38abfa745dc36766a6562684622d"
+      }
+    ],
+    "raw_probe_source_bundle_sha256": "f6c40a35efbb380ca5644494da0e1b9812e9b66acb465aa727d63f8a9eaa2739",
+    "synthesis_source_bundle_sha256": "25a5c9e420a2969aaea3a742d0285f01b5b0174a96630c3dfc5fee79fe75340f",
+    "predecessor": {
+      "path": "reports/runs/g009_r0_rev17_mechanism_split_offline_s42.json",
+      "sha256": "48e596a8e61cf2b4fbcff0b1b6072d62431dc7c4c744b58db9107c398fd1cf97"
+    }
+  },
+  "public_artifacts": {
+    "png": {
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e011_rev18_raw_contact_feasibility.png",
+      "sha256": "0cb74b9eab5291f91afc850771db14b9b92694475cbaf636c91c4731ea620191",
+      "bytes": 69797,
+      "tracked_in_git": true,
+      "git_policy": "git_public",
+      "width": 1280,
+      "height": 720
+    },
+    "gif": {
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e011_rev18_raw_contact_feasibility.gif",
+      "sha256": "208f19b30d200947490980aeb22d4b898011d13a4dce2f779aa9cc05ef8207a0",
+      "bytes": 37337,
+      "tracked_in_git": true,
+      "git_policy": "git_public",
+      "frames": 6,
+      "duration_ms": 4800
+    }
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_e011_rev18_raw_contact_feasibility_s42.mp4",
+    "sha256": "542a63a4a686d6d0e1eab1ba729be4aa8ea5fe6572e4ef9c1e6c9a3f341fd38e",
+    "bytes": 58674,
+    "tracked_in_git": false,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "duration_seconds": 4.8
+  },
+  "governance": {
+    "ppo": {
+      "status": "not_run",
+      "updates": 0
+    },
+    "qualification": {
+      "status": "not_run"
+    },
+    "gate01": {
+      "status": "forbidden"
+    }
+  }
+}

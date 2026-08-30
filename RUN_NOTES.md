@@ -479,6 +479,30 @@ py -X utf8 .\scripts\summarize_g009_r0_rev16_backend_divergence.py `
 - 다음 단계는 GPU authoritative constraint/contact instrumentation 가능성 조사다. 불가능하면 rev12 `8/0`에서 변경 방향과 성공·기각 기준을 먼저 고정한 단일변수 intervention probe만 연다. 원인이 선택되기 전에는 새 PPO를 실행하지 않는다.
 - 최종 로컬 검증은 rev14~rev17·G009 media/probe 회귀 `452 passed in 87.56s`, 새 스크립트 Pyright `0 errors`, `py_compile` PASS, canonical resynthesis exact PASS, 전용 미디어 validator PASS, `git diff --check` PASS다. `scripts/validate_repository.ps1` 전체 검사는 이번 변경과 무관하고 status가 깨끗한 기존 rev16 CPU JSON 12개의 10 MiB 초과와 기존 `.gitattributes` 계약 1건, 총 13건 때문에 FAIL했다. 해당 baseline 파일은 이 작업에서 수정하지 않았다.
 
+#### rev18 E011 CPU/GPU raw contact 2×2 계측 가능성 진단
+
+- `G009-5-E011`은 rev17에서 비어 있던 GPU contact-pair authority를 실제 callback으로 확인하는 capability probe다. source commit은 `6072ac01116b8fd65f40c38d7f644ff4208a0b7e`, source bundle SHA-256은 `f6c40a35efbb380ca5644494da0e1b9812e9b66acb465aa727d63f8a9eaa2739`다. CPU 2회와 `cuda:0` 2회를 각각 새 프로세스와 고유 execution ID로 실행했다.
+- 네 실행은 seed `42`, headless, camera/render off, `8 env`, source env `7`, `right_side / reset_pose_hold`, solver position/velocity iteration `16/0`, physics timestep `0.005s`를 고정했다. 실행당 정확히 `150 physics step = 0.75s`이며 action manager의 `process_action`은 step `1,5,...,149`에서 `38회` 호출했다. 매 step은 `apply_action → write_data_to_sim → sim.step(render=False) → scene.update(0.005)` 순서다.
+- 일반 `env.step()`을 사용하지 않았으므로 reward manager, termination manager, curriculum manager의 post-step 계산은 호출하지 않았다. 화면에 구성된 RECOVER reward 13항은 환경 계약으로 남아 있지만 이번 JSON에는 보상값이 없다. rollout batch, mini-batch, epoch, optimizer update, PPO update는 모두 `0`이다.
+- 첫 CPU rep01은 물리 루프 전에 `failed_closed`였다. `gym.make()` 뒤 env 7 articulation root에 `PhysxResidualReportingAPI.Apply()`를 늦게 적용하면서 `/World/envs/env_7/Robot/base/collisions/mesh_0`가 tensor view 사용 중 다시 파싱됐고, `CpuArticulationView::getRootTransforms`가 실패했다. 이 실행은 canonical 결과로 세지 않고 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\failed_attempts`에 `g009_5_r0_e011_rev18_cpu_rep01_preinit_failure_attempt01_s42.json`과 `g009_5_r0_e011_rev18_cpu_rep01_preinit_failure_attempt01_kit.log`로 보존했다. JSON SHA-256은 `7fc9e0dda04a1e975bbf4f6105d5cc7862df08915125e492afe46b1f16830c5e`, 로그 SHA-256은 `28335cd1df363346268f782f2df284ad58842703f58e12ee2504777bb7e06e30`이다.
+- 수정 뒤 `ResidualReader`는 live USD/PhysicsContext를 바꾸지 않고 이미 사전 작성된 API만 `Get()`으로 읽는다. 새 CPU 2회 로그에서는 `was deleted while being used by a shape`, `detachShape`, `Simulation view object is invalidated`가 모두 0건이었다. residual API가 사전 작성되지 않았다는 사실은 `unavailable`로 남기고 raw contact 판정으로 승격하지 않았다.
+
+| 슬롯 | raw callback | raw observation | probe valid | 양의 force stimulus | instrumentation bundle |
+| --- | ---: | --- | --- | --- | --- |
+| CPU rep01 | `150` | PASS | `true` | `true` | incomplete |
+| CPU rep02 | `150` | PASS | `true` | `true` | incomplete |
+| GPU rep01 | `0` | unavailable | `true` | `true` | incomplete |
+| GPU rep02 | `0` | unavailable | `true` | `true` | incomplete |
+
+- CPU 두 실행은 source env 7 기준 header `358`, contact point `767`, nonzero impulse point `414`, 최대 impulse norm `4.797629N·s`로 반복됐다. source topology와 수치가 사전 tolerance 안에서 모두 같았다. CPU force proxy 최대 norm은 약 `1951.954N`, incoming joint wrench 6D 최대 norm은 약 `396.999`다.
+- GPU 두 실행은 subscription attempted/succeeded가 모두 `true`이고 malformed callback과 callback error가 없지만 callback/event가 `0`이었다. 동시에 force proxy 최대 norm 약 `2473.524N`, joint wrench 6D 최대 norm 약 `387.016`이 관측됐으므로 “접촉 자극이 없었다”는 설명은 배제한다. proxy는 raw pair topology를 대체하지 않으므로 “GPU 접촉 물리가 고장 났다”거나 “GPU에서 접촉이 없었다”고 쓰지 않는다.
+- force proxy `150×19×3`과 incoming joint wrench `150×19×6`은 네 실행 모두 수집됐다. `force_matrix_w=None`, scene/source-root residual API unavailable이므로 instrumentation bundle은 `0/4 complete`, `status=unavailable`이다. 이는 raw feasibility와 독립인 보조 계측 결손이다.
+- 네 raw report의 SHA-256은 CPU `f7b3f9cfc93c89d8290c645fc875605d67b8a026be9a21be5ef9ff3fa09a3c2e` / `2fd61cfe0551a4326c9d56256f32179df2ff0978a86e3b3db9aa9800dab3b994`, GPU `05bad338aa650f82d94734efdaf753e2b0cee73c4c6154772b0dfb7fdb496570` / `e7cf19001ae371fb2a0f9807a7326e7943da38abfa745dc36766a6562684622d`다. 2×2 synthesis SHA-256은 `9ca8007d88e771a5f24ca68afa46a670097e733f9e613c31fc4cc62f3fb9e01e`다.
+- 합성 판정은 CPU `2/2 PASS + repeatable`, GPU `2/2 identical unavailable signature`에 따라 `outcome=unavailable_on_gpu`다. 이는 현재 조건에서 GPU raw contact-report callback 관측을 얻지 못했다는 뜻이며 일반적인 API 지원 여부나 physics ground truth 결론이 아니다. `selected_lever=null`, physics-ground-truth authority `false`, Gate01 `forbidden`, PPO·qualification `not_run`, `learned=false`다.
+- 번호 `11` 자료는 카메라·보행·학습 영상이 아니라 위 2×2 결과를 재생하는 `4.8s` telemetry animation이다. 공개 PNG는 `1280×720`, `69,797 bytes`, SHA-256 `0cb74b9eab5291f91afc850771db14b9b92694475cbaf636c91c4731ea620191`, GIF는 6 frames, `37,337 bytes`, SHA-256 `208f19b30d200947490980aeb22d4b898011d13a4dce2f779aa9cc05ef8207a0`다. visual summary는 `3,790 bytes`, SHA-256 `201df8abdf380cf009a297f7be81fb360c2d7195d8eb728bfc4045d71a877f63`, 전용 validator가 확인한 sidecar는 `4,825 bytes`, SHA-256 `9c2cc14512aa271768eda68adda960bf2b5468d8b756097576a3a8264dc9180d`다.
+- 개인 확인용 H.264 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_e011_rev18_raw_contact_feasibility_s42.mp4`에만 둔다. `1280×720`, `30fps`, `4.8s`, `58,674 bytes`, SHA-256 `542a63a4a686d6d0e1eab1ba729be4aa8ea5fe6572e4ef9c1e6c9a3f341fd38e`이며 Git에는 넣지 않는다.
+- canonical GPU JSON에는 subscription 성공, malformed callback `0`, callback error `null`이 기록됐다. 당시 Kit 로그에서 overflow·capacity 경고를 찾지 못했지만 그 로그는 canonical report나 sidecar에 경로·해시로 보존되지 않았으므로 공개 결론의 근거로 사용하지 않는다. GPU buffer 값을 임의로 바꾸지 않고, 다음 실행은 사전 등록대로 승인 baseline rev12 solver `8/0`에서 contact offset만 baseline의 `1.5×`로 바꾸고 rest offset은 고정하는 단일변수 CPU/GPU 2×2 probe다. 이 개입 전에도 PPO를 열지 않는다.
+
 ```powershell
 py -m pytest -q `
   tests/test_g009_media_contract.py `
@@ -493,5 +517,8 @@ py -m pytest -q `
   tests/test_g009_r0_rev16_backend_divergence_summary.py `
   tests/test_g009_r0_rev16_media.py `
   tests/test_g009_r0_rev17_mechanism_split_summary.py `
-  tests/test_g009_r0_rev17_mechanism_media.py
+  tests/test_g009_r0_rev17_mechanism_media.py `
+  tests/test_g009_r0_rev18_gpu_raw_contact.py `
+  tests/test_g009_r0_rev18_gpu_raw_contact_summary.py `
+  tests/test_g009_r0_rev18_raw_contact_media.py
 ```
