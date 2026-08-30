@@ -21,12 +21,12 @@ MPC는 미래를 예측할 수 있어도 원하는 미래가 무엇인지 스스
 - reference `x_ref`: 앞으로 로봇이 되었으면 하는 목표 상태
 - MPC: 예측 상태와 reference의 차이가 작아지도록 발 힘을 고른다.
 
-\[
+$$
 X_{ref}=
 \begin{bmatrix}
 x_{ref,1}\\x_{ref,2}\\\vdots\\x_{ref,N}
 \end{bmatrix}
-\]
+$$
 
 현재 목표 하나만 주는 것이 아니라 prediction horizon과 같은 길이의 목표 궤적을 만든다.
 
@@ -34,37 +34,37 @@ x_{ref,1}\\x_{ref,2}\\\vdots\\x_{ref,N}
 
 현재 위치가 `p_0`이고 명령 속도가 일정하다고 가정한다.
 
-\[
+$$
 p_{x,ref}(t)=p_{x,0}+v_{x,cmd}t
-\]
+$$
 
-\[
+$$
 p_{y,ref}(t)=p_{y,0}+v_{y,cmd}t
-\]
+$$
 
 예를 들어 `v_x=0.2 m/s`이면 0.1초 뒤 목표 x 위치는 현재보다 2 cm 앞이다.
 
 높이는 평지에서 nominal body height를 유지하도록 둔다.
 
-\[
+$$
 p_{z,ref}(t)=h_{nominal}
-\]
+$$
 
 ## 3. 평지에서 자세 목표 만들기
 
 평지에서는 몸통이 옆이나 앞뒤로 기울지 않는 것을 기본 목표로 둘 수 있다.
 
-\[
+$$
 roll_{ref}=0,
 \qquad
 pitch_{ref}=0
-\]
+$$
 
 yaw는 명령한 회전 속도를 시간에 따라 적분한다.
 
-\[
+$$
 yaw_{ref}(t)=yaw_0+\dot\psi_{cmd}t
-\]
+$$
 
 `yaw_ref=0`으로 고정하면 로봇이 회전 명령을 받아도 항상 처음 방향으로 돌아가려 할 수 있다. 그래서 현재 yaw를 기준으로 미래 yaw 목표를 쌓는다.
 
@@ -72,15 +72,15 @@ yaw_{ref}(t)=yaw_0+\dot\psi_{cmd}t
 
 평지의 선속도 reference는 다음처럼 둘 수 있다.
 
-\[
+$$
 v_{ref}=[v_{x,cmd},v_{y,cmd},0]
-\]
+$$
 
 각속도 reference는 yaw 회전 명령만 남긴다.
 
-\[
+$$
 \omega_{ref}=[0,0,\dot\psi_{cmd}]
-\]
+$$
 
 전체 평지 reference는 상태 순서 `[p,rpy,v,omega]`에 맞춰 조립한다.
 
