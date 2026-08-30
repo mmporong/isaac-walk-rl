@@ -8,6 +8,44 @@
 
 Gait Schedule은 발을 어디에 놓을지 정하지 않는다. 각 발이 언제 바닥을 지지하고 언제 공중에서 움직일지만 정한다.
 
+## 기호를 먼저 확인하기
+
+| 기호                  | 뜻                           |
+| --------------------- | ---------------------------- |
+| `f`, `T`              | 보행 주파수, 한 주기 시간    |
+| `dt`                  | phase 갱신 시간 간격         |
+| `phase`               | 한 주기 안의 현재 위치 `0~1` |
+| `global phase`        | 네 발의 기준 phase           |
+| `offset_i`            | i번째 발의 phase 이동량      |
+| `i`                   | FL·FR·BL·BR 중 한 발         |
+| `D`                   | 한 주기 중 stance 비율       |
+| `T_stance`, `T_swing` | stance 시간, swing 시간      |
+| `s`                   | swing 진행률 `0~1`           |
+| `mod 1`               | 값을 다시 `0~1`로 순환       |
+| `1`, `0`              | 접촉, 비접촉                 |
+
+여기서 소문자 `f`는 주파수이며 다른 문서의 대문자 `F`인 발 힘과 다르다.
+
+## 무엇을 외우고 무엇을 이해할까
+
+**외울 것**
+
+1. `주기 T = 1 / 주파수 f`
+2. `phase < D`이면 stance, 그 외에는 swing
+3. `stance 시간 = D·T`, `swing 시간 = (1-D)·T`
+4. `1→0`은 lift-off, `0→1`은 touchdown
+
+**뜻만 이해할 것**
+
+- phase offset으로 대각선 발의 순서를 만드는 방법
+- future contact schedule이 MPC 제약에 필요한 이유
+- duty factor가 0.5보다 크면 접촉 구간이 겹칠 수 있다는 점
+
+**지금 외우지 않을 것**
+
+- QUATTRO 예시의 `1.4 Hz`, `D=0.65`, offset 배열
+- 현재 Go2에 측정되지 않은 gait 수치
+
 ```text
 stance = 바닥을 밀어 몸을 지지하는 구간
 swing  = 발을 들어 다음 착지점으로 옮기는 구간
@@ -17,11 +55,15 @@ swing  = 발을 들어 다음 착지점으로 옮기는 구간
 
 한 보행 주기를 `0≤phi<1`로 표현한다. step frequency가 `f` Hz라면 한 주기 시간은:
 
+**[외울 식 1] 주파수와 한 주기 시간의 관계**
+
 ```text
 한 주기 시간 T = 1 / 주파수 f
 ```
 
 시간이 흐르면 global phase를 다음처럼 전진시킬 수 있다.
+
+**[이해할 식] phase를 매 timestep 전진하고 0~1로 되돌린다**
 
 ```text
 global phase = (이전 global phase + f·dt)의 소수 부분
@@ -32,6 +74,8 @@ global phase = (이전 global phase + f·dt)의 소수 부분
 ## 2. Phase offset으로 발 순서 만들기
 
 각 발의 phase는 global phase에 발별 offset을 더한다.
+
+**[이해할 식] 발별 순서를 만드는 offset**
 
 ```text
 발 i의 phase = (global phase + 발 i의 offset)의 소수 부분
@@ -48,6 +92,8 @@ Notion의 예시 offset은 발 순서 `[FL,FR,BL,BR]`에서 `[0.5,0,0,0.5]`다. 
 
 Duty factor `D`는 한 발이 주기 중 stance에 머무는 비율이다.
 
+**[외울 식 2] stance와 swing 판정**
+
 ```text
 발 i의 phase < duty factor D  -> stance
 ```
@@ -58,6 +104,8 @@ Duty factor `D`는 한 발이 주기 중 stance에 머무는 비율이다.
 
 예를 들어 `D=0.65`면 한 발은 주기의 65% 동안 땅을 지지하고 35% 동안 공중에 있다.
 
+**[외울 식 3] stance 시간과 swing 시간**
+
 ```text
 stance 시간 = D · T
 swing 시간  = (1 - D) · T
@@ -66,6 +114,8 @@ swing 시간  = (1 - D) · T
 ## 4. 수치 예시
 
 Notion의 예시 `f=1.4Hz`, `D=0.65`를 계산하면:
+
+**[참고 식] QUATTRO 예시값의 계산이며 외우지 않는다**
 
 ```text
 T = 1 / 1.4 ≈ 0.714초
@@ -81,6 +131,8 @@ swing 시간  ≈ 0.250초
 ## 5. Swing progress
 
 swing 구간 안에서 발이 얼마나 진행했는지를 0에서 1로 정규화한다.
+
+**[이해할 식] swing 내부 진행률을 0~1로 변환**
 
 ```text
 swing 진행률 s = (발 phase - D) / (1 - D),    0 ≤ s < 1

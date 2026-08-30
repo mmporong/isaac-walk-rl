@@ -11,9 +11,50 @@ Foothold Planner는 공중으로 들릴 발이 다음에 어디에 닿아야 몸
 
 Gait Schedule이 **언제**를 정한다면 Foothold Planner는 **어디에**를 정한다.
 
+## 기호를 먼저 확인하기
+
+| 기호              | 뜻                               |
+| ----------------- | -------------------------------- |
+| `p`, `xy`         | 위치 벡터, 지면의 앞뒤·좌우 방향 |
+| `td`, `lo`        | touchdown, lift-off              |
+| `p_td,xy`         | 다음 touchdown의 xy 목표         |
+| `p_nominal,xy`    | hip 주변의 기본 발 위치          |
+| `T_stance`        | 예상 stance 시간                 |
+| `v_ref`, `v`      | 목표 몸통 속도, 실제 속도        |
+| `k_v`             | 속도 오차 보정계수               |
+| `Delta p_ff`      | 예상 이동을 반영한 거리          |
+| `Delta p_fb`      | 실제 속도 오차 보정 거리         |
+| `p_lo`            | 실제 lift-off 위치               |
+| `p_Raibert`       | 기본 Raibert touchdown           |
+| `p_model`         | 모델이 계산한 기본 touchdown     |
+| `Delta p_terrain` | 지형에 따른 위치 보정            |
+| `Delta p_RL`      | RL이 만든 residual 보정          |
+
+## 무엇을 외우고 무엇을 이해할까
+
+**외울 것**
+
+1. `touchdown = nominal + feedforward + feedback`이라는 세 부분
+2. `feedforward = 0.5·stance 시간·목표 속도`
+3. lift-off와 touchdown의 실제 위치를 기록해야 한다는 원칙
+
+**뜻만 이해할 것**
+
+- 몸이 stance 동안 이동하므로 발을 미리 놓는 이유
+- terrain correction이 높이뿐 아니라 안전성과 도달 가능성도 다루는 이유
+- residual RL이 전체 목표가 아니라 작은 보정량만 만드는 구조
+
+**지금 외우지 않을 것**
+
+- `k_v`의 숫자와 부호
+- 특정 로봇의 nominal foot 위치
+- 지형별 correction 수치와 clip 범위
+
 ## 1. 기본 touchdown 식
 
 Notion의 QUATTRO 설명은 평지 touchdown의 xy를 다음 세 항으로 나눈다.
+
+**[외울 식 1] touchdown 목표의 세 부분**
 
 ```text
 touchdown xy
@@ -43,11 +84,15 @@ touchdown xy
 
 stance 동안 몸통은 계속 움직인다. 발을 현재 hip 바로 아래에만 놓으면 몸이 지나간 뒤 발이 뒤쪽으로 밀릴 수 있다. 그래서 stance 시간의 절반 동안 몸이 이동할 거리를 미리 더한다.
 
+**[외울 식 2] feedforward 거리**
+
 ```text
 미리 놓을 거리 = 0.5 · stance 시간 · 목표 속도
 ```
 
 예를 들어:
+
+**[참고 식] 숫자를 외우지 말고 단위와 계산만 확인한다**
 
 ```text
 목표 속도 = 0.2 m/s
@@ -65,6 +110,8 @@ stance 시간 = 0.4초
 ## 4. Feedback: 실제 속도 오차 보정
 
 명령보다 실제 몸통이 너무 빠르거나 느릴 수 있다. Notion은 다음 항을 추가한다.
+
+**[이해할 식] 속도 오차를 touchdown 보정으로 바꾸는 구조**
 
 ```text
 속도 보정 거리 = 보정계수 k_v · (실제 속도 - 목표 속도)
@@ -125,6 +172,8 @@ terrain-aware planner는 단순히 z만 바꾸는 것이 아니라 안전성·�
 
 평지 Raibert 목표에 지형 보정량을 추가하는 형태로 나눌 수 있다.
 
+**[이해할 식] 평지 목표와 지형 보정의 분리**
+
 ```text
 최종 touchdown = Raibert 기본 목표 + 지형 보정량
 ```
@@ -143,6 +192,8 @@ terrain-aware planner는 단순히 z만 바꾸는 것이 아니라 안전성·�
 ## 10. Residual RL과 연결
 
 향후 RL을 붙인다면 전체 관절 토크보다 작은 보정량만 출력하게 할 수 있다.
+
+**[이해할 식] 모델 기반 목표에 residual만 더하는 구조**
 
 ```text
 최종 touchdown = 모델 기반 목표 + RL이 만든 작은 보정량
