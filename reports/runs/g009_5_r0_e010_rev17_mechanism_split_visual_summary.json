@@ -1,0 +1,136 @@
+{
+  "schema_version": "g009.r0.rev17.mechanism_visual_summary.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "stage_number": "10",
+  "revision": "rev17",
+  "evidence_id": "G009-5-E010",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "camera_footage": false,
+  "telemetry_animation": true,
+  "learned_policy_qualified": false,
+  "labels": [
+    "G009-5-E010",
+    "MECHANISM DIAGNOSTIC",
+    "INCONCLUSIVE",
+    "NO LEVER SELECTED",
+    "NOT PPO",
+    "NOT QUALIFIED",
+    "CPU CONTACT AUTHORITY ONLY",
+    "GPU CONTACT TOPOLOGY UNAVAILABLE"
+  ],
+  "decision": {
+    "outcome": "inconclusive",
+    "selected_lever": null
+  },
+  "source": {
+    "path": "reports/runs/g009_r0_rev17_mechanism_split_offline_s42.json",
+    "sha256": "48e596a8e61cf2b4fbcff0b1b6072d62431dc7c4c744b58db9107c398fd1cf97"
+  },
+  "source_binding": {
+    "passed": true,
+    "hash_bound": true,
+    "predecessor_path": "reports/runs/g009_r0_rev16_synthesis_12_full_retry01_s42.json",
+    "predecessor_sha256": "d39931ad6ddf6104095a6276e9b6db3a047d044d203e034f2d38f1f172e0288d",
+    "canonical_rev16_synthesis": {
+      "path": "reports/runs/g009_r0_rev16_synthesis_12_full_retry01_s42.json",
+      "sha256": "d39931ad6ddf6104095a6276e9b6db3a047d044d203e034f2d38f1f172e0288d"
+    },
+    "input_report_count": 12,
+    "input_reports": [
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json",
+        "sha256": "1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json",
+        "sha256": "8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json",
+        "sha256": "7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep01_retry02_s42.json",
+        "sha256": "6fc88560942b2ebcb7f5aed075589deb880d80c4c0b54c5f355579bf63c979b4"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep02_retry02_s42.json",
+        "sha256": "03ee3902af56bb3e65fcf6afcd0e61eebd26c766a3ca7c33a74e222555c4572b"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_a_gpu_rep03_retry02_s42.json",
+        "sha256": "f477a47fc652f16bec4cf6623c8b1a82529acf8f70d7b4c4bbdb0811b0aa0f1a"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep01_retry01_s42.json",
+        "sha256": "6d3466cb43f46035278f11da13bf202bb7a727c7e3243e053525c1c835b7c47e"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep02_retry01_s42.json",
+        "sha256": "3335c5f898f1c392823f1b6f019d228e5f411cb943259671dc8cc3a3fc55c9ac"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_b_cpu_rep03_retry01_s42.json",
+        "sha256": "d8fc1b96a284cd51a147ff9aabecc42d8083dddc918c58433db1263e9c458c22"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep01_retry01_s42.json",
+        "sha256": "9cb36810c81f892001557fd6ac3772ae3b8370e3ca1e3daab01e79b17080886d"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep02_retry01_s42.json",
+        "sha256": "c75e884d6ba9607d79c6a592493f81b8aef4ad2126fab8e97f92351f8c482e64"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev16_arm_b_gpu_rep03_retry01_s42.json",
+        "sha256": "ea6ed3dbc6c4902f0b7ed522f1e0706a547e8274e8933d2d5fa486390e77372a"
+      }
+    ]
+  },
+  "contact_authority": {
+    "cpu": "cpu_only",
+    "gpu": "topology_unavailable"
+  },
+  "public_artifacts": {
+    "png": {
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e010_rev17_mechanism_split.png",
+      "sha256": "2e94054e25ba2a73791ab6d486884508f65bf59e571d517b798ab095dc45c925",
+      "bytes": 72230,
+      "tracked_in_git": true,
+      "git_policy": "git_public",
+      "width": 1280,
+      "height": 720
+    },
+    "gif": {
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e010_rev17_mechanism_split.gif",
+      "sha256": "941a1956b1a91f41bd914c5188558c76ff7545bbf90deb42c50359f8c2768ff9",
+      "bytes": 80402,
+      "tracked_in_git": true,
+      "git_policy": "git_public",
+      "frames": 6,
+      "duration_ms": 4800
+    }
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_e010_rev17_mechanism_split_s42.mp4",
+    "sha256": "006c82cb35bda8f67c98eaa26a6a95b892e99ee84f5a584b56615c795f5f3d4c",
+    "bytes": 68872,
+    "tracked_in_git": false,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "duration_seconds": 4.8
+  },
+  "governance": {
+    "ppo": {
+      "status": "not_run"
+    },
+    "qualification": {
+      "status": "not_run"
+    }
+  }
+}

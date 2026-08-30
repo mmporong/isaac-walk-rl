@@ -3,4 +3,8 @@
 /reports/g007_rbq_compatibility_spike.json text eol=lf
 /reports/runs/g009_r0_rev16_*.json text eol=lf
 /reports/runs/g009_5_r0_diag_rev16_*.json text eol=lf
+/reports/runs/g009_r0_rev17_*.json text eol=lf
+/reports/runs/g009_5_r0_e010_rev17_*.json text eol=lf
+/scripts/*g009_r0_rev17*.py text eol=lf
+/tests/test_g009_r0_rev17_*.py text eol=lf
 /scripts/validate_rbq_assets.py text eol=lf

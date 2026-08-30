@@ -1,0 +1,100 @@
+{
+  "schema_version": "g009.r0.rev17.mechanism_visual_evidence.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "stage_number": "10",
+  "revision": "rev17",
+  "evidence_id": "G009-5-E010",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "integrity": {
+    "passed": true,
+    "hash_bound": true
+  },
+  "contract": {
+    "kind": "g009_r0_diagnostic_extension",
+    "builder_source": {
+      "path": "scripts/build_g009_r0_rev17_mechanism_media.py",
+      "sha256": "5e7102f39de5ee5ff12c01241eaa11cb1b42e27948a47d14b115cff4b8d39dbe",
+      "bytes": 24750,
+      "tracked_in_git": true,
+      "git_policy": "git_public"
+    },
+    "dedicated_validator": {
+      "path": "scripts/validate_g009_r0_rev17_mechanism_media.py",
+      "sha256": "e9afdc72d28306bc61b4a5bb5addd400adb2f2025886e08c5defb3804c567cce",
+      "bytes": 11710,
+      "tracked_in_git": true,
+      "git_policy": "git_public",
+      "command": "%PYTHON% scripts/validate_g009_r0_rev17_mechanism_media.py --check-only"
+    },
+    "standard_stage_validator": {
+      "path": "scripts/validate_g009_media_contract.py",
+      "compatible": false,
+      "reason": "E010 is diagnostic-only evidence under R0/diagnostic, not an R0 qualification sidecar."
+    }
+  },
+  "provenance": {
+    "input": {
+      "path": "reports/runs/g009_r0_rev17_mechanism_split_offline_s42.json",
+      "sha256": "48e596a8e61cf2b4fbcff0b1b6072d62431dc7c4c744b58db9107c398fd1cf97"
+    },
+    "visual_summary": {
+      "path": "reports/runs/g009_5_r0_e010_rev17_mechanism_split_visual_summary.json",
+      "sha256": "f8b8f08bd9d2e19720ea3324af3761bbf2ebc014bc1ffb530a92b2363881c7d0",
+      "bytes": 4807,
+      "tracked_in_git": true,
+      "git_policy": "git_public"
+    },
+    "public_artifacts": {
+      "png": {
+        "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e010_rev17_mechanism_split.png",
+        "sha256": "2e94054e25ba2a73791ab6d486884508f65bf59e571d517b798ab095dc45c925",
+        "bytes": 72230,
+        "tracked_in_git": true,
+        "git_policy": "git_public",
+        "width": 1280,
+        "height": 720
+      },
+      "gif": {
+        "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e010_rev17_mechanism_split.gif",
+        "sha256": "941a1956b1a91f41bd914c5188558c76ff7545bbf90deb42c50359f8c2768ff9",
+        "bytes": 80402,
+        "tracked_in_git": true,
+        "git_policy": "git_public",
+        "frames": 6,
+        "duration_ms": 4800
+      }
+    },
+    "local_video": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_e010_rev17_mechanism_split_s42.mp4",
+      "sha256": "006c82cb35bda8f67c98eaa26a6a95b892e99ee84f5a584b56615c795f5f3d4c",
+      "bytes": 68872,
+      "tracked_in_git": false,
+      "git_policy": "local_only",
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "duration_seconds": 4.8
+    }
+  },
+  "labels": [
+    "G009-5-E010",
+    "MECHANISM DIAGNOSTIC",
+    "INCONCLUSIVE",
+    "NO LEVER SELECTED",
+    "NOT PPO",
+    "NOT QUALIFIED",
+    "CPU CONTACT AUTHORITY ONLY",
+    "GPU CONTACT TOPOLOGY UNAVAILABLE"
+  ],
+  "decision": {
+    "outcome": "inconclusive",
+    "selected_lever": null
+  },
+  "contact_authority": {
+    "cpu": "cpu_only",
+    "gpu": "topology_unavailable"
+  }
+}

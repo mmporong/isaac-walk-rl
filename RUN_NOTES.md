@@ -463,3 +463,35 @@ py -X utf8 .\scripts\summarize_g009_r0_rev16_backend_divergence.py `
 - 공식 qualification을 통과한 checkpoint만 public media builder 입력으로 허용한다. 공개 저장소에는 GIF·PNG·정량 JSON sidecar만 둔다. 진단용 pilot 영상은 성공 증거와 분리하고 `diagnostic` 또는 `not_run/failed` 상태를 명시한다.
 - G009-5 R0 pose 번호와 파일명은 `01 prone` → `02 supine` → `03 left_side` → `04 right_side` 순서로 고정한다. 로컬 파일은 `g009_5_r0_01_prone_s42.mp4`, `g009_5_r0_02_supine_s42.mp4`, `g009_5_r0_03_left_side_s42.mp4`, `g009_5_r0_04_right_side_s42.mp4` 형식이다.
 - 공개 합성물 목표 경로는 `docs/media/g009/R0/g009_5_r0_four_pose_recovery.gif`와 대응 contact sheet PNG다. 평가·캡처·파생물 sidecar는 source commit, contract SHA, checkpoint SHA, pose 번호, headless/off-screen, ffprobe와 파일 SHA-256을 결합한다.
+
+#### rev17 E010 offline mechanism split과 번호 10 미디어
+
+- `G009-5-E010`은 rev16 canonical synthesis SHA-256 `d39931ad6ddf6104095a6276e9b6db3a047d044d203e034f2d38f1f172e0288d`가 묶은 12개 raw report만 다시 읽는 offline diagnostic이다. 새 Isaac Sim 실행, rollout batch, mini-batch, epoch, optimizer update, PPO update는 모두 `0`이다.
+- 분석기는 12개 report의 원 SHA-256, `600` physics row, `150` control row, 19 body/12 joint 정렬, `force×0.005s` impulse, physics→control/history-slot 대응, CPU/GPU authority를 fail-closed로 다시 검증했다. 네 그룹의 physics/control/contact semantic payload는 각각 replicate `3/3` 동일했다.
+- B GPU 대비 B CPU 결과는 peak base force `+26.720422%`, 17-step 전신 body impulse magnitude `+1.420270%`, base window impulse `+7.067522%`, base share `64.213292%→67.788797%`, FR+RR hip impulse `-10.833784%`다. 순간 peak 상승과 전체 window 충격량 상승을 같은 수치로 표현하지 않는다.
+- focus step `128~130`에서 B CPU는 body impulse magnitude `12.273342N·s` 중 base `12.083573N·s(98.4538%)`, B GPU force aggregation은 `18.052941N·s` 중 base `14.653786N·s(81.1712%)`였다. GPU 값은 force aggregation이며 contact pair topology가 아니다.
+- CPU authority 접촉 순서는 step `128: FL_hip+RL_hip`, `129: FL_hip+base`, `130: base`다. GPU callback은 `unavailable_on_gpu`이므로 CPU/GPU 접촉 topology divergence는 `step=null`이다. 최초 physics force divergence만 step `128`, `base_force_bodyweights`, delta `3.1033276173 BW`로 3/3 관측했다.
+- control action·EMA trace 최대 오차는 `0`이지만 state는 control step `1`부터 달라졌다. 현재 immutable evidence만으로 solver, 초기 geometry, contact timing 중 하나를 고를 수 없어 `outcome=inconclusive`, `selected_lever=null`로 닫았다. Gate01은 `forbidden`, PPO와 qualification은 `not_run`, `learned=false`다.
+- 분석 JSON은 `reports/runs/g009_r0_rev17_mechanism_split_offline_s42.json`, SHA-256 `48e596a8e61cf2b4fbcff0b1b6072d62431dc7c4c744b58db9107c398fd1cf97`, `541,762 bytes`다. `status=pass`는 분석 무결성 PASS이며 후보나 정책 qualification PASS가 아니다.
+- 번호 `10`은 camera footage가 아닌 telemetry animation이다. 공개 PNG/GIF와 JSON에는 `INCONCLUSIVE`, `NO LEVER SELECTED`, `NOT PPO`, `NOT QUALIFIED`, CPU/GPU authority 한계를 직접 표시했다. PNG SHA-256은 `2e94054e25ba2a73791ab6d486884508f65bf59e571d517b798ab095dc45c925`, GIF는 `941a1956b1a91f41bd914c5188558c76ff7545bbf90deb42c50359f8c2768ff9`다.
+- 개인 확인용 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_e010_rev17_mechanism_split_s42.mp4`, H.264 `1280×720`, `30fps`, `4.8s`, `68,872 bytes`, SHA-256 `006c82cb35bda8f67c98eaa26a6a95b892e99ee84f5a584b56615c795f5f3d4c`이며 Git에 넣지 않는다.
+- 전용 validator `scripts/validate_g009_r0_rev17_mechanism_media.py --check-only`는 canonical input lineage, builder/validator source hash, governance, PNG/GIF, local MP4, visual summary를 검사해 PASS했다. sidecar SHA-256은 `d3feb1f0ea67466ccfd2e03ab3338f8302b5abd23fdf9ebb1e7ed08518ed70bb`다.
+- 다음 단계는 GPU authoritative constraint/contact instrumentation 가능성 조사다. 불가능하면 rev12 `8/0`에서 변경 방향과 성공·기각 기준을 먼저 고정한 단일변수 intervention probe만 연다. 원인이 선택되기 전에는 새 PPO를 실행하지 않는다.
+- 최종 로컬 검증은 rev14~rev17·G009 media/probe 회귀 `452 passed in 87.56s`, 새 스크립트 Pyright `0 errors`, `py_compile` PASS, canonical resynthesis exact PASS, 전용 미디어 validator PASS, `git diff --check` PASS다. `scripts/validate_repository.ps1` 전체 검사는 이번 변경과 무관하고 status가 깨끗한 기존 rev16 CPU JSON 12개의 10 MiB 초과와 기존 `.gitattributes` 계약 1건, 총 13건 때문에 FAIL했다. 해당 baseline 파일은 이 작업에서 수정하지 않았다.
+
+```powershell
+py -m pytest -q `
+  tests/test_g009_media_contract.py `
+  tests/test_g009_r0_probe_synthesis.py `
+  tests/test_g009_r0_diagnostic_media.py `
+  tests/test_g009_r0_evaluation_media.py `
+  tests/test_g009_r0_rev14_tradeoff.py `
+  tests/test_g009_r0_rev14_media.py `
+  tests/test_g009_r0_rev15_runtime.py `
+  tests/test_g009_r0_rev15_media.py `
+  tests/test_g009_r0_rev16_backend_divergence.py `
+  tests/test_g009_r0_rev16_backend_divergence_summary.py `
+  tests/test_g009_r0_rev16_media.py `
+  tests/test_g009_r0_rev17_mechanism_split_summary.py `
+  tests/test_g009_r0_rev17_mechanism_media.py
+```
