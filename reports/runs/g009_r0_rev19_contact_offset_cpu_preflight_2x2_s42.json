@@ -1,0 +1,135 @@
+{
+  "schema_version": "g009.r0.rev19.contact_offset_cpu_preflight.v1",
+  "evidence_id": "G009-5-E012",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev19",
+  "status": "complete",
+  "mode": "cpu_preflight_2x2",
+  "input_report_count": 4,
+  "input_reports": [
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep01_s42.json",
+      "sha256": "f80b5637f1083d1cadcc7716660e7eb6ea993a7c03e47fe3664b35345fa5a26d"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep02_s42.json",
+      "sha256": "7f94fcf73be8f82baf912ec7c1ba39ac0b5f750ab2f053a888424aa5863f5aad"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep01_s42.json",
+      "sha256": "052a26b3b2cb13ea2bbcd6ccf88a730cf600b41ca41a3406377ae83702c0cf08"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep02_s42.json",
+      "sha256": "2238f0b73f6ca444a142d303b6deaaa6a8671d4edf8723b61a93bd6549ca5ebd"
+    }
+  ],
+  "integrity": {
+    "passed": true,
+    "hash_bound": true,
+    "unique_execution_ids": true,
+    "exact_slots": [
+      "A.cpu.rep1",
+      "A.cpu.rep2",
+      "B.cpu.rep1",
+      "B.cpu.rep2"
+    ],
+    "git_commit": "723770e57a2f1e76912bbace174db64cf8571f81",
+    "probe_source_bundle_sha256": "f7e983e7497ffb3cf1157d9f6bd2c15b7ac90b80c1cbca762b9687bb737b805b",
+    "synthesis_source_bundle_sha256": "3ffe0ec28e81f381c214b821c8166ef7a7014cc6b15cba12efb84155b18d3a1d",
+    "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+    "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+    "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436"
+  },
+  "cpu_preflight": {
+    "passed": true,
+    "raw_pass_probe_valid_safety_pass": true,
+    "within_arm_repeatability_passed": true,
+    "gpu_stage_allowed": true
+  },
+  "decision": {
+    "outcome": "gpu_stage_authorized",
+    "selected_lever": null,
+    "third_run_majority_vote_allowed": false,
+    "repeatability": {
+      "A.cpu": {
+        "mode": "observed_raw_contact",
+        "repeatable": true,
+        "structure_exact": true,
+        "numeric_within_tolerance": true,
+        "unavailable_signature_exact": null,
+        "raw_repeatable": true,
+        "offset_hashes_exact": true,
+        "safety_status_exact": true
+      },
+      "B.cpu": {
+        "mode": "observed_raw_contact",
+        "repeatable": true,
+        "structure_exact": true,
+        "numeric_within_tolerance": true,
+        "unavailable_signature_exact": null,
+        "raw_repeatable": true,
+        "offset_hashes_exact": true,
+        "safety_status_exact": true
+      }
+    }
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "selected_lever": null,
+    "learned": false,
+    "locomotion_or_physics_performance_approved": false,
+    "physics_ground_truth_authority": false,
+    "ppo": {
+      "allowed": false,
+      "status": "not_run",
+      "updates": 0
+    },
+    "qualification": {
+      "eligible": false,
+      "status": "not_run",
+      "passed": null
+    },
+    "gate01": {
+      "allowed": false,
+      "status": "forbidden"
+    }
+  },
+  "synthesis_source_bundle": {
+    "schema_version": 1,
+    "role": "offline_synthesis_implementation",
+    "git_commit": "723770e57a2f1e76912bbace174db64cf8571f81",
+    "git_commit_valid": true,
+    "source_binding_paths": [
+      "configs/g009_r0_rev19_contact_offset_intervention.json",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/summarize_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/summarize_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/probe_g009_recover_runtime.py",
+      "src/isaac_walk_g009/recover_contracts.py"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0_rev19_contact_offset_intervention.json": "2f1009cec535c0f5a3369805c88d6b2b3cc7cff89ad974e6d95ad1b96df4a97b",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py": "5c409bf640887fb058e8b1e034e30c5829a27b650fdef574bfb7c730e893f40e",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py": "5f64ba75d80bcd4e5ed6995af1b32e1bd68ec6976fbbc86d58690ef5d98c3930",
+      "scripts/summarize_g009_r0_rev18_gpu_raw_contact.py": "d95c52e937e5f5c4e6f8fc3d648cc59542425460b685d75bb7c470da48066060",
+      "scripts/summarize_g009_r0_rev19_contact_offset_intervention.py": "12db0a0ac07a4acb043883daecd4dc1472f6ec35765cb6bb857962f32c4033ef",
+      "scripts/probe_g009_recover_runtime.py": "48d66ef07da8e38ca1d327363838f5cc352e4de1a355c568bce8322b3dd4d8dd",
+      "src/isaac_walk_g009/recover_contracts.py": "a55dddd8d245d06b20c3cd943c6f8d53949657b229bb63cfdcdea7eb0a787546"
+    },
+    "source_bundle_sha256": "3ffe0ec28e81f381c214b821c8166ef7a7014cc6b15cba12efb84155b18d3a1d",
+    "all_files_present": true,
+    "missing_files": [],
+    "clean": true,
+    "dirty_source_paths": []
+  },
+  "created_at_utc": "2026-08-30T06:51:26.241856Z",
+  "execution": {
+    "execution_id": "221df63588fb4d45a1221062b4b7a1e0",
+    "started_at_utc": "2026-08-30T06:51:26.241856Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_rev19_contact_offset_cpu_preflight_2x2_s42.json",
+    "no_overwrite": true
+  }
+}

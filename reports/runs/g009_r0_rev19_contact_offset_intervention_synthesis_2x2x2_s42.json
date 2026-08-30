@@ -1,0 +1,496 @@
+{
+  "schema_version": "g009.r0.rev19.contact_offset_intervention_synthesis.v1",
+  "evidence_id": "G009-5-E012",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev19",
+  "status": "complete",
+  "mode": "offline_fail_closed_2x2x2_synthesis",
+  "input_report_count": 8,
+  "input_reports": [
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep01_s42.json",
+      "sha256": "f80b5637f1083d1cadcc7716660e7eb6ea993a7c03e47fe3664b35345fa5a26d"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep02_s42.json",
+      "sha256": "7f94fcf73be8f82baf912ec7c1ba39ac0b5f750ab2f053a888424aa5863f5aad"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep01_s42.json",
+      "sha256": "052a26b3b2cb13ea2bbcd6ccf88a730cf600b41ca41a3406377ae83702c0cf08"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep02_s42.json",
+      "sha256": "2238f0b73f6ca444a142d303b6deaaa6a8671d4edf8723b61a93bd6549ca5ebd"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_gpu_rep01_s42.json",
+      "sha256": "1744bcc4163785c32035c4c143c6ebef154329458068231b42c5fa9d84952613"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_gpu_rep02_s42.json",
+      "sha256": "4125b88a651aa71f2cfe3c21e755ba8148fb4c24955ca6c78fc5d43e5e073779"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_gpu_rep01_s42.json",
+      "sha256": "4913d7cdbb20ff12f94b64821d070413d32bd853059b5299be857988c6ea2ad4"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_gpu_rep02_s42.json",
+      "sha256": "f6b32ceb6276a00c2bdb3e4239ee4661dcae0981253728e904364938dce0a98f"
+    }
+  ],
+  "integrity": {
+    "passed": true,
+    "hash_bound": true,
+    "unique_execution_ids": true,
+    "exact_slots": [
+      "A.cpu.rep1",
+      "A.cpu.rep2",
+      "B.cpu.rep1",
+      "B.cpu.rep2",
+      "A.cuda:0.rep1",
+      "A.cuda:0.rep2",
+      "B.cuda:0.rep1",
+      "B.cuda:0.rep2"
+    ],
+    "source_bundle_sha256": "f7e983e7497ffb3cf1157d9f6bd2c15b7ac90b80c1cbca762b9687bb737b805b",
+    "synthesis_source_bundle_sha256": "3ffe0ec28e81f381c214b821c8166ef7a7014cc6b15cba12efb84155b18d3a1d",
+    "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+    "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+    "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+    "predecessor": {
+      "path": "reports/runs/g009_r0_rev18_raw_contact_feasibility_synthesis_2x2_s42.json",
+      "sha256": "9ca8007d88e771a5f24ca68afa46a670097e733f9e613c31fc4cc62f3fb9e01e"
+    },
+    "preregistration": {
+      "path": "configs/g009_r0_rev19_contact_offset_intervention.json",
+      "sha256": "2f1009cec535c0f5a3369805c88d6b2b3cc7cff89ad974e6d95ad1b96df4a97b"
+    },
+    "single_variable_difference": {
+      "solver": "8/0_both_arms",
+      "rest_offset": "unchanged_both_arms",
+      "contact_offset_scale": {
+        "A": 1.0,
+        "B": 1.5
+      },
+      "baseline_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+      "baseline_rest_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+      "comparison_authority": "rev19_arm_A_vs_arm_B_only"
+    }
+  },
+  "synthesis_source_bundle": {
+    "schema_version": 1,
+    "role": "offline_synthesis_implementation",
+    "git_commit": "723770e57a2f1e76912bbace174db64cf8571f81",
+    "git_commit_valid": true,
+    "source_binding_paths": [
+      "configs/g009_r0_rev19_contact_offset_intervention.json",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/summarize_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/summarize_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/probe_g009_recover_runtime.py",
+      "src/isaac_walk_g009/recover_contracts.py"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0_rev19_contact_offset_intervention.json": "2f1009cec535c0f5a3369805c88d6b2b3cc7cff89ad974e6d95ad1b96df4a97b",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py": "5c409bf640887fb058e8b1e034e30c5829a27b650fdef574bfb7c730e893f40e",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py": "5f64ba75d80bcd4e5ed6995af1b32e1bd68ec6976fbbc86d58690ef5d98c3930",
+      "scripts/summarize_g009_r0_rev18_gpu_raw_contact.py": "d95c52e937e5f5c4e6f8fc3d648cc59542425460b685d75bb7c470da48066060",
+      "scripts/summarize_g009_r0_rev19_contact_offset_intervention.py": "12db0a0ac07a4acb043883daecd4dc1472f6ec35765cb6bb857962f32c4033ef",
+      "scripts/probe_g009_recover_runtime.py": "48d66ef07da8e38ca1d327363838f5cc352e4de1a355c568bce8322b3dd4d8dd",
+      "src/isaac_walk_g009/recover_contracts.py": "a55dddd8d245d06b20c3cd943c6f8d53949657b229bb63cfdcdea7eb0a787546"
+    },
+    "source_bundle_sha256": "3ffe0ec28e81f381c214b821c8166ef7a7014cc6b15cba12efb84155b18d3a1d",
+    "all_files_present": true,
+    "missing_files": [],
+    "clean": true,
+    "dirty_source_paths": []
+  },
+  "cpu_preflight": {
+    "required_before_gpu": true,
+    "binding": {
+      "status": "validated_for_gpu",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_cpu_preflight_2x2_s42.json",
+      "sha256": "bf7218b198995bb1a6c4b53d075204174c3947726571e886623ffa933ac9fd49",
+      "git_commit": "723770e57a2f1e76912bbace174db64cf8571f81",
+      "probe_source_bundle_sha256": "f7e983e7497ffb3cf1157d9f6bd2c15b7ac90b80c1cbca762b9687bb737b805b"
+    },
+    "passed": true,
+    "gpu_stage_allowed": true
+  },
+  "raw_callback_observation": {
+    "outcome": "gpu_raw_unavailable_both_arms",
+    "physics_ground_truth_authority": false,
+    "gpu_contact_absence_claimed": false,
+    "physics_failure_claimed": false,
+    "third_run_majority_vote_allowed": false,
+    "states": {
+      "A.cpu": "observed_2_of_2",
+      "A.cuda:0": "unavailable_2_of_2",
+      "B.cpu": "observed_2_of_2",
+      "B.cuda:0": "unavailable_2_of_2"
+    },
+    "repeatability": {
+      "A.cpu": {
+        "mode": "observed_raw_contact",
+        "repeatable": true,
+        "structure_exact": true,
+        "numeric_within_tolerance": true,
+        "unavailable_signature_exact": null,
+        "raw_repeatable": true,
+        "offset_hashes_exact": true,
+        "safety_status_exact": true
+      },
+      "A.cuda:0": {
+        "mode": "unavailable_raw_contact",
+        "repeatable": true,
+        "structure_exact": null,
+        "numeric_within_tolerance": null,
+        "unavailable_signature_exact": true,
+        "raw_repeatable": true,
+        "offset_hashes_exact": true,
+        "safety_status_exact": true
+      },
+      "B.cpu": {
+        "mode": "observed_raw_contact",
+        "repeatable": true,
+        "structure_exact": true,
+        "numeric_within_tolerance": true,
+        "unavailable_signature_exact": null,
+        "raw_repeatable": true,
+        "offset_hashes_exact": true,
+        "safety_status_exact": true
+      },
+      "B.cuda:0": {
+        "mode": "unavailable_raw_contact",
+        "repeatable": true,
+        "structure_exact": null,
+        "numeric_within_tolerance": null,
+        "unavailable_signature_exact": true,
+        "raw_repeatable": true,
+        "offset_hashes_exact": true,
+        "safety_status_exact": true
+      }
+    },
+    "runs": [
+      {
+        "slot": "A.cpu.rep1",
+        "arm": "A",
+        "device": "cpu",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep01_s42.json",
+          "sha256": "f80b5637f1083d1cadcc7716660e7eb6ea993a7c03e47fe3664b35345fa5a26d"
+        },
+        "execution_id": "ca62312af2bf49bb8bfe9e15c4941b20",
+        "probe_valid": true,
+        "run_interpretable": true,
+        "raw_observation_passed": true,
+        "offset_integrity_passed": true,
+        "solver_live_readback_8_0": true,
+        "safety_available": true,
+        "safety_passed": true,
+        "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+        "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+        "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+        "offset_scale": 1.0,
+        "offset_baseline_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "offset_baseline_rest_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+        "offset_after_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "unavailable_signature": null
+      },
+      {
+        "slot": "A.cpu.rep2",
+        "arm": "A",
+        "device": "cpu",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep02_s42.json",
+          "sha256": "7f94fcf73be8f82baf912ec7c1ba39ac0b5f750ab2f053a888424aa5863f5aad"
+        },
+        "execution_id": "d0a6576fa2ea46dc94ee1ea73d8db77e",
+        "probe_valid": true,
+        "run_interpretable": true,
+        "raw_observation_passed": true,
+        "offset_integrity_passed": true,
+        "solver_live_readback_8_0": true,
+        "safety_available": true,
+        "safety_passed": true,
+        "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+        "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+        "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+        "offset_scale": 1.0,
+        "offset_baseline_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "offset_baseline_rest_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+        "offset_after_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "unavailable_signature": null
+      },
+      {
+        "slot": "B.cpu.rep1",
+        "arm": "B",
+        "device": "cpu",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep01_s42.json",
+          "sha256": "052a26b3b2cb13ea2bbcd6ccf88a730cf600b41ca41a3406377ae83702c0cf08"
+        },
+        "execution_id": "96fd0432238344ffbce9997df3302fd8",
+        "probe_valid": true,
+        "run_interpretable": true,
+        "raw_observation_passed": true,
+        "offset_integrity_passed": true,
+        "solver_live_readback_8_0": true,
+        "safety_available": true,
+        "safety_passed": true,
+        "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+        "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+        "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+        "offset_scale": 1.5,
+        "offset_baseline_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "offset_baseline_rest_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+        "offset_after_contact_sha256": "f373b055b4bb9f380b651f2e7051e7f1230110d48f1bb9e3647a63b97b77f3c6",
+        "unavailable_signature": null
+      },
+      {
+        "slot": "B.cpu.rep2",
+        "arm": "B",
+        "device": "cpu",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep02_s42.json",
+          "sha256": "2238f0b73f6ca444a142d303b6deaaa6a8671d4edf8723b61a93bd6549ca5ebd"
+        },
+        "execution_id": "77d270ee35184ee1a6717da5fc98ddb4",
+        "probe_valid": true,
+        "run_interpretable": true,
+        "raw_observation_passed": true,
+        "offset_integrity_passed": true,
+        "solver_live_readback_8_0": true,
+        "safety_available": true,
+        "safety_passed": true,
+        "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+        "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+        "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+        "offset_scale": 1.5,
+        "offset_baseline_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "offset_baseline_rest_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+        "offset_after_contact_sha256": "f373b055b4bb9f380b651f2e7051e7f1230110d48f1bb9e3647a63b97b77f3c6",
+        "unavailable_signature": null
+      },
+      {
+        "slot": "A.cuda:0.rep1",
+        "arm": "A",
+        "device": "cuda:0",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armA_gpu_rep01_s42.json",
+          "sha256": "1744bcc4163785c32035c4c143c6ebef154329458068231b42c5fa9d84952613"
+        },
+        "execution_id": "3ecb9ef731f640eea173bc3dc6fc973e",
+        "probe_valid": true,
+        "run_interpretable": true,
+        "raw_observation_passed": false,
+        "offset_integrity_passed": true,
+        "solver_live_readback_8_0": true,
+        "safety_available": true,
+        "safety_passed": true,
+        "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+        "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+        "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+        "offset_scale": 1.0,
+        "offset_baseline_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "offset_baseline_rest_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+        "offset_after_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "unavailable_signature": {
+          "scope": "source_env_7_robot_ground_headers_only",
+          "failed_raw_checks": [
+            "raw_steps_monotonic_aligned",
+            "nonempty_source_robot_ground_datum",
+            "absolute_pair_paths",
+            "finite_raw_vectors_and_separation",
+            "unit_normals",
+            "nonzero_impulse"
+          ],
+          "subscription_attempted": true,
+          "subscription_succeeded": true,
+          "subscription_error": null,
+          "malformed_callback_count": 0,
+          "first_callback_error": null,
+          "event_structure": []
+        }
+      },
+      {
+        "slot": "A.cuda:0.rep2",
+        "arm": "A",
+        "device": "cuda:0",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armA_gpu_rep02_s42.json",
+          "sha256": "4125b88a651aa71f2cfe3c21e755ba8148fb4c24955ca6c78fc5d43e5e073779"
+        },
+        "execution_id": "5b00ab1c6e874b529c18d5e6ea0b7d67",
+        "probe_valid": true,
+        "run_interpretable": true,
+        "raw_observation_passed": false,
+        "offset_integrity_passed": true,
+        "solver_live_readback_8_0": true,
+        "safety_available": true,
+        "safety_passed": true,
+        "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+        "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+        "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+        "offset_scale": 1.0,
+        "offset_baseline_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "offset_baseline_rest_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+        "offset_after_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "unavailable_signature": {
+          "scope": "source_env_7_robot_ground_headers_only",
+          "failed_raw_checks": [
+            "raw_steps_monotonic_aligned",
+            "nonempty_source_robot_ground_datum",
+            "absolute_pair_paths",
+            "finite_raw_vectors_and_separation",
+            "unit_normals",
+            "nonzero_impulse"
+          ],
+          "subscription_attempted": true,
+          "subscription_succeeded": true,
+          "subscription_error": null,
+          "malformed_callback_count": 0,
+          "first_callback_error": null,
+          "event_structure": []
+        }
+      },
+      {
+        "slot": "B.cuda:0.rep1",
+        "arm": "B",
+        "device": "cuda:0",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armB_gpu_rep01_s42.json",
+          "sha256": "4913d7cdbb20ff12f94b64821d070413d32bd853059b5299be857988c6ea2ad4"
+        },
+        "execution_id": "eccba72988b7454ebc5e91b7c418de19",
+        "probe_valid": true,
+        "run_interpretable": true,
+        "raw_observation_passed": false,
+        "offset_integrity_passed": true,
+        "solver_live_readback_8_0": true,
+        "safety_available": true,
+        "safety_passed": true,
+        "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+        "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+        "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+        "offset_scale": 1.5,
+        "offset_baseline_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "offset_baseline_rest_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+        "offset_after_contact_sha256": "f373b055b4bb9f380b651f2e7051e7f1230110d48f1bb9e3647a63b97b77f3c6",
+        "unavailable_signature": {
+          "scope": "source_env_7_robot_ground_headers_only",
+          "failed_raw_checks": [
+            "raw_steps_monotonic_aligned",
+            "nonempty_source_robot_ground_datum",
+            "absolute_pair_paths",
+            "finite_raw_vectors_and_separation",
+            "unit_normals",
+            "nonzero_impulse"
+          ],
+          "subscription_attempted": true,
+          "subscription_succeeded": true,
+          "subscription_error": null,
+          "malformed_callback_count": 0,
+          "first_callback_error": null,
+          "event_structure": []
+        }
+      },
+      {
+        "slot": "B.cuda:0.rep2",
+        "arm": "B",
+        "device": "cuda:0",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armB_gpu_rep02_s42.json",
+          "sha256": "f6b32ceb6276a00c2bdb3e4239ee4661dcae0981253728e904364938dce0a98f"
+        },
+        "execution_id": "a24e2db448d3475e845c7247d5edff9e",
+        "probe_valid": true,
+        "run_interpretable": true,
+        "raw_observation_passed": false,
+        "offset_integrity_passed": true,
+        "solver_live_readback_8_0": true,
+        "safety_available": true,
+        "safety_passed": true,
+        "mass_tensor_sha256": "db715835c45dc4a645eec3be449463bdc0abac02d8e6d9f1e15340d1053cc927",
+        "mass_body_names_sha256": "c7dcbdefada466158e3b05aebd40d1d877e26ea96c343a30f64dd7ce5dd69ef3",
+        "force_body_names_sha256": "2df7038571d25fe75680727bb2c9c9e87567d8946aad77d414a41a1b61d24436",
+        "offset_scale": 1.5,
+        "offset_baseline_contact_sha256": "5beda7da5ee87b85b93a120e3e4007ea0affde47198a41d5e7966e583acdeb55",
+        "offset_baseline_rest_sha256": "af9043e1be9ba1cb4f540f869a8baea597ac3b628d675be8a89fd945bd4739a1",
+        "offset_after_contact_sha256": "f373b055b4bb9f380b651f2e7051e7f1230110d48f1bb9e3647a63b97b77f3c6",
+        "unavailable_signature": {
+          "scope": "source_env_7_robot_ground_headers_only",
+          "failed_raw_checks": [
+            "raw_steps_monotonic_aligned",
+            "nonempty_source_robot_ground_datum",
+            "absolute_pair_paths",
+            "finite_raw_vectors_and_separation",
+            "unit_normals",
+            "nonzero_impulse"
+          ],
+          "subscription_attempted": true,
+          "subscription_succeeded": true,
+          "subscription_error": null,
+          "malformed_callback_count": 0,
+          "first_callback_error": null,
+          "event_structure": []
+        }
+      }
+    ]
+  },
+  "manual_probe_safety": {
+    "label": "manual_probe_observation_not_gate",
+    "available": true,
+    "passed": true,
+    "thresholds": {
+      "hard_joint_limit_margin_rad": 0.01,
+      "non_foot_peak_force_body_weight_max": 15.0,
+      "cpu_raw_minimum_separation_m": -0.01
+    }
+  },
+  "decision": {
+    "outcome": "gpu_raw_unavailable_both_arms",
+    "next_step": "stop_without_gpu_contact_absence_claim",
+    "selected_lever": null
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "selected_lever": null,
+    "learned": false,
+    "locomotion_or_physics_performance_approved": false,
+    "physics_ground_truth_authority": false,
+    "ppo": {
+      "allowed": false,
+      "status": "not_run",
+      "updates": 0
+    },
+    "qualification": {
+      "eligible": false,
+      "status": "not_run",
+      "passed": null
+    },
+    "gate01": {
+      "allowed": false,
+      "status": "forbidden"
+    }
+  },
+  "created_at_utc": "2026-08-30T06:58:07.514766Z",
+  "execution": {
+    "execution_id": "3b8af71389304f9da0cbb4e932bc2fa1",
+    "started_at_utc": "2026-08-30T06:58:07.514766Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json",
+    "no_overwrite": true
+  }
+}

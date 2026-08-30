@@ -1,0 +1,312 @@
+{
+  "schema_version": "g009.r0.rev19.contact_offset_visual_evidence.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "stage_number": "12",
+  "revision": "rev19",
+  "evidence_id": "G009-5-E012",
+  "status": "diagnostic_complete",
+  "diagnostic_only": true,
+  "telemetry_animation": true,
+  "camera_footage": false,
+  "robot_locomotion_footage": false,
+  "training_footage": false,
+  "labels": [
+    "TELEMETRY ANIMATION",
+    "NOT CAMERA FOOTAGE",
+    "DIAGNOSTIC ONLY",
+    "NO PPO",
+    "NOT QUALIFIED"
+  ],
+  "integrity": {
+    "passed": true,
+    "hash_bound": true,
+    "input_binding_count": 10,
+    "all_inputs_verified": true
+  },
+  "input_bindings": [
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep01_s42.json",
+      "sha256": "f80b5637f1083d1cadcc7716660e7eb6ea993a7c03e47fe3664b35345fa5a26d"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep02_s42.json",
+      "sha256": "7f94fcf73be8f82baf912ec7c1ba39ac0b5f750ab2f053a888424aa5863f5aad"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep01_s42.json",
+      "sha256": "052a26b3b2cb13ea2bbcd6ccf88a730cf600b41ca41a3406377ae83702c0cf08"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep02_s42.json",
+      "sha256": "2238f0b73f6ca444a142d303b6deaaa6a8671d4edf8723b61a93bd6549ca5ebd"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_gpu_rep01_s42.json",
+      "sha256": "1744bcc4163785c32035c4c143c6ebef154329458068231b42c5fa9d84952613"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armA_gpu_rep02_s42.json",
+      "sha256": "4125b88a651aa71f2cfe3c21e755ba8148fb4c24955ca6c78fc5d43e5e073779"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_gpu_rep01_s42.json",
+      "sha256": "4913d7cdbb20ff12f94b64821d070413d32bd853059b5299be857988c6ea2ad4"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_armB_gpu_rep02_s42.json",
+      "sha256": "f6b32ceb6276a00c2bdb3e4239ee4661dcae0981253728e904364938dce0a98f"
+    },
+    {
+      "role": "cpu_preflight",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_cpu_preflight_2x2_s42.json",
+      "sha256": "bf7218b198995bb1a6c4b53d075204174c3947726571e886623ffa933ac9fd49"
+    },
+    {
+      "role": "final_synthesis",
+      "path": "reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json",
+      "sha256": "5d95449398b4168cc8a7d0f73d4248e77fd2257b05f5bce22e4431020f8bf576"
+    }
+  ],
+  "sequence": [
+    {
+      "number": "12.01",
+      "phase": "cpu_preflight",
+      "frames": [
+        1,
+        4
+      ],
+      "input_binding_count": 5,
+      "outcome": "gpu_stage_authorized"
+    },
+    {
+      "number": "12.02",
+      "phase": "final_cpu_gpu_2x2x2",
+      "frames": [
+        5,
+        8
+      ],
+      "input_binding_count": 10,
+      "outcome": "gpu_raw_unavailable_both_arms"
+    }
+  ],
+  "telemetry": {
+    "runs": [
+      {
+        "slot": "A.cpu.rep1",
+        "arm": "A",
+        "device": "cpu",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep01_s42.json",
+          "sha256": "f80b5637f1083d1cadcc7716660e7eb6ea993a7c03e47fe3664b35345fa5a26d"
+        },
+        "callback_available": true,
+        "force_body_weight": 9.408609390258789,
+        "cpu_minimum_separation_m": -0.009375497698783875,
+        "contact_offset_scale": 1.0,
+        "safety_passed": true,
+        "repeatability_passed": true
+      },
+      {
+        "slot": "A.cpu.rep2",
+        "arm": "A",
+        "device": "cpu",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armA_cpu_rep02_s42.json",
+          "sha256": "7f94fcf73be8f82baf912ec7c1ba39ac0b5f750ab2f053a888424aa5863f5aad"
+        },
+        "callback_available": true,
+        "force_body_weight": 9.408609390258789,
+        "cpu_minimum_separation_m": -0.009375497698783875,
+        "contact_offset_scale": 1.0,
+        "safety_passed": true,
+        "repeatability_passed": true
+      },
+      {
+        "slot": "B.cpu.rep1",
+        "arm": "B",
+        "device": "cpu",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep01_s42.json",
+          "sha256": "052a26b3b2cb13ea2bbcd6ccf88a730cf600b41ca41a3406377ae83702c0cf08"
+        },
+        "callback_available": true,
+        "force_body_weight": 9.408609390258789,
+        "cpu_minimum_separation_m": -0.009375497698783875,
+        "contact_offset_scale": 1.5,
+        "safety_passed": true,
+        "repeatability_passed": true
+      },
+      {
+        "slot": "B.cpu.rep2",
+        "arm": "B",
+        "device": "cpu",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armB_cpu_rep02_s42.json",
+          "sha256": "2238f0b73f6ca444a142d303b6deaaa6a8671d4edf8723b61a93bd6549ca5ebd"
+        },
+        "callback_available": true,
+        "force_body_weight": 9.408609390258789,
+        "cpu_minimum_separation_m": -0.009375497698783875,
+        "contact_offset_scale": 1.5,
+        "safety_passed": true,
+        "repeatability_passed": true
+      },
+      {
+        "slot": "A.cuda:0.rep1",
+        "arm": "A",
+        "device": "cuda:0",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armA_gpu_rep01_s42.json",
+          "sha256": "1744bcc4163785c32035c4c143c6ebef154329458068231b42c5fa9d84952613"
+        },
+        "callback_available": false,
+        "force_body_weight": 9.400354385375977,
+        "cpu_minimum_separation_m": null,
+        "contact_offset_scale": 1.0,
+        "safety_passed": true,
+        "repeatability_passed": true
+      },
+      {
+        "slot": "A.cuda:0.rep2",
+        "arm": "A",
+        "device": "cuda:0",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armA_gpu_rep02_s42.json",
+          "sha256": "4125b88a651aa71f2cfe3c21e755ba8148fb4c24955ca6c78fc5d43e5e073779"
+        },
+        "callback_available": false,
+        "force_body_weight": 9.400354385375977,
+        "cpu_minimum_separation_m": null,
+        "contact_offset_scale": 1.0,
+        "safety_passed": true,
+        "repeatability_passed": true
+      },
+      {
+        "slot": "B.cuda:0.rep1",
+        "arm": "B",
+        "device": "cuda:0",
+        "replicate_index": 1,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armB_gpu_rep01_s42.json",
+          "sha256": "4913d7cdbb20ff12f94b64821d070413d32bd853059b5299be857988c6ea2ad4"
+        },
+        "callback_available": false,
+        "force_body_weight": 9.400354385375977,
+        "cpu_minimum_separation_m": null,
+        "contact_offset_scale": 1.5,
+        "safety_passed": true,
+        "repeatability_passed": true
+      },
+      {
+        "slot": "B.cuda:0.rep2",
+        "arm": "B",
+        "device": "cuda:0",
+        "replicate_index": 2,
+        "binding": {
+          "path": "reports/runs/g009_r0_rev19_contact_offset_armB_gpu_rep02_s42.json",
+          "sha256": "f6b32ceb6276a00c2bdb3e4239ee4661dcae0981253728e904364938dce0a98f"
+        },
+        "callback_available": false,
+        "force_body_weight": 9.400354385375977,
+        "cpu_minimum_separation_m": null,
+        "contact_offset_scale": 1.5,
+        "safety_passed": true,
+        "repeatability_passed": true
+      }
+    ],
+    "callback_availability": {
+      "cpu": "4/4",
+      "gpu": "0/4"
+    },
+    "safety": "8/8 pass",
+    "repeatability": "4/4 groups pass",
+    "contact_offset_scale": {
+      "A": 1.0,
+      "B": 1.5
+    }
+  },
+  "decision": {
+    "outcome": "gpu_raw_unavailable_both_arms",
+    "gpu_contact_absence_claimed": false,
+    "selected_lever": null
+  },
+  "public_artifacts": {
+    "preflight_png": {
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e012_rev19_contact_offset_intervention_01_cpu_preflight.png",
+      "sha256": "a65129dc8b2d02f3a2a5f750e41c5559b7cee5e28dca3384e5f66ac401902f60",
+      "bytes": 77570,
+      "tracked_in_git": true,
+      "git_policy": "git_public",
+      "width": 1280,
+      "height": 720,
+      "representative_frame": 4,
+      "phase": "12.01_cpu_preflight"
+    },
+    "final_png": {
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e012_rev19_contact_offset_intervention_02_final_outcome.png",
+      "sha256": "8fe5a442e00b0e551d539b31e5988a7fbfca44ccbc012a009cee3ea012b16b28",
+      "bytes": 87670,
+      "tracked_in_git": true,
+      "git_policy": "git_public",
+      "width": 1280,
+      "height": 720,
+      "representative_frame": 8,
+      "phase": "12.02_final_cpu_gpu_2x2x2"
+    },
+    "gif": {
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e012_rev19_contact_offset_intervention.gif",
+      "sha256": "a7d7d5299eacdc7b1aa38aaa514997cb4ff901f43edc1fa5d6e93c9f91e0fc7b",
+      "bytes": 94591,
+      "tracked_in_git": true,
+      "git_policy": "git_public",
+      "width": 1280,
+      "height": 720,
+      "frames": 8,
+      "fps": 1.4285714285714286,
+      "duration_ms": 5600
+    }
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_e012_rev19_contact_offset_intervention_s42.mp4",
+    "sha256": "baf9c0facd73b88d376d2c88a7ee5de019039b827d60870b0914e206bdbb9d03",
+    "bytes": 98761,
+    "tracked_in_git": false,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "frames": 168,
+    "duration_seconds": 5.6
+  },
+  "governance": {
+    "learned": false,
+    "ppo": {
+      "status": "not_run",
+      "updates": 0
+    },
+    "qualification": {
+      "status": "not_run",
+      "passed": null
+    }
+  },
+  "builder": {
+    "path": "scripts/build_g009_r0_rev19_contact_offset_media.py",
+    "sha256": "56cc3169d756965821dd71bf89087393235a3907d91ce2e11f443b6dd7661713"
+  }
+}
