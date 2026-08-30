@@ -1,0 +1,209 @@
+{
+  "schema_version": "g009.r0.rev21.matrix_authority_safety_gate_preregistration.v1",
+  "evidence_id": "G009-5-E014",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev21",
+  "seed": 42,
+  "single_changed_axis": "rev20 observation authority candidate pre-consumption safety decision only",
+  "predecessor": {
+    "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_synthesis_2x2_s42.json",
+    "sha256": "dcb8f446a212390f94f9ae5ccad97d9e770f9b8f5961f5ffb0c920f8d62580b3",
+    "required_schema_version": "g009.r0.rev20.terrain_contact_matrix_synthesis.v1",
+    "required_evidence_id": "G009-5-E013",
+    "required_outcome": "terrain_pair_matrix_authority_candidate_validated",
+    "required_next_step": "preregister_matrix_authority_safety_gate",
+    "historical_source_commit": "fb2992965fcfb502a679065eac253a6bdcdf7086",
+    "probe_source_bundle_sha256": "21353b2d90e43260e8446df094ef178264227a1040901d99230fb2c40b99b83c",
+    "synthesis_source_bundle_sha256": "bf00813f9051969377d0bf7dee8092eff2df4643de3e29f2eff40d31d3be62e8",
+    "cpu_preflight_path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_preflight_2x_s42.json",
+    "cpu_preflight_sha256": "2c4996f837d0c6003d653761c53ac399e98fb80db25c7d00ee647b871ac4968c"
+  },
+  "rev21_source_binding": {
+    "required_committed_path_scoped_clean": true,
+    "ordered_paths": [
+      "configs/g009_r0_rev21_matrix_authority_safety_gate.json",
+      "scripts/summarize_g009_r0_rev21_matrix_authority_safety_gate.py",
+      "scripts/run_g009_r0_rev21_matrix_authority_safety_gate.py"
+    ],
+    "per_path_digest": "sha256 of exact git blob/worktree bytes",
+    "aggregate_serialization": "ordered path:sha256 rows joined with LF, UTF-8, no trailing LF",
+    "expected_aggregate_sha256": null
+  },
+  "historical_source_binding": {
+    "commit": "fb2992965fcfb502a679065eac253a6bdcdf7086",
+    "ordered_unique_paths": [
+      "configs/g009_r0.json",
+      "configs/g009_r0_rev20_terrain_contact_matrix.json",
+      "reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json",
+      "scripts/probe_g009_recover_runtime.py",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+      "scripts/summarize_g009_r0_rev20_terrain_contact_matrix.py",
+      "src/isaac_walk_g009/mdp/events.py",
+      "src/isaac_walk_g009/recover_contracts.py",
+      "src/isaac_walk_g009/recover_env_cfg.py",
+      "src/isaac_walk_g009/registry.py"
+    ],
+    "runtime_bundle_paths": [
+      "configs/g009_r0.json",
+      "configs/g009_r0_rev20_terrain_contact_matrix.json",
+      "scripts/probe_g009_recover_runtime.py",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+      "reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json",
+      "src/isaac_walk_g009/mdp/events.py",
+      "src/isaac_walk_g009/recover_contracts.py",
+      "src/isaac_walk_g009/recover_env_cfg.py",
+      "src/isaac_walk_g009/registry.py"
+    ],
+    "synthesis_bundle_paths": [
+      "configs/g009_r0_rev20_terrain_contact_matrix.json",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+      "scripts/summarize_g009_r0_rev20_terrain_contact_matrix.py",
+      "scripts/probe_g009_recover_runtime.py",
+      "src/isaac_walk_g009/recover_contracts.py"
+    ],
+    "bundle_serialization": "path:sha256 rows sorted lexicographically by path, joined with LF, UTF-8, no trailing LF",
+    "missing_commit_or_blob_policy": "reject_without_fetch"
+  },
+  "evidence_chain": {
+    "ordered_raw_report_paths": [
+      "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep01_s42.json",
+      "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep02_s42.json",
+      "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep01_s42.json",
+      "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep02_s42.json"
+    ],
+    "ordered_slots": [
+      "cpu.rep1",
+      "cpu.rep2",
+      "cuda:0.rep1",
+      "cuda:0.rep2"
+    ],
+    "raw_report_count": 4,
+    "cpu_preflight_count": 1,
+    "unique_path_sha256_and_execution_id_required": true,
+    "parse_stop_rule": "synthesis plus exact four raw reports plus one CPU preflight",
+    "rev19_stop_rule": "historical git blob hash only",
+    "external_isaaclab_stop_rule": "compare recorded metadata only; do not read current external files"
+  },
+  "runtime_contract": {
+    "num_envs": 8,
+    "physics_steps": 150,
+    "physics_dt_s": 0.005,
+    "control_decimation": 4,
+    "control_dt_s": 0.02,
+    "simulated_duration_s": 0.75,
+    "headless": true,
+    "render": false,
+    "raw_matrix_shape": [152, 1, 3],
+    "reshaped_matrix_shape": [8, 19, 1, 3],
+    "sensor_buffer_matrix_shape": [8, 19, 1, 3],
+    "net_force_shape": [8, 19, 3],
+    "source_env_index": 7,
+    "filter_count": 1,
+    "filter_paths": [
+      "/World/ground/terrain/GroundPlane/CollisionPlane"
+    ]
+  },
+  "diagnostic_guards": {
+    "gravity_m_s2": 9.81,
+    "non_foot_peak_force_max_body_weight_inclusive": 15.0,
+    "joint_lower_margin_min_rad_inclusive": -0.01,
+    "joint_upper_margin_min_rad_inclusive": -0.01,
+    "force_positive_threshold_n": 0.000001,
+    "authority": "E013 diagnostic guard only; not a manufacturer or real-robot safety limit"
+  },
+  "decision": {
+    "reason_priority": [
+      "rev21_preregistration_invalid",
+      "canonical_output_path_invalid",
+      "canonical_output_already_exists",
+      "rev21_source_provenance_invalid",
+      "rev20_synthesis_missing_or_path_invalid",
+      "rev20_synthesis_sha256_mismatch",
+      "rev20_synthesis_json_or_schema_invalid",
+      "rev20_synthesis_identity_or_decision_mismatch",
+      "rev20_governance_or_claim_limit_mismatch",
+      "rev20_evidence_chain_binding_invalid",
+      "rev20_execution_identity_invalid",
+      "rev20_source_provenance_invalid",
+      "rev20_baseline_or_runtime_drift",
+      "rev20_matrix_shape_or_order_invalid",
+      "rev20_matrix_numeric_invalid",
+      "rev20_matrix_physics_limit_exceeded",
+      "matrix_authority_safety_gate_passed_for_diagnostic_preregistration"
+    ],
+    "check_states": [
+      "pass",
+      "fail",
+      "not_evaluated"
+    ],
+    "pass_outcome": "matrix_authority_safety_gate_passed_for_diagnostic_preregistration",
+    "pass_next_step": "preregister_read_only_matrix_observation_adapter",
+    "single_primary_reason": true,
+    "dependency_failure_marks_downstream_not_evaluated": true
+  },
+  "assurance_tiers": {
+    "byte_and_provenance_verified": "fixed paths and SHA-256 plus historical Git blobs match",
+    "persisted_evidence_internally_recomputed": "only values reproducible from persisted structures, magnitudes, and ledgers are recomputed",
+    "physics_execution_not_independently_reobserved": "PhysX tensor generation, CPU/GPU physics reproducibility, and current external IsaacLab bytes are not independently reobserved"
+  },
+  "claim_limits": {
+    "policy_observation_connected": false,
+    "reward_computed": false,
+    "ppo_training_executed": false,
+    "walking_turning_slope_or_self_recovery_qualified": false,
+    "physics_ground_truth_authority": false,
+    "simulator_launched": false,
+    "rollout_steps": 0,
+    "optimizer_updates": 0
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "gate_execution_allowed": false,
+    "qualification_eligible": false,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  },
+  "output_contract": {
+    "canonical_path": "reports/runs/g009_r0_rev21_matrix_authority_safety_gate_s42.json",
+    "schema_version": "g009.r0.rev21.matrix_authority_safety_gate.v1",
+    "immutable_no_overwrite": true,
+    "pass_only_canonical_write": true,
+    "check_only_is_read_only": true,
+    "verify_artifact_is_read_only": true,
+    "self_aggregate_digest_forbidden": true
+  },
+  "forbidden_changes": [
+    "friction",
+    "mass_or_inertia",
+    "terrain",
+    "reset_distribution",
+    "action",
+    "solver",
+    "contact_or_rest_offset",
+    "observation_adapter",
+    "reward",
+    "policy",
+    "ppo",
+    "checkpoint",
+    "curriculum"
+  ],
+  "stop_rules": {
+    "fail_closed_on_missing_or_mismatch": true,
+    "network_fetch_allowed": false,
+    "glob_or_directory_discovery_allowed": false,
+    "dependency_traversal_allowed": false,
+    "isaac_import_allowed": false,
+    "physics_execution_allowed": false,
+    "canonical_reject_write_allowed": false
+  }
+}
