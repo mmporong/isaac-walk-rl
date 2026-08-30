@@ -13,13 +13,13 @@ Foothold Planner가 착지점을 정하면 Swing Trajectory는 실제 lift-off �
 
 lift-off와 touchdown을 직선으로 연결하면 발이 지면을 스치거나 작은 돌·계단 모서리에 걸릴 수 있다. 중간에 가장 높은 점 apex를 둬 clearance를 만든다.
 
-$$
-p_{apex,xy}=\frac{p_{lo,xy}+p_{td,xy}}{2}
-$$
+```text
+apex의 xy = (lift-off의 xy + touchdown의 xy) / 2
+```
 
-$$
-z_{apex}=\max(z_{lo},z_{td})+h_{clearance}
-$$
+```text
+apex의 z = max(lift-off 높이, touchdown 높이) + 추가 여유 높이
+```
 
 - `p_lo`: 실제 lift-off 위치
 - `p_td`: 계획 touchdown 위치
@@ -31,9 +31,12 @@ Notion의 QUATTRO 설명은 기본 clearance로 `0.035m`를 제시하지만 모�
 
 네 control point `P_0,P_1,P_2,P_3`로 3차 Bézier 곡선을 만든다.
 
-$$
-B(u)=(1-u)^3P_0+3(1-u)^2uP_1+3(1-u)u^2P_2+u^3P_3
-$$
+```text
+B(u) = (1-u)³·P₀
+     + 3·(1-u)²·u·P₁
+     + 3·(1-u)·u²·P₂
+     + u³·P₃
+```
 
 여기서 `0≤u≤1`이다.
 
@@ -43,11 +46,11 @@ $$
 
 미분은 다음과 같다.
 
-$$
-\frac{dB}{du}=3(1-u)^2(P_1-P_0)
-+6(1-u)u(P_2-P_1)
-+3u^2(P_3-P_2)
-$$
+```text
+dB/du = 3·(1-u)²·(P₁-P₀)
+      + 6·(1-u)·u·(P₂-P₁)
+      + 3·u²·(P₃-P₂)
+```
 
 ## 3. 전체 swing을 두 구간으로 나누기
 
@@ -62,9 +65,9 @@ $$
 
 첫 Bézier에서 `P_0=P_1=p_lo`로 둔다. 시작 미분은:
 
-$$
-\left.\frac{dB}{du}\right|_{u=0}=3(P_1-P_0)=0
-$$
+```text
+u=0에서의 변화율 = 3·(P₁-P₀) = 0    (P₀=P₁일 때)
+```
 
 따라서 위치 reference가 lift-off 순간 갑자기 튀지 않고 목표 출발 속도도 0이 된다.
 
@@ -72,9 +75,9 @@ $$
 
 두 번째 Bézier에서 `P_2=P_3=p_td`로 둔다. 끝 미분은:
 
-$$
-\left.\frac{dB}{du}\right|_{u=1}=3(P_3-P_2)=0
-$$
+```text
+u=1에서의 변화율 = 3·(P₃-P₂) = 0    (P₂=P₃일 때)
+```
 
 따라서 touchdown 목표 속도가 0이 된다. 실제 발이 반드시 0 속도로 닿는다는 뜻은 아니며, tracking 오차와 조기 접촉을 별도로 측정해야 한다.
 
@@ -90,32 +93,29 @@ xy 방향 미분도 두 segment 사이에서 맞추면 apex 통과 순간 수평
 
 Gait Schedule이 주는 전체 swing progress를 `s∈[0,1]`라 한다.
 
-$$
-u=
-\begin{cases}
-2s, & 0\le s<0.5\\
-2s-1, & 0.5\le s\le1
-\end{cases}
-$$
+```text
+s가 0 이상 0.5 미만이면: u = 2s
+s가 0.5 이상 1 이하면:   u = 2s - 1
+```
 
 - `s=0~0.5`: 첫 Bézier
 - `s=0.5~1`: 두 번째 Bézier
 
 각 segment가 전체 swing 시간의 절반을 사용하므로:
 
-$$
-\frac{du}{dt}=\frac{2}{T_{swing}}
-$$
+```text
+du/dt = 2 / 전체 swing 시간
+```
 
 ## 8. 위치뿐 아니라 실제 시간 속도도 계산하기
 
 Bézier 미분 `dB/du`는 parameter `u`에 대한 변화율이다. 실제 시간에 대한 발 속도는 chain rule을 사용한다.
 
-$$
-v_{des}=\frac{dp}{dt}
-=\frac{dp}{du}\frac{du}{dt}
-=\frac{dp}{du}\frac{2}{T_{swing}}
-$$
+```text
+목표 발 속도 = dp/dt
+              = (dp/du) · (du/dt)
+              = (dp/du) · (2 / 전체 swing 시간)
+```
 
 같은 곡선이라도 swing 시간이 짧으면 더 빠르게 움직여야 한다. 그래서 위치 reference만 있고 속도 reference가 없으면 damping과 feedforward가 정확히 작동하기 어렵다.
 
@@ -123,15 +123,17 @@ $$
 
 목표 발 위치·속도와 실제 발 상태의 차이로 task-space force를 만든다.
 
-$$
-F_{task}=K_p(p_{des}-p)+K_d(v_{des}-v)
-$$
+```text
+발의 목표 힘
+= K_p · (목표 위치 - 실제 위치)
++ K_d · (목표 속도 - 실제 속도)
+```
 
 그 힘을 Jacobian transpose로 관절 토크에 연결한다.
 
-$$
-\tau=J^TF_{task}
-$$
+```text
+관절 토크 = Jᵀ · 발의 목표 힘
+```
 
 stance와 swing의 목적은 다르다.
 

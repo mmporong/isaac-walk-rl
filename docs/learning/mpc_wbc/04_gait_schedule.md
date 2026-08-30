@@ -17,15 +17,15 @@ swing  = 발을 들어 다음 착지점으로 옮기는 구간
 
 한 보행 주기를 `0≤phi<1`로 표현한다. step frequency가 `f` Hz라면 한 주기 시간은:
 
-$$
-T=\frac{1}{f}
-$$
+```text
+한 주기 시간 T = 1 / 주파수 f
+```
 
 시간이 흐르면 global phase를 다음처럼 전진시킬 수 있다.
 
-$$
-\phi_{global}\leftarrow(\phi_{global}+f\,dt)\bmod1
-$$
+```text
+global phase = (이전 global phase + f·dt)의 소수 부분
+```
 
 `mod 1`은 phase가 1을 넘으면 다시 0부터 시작하게 한다.
 
@@ -33,9 +33,9 @@ $$
 
 각 발의 phase는 global phase에 발별 offset을 더한다.
 
-$$
-\phi_i=(\phi_{global}+\phi_{offset,i})\bmod1
-$$
+```text
+발 i의 phase = (global phase + 발 i의 offset)의 소수 부분
+```
 
 Trot에서는 대각선 발이 같은 시기에 움직인다.
 
@@ -48,35 +48,33 @@ Notion의 예시 offset은 발 순서 `[FL,FR,BL,BR]`에서 `[0.5,0,0,0.5]`다. 
 
 Duty factor `D`는 한 발이 주기 중 stance에 머무는 비율이다.
 
-$$
-\phi_i<D\Rightarrow stance
-$$
+```text
+발 i의 phase < duty factor D  -> stance
+```
 
-$$
-\phi_i\ge D\Rightarrow swing
-$$
+```text
+발 i의 phase ≥ duty factor D  -> swing
+```
 
 예를 들어 `D=0.65`면 한 발은 주기의 65% 동안 땅을 지지하고 35% 동안 공중에 있다.
 
-$$
-T_{stance}=DT,
-\qquad
-T_{swing}=(1-D)T
-$$
+```text
+stance 시간 = D · T
+swing 시간  = (1 - D) · T
+```
 
 ## 4. 수치 예시
 
 Notion의 예시 `f=1.4Hz`, `D=0.65`를 계산하면:
 
-$$
-T=\frac{1}{1.4}\approx0.714s
-$$
+```text
+T = 1 / 1.4 ≈ 0.714초
+```
 
-$$
-T_{stance}\approx0.464s,
-\qquad
-T_{swing}\approx0.250s
-$$
+```text
+stance 시간 ≈ 0.464초
+swing 시간  ≈ 0.250초
+```
 
 `D>0.5`이므로 두 대각선 pair의 stance가 일부 겹친다. 그 순간에는 네 발이 모두 닿을 수 있어 초기 실기에서 안정 여유가 커질 수 있다. 하지만 이 수치를 다른 로봇에 그대로 복사하면 안 된다.
 
@@ -84,10 +82,9 @@ $$
 
 swing 구간 안에서 발이 얼마나 진행했는지를 0에서 1로 정규화한다.
 
-$$
-s=\frac{\phi_i-D}{1-D},
-\qquad 0\le s<1
-$$
+```text
+swing 진행률 s = (발 phase - D) / (1 - D),    0 ≤ s < 1
+```
 
 - `s=0`: lift-off 직후
 - `s=0.5`: swing 중간

@@ -15,11 +15,12 @@ Gait Schedule이 **언제**를 정한다면 Foothold Planner는 **어디에**를
 
 Notion의 QUATTRO 설명은 평지 touchdown의 xy를 다음 세 항으로 나눈다.
 
-$$
-p_{td,xy}=p_{nominal,xy}
-+\frac12T_{stance}v_{ref,xy}
-+k_v(v_{xy}-v_{ref,xy})
-$$
+```text
+touchdown xy
+= 기본 발 위치
++ 0.5 · stance 시간 · 목표 속도
++ 속도 보정계수 · (실제 속도 - 목표 속도)
+```
 
 ```text
 기본 발 위치
@@ -42,23 +43,22 @@ $$
 
 stance 동안 몸통은 계속 움직인다. 발을 현재 hip 바로 아래에만 놓으면 몸이 지나간 뒤 발이 뒤쪽으로 밀릴 수 있다. 그래서 stance 시간의 절반 동안 몸이 이동할 거리를 미리 더한다.
 
-$$
-\Delta p_{ff}=\frac12T_{stance}v_{ref}
-$$
+```text
+미리 놓을 거리 = 0.5 · stance 시간 · 목표 속도
+```
 
 예를 들어:
 
-$$
-v_{ref}=0.2m/s,
-\qquad
-T_{stance}=0.4s
-$$
+```text
+목표 속도 = 0.2 m/s
+stance 시간 = 0.4초
+```
 
 이면:
 
-$$
-\Delta p_{ff}=0.5\times0.4\times0.2=0.04m
-$$
+```text
+미리 놓을 거리 = 0.5 × 0.4 × 0.2 = 0.04 m = 4 cm
+```
 
 즉 nominal보다 4 cm 앞에 디딘다.
 
@@ -66,9 +66,9 @@ $$
 
 명령보다 실제 몸통이 너무 빠르거나 느릴 수 있다. Notion은 다음 항을 추가한다.
 
-$$
-\Delta p_{fb}=k_v(v-v_{ref})
-$$
+```text
+속도 보정 거리 = 보정계수 k_v · (실제 속도 - 목표 속도)
+```
 
 이 항의 부호와 frame은 구현마다 반드시 확인해야 한다. 예를 들어 너무 빠르게 전진할 때 발을 더 앞에 놓는 것이 감속에 도움이 되는지는 stance dynamics와 controller 정의에 따라 해석해야 한다.
 
@@ -125,9 +125,9 @@ terrain-aware planner는 단순히 z만 바꾸는 것이 아니라 안전성·�
 
 평지 Raibert 목표에 지형 보정량을 추가하는 형태로 나눌 수 있다.
 
-$$
-p_{td}=p_{Raibert}+\Delta p_{terrain}
-$$
+```text
+최종 touchdown = Raibert 기본 목표 + 지형 보정량
+```
 
 `Delta p_terrain`이 고려할 수 있는 정보:
 
@@ -144,9 +144,9 @@ $$
 
 향후 RL을 붙인다면 전체 관절 토크보다 작은 보정량만 출력하게 할 수 있다.
 
-$$
-p_{td}=p_{model}+\Delta p_{RL}
-$$
+```text
+최종 touchdown = 모델 기반 목표 + RL이 만든 작은 보정량
+```
 
 장점은 action dimension과 해석 범위가 작아진다는 것이다. 하지만 안전 영역, clip, terrain observation, 실패 fallback이 정의되기 전에는 안전하다고 볼 수 없다.
 

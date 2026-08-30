@@ -19,15 +19,15 @@ MPC는 가능한 미래 발 힘들을 여러 스텝 앞까지 시험해보고, �
 
 한 스텝 모델은:
 
-$$
-x_{k+1}=Ax_k+Bu_k+c
-$$
+```text
+x[k+1] = A · x[k] + B · u[k] + c
+```
 
 두 스텝 앞은 첫 식을 다시 대입해서 얻는다.
 
-$$
-x_{k+2}=A^2x_k+ABu_k+Bu_{k+1}+Ac+c
-$$
+```text
+x[k+2] = A²·x[k] + A·B·u[k] + B·u[k+1] + A·c + c
+```
 
 세 스텝, 네 스텝도 같은 방식으로 펼칠 수 있지만 매번 손으로 전개하기 어렵다. 그래서 큰 행렬 `M`, `S`, `d`로 묶는다.
 
@@ -35,23 +35,16 @@ $$
 
 미래 상태와 입력을 세로로 쌓는다.
 
-$$
-X=
-\begin{bmatrix}
-x_1\\x_2\\\vdots\\x_N
-\end{bmatrix},
-\qquad
-U=
-\begin{bmatrix}
-u_0\\u_1\\\vdots\\u_{N-1}
-\end{bmatrix}
-$$
+```text
+X = [x₁, x₂, ..., x_N]을 세로로 쌓은 미래 상태 묶음
+U = [u₀, u₁, ..., u_(N-1)]을 세로로 쌓은 미래 입력 묶음
+```
 
 그러면 prediction 식은 다음 하나로 정리된다.
 
-$$
-X=Mx_0+SU+d
-$$
+```text
+X = M · x₀ + S · U + d
+```
 
 | 기호 | 쉬운 뜻 |
 |---|---|
@@ -61,12 +54,9 @@ $$
 
 ### `M`: 현재 상태의 미래 전파
 
-$$
-M=
-\begin{bmatrix}
-A\\A^2\\\vdots\\A^N
-\end{bmatrix}
-$$
+```text
+M = [A, A², ..., Aᴺ]을 세로로 쌓은 행렬
+```
 
 `A^3x_0`는 현재 상태가 세 번의 자연 진행을 거친 결과다.
 
@@ -74,15 +64,12 @@ $$
 
 `u_0`는 첫 스텝부터 작용하므로 많은 미래 상태에 영향을 준다. 마지막 입력 `u_{N-1}`은 마지막 상태에만 영향을 준다. 그래서 `S`는 아래쪽으로 채워지는 block-lower-triangular 형태다.
 
-$$
-S=
-\begin{bmatrix}
-B & 0 & \cdots & 0\\
-AB & B & \cdots & 0\\
-\vdots & \vdots & \ddots & \vdots\\
-A^{N-1}B & A^{N-2}B & \cdots & B
-\end{bmatrix}
-$$
+```text
+S = [ B           0       ...   0 ]
+    [ A·B         B       ...   0 ]
+    [ ...         ...     ... ... ]
+    [ Aᴺ⁻¹·B   Aᴺ⁻²·B    ...   B ]
+```
 
 ### `d`: 중력의 누적
 
@@ -105,9 +92,10 @@ Reference의 구체적인 생성 방법은 [`03_reference_generator.md`](03_refe
 
 상태 추적 오차와 힘 사용량을 함께 비용으로 둔다.
 
-$$
-J=(X-X_{ref})^T\bar Q(X-X_{ref})+U^T\bar R U
-$$
+```text
+비용 J = (X - X_ref)ᵀ · Q_bar · (X - X_ref)
+       + Uᵀ · R_bar · U
+```
 
 ### `Q`: 상태 추적 중요도
 
@@ -127,29 +115,28 @@ $$
 
 Prediction을 비용식에 넣고 `U`에 관계없는 상수를 제외한다. 먼저:
 
-$$
-e=Mx_0+d-X_{ref}
-$$
+```text
+e = M · x₀ + d - X_ref
+```
 
 라 두면:
 
-$$
-X-X_{ref}=SU+e
-$$
+```text
+X - X_ref = S · U + e
+```
 
 한 가지 일반적인 표준형은:
 
-$$
-\min_U \frac12 U^TPU+q^TU
-$$
+```text
+U에 대해 최소화:  0.5 · Uᵀ · P · U + qᵀ · U
+```
 
 이며 다음처럼 구성할 수 있다.
 
-$$
-P=2(S^T\bar Q S+\bar R),
-\qquad
-q=2S^T\bar Qe
-$$
+```text
+P = 2 · (Sᵀ · Q_bar · S + R_bar)
+q = 2 · Sᵀ · Q_bar · e
+```
 
 - `P`: 입력끼리의 이차 관계와 곡률
 - `q`: 현재 오차가 어느 방향의 힘을 요구하는지 나타내는 선형 항
@@ -165,19 +152,18 @@ $$
 
 stance 발에는 허용 가능한 수직력 범위가 있다.
 
-$$
-f_{min}\le f_z\le f_{max}
-$$
+```text
+f_min ≤ f_z ≤ f_max
+```
 
 ### 마찰 제약
 
 마찰원 또는 마찰원뿔을 계산하기 쉬운 선형 피라미드로 근사한다.
 
-$$
--\mu f_z\le f_x\le\mu f_z,
-\qquad
--\mu f_z\le f_y\le\mu f_z
-$$
+```text
+-mu·f_z ≤ f_x ≤ mu·f_z
+-mu·f_z ≤ f_y ≤ mu·f_z
+```
 
 수직력이 작으면 사용할 수 있는 수평력도 작아진다.
 
@@ -185,9 +171,9 @@ $$
 
 공중에 있는 발은 바닥을 밀 수 없다.
 
-$$
-F_{swing}=0
-$$
+```text
+공중에 있는 발의 힘 F_swing = 0
+```
 
 따라서 gait schedule이 미래 각 스텝에서 어떤 발을 stance와 swing으로 볼지 알려줘야 한다.
 
@@ -206,9 +192,9 @@ Notion은 OSQP를 설명하지만 Cheetah 3 원 논문은 qpOASES를 사용한�
 
 최적화 결과는 미래 힘 계획 전체다.
 
-$$
-U^*=[u_0^*,u_1^*,\ldots,u_{N-1}^*]
-$$
+```text
+최적 미래 입력 U* = [u₀*, u₁*, ..., u_(N-1)*]
+```
 
 하지만 실제로는 `u_0^*`만 적용한다. 그 사이 로봇은 움직이고 센서로 새 상태를 얻는다. 이전 계획의 나머지를 그대로 믿기보다 새 상태에서 다시 최적화한다.
 
@@ -228,9 +214,9 @@ $$
 
 이전 최적해를 한 칸 앞으로 밀어 다음 solver의 초기값으로 사용한다.
 
-$$
-[u_1^*,u_2^*,\ldots,u_{N-1}^*,u_{N-1}^*]
-$$
+```text
+다음 초기값 = [u₁*, u₂*, ..., u_(N-1)*, u_(N-1)*]
+```
 
 연속된 제어 주기에서는 최적해가 갑자기 크게 달라지지 않는 경우가 많아 계산 시간을 줄일 수 있다.
 
@@ -238,9 +224,9 @@ $$
 
 solver는 infeasible, timeout 또는 수치 문제로 실패할 수 있다. 이때 실패한 벡터를 그대로 관절에 보내면 안 된다. 간단한 standing fallback의 예는 stance 발 `n`개가 무게를 나누는 것이다.
 
-$$
-F_{z,i}\approx\frac{mg}{n}
-$$
+```text
+stance 발 i의 수직력 ≈ m·g / stance 발 개수
+```
 
 실제 구현에서는 마지막 유효해 유지 시간, force clipping, 안전 자세 전환과 실패 횟수 기록까지 계약으로 정해야 한다.
 
@@ -248,9 +234,9 @@ $$
 
 MPC가 구한 stance 발의 world-frame 힘은 필요한 frame으로 회전한 뒤 Jacobian transpose로 관절 토크에 연결한다.
 
-$$
-\tau_i=J_i^TR_i^Tf_i
-$$
+```text
+관절 토크 tau_i = J_iᵀ · R_iᵀ · 발 힘 f_i
+```
 
 swing 발은 MPC의 stance GRF 대신 별도의 Cartesian trajectory와 PD/feedforward 제어를 사용한다.
 
@@ -258,14 +244,10 @@ swing 발은 MPC의 stance GRF 대신 별도의 Cartesian trajectory와 PD/feedf
 
 12차원 대신 위치와 속도만 있는 1차원 모델을 생각한다.
 
-$$
-\begin{bmatrix}p_{k+1}\\v_{k+1}\end{bmatrix}
-=
-\begin{bmatrix}1&dt\\0&1\end{bmatrix}
-\begin{bmatrix}p_k\\v_k\end{bmatrix}
-+
-\begin{bmatrix}\frac{dt^2}{2m}\\\frac{dt}{m}\end{bmatrix}F_k
-$$
+```text
+p[k+1] = p[k] + v[k]·dt + (dt² / 2m)·F[k]
+v[k+1] = v[k]           + (dt / m)·F[k]
+```
 
 `N=3`이면 solver는 `[F_0,F_1,F_2]`를 고른다. `F_0`는 세 미래 상태에, `F_2`는 마지막 미래 상태에만 영향을 준다. 이것이 `S`가 아래쪽 삼각형 모양이 되는 이유다.
 
