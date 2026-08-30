@@ -79,6 +79,15 @@
   },
   "integration": {
     "primary_document": "docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md",
+    "beginner_learning_index": "docs/learning/mpc_wbc/README.md",
+    "beginner_learning_pages": [
+      "docs/learning/mpc_wbc/01_centroidal_dynamics.md",
+      "docs/learning/mpc_wbc/02_prediction_qp.md",
+      "docs/learning/mpc_wbc/03_reference_generator.md",
+      "docs/learning/mpc_wbc/04_gait_schedule.md",
+      "docs/learning/mpc_wbc/05_foothold_planner.md",
+      "docs/learning/mpc_wbc/06_swing_trajectory.md"
+    ],
     "readme_linked": true,
     "project_brief_updated": true,
     "notes_updated": true,

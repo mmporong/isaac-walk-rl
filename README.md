@@ -37,7 +37,7 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 
 ## 수령 MPC/WBC 자료 반영
 
-2026-08-30에 수령한 Notion의 Centroidal MPC 여섯 하위 문서와 주석 포함 MIT Cheetah 3 convex MPC 논문 8쪽을 끝까지 검토했습니다. 전체 연결과 적용 로드맵은 [`docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md`](docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md), 논문의 식 (1)~(33)·Table I·Figure 2~10·페이지별 Go2 적용 경계는 [`docs/MIT_CHEETAH3_CONVEX_MPC_PAPER_REVIEW_20260830.md`](docs/MIT_CHEETAH3_CONVEX_MPC_PAPER_REVIEW_20260830.md)에 분리했습니다. URL·절 수·첨부 audit·PDF portable path와 SHA-256은 [`reports/research/mpc_wbc_material_intake_20260830.json`](reports/research/mpc_wbc_material_intake_20260830.json)에 고정했습니다.
+2026-08-30에 수령한 Notion의 Centroidal MPC 여섯 하위 문서와 주석 포함 MIT Cheetah 3 convex MPC 논문 8쪽을 끝까지 검토했습니다. 동역학을 처음부터 다시 배우는 설명 자료는 [`docs/learning/mpc_wbc/README.md`](docs/learning/mpc_wbc/README.md)에서 원문 한 페이지당 한 문서로 시작합니다. 전체 연결과 적용 로드맵은 [`docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md`](docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md), 논문의 식 (1)~(33)·Table I·Figure 2~10·페이지별 Go2 적용 경계는 [`docs/MIT_CHEETAH3_CONVEX_MPC_PAPER_REVIEW_20260830.md`](docs/MIT_CHEETAH3_CONVEX_MPC_PAPER_REVIEW_20260830.md)에 분리했습니다. URL·절 수·첨부 audit·PDF portable path와 SHA-256은 [`reports/research/mpc_wbc_material_intake_20260830.json`](reports/research/mpc_wbc_material_intake_20260830.json)에 고정했습니다.
 
 현재 Go2 제어기는 MPC/WBC가 아니라 50 Hz joint-position PPO입니다. 이 자료는 당장 G009 RECOVER action이나 solver calibration을 바꾸는 근거로 사용하지 않습니다. 먼저 import-light 수학 검증과 PPO read-only contact/GRF/foothold telemetry를 거친 뒤, 별도 flat Centroidal MPC baseline과 terrain-reference/residual RL을 순차적으로 검토합니다. Notion의 `1.4 Hz`, duty factor `0.65`, `0.24 s` horizon, OSQP, Q weight와 Cheetah 3의 force limit은 현재 Go2 설정으로 복사하지 않습니다.
 
