@@ -11,4 +11,9 @@
 /reports/runs/g009_5_r0_e011_rev18_*.json text eol=lf
 /scripts/*g009_r0_rev18*.py text eol=lf
 /tests/test_g009_r0_rev18_*.py text eol=lf
+/configs/g009_r0_rev19_*.json text eol=lf
+/reports/runs/g009_r0_rev19_*.json text eol=lf
+/reports/runs/g009_5_r0_e012_rev19_*.json text eol=lf
+/scripts/*g009_r0_rev19*.py text eol=lf
+/tests/test_g009_r0_rev19_*.py text eol=lf
 /scripts/validate_rbq_assets.py text eol=lf

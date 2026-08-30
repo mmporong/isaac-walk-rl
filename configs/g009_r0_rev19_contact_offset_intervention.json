@@ -1,0 +1,131 @@
+{
+  "schema_version": "g009.r0.rev19.contact_offset_intervention_preregistration.v1",
+  "evidence_id": "G009-5-E012",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev19",
+  "seed": 42,
+  "predecessor": {
+    "path": "reports/runs/g009_r0_rev18_raw_contact_feasibility_synthesis_2x2_s42.json",
+    "sha256": "9ca8007d88e771a5f24ca68afa46a670097e733f9e613c31fc4cc62f3fb9e01e"
+  },
+  "design": {
+    "kind": "two_arm_by_two_device_by_two_replicate",
+    "arms": {
+      "A": {
+        "role": "within_rev19_control",
+        "contact_offset_scale": 1.0,
+        "contact_offset_setter_called": true
+      },
+      "B": {
+        "role": "single_variable_intervention",
+        "contact_offset_scale": 1.5,
+        "contact_offset_setter_called": true
+      }
+    },
+    "solver_position_iterations": 8,
+    "solver_velocity_iterations": 0,
+    "rest_offset_setter_called": false,
+    "rest_offset_unchanged_required": true,
+    "contact_offset_must_exceed_rest_offset": true,
+    "comparison_authority": "rev19_arm_A_vs_arm_B_only",
+    "rev18_solver_16_results_comparable_as_arm_control": false,
+    "third_run_majority_vote_allowed": false
+  },
+  "canonical_slots": [
+    "A.cpu.rep1",
+    "A.cpu.rep2",
+    "B.cpu.rep1",
+    "B.cpu.rep2",
+    "A.cuda:0.rep1",
+    "A.cuda:0.rep2",
+    "B.cuda:0.rep1",
+    "B.cuda:0.rep2"
+  ],
+  "cpu_preflight": {
+    "canonical_path": "reports/runs/g009_r0_rev19_contact_offset_cpu_preflight_2x2_s42.json",
+    "immutable_no_overwrite": true,
+    "exact_slots": [
+      "A.cpu.rep1",
+      "A.cpu.rep2",
+      "B.cpu.rep1",
+      "B.cpu.rep2"
+    ],
+    "required_before_gpu_app_launcher": true,
+    "required_checks": [
+      "raw_observation_passed",
+      "probe_valid",
+      "manual_probe_safety_available",
+      "manual_probe_safety_passed",
+      "within_arm_repeatability"
+    ]
+  },
+  "runtime": {
+    "num_envs": 8,
+    "source_env_index": 7,
+    "pose_id": "right_side",
+    "action_mode": "reset_pose_hold",
+    "physics_substeps": 150,
+    "physics_dt_s": 0.005,
+    "headless": true,
+    "render": false,
+    "offset_api": "root_physx_view_get_set",
+    "offset_application_boundary": "env_cfg_custom_startup_event_during_gym_make_before_first_reset_or_physics_step",
+    "usd_schema_apply_allowed": false
+  },
+  "measured_shape_topology": {
+    "num_envs": 8,
+    "collision_shapes_per_articulation": 27,
+    "baseline_contact_offsets_are_heterogeneous": true,
+    "absolute_contact_offset_hardcode_allowed": false,
+    "rest_offset_baseline_expected_m": 0.0,
+    "tensor_column_labels": "shape_index_00..shape_index_26",
+    "tensor_column_path_mapping_authority": false
+  },
+  "manual_probe_safety": {
+    "gate_execution": false,
+    "hard_joint_limit_margin_rad": 0.01,
+    "non_foot_peak_force_body_weight_max": 15.0,
+    "cpu_raw_minimum_separation_m": -0.01,
+    "required_scopes": [
+      "all_envs",
+      "source_env_7"
+    ],
+    "missing_observation_policy": "fail_closed"
+  },
+  "decision_matrix": {
+    "invalid_offset_or_probe": "probe_invalid",
+    "safety_observation_missing": "safety_unavailable",
+    "cpu_preflight_invalid": "cpu_preflight_failed_gpu_results_not_interpretable",
+    "safety_threshold_exceeded": "safety_limit_exceeded",
+    "replicate_split": "inconclusive_nondeterministic",
+    "gpu_A_observed_B_observed": "gpu_raw_available_both_arms",
+    "gpu_A_unavailable_B_unavailable": "gpu_raw_unavailable_both_arms",
+    "gpu_A_unavailable_B_observed": "gpu_raw_enabled_by_contact_offset",
+    "gpu_A_observed_B_unavailable": "gpu_raw_regressed_with_contact_offset",
+    "priority": [
+      "report_or_probe_integrity",
+      "safety_availability",
+      "cpu_preflight_validity",
+      "safety_thresholds",
+      "replicate_split_or_repeatability"
+    ]
+  },
+  "claim_limits": {
+    "gpu_contact_absence_claim_allowed": false,
+    "physics_failure_claim_allowed": false,
+    "physics_ground_truth_authority": false,
+    "raw_callback_observation_only": true,
+    "ground_runtime_offset_unchanged_claimed": false,
+    "robot_root_tensor_setter_call_scope_only": true
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "gate_execution_allowed": false,
+    "qualification_eligible": false,
+    "qualification_status": "not_run"
+  }
+}

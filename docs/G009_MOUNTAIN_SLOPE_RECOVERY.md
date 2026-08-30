@@ -1117,7 +1117,37 @@ CPU 두 실행은 source env 7의 header `358`, contact point `767`, nonzero imp
 
 governance는 physics-ground-truth authority `false`, `selected_lever=null`, Gate01 `forbidden`, PPO `not_run/0`, qualification `not_run`, `learned=false`다. Garden에는 성공 사례로 발행하지 않고, 단일변수 intervention이 끝나 계측 또는 안전 gate의 성공 결과와 함께 설명할 수 있을 때 실패 원인과 수정 과정을 포함한다.
 
-canonical GPU JSON에는 subscription 성공, malformed callback `0`, callback error `null`이 기록됐다. 실행 당시 Kit 로그에서 overflow·capacity 경고를 찾지 못했지만 그 로그는 canonical report나 sidecar에 경로·해시로 보존되지 않았다. 따라서 “GPU buffer overflow가 없었다”는 문장을 공개 결론으로 사용하지 않고 buffer 크기도 임의로 바꾸지 않는다. 다음 단계는 rev12 승인 baseline solver `8/0`으로 돌아가 contact offset만 baseline의 `1.5×`로 바꾸고 rest offset은 고정하는 사전 등록 CPU/GPU 2×2 probe다. 이것은 raw callback이 생기는지 확인하는 계측 intervention이며, force·CPU separation·numeric/hard safety를 통과하기 전에는 Gate01이나 PPO를 열지 않는다.
+canonical GPU JSON에는 subscription 성공, malformed callback `0`, callback error `null`이 기록됐다. 실행 당시 Kit 로그에서 overflow·capacity 경고를 찾지 못했지만 그 로그는 canonical report나 sidecar에 경로·해시로 보존되지 않았다. 따라서 “GPU buffer overflow가 없었다”는 문장을 공개 결론으로 사용하지 않고 buffer 크기도 임의로 바꾸지 않는다. 다음 단계는 rev12 승인 baseline solver `8/0` 안에서 contact offset만 달리하는 동시대 Arm A/B probe다. 이것은 raw callback이 생기는지 확인하는 계측 intervention이며, force·CPU separation·numeric/hard safety를 통과하기 전에는 Gate01이나 PPO를 열지 않는다.
+
+#### rev19 E012 contact-offset 2×2×2 A/B 사전 등록
+
+E012는 이 문단과 machine-readable contract를 source commit에 먼저 고정한 뒤 실행한다. rev18 treatment를 그대로 대조군으로 쓰지 않는다. rev18은 solver `16/0`이고 새 후보는 `8/0`이므로 두 결과를 직접 빼면 solver 변경과 contact-offset 변경이 섞인다. rev12는 `8/0`의 역사적 승인 근거일 뿐 raw callback harness와 source가 다른 formal control이 아니다. 단일변수 효과는 같은 rev19 clean commit 안의 Arm A/B로만 계산한다.
+
+| 축 | Arm A control | Arm B intervention |
+| --- | --- | --- |
+| position/velocity solver | `8/0` | `8/0` |
+| robot contact offset | shape별 runtime baseline `×1.0` | 같은 배열 `×1.5` |
+| robot rest offset | 읽은 값 그대로 | 읽은 값 그대로 |
+| 반복 | CPU 2회 + GPU 2회 | CPU 2회 + GPU 2회 |
+| seed / 환경 / source | `42` / `8 env` / env `7` | 동일 |
+| pose / action | `right_side / reset_pose_hold` | 동일 |
+| 물리 시간 | `150×0.005s=0.75s` | 동일 |
+
+총 슬롯은 `2 arms × 2 devices × 2 replicates = 8`이고 canonical 순서는 CPU `A1/A2/B1/B2`, GPU `A1/A2/B1/B2`다. CPU 네 report가 raw PASS·probe-valid·manual safety available/PASS·arm별 반복성 PASS를 모두 충족하면 immutable `reports/runs/g009_r0_rev19_contact_offset_cpu_preflight_2x2_s42.json`을 만든다. GPU probe는 AppLauncher 전에 이 artifact의 파일 SHA·source commit·probe source bundle·정확한 CPU 4개 input binding을 검증해야 한다. 어느 arm/device라도 `1/2` split이면 제3회 다수결을 금지하고 `inconclusive_nondeterministic`으로 닫는다. rev18과의 비교는 lineage와 역사적 transport check로만 남기고 E012 causal contrast에 넣지 않는다.
+
+[PhysX Advanced Collision Detection](https://nvidia-omniverse.github.io/PhysX/physx/5.1.2/docs/AdvancedCollisionDetection.html)에 따르면 두 shape의 거리가 contact offset 합보다 작아지면 접촉점 생성을 시작하며 contact offset은 rest offset보다 커야 한다. 값을 늘리면 접촉을 더 일찍 만들 수 있지만 지나치면 접촉 수와 계산 비용이 늘고 surface 가정이 깨져 artifact가 생길 수 있다. [PxShape API](https://nvidia-omniverse.github.io/PhysX/physx/5.5.0/_api_build/classPxShape.html)는 setter가 actor를 자동으로 깨우지 않는다고 명시한다. E012는 이 때문에 첫 physics step 전에 env startup event로 두 arm 모두 같은 get/set 순서를 실행한다.
+
+Go2의 shape별 값을 하나의 절대값으로 덮어쓰지 않는다. startup event가 `root_physx_view.get_contact_offsets()`와 `get_rest_offsets()`로 `8×27` baseline을 읽고, contact 배열만 arm scale로 바꿔 `set_contact_offsets()`에 전달한다. Arm A도 `×1.0`을 set해 API 호출 경로를 B와 맞춘다. tensor 열은 `shape_index_00..26`으로만 부르고 USD collision prim path와 열별 대응 관계는 주장하지 않는다. prim path inventory는 count/topology 증거로만 분리한다. rest setter와 새 `CollisionAPI.Apply`/USD schema mutation은 금지한다. ground offset은 직접 readback하지 않았으므로 unchanged를 주장하지 않고 robot root tensor setter의 호출 범위만 source-bound 증거로 남긴다. report는 before/after 배열, tensor shape, canonical hash, min/max와 다음 항등식을 검증한다.
+
+\[
+c_A'=c,\qquad c_B'=1.5c,\qquad r_A'=r_B'=r,\qquad c'>r
+\]
+
+나머지는 solver `8/0`, max depenetration `1.0m/s`, physics/control dt `0.005/0.02s`, reset·action·mass·friction·motor·observation 계약을 고정한다. manual inner loop는 action 적용과 scene write/physics step/update만 실행하고 reward·termination·curriculum manager post-step을 호출하지 않는다. 따라서 PPO batch·mini-batch·epoch·optimizer update는 모두 `0`이다.
+
+진단 안전값은 Gate와 구분해 기록한다. finite joint position/contact force, hard joint range `+0.01rad` margin, non-foot peak force `≤15 BW`, CPU 8개 env별·전체·source env raw minimum separation `≥-0.01m`을 raw report에서 재계산한다. `robot.data.default_mass`는 `8×19` snapshot과 body ordering hash를 남기고 150 step 불변성을 검증하며, non-foot force의 BW 분모도 이 snapshot에서 재계산한다. max depenetration readback은 8 articulation × 19 bodies 전부 `1.0m/s`여야 한다. GPU raw callback이 Arm B에서만 `2/2` 생기더라도 이것은 현재 controlled cell에서 관측 경로가 바뀌었다는 제한적 근거다. physics-ground-truth authority는 `false`, `selected_lever=null`, Gate01 `forbidden`, PPO·qualification `not_run`을 유지한다. 두 arm 모두 unavailable이면 intervention을 기각하고, 둘 다 available이면 offset 이진효과는 입증되지 않은 것으로 닫는다. 합성의 `status=complete`는 파일 생성 완료이지 성능 PASS가 아니다.
+
+실행 절차는 CPU 네 report를 먼저 만든 뒤 요약기에 `--mode cpu-preflight`와 정확한 `A1,A2,B1,B2` 순서로 전달하는 방식이다. GPU 네 probe에는 모두 `--cpu-preflight reports/runs/g009_r0_rev19_contact_offset_cpu_preflight_2x2_s42.json`을 넣는다. 마지막 합성은 `--mode final`, 동일 preflight, CPU-first 8 report 순서와 canonical 출력 `reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json`을 요구한다. final 단계는 preflight의 CPU binding과 실제 첫 네 입력이 같고 GPU 네 report의 preflight path/SHA/commit/bundle이 모두 같은지 fail-closed로 대조한다. 판정 우선순위는 report/probe integrity → safety availability → CPU preflight validity → safety threshold → replicate split/repeatability다.
 
 ![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
 
@@ -1290,7 +1320,7 @@ G009 R0에서는 scratch PPO smoke와 50회 진단 pilot을 실제로 실행했�
 12. **R0 rev16 backend divergence attribution — 완료·가설 불확정**: rev12 `8/0`과 rev15 `16/0`을 Arm A/B로 분리해 CPU·GPU 각 `3/3`, 총 12회를 순차 실행했다. historical projection과 canonical telemetry를 분리해 과거 fingerprint와 현재 수치를 모두 검증했다. B GPU peak는 `16.7882770994 BW`, step `129`로 재현됐지만 B GPU/B CPU concentration ratio가 `1.18355612696 < 1.20`이라 가설은 `inconclusive`다. PPO는 실행하지 않았고 position 16 기각을 유지한다.
 13. **R0 rev17 mechanism split — E010 완료·lever 미선정**: rev16의 12개 immutable report에서 peak/window 분자·분모, base/link 하중, CPU 접촉쌍과 GPU force aggregation을 분리했다. peak `+26.72%`와 17-step 전신 impulse `+1.42%`는 같은 현상이 아니며 GPU 접촉쌍 authority가 없어 `selected_lever=null`로 닫았다. 다음은 GPU constraint/contact 계측 가능성 검증 또는 사전 등록 단일변수 intervention이며, 그 전에는 Gate01·PPO를 열지 않는다.
 14. **R0 rev18 raw-contact feasibility — E011 완료·GPU 관측 불가**: CPU `2/2`는 callback `150회`, raw PASS와 반복성을 확인했다. GPU `2/2`는 probe valid와 positive force stimulus를 유지했지만 callback `0회`의 같은 unavailable signature였다. residual/force-matrix 계측은 unavailable이며 PPO·Gate01·qualification은 실행하지 않았다.
-15. **R0 rev19 contact-offset intervention — 사전 등록**: rev12 solver `8/0`에서 contact offset만 baseline의 `1.5×`로 바꾸고 rest offset은 고정한다. CPU/GPU `2×2` raw feasibility와 force·CPU separation·numeric/hard safety를 먼저 검사하며 PPO는 닫아 둔다.
+15. **R0 rev19 contact-offset intervention — 2×2×2 사전 등록**: 같은 clean source에서 Arm A `8/0 + offset×1.0`, Arm B `8/0 + offset×1.5`를 CPU/GPU 각 2회, 총 8회 비교한다. rest offset과 나머지 계약을 고정하고 raw feasibility·force·CPU separation·numeric/hard safety를 먼저 검사하며 PPO는 닫아 둔다.
 16. **R0 qualification**: 모든 안전 gate를 통과한 revision에서 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch로 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
 17. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
 18. **S1-low WALK**: `5/10°` contour-left/right를 G008 WALK parent에서 seed별 독립 lineage로 학습한다.

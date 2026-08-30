@@ -501,7 +501,7 @@ py -X utf8 .\scripts\summarize_g009_r0_rev16_backend_divergence.py `
 - 합성 판정은 CPU `2/2 PASS + repeatable`, GPU `2/2 identical unavailable signature`에 따라 `outcome=unavailable_on_gpu`다. 이는 현재 조건에서 GPU raw contact-report callback 관측을 얻지 못했다는 뜻이며 일반적인 API 지원 여부나 physics ground truth 결론이 아니다. `selected_lever=null`, physics-ground-truth authority `false`, Gate01 `forbidden`, PPO·qualification `not_run`, `learned=false`다.
 - 번호 `11` 자료는 카메라·보행·학습 영상이 아니라 위 2×2 결과를 재생하는 `4.8s` telemetry animation이다. 공개 PNG는 `1280×720`, `69,797 bytes`, SHA-256 `0cb74b9eab5291f91afc850771db14b9b92694475cbaf636c91c4731ea620191`, GIF는 6 frames, `37,337 bytes`, SHA-256 `208f19b30d200947490980aeb22d4b898011d13a4dce2f779aa9cc05ef8207a0`다. visual summary는 `3,790 bytes`, SHA-256 `201df8abdf380cf009a297f7be81fb360c2d7195d8eb728bfc4045d71a877f63`, 전용 validator가 확인한 sidecar는 `4,825 bytes`, SHA-256 `9c2cc14512aa271768eda68adda960bf2b5468d8b756097576a3a8264dc9180d`다.
 - 개인 확인용 H.264 MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\g009_5_r0_e011_rev18_raw_contact_feasibility_s42.mp4`에만 둔다. `1280×720`, `30fps`, `4.8s`, `58,674 bytes`, SHA-256 `542a63a4a686d6d0e1eab1ba729be4aa8ea5fe6572e4ef9c1e6c9a3f341fd38e`이며 Git에는 넣지 않는다.
-- canonical GPU JSON에는 subscription 성공, malformed callback `0`, callback error `null`이 기록됐다. 당시 Kit 로그에서 overflow·capacity 경고를 찾지 못했지만 그 로그는 canonical report나 sidecar에 경로·해시로 보존되지 않았으므로 공개 결론의 근거로 사용하지 않는다. GPU buffer 값을 임의로 바꾸지 않고, 다음 실행은 사전 등록대로 승인 baseline rev12 solver `8/0`에서 contact offset만 baseline의 `1.5×`로 바꾸고 rest offset은 고정하는 단일변수 CPU/GPU 2×2 probe다. 이 개입 전에도 PPO를 열지 않는다.
+- canonical GPU JSON에는 subscription 성공, malformed callback `0`, callback error `null`이 기록됐다. 당시 Kit 로그에서 overflow·capacity 경고를 찾지 못했지만 그 로그는 canonical report나 sidecar에 경로·해시로 보존되지 않았으므로 공개 결론의 근거로 사용하지 않는다. GPU buffer 값을 임의로 바꾸지 않고, 다음 실행은 승인 baseline rev12 solver `8/0` 안에서 contact offset만 비교하는 동시대 Arm A/B probe다. 이 개입 전에도 PPO를 열지 않는다.
 
 ```powershell
 py -m pytest -q `
@@ -522,3 +522,22 @@ py -m pytest -q `
   tests/test_g009_r0_rev18_gpu_raw_contact_summary.py `
   tests/test_g009_r0_rev18_raw_contact_media.py
 ```
+
+#### rev19 E012 contact-offset 2×2×2 A/B 사전 등록
+
+- E012는 아직 실행 결과가 아니라 선커밋할 실험 계약이다. rev18 `16/0` 결과와 rev19 `8/0 + offset×1.5`를 직접 비교하면 solver와 offset이 함께 바뀌므로 단일변수 인과성이 깨진다. 따라서 같은 rev19 clean commit에서 Arm A와 B 모두 solver `8/0`을 쓰고 contact offset scale만 `1.0`과 `1.5`로 나눈다.
+- canonical 순서는 `A CPU rep01/02 → B CPU rep01/02 → A GPU rep01/02 → B GPU rep01/02`다. CPU 네 슬롯이 raw PASS·probe-valid·manual safety available/PASS·arm별 반복성 PASS를 모두 충족하면 `reports/runs/g009_r0_rev19_contact_offset_cpu_preflight_2x2_s42.json`을 no-overwrite로 생성한다. GPU probe는 이 파일의 경로·SHA-256·source commit·probe source bundle을 AppLauncher 전에 검증해야만 실행된다. 한 arm/device가 `1/2`로 갈리면 제3회 다수결 없이 `inconclusive_nondeterministic`으로 닫는다.
+
+| 계약 항목 | Arm A control | Arm B intervention |
+| --- | --- | --- |
+| solver position/velocity | `8/0` | `8/0` |
+| robot contact offset | runtime baseline `×1.0` | 같은 baseline `×1.5` |
+| robot rest offset | before와 동일 | before와 동일 |
+| 적용 경로 | env startup의 `root_physx_view` get/set | 동일 |
+| USD schema `Apply` | 금지 | 금지 |
+
+- Go2 USD의 collision shape별 contact offset은 균일값으로 가정하거나 `0.02m`로 덮어쓰지 않는다. startup에서 `8 env × 27 collision shapes`의 실제 baseline 배열을 읽고 contact 배열의 before/after·shape·해시·최솟값·최댓값을 기록해 `after=before×scale`을 재계산한다. tensor 열은 `shape_index_00..26`으로만 식별하고 USD prim path와의 열별 대응 권위는 주장하지 않는다. collision prim path inventory는 별도 topology/count 증거다. rest setter는 호출하지 않으며 before/after 동일성이 깨지면 fail-closed다. ground는 실제 offset readback이 없으므로 unchanged를 주장하지 않고 robot root tensor setter만 호출했다는 source-bound 범위만 기록한다.
+- seed `42`, `8 env`, source env `7`, `right_side / reset_pose_hold`, `150×0.005s`, action cadence 38회, headless/no-render, max depenetration `1.0m/s`, 질량·마찰·모터·reset·reward config를 고정한다. manual inner loop는 reward/termination/curriculum post-step을 계산하지 않고 PPO·Gate·qualification update는 모두 `0`이다.
+- 진단 안전값은 Gate 실행과 구분한다. finite joint position/contact force, hard joint limit `+0.01rad` margin, non-foot peak force `≤15 BW`, CPU의 env별·전체·source env raw minimum separation `≥-0.01m`을 report에서 재계산한다. `robot.data.default_mass`의 `8×19` snapshot·body ordering·해시를 150 step 동안 고정하고 이 질량으로 BW 분모를 다시 계산한다. raw callback이 GPU Arm B에서만 `2/2` 생겨도 physics-ground-truth authority는 `false`, `selected_lever=null`, Gate01·PPO는 계속 닫는다.
+
+요약기는 두 모드를 분리한다. CPU 네 report를 정확한 순서로 `--mode cpu-preflight`에 넣어 canonical preflight를 만들고, GPU 실행에는 각 probe 명령에 `--cpu-preflight reports/runs/g009_r0_rev19_contact_offset_cpu_preflight_2x2_s42.json`을 반드시 전달한다. 최종 8회 합성은 `--mode final`과 같은 preflight 입력을 사용해 `reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json`만 생성하며, CPU 네 report binding이 immutable artifact와 일치하고 GPU 네 report가 동일 artifact SHA를 기록했는지 검증한다. 합성의 top-level `status=complete`는 처리 완료를 뜻할 뿐 Gate·qualification PASS가 아니다.
