@@ -1,0 +1,193 @@
+{
+  "schema_version": "g009.r0.rev21.matrix_authority_safety_gate.v1",
+  "evidence_id": "G009-5-E014",
+  "status": "complete",
+  "mode": "static_bounded_recursive_evidence_gate",
+  "predecessor": {
+    "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_synthesis_2x2_s42.json",
+    "sha256": "dcb8f446a212390f94f9ae5ccad97d9e770f9b8f5961f5ffb0c920f8d62580b3",
+    "outcome": "terrain_pair_matrix_authority_candidate_validated",
+    "next_step": "preregister_matrix_authority_safety_gate"
+  },
+  "evidence_chain": {
+    "raw_reports": [
+      {
+        "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep01_s42.json",
+        "sha256": "d4f8a371edd77c69fb74994c56d629c3e27dd122907ade90f931eeb546c41c29"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep02_s42.json",
+        "sha256": "63d19f42e7c79cc77846f09b5245c2dc46e77630ce97020dfb29be0837375e6c"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep01_s42.json",
+        "sha256": "363e3bfe3d3ed3b1c3bfe7c3ae0aecf6a1a4f6704cdb9c8533a73e6e3f75cd0a"
+      },
+      {
+        "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep02_s42.json",
+        "sha256": "305914af13be60c869b6b3a6d103b37a616be7d1c4e6a7e99dceeb8ef53698ca"
+      }
+    ],
+    "cpu_preflight": {
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_preflight_2x_s42.json",
+      "sha256": "2c4996f837d0c6003d653761c53ac399e98fb80db25c7d00ee647b871ac4968c"
+    },
+    "bounded_recursive_parse_complete": true
+  },
+  "historical_source_binding": {
+    "commit": "fb2992965fcfb502a679065eac253a6bdcdf7086",
+    "files": {
+      "configs/g009_r0.json": "869747af4e57a51f5ae2a687c9e704a8eb16a0efe700d5877ba2b4859b90d8ab",
+      "configs/g009_r0_rev20_terrain_contact_matrix.json": "9110109f92f0678bc70fb1e73702bb984246ac7b364a304686dcbde4f9f65482",
+      "reports/runs/g009_r0_rev19_contact_offset_intervention_synthesis_2x2x2_s42.json": "5d95449398b4168cc8a7d0f73d4248e77fd2257b05f5bce22e4431020f8bf576",
+      "scripts/probe_g009_recover_runtime.py": "48d66ef07da8e38ca1d327363838f5cc352e4de1a355c568bce8322b3dd4d8dd",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py": "5c409bf640887fb058e8b1e034e30c5829a27b650fdef574bfb7c730e893f40e",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py": "5f64ba75d80bcd4e5ed6995af1b32e1bd68ec6976fbbc86d58690ef5d98c3930",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py": "1816ecf569d83b81e77d192d9ab4bce6c84a4b1cbc64b407a22ae3c1a85dcfc2",
+      "scripts/summarize_g009_r0_rev20_terrain_contact_matrix.py": "29830bbd2139ea7efcbefa1f891acf6024dc72285ed94191e88e4a70e209f8a2",
+      "src/isaac_walk_g009/mdp/events.py": "642c34b0931c45ec0533d03c19f6e9fe574b4cf47cb79414b484ba6b1b3e4ea8",
+      "src/isaac_walk_g009/recover_contracts.py": "a55dddd8d245d06b20c3cd943c6f8d53949657b229bb63cfdcdea7eb0a787546",
+      "src/isaac_walk_g009/recover_env_cfg.py": "db548cf339d92243e2037951a8d6b475c4bff5f8458036d04568d67aee05dd81",
+      "src/isaac_walk_g009/registry.py": "82b9f0d85bf3027789d7308b210e0505a3b5ab14ee38cfe155a206f303ff8d93"
+    },
+    "runtime_bundle_sha256": "21353b2d90e43260e8446df094ef178264227a1040901d99230fb2c40b99b83c",
+    "synthesis_bundle_sha256": "bf00813f9051969377d0bf7dee8092eff2df4643de3e29f2eff40d31d3be62e8",
+    "blob_count": 12
+  },
+  "decision": {
+    "passed": true,
+    "outcome": "matrix_authority_safety_gate_passed_for_diagnostic_preregistration",
+    "primary_reason": "matrix_authority_safety_gate_passed_for_diagnostic_preregistration",
+    "next_step": "preregister_read_only_matrix_observation_adapter"
+  },
+  "checks": [
+    {
+      "reason": "rev21_preregistration_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "canonical_output_path_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "canonical_output_already_exists",
+      "status": "pass"
+    },
+    {
+      "reason": "rev21_source_provenance_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_synthesis_missing_or_path_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_synthesis_sha256_mismatch",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_synthesis_json_or_schema_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_synthesis_identity_or_decision_mismatch",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_governance_or_claim_limit_mismatch",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_evidence_chain_binding_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_execution_identity_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_source_provenance_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_baseline_or_runtime_drift",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_matrix_shape_or_order_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_matrix_numeric_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev20_matrix_physics_limit_exceeded",
+      "status": "pass"
+    },
+    {
+      "reason": "matrix_authority_safety_gate_passed_for_diagnostic_preregistration",
+      "status": "pass"
+    }
+  ],
+  "assurance_tiers": {
+    "byte_and_provenance_verified": "fixed paths and SHA-256 plus historical Git blobs match",
+    "persisted_evidence_internally_recomputed": "only values reproducible from persisted structures, magnitudes, and ledgers are recomputed",
+    "physics_execution_not_independently_reobserved": "PhysX tensor generation, CPU/GPU physics reproducibility, and current external IsaacLab bytes are not independently reobserved"
+  },
+  "claim_limits": {
+    "policy_observation_connected": false,
+    "reward_computed": false,
+    "ppo_training_executed": false,
+    "walking_turning_slope_or_self_recovery_qualified": false,
+    "physics_ground_truth_authority": false,
+    "simulator_launched": false,
+    "rollout_steps": 0,
+    "optimizer_updates": 0
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "gate_execution_allowed": false,
+    "qualification_eligible": false,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  },
+  "execution_metrics": {
+    "simulator_launched": false,
+    "rollout_steps": 0,
+    "optimizer_updates": 0
+  },
+  "limitations": {
+    "persisted_data_recalculation_only": true,
+    "direct_matrix_and_sensor_buffer_sha256_equality_cross_checked_only": true,
+    "raw_filtered_tensor_sha256_not_independently_regenerated": true,
+    "physics_execution_independently_reobserved": false,
+    "current_external_isaaclab_bytes_read": false,
+    "diagnostic_force_and_joint_guards_are_real_robot_limits": false
+  },
+  "rev21_source_binding": {
+    "schema_version": 1,
+    "git_commit": "e202ae1d514c7abfe05ce0da130c2db47e9e05f3",
+    "source_binding_paths": [
+      "configs/g009_r0_rev21_matrix_authority_safety_gate.json",
+      "scripts/summarize_g009_r0_rev21_matrix_authority_safety_gate.py",
+      "scripts/run_g009_r0_rev21_matrix_authority_safety_gate.py"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0_rev21_matrix_authority_safety_gate.json": "0dced992e62d532f013bc838c1cc9053c00af418c3121332aaca861ad95c4a73",
+      "scripts/summarize_g009_r0_rev21_matrix_authority_safety_gate.py": "709c6b616e26603f49936a8729eff8ccfee15b573951b9f7f6a489554fd7e9e7",
+      "scripts/run_g009_r0_rev21_matrix_authority_safety_gate.py": "4f74501e75b4fc7980c397880bf0a0b91098ad683c1329bad7137189cf961d5b"
+    },
+    "source_bundle_sha256": "3589f3852c4365afadb8dbdc871ffb2fe81888155b7e66c274034b5506eaf40e",
+    "path_scoped_clean": true
+  },
+  "execution": {
+    "execution_id": "677d2d81294b47eaad3f14544230bb85",
+    "started_at_utc": "2026-08-30T14:58:33.646282Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_rev21_matrix_authority_safety_gate_s42.json",
+    "no_overwrite": true
+  }
+}

@@ -1392,6 +1392,74 @@ H.264 MP4는 Git에 넣지 않고 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g
 6. 경사 전복 복구: 실제 WALK 낙상 snapshot을 수집해 curated/replay reset을 만들고 낮은 경사 R1, 높은 경사 R2, controlled/spatial friction 복구 R3, `push → fall → recover → stand → command resume` D2 순서로 결합한다.
 7. 링크 질량·관성 M1: G009 final-heldout 계약을 고정한 뒤 hip, thigh, calf, foot 그룹의 질량·관성을 한 그룹씩 바꾼다. friction·slope·wrench와 동시에 바꾸지 않고 sim-to-real 물성 민감도를 별도 goal로 평가한다.
 
+#### rev21 E014 실제 결과: matrix authority safety gate
+
+rev21은 rev20에서 검증한 terrain-pair contact matrix 후보를 다음 runtime 단계의 안전 판정 입력으로 다룰 수 있는지 확인한 **Python 정적 bounded recursive evidence gate**다. source commit은 `e202ae1d514c7abfe05ce0da130c2db47e9e05f3`, rev21 source bundle SHA-256은 `3589f3852c4365afadb8dbdc871ffb2fe81888155b7e66c274034b5506eaf40e`다.
+
+##### 입력 증거와 검증 범위
+
+입력은 [rev20 final synthesis](../reports/runs/g009_r0_rev20_terrain_contact_matrix_synthesis_2x2_s42.json)와 그 synthesis가 묶은 CPU raw 2회, GPU raw 2회, CPU preflight다. final synthesis SHA-256은 `dcb8f446a212390f94f9ae5ccad97d9e770f9b8f5961f5ffb0c920f8d62580b3`다. 여기에 historical source commit `fb2992965fcfb502a679065eac253a6bdcdf7086`의 Git blob 12개를 다시 읽어 source provenance를 확인했다.
+
+gate는 저장된 증거를 제한된 깊이에서 다시 파싱하고 다음 항목을 독립적으로 대조했다.
+
+1. preregistration, canonical output path와 rev21 source binding
+2. rev20 synthesis path·SHA-256·schema·decision·governance
+3. raw report 4개와 CPU preflight의 path·SHA-256·execution identity
+4. historical source 12개 blob과 runtime/synthesis bundle
+5. runtime baseline, matrix shape·body/filter ordering·dtype·device
+6. finite 값, direct/buffer storage independence와 `150/150` exact parity
+7. same-body overlap, mass continuity, non-foot peak와 joint margin
+
+검증 항목 `17/17`이 PASS했다. [canonical artifact](../reports/runs/g009_r0_rev21_matrix_authority_safety_gate_s42.json)의 SHA-256은 `68a60383d9d49bf009d189498f94e6fe1c03155259932dcff8965caa7d9aa250`다.
+
+```text
+outcome = matrix_authority_safety_gate_passed_for_diagnostic_preregistration
+next_step = preregister_read_only_matrix_observation_adapter
+simulator_launched = false
+rollout_steps = 0
+reward_computed = false
+optimizer_updates = 0
+ppo_updates = 0
+qualification_status = not_run
+```
+
+canonical 생성 전 `--check-only`는 어떤 파일도 쓰지 않고 PASS했다. 생성 후 [full verifier](../scripts/summarize_g009_r0_rev21_matrix_authority_safety_gate.py)는 artifact에 기록된 값만 믿지 않고 raw report 4개, CPU preflight, rev20 synthesis, historical Git blob 12개와 rev21 source commit을 다시 읽어 PASS했다. [runner](../scripts/run_g009_r0_rev21_matrix_authority_safety_gate.py)를 두 번째로 실행했을 때는 exit code `2`, reason `canonical_output_already_exists`로 닫혔고 canonical SHA-256은 그대로였다. 재실행 실패 envelope는 `C:\Users\LIMMM\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\failed_attempts\rev21\g009_5_e014_rev21_matrix_authority_safety_gate_75f18ba89aa74171bc8a26797416865d.json`에만 보존했다.
+
+##### 실행과 재검증
+
+다음 명령은 Windows PowerShell에서 실행한다. canonical artifact가 이미 존재하는 현재 상태에서는 `--check-only`가 no-overwrite 규칙 때문에 exit code `2`를 반환하는 것이 정상이다. 최초 생성 전 실행에서는 read-only PASS였다.
+
+```powershell
+cd C:\Users\LIMMM\isaac-walk-rl
+py C:\Users\LIMMM\isaac-walk-rl\scripts\run_g009_r0_rev21_matrix_authority_safety_gate.py --check-only
+py C:\Users\LIMMM\isaac-walk-rl\scripts\summarize_g009_r0_rev21_matrix_authority_safety_gate.py --verify-artifact C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0_rev21_matrix_authority_safety_gate_s42.json
+Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0_rev21_matrix_authority_safety_gate_s42.json
+```
+
+##### 포트폴리오에서 말할 수 있는 것과 없는 것
+
+이 결과의 의미는 “CPU/GPU `2×2` contact-matrix 증거를 고정된 source와 연결하고, 다음 observation adapter를 열기 전에 shape·ordering·수치·진단 안전 조건을 재현 가능한 fail-closed gate로 만들었다”는 데 있다. 후보 tensor를 바로 정책 입력으로 연결하지 않고, provenance와 no-overwrite까지 검증했다는 점이 문제 해결 과정의 성과다.
+
+그러나 이 단계는 Isaac/PhysX 재실행 `0`, reward 계산 `0`, rollout `0`, PPO/optimizer update `0`인 정적 검증이다. 보행, 앞뒤 이동, 좌·우회전, 경사 주행, 전복 자가복구를 수행하거나 qualification한 결과가 아니다. `15BW`와 hard joint limit 바깥 `-0.01rad` diagnostic margin도 저장된 rev20 증거를 거르는 연구용 기준이지, 실물 로봇의 안전 한계가 아니다. PhysX tensor를 새로 생성하거나 외부 Isaac Lab 설치본의 현재 byte를 재관찰하지 않았으므로 physics ground truth authority라고 주장하지 않는다.
+
+##### 미디어와 공개 보류
+
+rev21은 실행 동작, 물리 조건, checkpoint를 바꾸지 않았다. 따라서 새 영상을 촬영하지 않고 번호 13의 E013 telemetry GIF·PNG와 로컬 MP4를 입력 증거의 시각 자료로 재사용한다. 정적 gate PASS를 새 로봇 동작이나 자가복구 성공 영상처럼 연출하지 않는다. Garden 공개 글은 read-only runtime adapter와 실제 시뮬레이션 관찰 결과가 나온 뒤 작성하며, 현재 E014만 별도 성공 글로 발행하지 않는다.
+
+##### 다음 단계: read-only matrix observation adapter 사전등록
+
+`preregister_read_only_matrix_observation_adapter`에서 다음 계약을 구현 전에 고정한다.
+
+1. 정책 후보 입력을 XYZ vector로 유지할지 magnitude로 축약할지 구분한다.
+2. world/local 좌표계 변환과 body-filter 축의 합산·정렬 순서를 고정한다.
+3. normalization, clipping, missing contact의 zero/mask/fail-closed 처리를 고정한다.
+4. dtype, device, batch·body·filter·component output shape를 고정한다.
+5. adapter가 원본 source tensor를 제자리 수정하지 않는지 storage와 byte hash로 확인한다.
+6. 이 단계에서도 reward·policy·PPO 연결을 금지하고 simulator launch와 rollout을 `0`으로 유지한다.
+7. rev21 정적 파일·JSON·Git blob 검증은 GPU 이점이 없어 CPU에서 수행했으며 GPU PhysX/PPO 실행으로 표현하지 않는다. adapter 사전등록을 통과한 뒤 실제 재관찰과 이후 학습은 `cuda:0`과 GPU dynamics를 사용한다. env·batch는 VRAM 여유, OOM 부재, physics stability를 통과할 때만 단계적으로 늘리고 GPU utilization, peak VRAM, steps/s를 기록한다. 목표는 점유율 `100%` 자체가 아니라 반복 안정성이 유지되는 최대 throughput이다. CPU는 preflight, summary와 backend 재현 대조에 사용한다.
+
+이 계약이 PASS한 뒤에만 read-only runtime observation을 실제 Isaac/PhysX에서 재관찰한다. 그 결과가 source tensor 불변성, shape/order, finite, missing-contact 규칙을 모두 통과해야 matrix 기반 Gate01의 별도 사전등록으로 넘어간다.
+
 ![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
 
 ![rev12 gate10 full-state 사건별 GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.gif)
@@ -1565,24 +1633,25 @@ G009 R0에서는 scratch PPO smoke와 50회 진단 pilot을 실제로 실행했�
 14. **R0 rev18 raw-contact feasibility — E011 완료·GPU 관측 불가**: CPU `2/2`는 callback `150회`, raw PASS와 반복성을 확인했다. GPU `2/2`는 probe valid와 positive force stimulus를 유지했지만 callback `0회`의 같은 unavailable signature였다. residual/force-matrix 계측은 unavailable이며 PPO·Gate01·qualification은 실행하지 않았다.
 15. **R0 rev19 contact-offset intervention — E012 완료·lever 미선정**: Arm A `8/0 + offset×1.0`, Arm B `8/0 + offset×1.5`를 CPU/GPU 각 2회, 총 8회 비교했다. CPU는 raw callback과 safety를 `4/4` 통과했지만 GPU는 두 arm 모두 callback `0/150`의 unavailable signature였다. offset 적용 무결성은 확인했으나 A/B force proxy가 같아 `selected_lever=null`로 닫았고, GPU 접촉 부재·물리 실패를 주장하지 않는다. PPO·Gate01·qualification은 실행하지 않았다.
 16. **R0 rev20 terrain-pair contact authority — E013 후보 검증 완료**: rev19 Arm A baseline 물리를 그대로 고정하고 terrain-filtered `RigidContactView.get_contact_force_matrix(dt)`만 추가했다. CPU/GPU 각 독립 `2/2`에서 150-step direct/buffer parity, 8/8 same-body overlap, repeatability, `15BW`·joint·numeric safety를 통과했다. 최종 outcome은 `terrain_pair_matrix_authority_candidate_validated`이며 physics ground truth, 보행·복구, RL qualification 성공이 아니다. 다음은 matrix authority safety gate 사전등록이고 그 전에는 Gate01·PPO를 계속 닫는다.
-17. **R0 qualification**: 모든 안전 gate를 통과한 revision에서 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch로 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
-18. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
-19. **S1-low WALK**: `5/10°` contour-left/right를 G008 WALK parent에서 seed별 독립 lineage로 학습한다.
-20. **S1-high WALK**: `15/20°`를 순차적으로 연다. `25°`는 stress로 유지한다.
-21. **D0A/D0B/D0C**: G006 exact 회귀, G009 0도 transfer, 통과한 경사별 delta-velocity를 분리한다.
-22. **D1 external wrench**: 힘·시간·충격량 pulse를 mild에서 strong 순서로 추가한다.
-23. **S2 residual height**: nominal friction에서 base slope에 G008 도로 residual만 더한다.
-24. **S3-controlled**: 발별 비대칭 마찰을 통제한다.
-25. **S3-spatial**: 비주기 공간 마찰 mosaic로 옮긴다.
-26. **F0A와 R0B**: 실제 WALK 낙상 snapshot을 수집하고 curated/replay `50/50` reset으로 RECOVER를 다시 학습한다.
-27. **R1/R2**: 낮은 경사, 높은 경사 self-righting을 차례로 연다.
-28. **R3-controlled/R3-spatial**: controlled 마찰 뒤 spatial 마찰 복구를 연다.
-29. **D2**: 외란이 만든 live fall을 RECOVER로 넘겨 `push -> fall -> recover -> stand -> command resume`를 평가한다.
-30. **F0B-TV와 R4**: training/validation natural-fall inventory로 최종 bridge를 학습한다.
-31. **I0**: 세 WALK/RECOVER seed pair의 live·snapshot validation을 통과한 뒤 checkpoint, gate, trigger, component SHA를 동결한다.
-32. **F0B-FINAL과 I1**: sealed final-heldout을 처음 열어 한 번만 평가한다.
-33. **D3**: `25°`, physical-limit friction, strong wrench를 결합한 stress 평가를 수행한다.
-34. **M1 link-mass**: G009 final-heldout을 고정한 뒤 hip, thigh, calf, foot 질량·관성을 한 그룹씩 바꾸는 별도 goal로 연다.
+17. **R0 rev21 matrix authority safety gate — E014 정적 검증 완료**: rev20 synthesis, CPU/GPU raw 각 2회, CPU preflight와 historical source blob 12개를 bounded recursive gate로 재검증했다. `17/17` PASS와 no-overwrite를 확인했지만 Isaac/PhysX, reward, rollout, PPO는 실행하지 않았다. 다음은 read-only matrix observation adapter 사전등록이다.
+18. **R0 qualification**: 모든 안전 gate를 통과한 revision에서 Hydra override·resume 없이 `1,024 env × 24 steps × 300 iterations`, seed 42를 다시 scratch로 실행한다. 네 자세 각각 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과해야 checkpoint를 승인한다.
+19. **GATE-R1 freeze**: S0 nominal height, WALK torque·power, R0 RECOVER power·충격 proxy를 calibration하고 별도 verifier가 동결한다.
+20. **S1-low WALK**: `5/10°` contour-left/right를 G008 WALK parent에서 seed별 독립 lineage로 학습한다.
+21. **S1-high WALK**: `15/20°`를 순차적으로 연다. `25°`는 stress로 유지한다.
+22. **D0A/D0B/D0C**: G006 exact 회귀, G009 0도 transfer, 통과한 경사별 delta-velocity를 분리한다.
+23. **D1 external wrench**: 힘·시간·충격량 pulse를 mild에서 strong 순서로 추가한다.
+24. **S2 residual height**: nominal friction에서 base slope에 G008 도로 residual만 더한다.
+25. **S3-controlled**: 발별 비대칭 마찰을 통제한다.
+26. **S3-spatial**: 비주기 공간 마찰 mosaic로 옮긴다.
+27. **F0A와 R0B**: 실제 WALK 낙상 snapshot을 수집하고 curated/replay `50/50` reset으로 RECOVER를 다시 학습한다.
+28. **R1/R2**: 낮은 경사, 높은 경사 self-righting을 차례로 연다.
+29. **R3-controlled/R3-spatial**: controlled 마찰 뒤 spatial 마찰 복구를 연다.
+30. **D2**: 외란이 만든 live fall을 RECOVER로 넘겨 `push -> fall -> recover -> stand -> command resume`를 평가한다.
+31. **F0B-TV와 R4**: training/validation natural-fall inventory로 최종 bridge를 학습한다.
+32. **I0**: 세 WALK/RECOVER seed pair의 live·snapshot validation을 통과한 뒤 checkpoint, gate, trigger, component SHA를 동결한다.
+33. **F0B-FINAL과 I1**: sealed final-heldout을 처음 열어 한 번만 평가한다.
+34. **D3**: `25°`, physical-limit friction, strong wrench를 결합한 stress 평가를 수행한다.
+35. **M1 link-mass**: G009 final-heldout을 고정한 뒤 hip, thigh, calf, foot 질량·관성을 한 그룹씩 바꾸는 별도 goal로 연다.
 
 각 stage는 새 평가 JSON과 미디어 세트를 가져야 한다. 한 방향, 한 자세, 한 friction pattern의 blocking cell이 실패하면 평균 성능이 높아도 다음 stage를 열지 않는다.
 
@@ -1640,8 +1709,9 @@ G009를 포트폴리오에 넣을 때 핵심은 “Isaac Sim에서 로봇을 걸
 12. 과거 float32 fingerprint와 현재 canonical telemetry 산식을 분리하고 pair crosscheck를 추가해 tolerance를 사후 완화하지 않은 채 두 증거 계보를 보존했다.
 13. raw callback, force proxy, joint wrench, residual을 서로 다른 권위 수준으로 분리하고 CPU/GPU `2×2` 반복으로 “접촉 없음”과 “GPU에서 raw 관측 불가”를 구분했다.
 14. contact offset `×1.0/×1.5`를 같은 source의 CPU/GPU `2×2×2`로 비교해 개입 적용과 안전성은 검증하되, 양 arm의 GPU raw callback이 모두 unavailable이면 lever를 선택하지 않는 fail-closed 결정을 유지했다.
+15. terrain-pair matrix 후보를 historical Git blob과 raw evidence까지 bounded recursive 검증하는 정적 safety gate로 고정하고, canonical artifact를 재실행으로 덮어쓰지 않는 provenance 경계를 만들었다.
 
-현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생, R0의 actor privilege 경계·보상/성공 계약, rev1~rev9 실패 진단, rev10 CPU 실패 재현, rev11·rev12 runtime 및 safety gate, rev12 Gate10 full-state GPU fresh `3/3` 귀속, rev13 CPU `3/3` 기각, rev14 CPU·GPU 각 `3/3`의 force/separation trade-off, rev15 CPU/GPU 각 `3/3`의 backend force divergence, rev16 Arm A/B × CPU/GPU 12-run attribution, rev17 E010의 hash-bound mechanism split, rev18 E011의 raw-contact capability `2×2` 진단, rev19 E012의 contact-offset `2×2×2` 개입 검증, rev20 E013의 terrain-pair matrix CPU/GPU `2×2` 후보 검증이다. rev14는 force를 낮췄지만 separation이 기준보다 `0.9901875mm` 깊어 기각됐고, rev15는 CPU force와 separation을 통과했지만 GPU force가 `15 BW`보다 `11.92%` 높아 기각됐다. rev16은 B GPU의 더 이른 peak와 root·joint speed 상승을 재현했지만 concentration 증가는 `18.36%`로 사전 기준 `20%`에 못 미쳐 가설을 `inconclusive`로 닫았다. rev17은 peak base force `+26.72%`와 17-step 전신 impulse `+1.42%`를 분리하고 CPU 접촉 순서를 확인했지만 GPU contact-pair authority가 없어 원인 lever를 고르지 않았다. rev18은 CPU raw callback을 `2/2` 재현했지만 GPU에서는 positive force stimulus가 있는 동안에도 callback이 `0/2`여서 `unavailable_on_gpu`로 닫았다. rev19는 offset `×1.5` 적용 무결성과 CPU safety를 확인했지만 두 arm 모두 GPU callback `0/150`, 동일 force proxy였으므로 `selected_lever=null`로 닫았다. rev20은 single GroundPlane terrain filter에서 direct/buffer parity `150/150`, same-body overlap `8/8`, CPU/GPU 반복성과 진단 안전을 통과해 matrix를 다음 safety authority의 후보로만 승인했다. 이는 모르는 부분을 수치와 권위 경계로 제한한 진단 증거이며 성공 정책 증거는 아니다. 새 물리 파라미터·Gate01·PPO는 matrix authority safety gate를 별도로 사전등록하기 전까지 열지 않는다. `25°`는 최대 주행 가능 경사가 아니라 현재 stress cell이며, 기존 정책이 크게 기울고 아래로 밀린 실패 결과로 공개한다. R0 strict success `0`과 hard-joint-limit 실패도 경계 조건으로 함께 남긴다. 성공한 전복 복구 영상은 향후 revision이 네 자세별 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`의 qualification gate를 통과한 뒤 별도로 추가한다.
+현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생, R0의 actor privilege 경계·보상/성공 계약, rev1~rev9 실패 진단, rev10 CPU 실패 재현, rev11·rev12 runtime 및 safety gate, rev12 Gate10 full-state GPU fresh `3/3` 귀속, rev13 CPU `3/3` 기각, rev14 CPU·GPU 각 `3/3`의 force/separation trade-off, rev15 CPU/GPU 각 `3/3`의 backend force divergence, rev16 Arm A/B × CPU/GPU 12-run attribution, rev17 E010의 hash-bound mechanism split, rev18 E011의 raw-contact capability `2×2` 진단, rev19 E012의 contact-offset `2×2×2` 개입 검증, rev20 E013의 terrain-pair matrix CPU/GPU `2×2` 후보 검증, rev21 E014의 bounded recursive safety gate `17/17` 검증이다. rev14는 force를 낮췄지만 separation이 기준보다 `0.9901875mm` 깊어 기각됐고, rev15는 CPU force와 separation을 통과했지만 GPU force가 `15 BW`보다 `11.92%` 높아 기각됐다. rev16은 B GPU의 더 이른 peak와 root·joint speed 상승을 재현했지만 concentration 증가는 `18.36%`로 사전 기준 `20%`에 못 미쳐 가설을 `inconclusive`로 닫았다. rev17은 peak base force `+26.72%`와 17-step 전신 impulse `+1.42%`를 분리하고 CPU 접촉 순서를 확인했지만 GPU contact-pair authority가 없어 원인 lever를 고르지 않았다. rev18은 CPU raw callback을 `2/2` 재현했지만 GPU에서는 positive force stimulus가 있는 동안에도 callback이 `0/2`여서 `unavailable_on_gpu`로 닫았다. rev19는 offset `×1.5` 적용 무결성과 CPU safety를 확인했지만 두 arm 모두 GPU callback `0/150`, 동일 force proxy였으므로 `selected_lever=null`로 닫았다. rev20은 single GroundPlane terrain filter에서 direct/buffer parity `150/150`, same-body overlap `8/8`, CPU/GPU 반복성과 진단 안전을 통과해 matrix를 다음 safety authority의 후보로만 승인했다. rev21은 이를 historical source와 raw evidence까지 재검증하는 no-overwrite 정적 gate로 고정했지만 simulator·reward·rollout·PPO를 실행하지 않았다. 이는 모르는 부분을 수치와 권위 경계로 제한한 진단 증거이며 성공 정책 증거는 아니다. 새 물리 파라미터·Gate01·PPO는 read-only matrix observation adapter와 실제 runtime 관찰을 별도 사전등록·검증하기 전까지 열지 않는다. `25°`는 최대 주행 가능 경사가 아니라 현재 stress cell이며, 기존 정책이 크게 기울고 아래로 밀린 실패 결과로 공개한다. R0 strict success `0`과 hard-joint-limit 실패도 경계 조건으로 함께 남긴다. 성공한 전복 복구 영상은 향후 revision이 네 자세별 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`의 qualification gate를 통과한 뒤 별도로 추가한다.
 
 ## 실물 로봇과 Mini Pupper에 대한 범위 제한
 
@@ -1702,6 +1772,8 @@ G009의 Go2 checkpoint를 Mini Pupper나 3D 프린팅 로봇에 직접 옮기지
 - [R0 rev20 E013 13.01 visual sidecar](../reports/runs/g009_5_r0_e013_rev20_cpu_preflight_visual_evidence.json), [13.02 visual sidecar](../reports/runs/g009_5_r0_e013_rev20_final_cpu_gpu_visual_evidence.json)
 - [R0 rev20 E013 13.01 공개 PNG](media/g009/R0/diagnostic/g009_5_r0_e013_rev20_cpu_preflight.png), [공개 GIF](media/g009/R0/diagnostic/g009_5_r0_e013_rev20_cpu_preflight.gif)
 - [R0 rev20 E013 13.02 공개 PNG](media/g009/R0/diagnostic/g009_5_r0_e013_rev20_final_cpu_gpu.png), [공개 GIF](media/g009/R0/diagnostic/g009_5_r0_e013_rev20_final_cpu_gpu.gif)
+- [R0 rev21 E014 matrix authority safety gate](../reports/runs/g009_r0_rev21_matrix_authority_safety_gate_s42.json)
+- [R0 rev21 E014 preregistration](../configs/g009_r0_rev21_matrix_authority_safety_gate.json), [runner](../scripts/run_g009_r0_rev21_matrix_authority_safety_gate.py), [full verifier](../scripts/summarize_g009_r0_rev21_matrix_authority_safety_gate.py)
 - [R0 rev7 50회 진단 pilot](../reports/runs/go2_flat_recover_rev7_pilot_s42_20260828-1312.json)
 - [R0 rev8 50회 안전 pilot](../reports/runs/go2_flat_recover_rev8_safety_pilot_s42_20260828-1318.json)
 - [R0 rev9 50회 prone pilot](../reports/runs/go2_flat_recover_rev9_prone_pilot_s42_20260828-1421.json)
