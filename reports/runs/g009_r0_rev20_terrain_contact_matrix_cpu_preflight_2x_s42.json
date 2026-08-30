@@ -1,0 +1,89 @@
+{
+  "schema_version": "g009.r0.rev20.terrain_contact_matrix_cpu_preflight.v1",
+  "evidence_id": "G009-5-E013",
+  "status": "complete",
+  "mode": "cpu_preflight_2x",
+  "input_report_count": 2,
+  "input_reports": [
+    {
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep01_s42.json",
+      "sha256": "d4f8a371edd77c69fb74994c56d629c3e27dd122907ade90f931eeb546c41c29"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep02_s42.json",
+      "sha256": "63d19f42e7c79cc77846f09b5245c2dc46e77630ce97020dfb29be0837375e6c"
+    }
+  ],
+  "integrity": {
+    "passed": true,
+    "hash_bound": true,
+    "unique_report_paths": true,
+    "unique_report_sha256": true,
+    "unique_execution_ids": true,
+    "exact_slots": [
+      "cpu.rep1",
+      "cpu.rep2"
+    ],
+    "git_commit": "fb2992965fcfb502a679065eac253a6bdcdf7086",
+    "probe_source_bundle_sha256": "21353b2d90e43260e8446df094ef178264227a1040901d99230fb2c40b99b83c",
+    "synthesis_source_bundle_sha256": "bf00813f9051969377d0bf7dee8092eff2df4643de3e29f2eff40d31d3be62e8"
+  },
+  "cpu_preflight": {
+    "passed": true,
+    "required_checks_passed": true,
+    "within_cpu_repeatability_passed": true,
+    "gpu_stage_allowed": true
+  },
+  "decision": {
+    "outcome": "gpu_stage_authorized",
+    "third_run_allowed": false,
+    "repeatability": {
+      "exact_fields_match": true,
+      "numeric_fields_within_tolerance": true,
+      "repeatable": true,
+      "absolute_tolerance": 1e-05,
+      "relative_tolerance": 1e-06
+    }
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "gate_execution_allowed": false,
+    "qualification_eligible": false,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  },
+  "synthesis_source_bundle": {
+    "schema_version": 1,
+    "git_commit": "fb2992965fcfb502a679065eac253a6bdcdf7086",
+    "git_commit_valid": true,
+    "source_binding_paths": [
+      "configs/g009_r0_rev20_terrain_contact_matrix.json",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+      "scripts/summarize_g009_r0_rev20_terrain_contact_matrix.py",
+      "scripts/probe_g009_recover_runtime.py",
+      "src/isaac_walk_g009/recover_contracts.py"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0_rev20_terrain_contact_matrix.json": "9110109f92f0678bc70fb1e73702bb984246ac7b364a304686dcbde4f9f65482",
+      "scripts/probe_g009_r0_rev18_gpu_raw_contact.py": "5c409bf640887fb058e8b1e034e30c5829a27b650fdef574bfb7c730e893f40e",
+      "scripts/probe_g009_r0_rev19_contact_offset_intervention.py": "5f64ba75d80bcd4e5ed6995af1b32e1bd68ec6976fbbc86d58690ef5d98c3930",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py": "1816ecf569d83b81e77d192d9ab4bce6c84a4b1cbc64b407a22ae3c1a85dcfc2",
+      "scripts/summarize_g009_r0_rev20_terrain_contact_matrix.py": "29830bbd2139ea7efcbefa1f891acf6024dc72285ed94191e88e4a70e209f8a2",
+      "scripts/probe_g009_recover_runtime.py": "48d66ef07da8e38ca1d327363838f5cc352e4de1a355c568bce8322b3dd4d8dd",
+      "src/isaac_walk_g009/recover_contracts.py": "a55dddd8d245d06b20c3cd943c6f8d53949657b229bb63cfdcdea7eb0a787546"
+    },
+    "source_bundle_sha256": "bf00813f9051969377d0bf7dee8092eff2df4643de3e29f2eff40d31d3be62e8",
+    "clean": true
+  },
+  "execution": {
+    "execution_id": "e7c172f8bec647a28559f55be420929e",
+    "started_at_utc": "2026-08-30T10:05:45.291616Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_preflight_2x_s42.json",
+    "no_overwrite": true
+  }
+}

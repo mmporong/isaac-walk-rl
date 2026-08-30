@@ -1,0 +1,146 @@
+{
+  "schema_version": "g009.r0.rev20.terrain_contact_matrix_visual_evidence.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "stage_number": "13",
+  "sequence_number": "13.02",
+  "revision": "rev20",
+  "evidence_id": "G009-5-E013",
+  "phase": "final",
+  "status": "diagnostic_complete",
+  "integrity": {
+    "passed": true,
+    "hash_bound": true,
+    "all_inputs_revalidated": true,
+    "no_overwrite": true
+  },
+  "labels": [
+    "13.02",
+    "TELEMETRY ANIMATION",
+    "NOT CAMERA FOOTAGE",
+    "DIAGNOSTIC ONLY",
+    "NO PPO",
+    "NOT QUALIFIED"
+  ],
+  "claim_limits": {
+    "telemetry_animation_only": true,
+    "camera_footage_claimed": false,
+    "robot_motion_claimed": false,
+    "training_success_claimed": false,
+    "qualification_claimed": false,
+    "physics_ground_truth_authority": false
+  },
+  "input_bindings": [
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep01_s42.json",
+      "sha256": "d4f8a371edd77c69fb74994c56d629c3e27dd122907ade90f931eeb546c41c29"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep02_s42.json",
+      "sha256": "63d19f42e7c79cc77846f09b5245c2dc46e77630ce97020dfb29be0837375e6c"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep01_s42.json",
+      "sha256": "363e3bfe3d3ed3b1c3bfe7c3ae0aecf6a1a4f6704cdb9c8533a73e6e3f75cd0a"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep02_s42.json",
+      "sha256": "305914af13be60c869b6b3a6d103b37a616be7d1c4e6a7e99dceeb8ef53698ca"
+    },
+    {
+      "role": "cpu_preflight",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_preflight_2x_s42.json",
+      "sha256": "2c4996f837d0c6003d653761c53ac399e98fb80db25c7d00ee647b871ac4968c"
+    },
+    {
+      "role": "final_synthesis",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_synthesis_2x2_s42.json",
+      "sha256": "dcb8f446a212390f94f9ae5ccad97d9e770f9b8f5961f5ffb0c920f8d62580b3"
+    }
+  ],
+  "source": {
+    "git_commit": "fb2992965fcfb502a679065eac253a6bdcdf7086",
+    "probe_source_bundle_sha256": "21353b2d90e43260e8446df094ef178264227a1040901d99230fb2c40b99b83c",
+    "synthesis_source_bundle_sha256": "bf00813f9051969377d0bf7dee8092eff2df4643de3e29f2eff40d31d3be62e8"
+  },
+  "artifacts": {
+    "visual_summary": {
+      "path": "reports/runs/g009_5_r0_e013_rev20_final_cpu_gpu_visual_summary.json",
+      "sha256": "53f7a03d6bf524169d9593b752f044a2645486584710330301bdd3ec08c8963b",
+      "bytes": 8389,
+      "tracked_in_git_at_build": false,
+      "intended_for_git": true,
+      "git_policy": "git_public_after_review"
+    },
+    "public": {
+      "gif": {
+        "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e013_rev20_final_cpu_gpu.gif",
+        "sha256": "86a8f2e44d58f69212f7e95e0da9cb28b2eee6198fd7b54a740f115ae21c704d",
+        "bytes": 150515,
+        "tracked_in_git_at_build": false,
+        "intended_for_git": true,
+        "git_policy": "git_public_after_review",
+        "width": 1280,
+        "height": 720,
+        "frame_count": 8,
+        "duration_ms": 5600
+      },
+      "png": {
+        "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e013_rev20_final_cpu_gpu.png",
+        "sha256": "c7b011bd7297ae7f173e3989cb4fb80aa9832ab8375a94e89f25f2ad05be1e59",
+        "bytes": 86999,
+        "tracked_in_git_at_build": false,
+        "intended_for_git": true,
+        "git_policy": "git_public_after_review",
+        "width": 1280,
+        "height": 720,
+        "representative_frame": 8
+      }
+    },
+    "local_video": {
+      "path": "C:\\Users\\LIMMM\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_e013_rev20_final_cpu_gpu_s42.mp4",
+      "sha256": "8eb136daf014b3cc218926f83e4bc8526742fd71a0b6e2484460bc345b9a0b9f",
+      "bytes": 80985,
+      "tracked_in_git_at_build": false,
+      "intended_for_git": false,
+      "git_policy": "local_only",
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "fps": "30/1",
+      "frames": 168,
+      "duration_seconds": 5.6
+    }
+  },
+  "contract": {
+    "builder": {
+      "path": "scripts/build_g009_r0_rev20_terrain_contact_matrix_media.py",
+      "sha256": "28cf7f0a9da47a9187f32d64ffd32ad4226f8fe99fa2b6927666c5165f70b133",
+      "bytes": 33208,
+      "tracked_in_git_at_build": false,
+      "intended_for_git": true,
+      "git_policy": "git_public_after_review"
+    },
+    "validator": {
+      "path": "scripts/validate_g009_r0_rev20_terrain_contact_matrix_media.py",
+      "sha256": "30c47f7576b61f63e18ad5c94bf8e59190285fcb1ea1fb745582b84d2a670d72",
+      "bytes": 10614,
+      "tracked_in_git_at_build": false,
+      "intended_for_git": true,
+      "git_policy": "git_public_after_review",
+      "command": "%PYTHON% scripts/validate_g009_r0_rev20_terrain_contact_matrix_media.py --phase final --check-only"
+    }
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  }
+}

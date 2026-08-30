@@ -1,0 +1,237 @@
+{
+  "schema_version": "g009.r0.rev20.terrain_contact_matrix_visual_summary.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "stage_number": "13",
+  "sequence_number": "13.02",
+  "revision": "rev20",
+  "evidence_id": "G009-5-E013",
+  "phase": "final",
+  "status": "diagnostic_complete",
+  "labels": [
+    "13.02",
+    "TELEMETRY ANIMATION",
+    "NOT CAMERA FOOTAGE",
+    "DIAGNOSTIC ONLY",
+    "NO PPO",
+    "NOT QUALIFIED"
+  ],
+  "claim_limits": {
+    "telemetry_animation_only": true,
+    "camera_footage_claimed": false,
+    "robot_motion_claimed": false,
+    "training_success_claimed": false,
+    "qualification_claimed": false,
+    "physics_ground_truth_authority": false
+  },
+  "input_bindings": [
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep01_s42.json",
+      "sha256": "d4f8a371edd77c69fb74994c56d629c3e27dd122907ade90f931eeb546c41c29"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_rep02_s42.json",
+      "sha256": "63d19f42e7c79cc77846f09b5245c2dc46e77630ce97020dfb29be0837375e6c"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep01_s42.json",
+      "sha256": "363e3bfe3d3ed3b1c3bfe7c3ae0aecf6a1a4f6704cdb9c8533a73e6e3f75cd0a"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_gpu_rep02_s42.json",
+      "sha256": "305914af13be60c869b6b3a6d103b37a616be7d1c4e6a7e99dceeb8ef53698ca"
+    },
+    {
+      "role": "cpu_preflight",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_cpu_preflight_2x_s42.json",
+      "sha256": "2c4996f837d0c6003d653761c53ac399e98fb80db25c7d00ee647b871ac4968c"
+    },
+    {
+      "role": "final_synthesis",
+      "path": "reports/runs/g009_r0_rev20_terrain_contact_matrix_synthesis_2x2_s42.json",
+      "sha256": "dcb8f446a212390f94f9ae5ccad97d9e770f9b8f5961f5ffb0c920f8d62580b3"
+    }
+  ],
+  "git_commit": "fb2992965fcfb502a679065eac253a6bdcdf7086",
+  "source_bundle_sha256": "21353b2d90e43260e8446df094ef178264227a1040901d99230fb2c40b99b83c",
+  "preflight_synthesis_source_bundle_sha256": "bf00813f9051969377d0bf7dee8092eff2df4643de3e29f2eff40d31d3be62e8",
+  "telemetry": {
+    "reports": [
+      {
+        "slot": "cpu.rep1",
+        "availability": "observed_valid",
+        "structural_passed": true,
+        "safety_passed": true,
+        "overlap_passed": true,
+        "baseline_passed": true,
+        "live_readback_passed": true,
+        "per_env_overlap_coverage_steps": [
+          150,
+          147,
+          150,
+          150,
+          149,
+          146,
+          150,
+          150
+        ],
+        "peak_force_n": 1386.23046875,
+        "max_non_foot_force_bw": 9.408608784179021,
+        "raw_filter_paths_sha256": "f123085b9f380151dd660c449197a0a7c19e64c1c41f104a4ba5607693f86a4c",
+        "logical_filter_paths_sha256": "0e7310394b8a9adb8b4cd6fe66f00c662855733094e5252dcd70acf1f7fcf6c0",
+        "sensor_paths_sha256": "7f18da87e19331d048b678f37b736167dc4edce47e5d255be02d988e7fb09100",
+        "source_bundle_sha256": "21353b2d90e43260e8446df094ef178264227a1040901d99230fb2c40b99b83c",
+        "git_commit": "fb2992965fcfb502a679065eac253a6bdcdf7086"
+      },
+      {
+        "slot": "cpu.rep2",
+        "availability": "observed_valid",
+        "structural_passed": true,
+        "safety_passed": true,
+        "overlap_passed": true,
+        "baseline_passed": true,
+        "live_readback_passed": true,
+        "per_env_overlap_coverage_steps": [
+          150,
+          147,
+          150,
+          150,
+          149,
+          146,
+          150,
+          150
+        ],
+        "peak_force_n": 1386.23046875,
+        "max_non_foot_force_bw": 9.408608784179021,
+        "raw_filter_paths_sha256": "f123085b9f380151dd660c449197a0a7c19e64c1c41f104a4ba5607693f86a4c",
+        "logical_filter_paths_sha256": "0e7310394b8a9adb8b4cd6fe66f00c662855733094e5252dcd70acf1f7fcf6c0",
+        "sensor_paths_sha256": "7f18da87e19331d048b678f37b736167dc4edce47e5d255be02d988e7fb09100",
+        "source_bundle_sha256": "21353b2d90e43260e8446df094ef178264227a1040901d99230fb2c40b99b83c",
+        "git_commit": "fb2992965fcfb502a679065eac253a6bdcdf7086"
+      },
+      {
+        "slot": "cuda:0.rep1",
+        "availability": "observed_valid",
+        "structural_passed": true,
+        "safety_passed": true,
+        "overlap_passed": true,
+        "baseline_passed": true,
+        "live_readback_passed": true,
+        "per_env_overlap_coverage_steps": [
+          150,
+          147,
+          150,
+          150,
+          149,
+          146,
+          150,
+          150
+        ],
+        "peak_force_n": 1385.014404296875,
+        "max_non_foot_force_bw": 9.400355124377333,
+        "raw_filter_paths_sha256": "f123085b9f380151dd660c449197a0a7c19e64c1c41f104a4ba5607693f86a4c",
+        "logical_filter_paths_sha256": "0e7310394b8a9adb8b4cd6fe66f00c662855733094e5252dcd70acf1f7fcf6c0",
+        "sensor_paths_sha256": "7f18da87e19331d048b678f37b736167dc4edce47e5d255be02d988e7fb09100",
+        "source_bundle_sha256": "21353b2d90e43260e8446df094ef178264227a1040901d99230fb2c40b99b83c",
+        "git_commit": "fb2992965fcfb502a679065eac253a6bdcdf7086"
+      },
+      {
+        "slot": "cuda:0.rep2",
+        "availability": "observed_valid",
+        "structural_passed": true,
+        "safety_passed": true,
+        "overlap_passed": true,
+        "baseline_passed": true,
+        "live_readback_passed": true,
+        "per_env_overlap_coverage_steps": [
+          150,
+          147,
+          150,
+          150,
+          149,
+          146,
+          150,
+          150
+        ],
+        "peak_force_n": 1385.014404296875,
+        "max_non_foot_force_bw": 9.400355124377333,
+        "raw_filter_paths_sha256": "f123085b9f380151dd660c449197a0a7c19e64c1c41f104a4ba5607693f86a4c",
+        "logical_filter_paths_sha256": "0e7310394b8a9adb8b4cd6fe66f00c662855733094e5252dcd70acf1f7fcf6c0",
+        "sensor_paths_sha256": "7f18da87e19331d048b678f37b736167dc4edce47e5d255be02d988e7fb09100",
+        "source_bundle_sha256": "21353b2d90e43260e8446df094ef178264227a1040901d99230fb2c40b99b83c",
+        "git_commit": "fb2992965fcfb502a679065eac253a6bdcdf7086"
+      }
+    ],
+    "repeatability": {
+      "cpu": {
+        "exact_fields_match": true,
+        "numeric_fields_within_tolerance": true,
+        "repeatable": true,
+        "absolute_tolerance": 1e-05,
+        "relative_tolerance": 1e-06
+      },
+      "cuda:0": {
+        "exact_fields_match": true,
+        "numeric_fields_within_tolerance": true,
+        "repeatable": true,
+        "absolute_tolerance": 1e-05,
+        "relative_tolerance": 1e-06
+      }
+    }
+  },
+  "decision": {
+    "outcome": "terrain_pair_matrix_authority_candidate_validated",
+    "gpu_stage_authorized": false
+  },
+  "public_artifacts": {
+    "gif": {
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e013_rev20_final_cpu_gpu.gif",
+      "sha256": "86a8f2e44d58f69212f7e95e0da9cb28b2eee6198fd7b54a740f115ae21c704d",
+      "bytes": 150515,
+      "tracked_in_git_at_build": false,
+      "intended_for_git": true,
+      "git_policy": "git_public_after_review",
+      "width": 1280,
+      "height": 720,
+      "frame_count": 8,
+      "duration_ms": 5600
+    },
+    "png": {
+      "path": "docs/media/g009/R0/diagnostic/g009_5_r0_e013_rev20_final_cpu_gpu.png",
+      "sha256": "c7b011bd7297ae7f173e3989cb4fb80aa9832ab8375a94e89f25f2ad05be1e59",
+      "bytes": 86999,
+      "tracked_in_git_at_build": false,
+      "intended_for_git": true,
+      "git_policy": "git_public_after_review",
+      "width": 1280,
+      "height": 720,
+      "representative_frame": 8
+    }
+  },
+  "local_video": {
+    "path": "C:\\Users\\LIMMM\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_e013_rev20_final_cpu_gpu_s42.mp4",
+    "sha256": "8eb136daf014b3cc218926f83e4bc8526742fd71a0b6e2484460bc345b9a0b9f",
+    "bytes": 80985,
+    "tracked_in_git_at_build": false,
+    "intended_for_git": false,
+    "git_policy": "local_only",
+    "codec": "h264",
+    "width": 1280,
+    "height": 720,
+    "fps": "30/1",
+    "frames": 168,
+    "duration_seconds": 5.6
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  }
+}
