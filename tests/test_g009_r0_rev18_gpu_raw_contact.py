@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import argparse
 import copy
 import hashlib
 import importlib.util
+import sys
+import types
 import uuid
 from pathlib import Path
 
@@ -966,6 +969,70 @@ def test_main_rejects_existing_output_before_app_launcher(
     with pytest.raises(FileExistsError, match="refusing to overwrite"):
         PROBE.main(["--output", str(output), "--device", "cpu", "--replicate-index", "1", "--headless"])
     assert output.read_text(encoding="utf-8") == "original"
+
+
+def test_parse_args_delegates_device_option_to_app_launcher(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    class ExplicitDeviceAction(argparse.Action):
+        def __call__(
+            self,
+            parser: argparse.ArgumentParser,
+            namespace: argparse.Namespace,
+            values: object,
+            option_string: str | None = None,
+        ) -> None:
+            del parser, option_string
+            setattr(namespace, self.dest, values)
+            setattr(namespace, f"{self.dest}_explicit", True)
+
+    class FakeAppLauncher:
+        @staticmethod
+        def add_app_launcher_args(parser: argparse.ArgumentParser) -> None:
+            assert all(action.dest != "device" for action in parser._actions)
+            parser.add_argument(
+                "--device",
+                action=ExplicitDeviceAction,
+                default="cuda:0",
+            )
+            parser.add_argument("--headless", action="store_true")
+
+    isaaclab_module = types.ModuleType("isaaclab")
+    isaaclab_module.__path__ = []  # type: ignore[attr-defined]
+    app_module = types.ModuleType("isaaclab.app")
+    app_module.AppLauncher = FakeAppLauncher  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "isaaclab", isaaclab_module)
+    monkeypatch.setitem(sys.modules, "isaaclab.app", app_module)
+
+    output = tmp_path / "report.json"
+    for device in ("cpu", "cuda:0"):
+        args = PROBE.parse_args(
+            [
+                "--device",
+                device,
+                "--replicate-index",
+                "1",
+                "--output",
+                str(output),
+                "--headless",
+            ]
+        )
+        assert args.device == device
+        assert args.device_explicit is True
+        assert args.headless is True
+
+    for device_args in ([], ["--device", "cuda"], ["--device", "cuda:1"]):
+        with pytest.raises(SystemExit):
+            PROBE.parse_args(
+                [
+                    *device_args,
+                    "--replicate-index",
+                    "1",
+                    "--output",
+                    str(output),
+                    "--headless",
+                ]
+            )
 
 
 def test_execution_contract_declares_normal_control_cadence() -> None:

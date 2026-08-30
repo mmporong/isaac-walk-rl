@@ -1377,11 +1377,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--task", default=DEFAULT_TASK, choices=(DEFAULT_TASK,))
     parser.add_argument("--seed", type=int, default=42, choices=(42,))
-    parser.add_argument("--device", required=True, choices=("cpu", "cuda:0"))
     parser.add_argument("--replicate-index", required=True, type=int, choices=(1, 2))
     parser.add_argument("--output", required=True, type=Path)
     AppLauncher.add_app_launcher_args(parser)
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if not getattr(args, "device_explicit", False):
+        parser.error("--device must be supplied explicitly as cpu or cuda:0")
+    if args.device not in {"cpu", "cuda:0"}:
+        parser.error("--device must be cpu or cuda:0")
+    return args
 
 
 def failure_envelope(args: argparse.Namespace, execution: dict[str, Any], error: BaseException) -> dict[str, Any]:
