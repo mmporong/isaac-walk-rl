@@ -459,6 +459,18 @@
     ],
     "expected_filter_paths_sha256": "0e7310394b8a9adb8b4cd6fe66f00c662855733094e5252dcd70acf1f7fcf6c0",
     "expected_filter_name": "CollisionPlane",
+    "view_filter_paths_property_shape": [152, 1],
+    "view_filter_paths_row_expected": [
+      "/World/ground/terrain/GroundPlane/CollisionPlane"
+    ],
+    "view_filter_names_property_shape": [152, 1],
+    "view_filter_names_row_expected": [
+      "CollisionPlane"
+    ],
+    "logical_filter_path_hash_scope": "one canonical ordered filter row shared exactly by all 152 sensor rows; repeated per-sensor metadata does not mean 152 logical filters",
+    "logical_filter_paths_sha256_field_name": "logical_filter_paths_sha256",
+    "raw_filter_paths_sha256_field_name": "raw_filter_paths_sha256",
+    "raw_view_filter_paths_sha256_required": true,
     "filter_path_mutation_after_view_initialization_allowed": false,
     "filter_path_fallback_or_wildcard_allowed": false,
     "path_hash_serialization": "SHA-256 of UTF-8 compact JSON array with ensure_ascii=false, separators=(',',':'), ordered values, no trailing newline",
@@ -483,7 +495,11 @@
     "expected_net_force_shape": [8, 19, 3],
     "sensor_paths_unique_required": true,
     "raw_flatten_order_authority": "view.sensor_paths",
-    "reshape_mapping_validation": "split view.sensor_paths into 8 consecutive chunks of 19; chunk i must be rooted at robot.root_physx_view.prim_paths[i] and its ordered relative leaf names must equal sensor.body_names",
+    "articulation_root_body_paths_source": "robot.root_physx_view.prim_paths",
+    "articulation_root_body_leaf_expected": "base",
+    "body_namespace_derivation": "for each articulation root body path, remove the final /base leaf; the parent /Robot path is the sensor body namespace",
+    "reshape_mapping_validation": "split view.sensor_paths into 8 consecutive chunks of 19; derive body namespace i as parent(robot.root_physx_view.prim_paths[i]); every path in chunk i must be a direct child of that namespace and its ordered relative leaf names must equal sensor.body_names",
+    "raw_filter_metadata_validation": "view.filter_paths and view.filter_names are sensor-major nested arrays of shape [152,1]; every row must equal the one canonical terrain filter path/name",
     "env_major_body_major_mapping_required": true,
     "per_env_relative_sensor_path_template_equal_required": true,
     "ordered_sensor_and_filter_path_hashes_required": true,
@@ -524,7 +540,8 @@
     "exact_fields": [
       "availability_state",
       "sensor_paths_sha256",
-      "filter_paths_sha256",
+      "raw_filter_paths_sha256",
+      "logical_filter_paths_sha256",
       "force_body_names_sha256",
       "raw_and_reshaped_tensor_shapes",
       "per_env_overlap_step_indices",

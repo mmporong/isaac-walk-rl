@@ -1259,7 +1259,7 @@ view 생성 실패, filter cardinality/path 불일치, matrix exception/non-fini
 
 실행 전에 [machine-readable preregistration](../configs/g009_r0_rev20_terrain_contact_matrix.json)을 별도 파일로 고정했다. 증거 ID는 `G009-5-E013`, 시각 증거 번호는 `13`이다. canonical 순서는 `cpu.rep1 → cpu.rep2 → cuda:0.rep1 → cuda:0.rep2`이고, CPU 두 실행을 묶은 immutable preflight가 통과하기 전에는 GPU AppLauncher를 시작할 수 없다. 제3회 다수결은 금지한다.
 
-terrain filter는 추측한 terrain root가 아니라 rev19 CPU raw contact에서 actor와 collider로 실제 관찰된 `/World/ground/terrain/GroundPlane/CollisionPlane` 하나를 사용한다. PhysX tensor API의 단일 static filter 예외를 적용하되 다음 구조를 모두 fail-closed로 확인한다.
+terrain filter는 추측한 terrain root가 아니라 rev19 CPU raw contact에서 actor와 collider로 실제 관찰된 `/World/ground/terrain/GroundPlane/CollisionPlane` 하나를 사용한다. PhysX tensor API의 단일 static filter 예외를 적용하되 다음 구조를 모두 fail-closed로 확인한다. canonical 실행 전 설치본 ABI 스모크에서는 `view.filter_paths`와 `view.filter_names`가 논리 필터 1개를 flat list로 주지 않고, 152개 sensor row 각각에 같은 1개 path/name을 넣은 `[152,1]` 중첩 목록으로 노출된다는 점도 확인했다. 따라서 `logical_filter_paths_sha256`은 공통 row 한 개에 대해 계산하고, `raw_filter_paths_sha256`은 `[152,1]` raw metadata 전체에 대해 따로 계산한다. 두 해시는 이름과 범위가 다르며, raw 152개 모든 row가 공통 논리 값과 같은지도 별도로 검증한다.
 
 | 구조 항목 | 사전등록 기대값 |
 | --- | --- |
@@ -1268,14 +1268,14 @@ terrain filter는 추측한 terrain root가 아니라 rev19 CPU raw contact에�
 | direct matrix raw shape | `[152,1,3]` |
 | reshaped/buffer matrix | `[8,19,1,3]` |
 | net force tensor | `[8,19,3]` |
-| filter path hash | `0e7310394b8a9adb8b4cd6fe66f00c662855733094e5252dcd70acf1f7fcf6c0` |
+| logical filter path hash | `logical_filter_paths_sha256=0e7310394b8a9adb8b4cd6fe66f00c662855733094e5252dcd70acf1f7fcf6c0` |
 | same-step threshold | `1e-6N` |
 
-각 physics step은 `sim.step(render=False) → scene.update(dt=0.005)` 뒤에 읽는다. lazy sensor update를 먼저 해소하고 `net_forces_w` clone → `force_matrix_w` buffer clone → direct `get_contact_force_matrix(dt)` clone 순서를 고정한다. buffer와 direct tensor는 storage alias가 아니어야 하며 두 clone은 150회 모두 exact equality여야 한다. direct raw axis는 `view.sensor_paths`가 권위다. 152개 path를 19개씩 연속 분할했을 때 chunk `i`가 robot root `i` 아래에 있고 ordered leaf가 `sensor.body_names`와 같아야 `[8,19,1,3]` reshape를 허용한다.
+각 physics step은 `sim.step(render=False) → scene.update(dt=0.005)` 뒤에 읽는다. lazy sensor update를 먼저 해소하고 `net_forces_w` clone → `force_matrix_w` buffer clone → direct `get_contact_force_matrix(dt)` clone 순서를 고정한다. buffer와 direct tensor는 storage alias가 아니어야 하며 두 clone은 150회 모두 exact equality여야 한다. direct raw axis는 `view.sensor_paths`가 권위다. 설치본의 `robot.root_physx_view.prim_paths[i]`는 robot namespace가 아니라 articulation root body인 `.../Robot/base`를 반환한다. 각 root-body path의 마지막 `/base`를 제거해 `.../Robot` body namespace를 도출한 뒤, 152개 sensor path를 19개씩 연속 분할한다. chunk `i`의 모든 path가 그 namespace의 direct child이고 ordered leaf가 `sensor.body_names`와 같을 때만 `[8,19,1,3]` reshape를 허용한다. 원본 articulation root-body path와 도출한 namespace를 둘 다 report에 남긴다.
 
 terrain matrix는 filter 축을 합산한 뒤 net force와 같은 env·body 축에서 비교한다. 8개 환경 각각에서 같은 body의 두 force norm이 동시에 `1e-6N`을 넘는 step이 최소 1회 있어야 한다. peak와 integral의 반복 허용식은 `abs(a-b) ≤ max(1e-5, 1e-6×max(abs(a),abs(b)))`로 고정한다.
 
-두 반복은 availability, sensor/filter/body order hash, shape, 환경별 overlap step indices, safety checks가 exact하게 같아야 한다. CPU와 GPU 사이의 수치 동일성은 요구하지 않는다. callback은 count/error만 남기며 outcome 계산에는 넣지 않는다. CUDA report는 requested/runtime/tensor device와 GPU dynamics readback을 모두 검증한다.
+두 반복은 availability, sensor/body order hash, raw `[152,1]` filter metadata hash, logical filter row hash, shape, 환경별 overlap step indices, safety checks가 exact하게 같아야 한다. CPU와 GPU 사이의 수치 동일성은 요구하지 않는다. callback은 count/error만 남기며 outcome 계산에는 넣지 않는다. CUDA report는 requested/runtime/tensor device와 GPU dynamics readback을 모두 검증한다.
 
 GPU report는 AppLauncher 생성 전에 CPU preflight의 path·SHA-256·git commit·probe source bundle·정확한 CPU 입력 2개를 검증해 내장한다. final synthesis의 첫 CPU 입력 2개는 preflight 입력과 exact-equal이어야 하고 두 GPU report는 같은 preflight를 가리켜야 한다. matrix safety나 device readback이 실패하면 overlap 수치가 양수여도 PASS할 수 없다.
 
