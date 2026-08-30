@@ -97,6 +97,12 @@ Isaac Sim 4.5 / Isaac Lab 2.1.1 / RSL-RL PPO의 Windows 네이티브 재현 환�
 - 원격 저장소는 비공개로 생성하는 것을 안전 기본값으로 하며, 로컬 검증을 통과한 커밋만 push한다.
 - 기존 `physical-ai-lab`의 사용자 변경은 수정·스테이징·커밋하지 않는다.
 
+## 후속 연구 게이트: Centroidal MPC/WBC
+
+수령한 QUATTRO Notion 학습 자료와 MIT Cheetah 3 convex MPC 논문은 현재 PPO의 즉시 교체안이 아니라 별도 model-based baseline의 사전 자료로 관리한다. 원문 수집·차이 분석은 [`docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md`](docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md), 기계 판독 가능한 출처·해시는 [`reports/research/mpc_wbc_material_intake_20260830.json`](reports/research/mpc_wbc_material_intake_20260830.json)을 기준으로 한다.
+
+후속 순서는 `import-light 동역학·prediction·constraint 수학 검증 → 기존 PPO의 read-only contact/GRF/foothold telemetry → 별도 flat Centroidal MPC baseline → terrain-dependent reference/foothold → residual RL`이다. 새 QP solver 의존성, torque-control task, WBC 정식화는 별도 설계·호환성·성능 게이트 없이는 추가하지 않는다. G009 R0 self-righting은 비발·몸통 접촉을 사용하는 별도 문제이므로 이 연구 게이트가 현재 RECOVER 안전 진단을 대체하거나 차단하지 않는다.
+
 ## 중단 조건
 
 요청된 목표가 증거와 함께 완료되거나, 같은 설치/실행 blocker가 대체 경로까지 포함해 재현되고 현재 하드웨어·고정 버전 안에서 의미 있는 다음 단계가 없을 때만 중단한다.

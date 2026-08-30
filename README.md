@@ -35,6 +35,12 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 
 구체적인 명령과 단계별 완료 조건은 `PROMPT_WINDOWS.md`, 측정 상태는 `docs/VALIDATION_MATRIX.md`, 모든 실행 기록은 `RUN_NOTES.md`에서 관리합니다.
 
+## 수령 MPC/WBC 자료 반영
+
+2026-08-30에 수령한 Notion의 Centroidal MPC 여섯 하위 문서와 주석 포함 MIT Cheetah 3 convex MPC 논문 8쪽을 끝까지 검토했습니다. 전체 연결과 적용 로드맵은 [`docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md`](docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md), 논문의 식 (1)~(33)·Table I·Figure 2~10·페이지별 Go2 적용 경계는 [`docs/MIT_CHEETAH3_CONVEX_MPC_PAPER_REVIEW_20260830.md`](docs/MIT_CHEETAH3_CONVEX_MPC_PAPER_REVIEW_20260830.md)에 분리했습니다. URL·절 수·첨부 audit·PDF portable path와 SHA-256은 [`reports/research/mpc_wbc_material_intake_20260830.json`](reports/research/mpc_wbc_material_intake_20260830.json)에 고정했습니다.
+
+현재 Go2 제어기는 MPC/WBC가 아니라 50 Hz joint-position PPO입니다. 이 자료는 당장 G009 RECOVER action이나 solver calibration을 바꾸는 근거로 사용하지 않습니다. 먼저 import-light 수학 검증과 PPO read-only contact/GRF/foothold telemetry를 거친 뒤, 별도 flat Centroidal MPC baseline과 terrain-reference/residual RL을 순차적으로 검토합니다. Notion의 `1.4 Hz`, duty factor `0.65`, `0.24 s` horizon, OSQP, Q weight와 Cheetah 3의 force limit은 현재 Go2 설정으로 복사하지 않습니다.
+
 ## G008에서 G009까지의 작업 번호
 
 아래 번호는 의존성과 문서 순서를 나타냅니다. `G008-3/5/7/8`은 마찰·도로 분기, `G008-4/6`은 링크 질량 분기입니다. 두 분기의 실행 시각을 번호로 단정하지 않습니다. `G008-9`는 각 단계 직후 만든 자료를 모은 증거 index입니다. 코드의 `S1`, `G0`, `R0` 같은 protocol stage ID는 괄호에 함께 적습니다.

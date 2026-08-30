@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "collected_on": "2026-08-30",
+  "status": "complete",
+  "implementation_status": "not_started",
+  "notion": {
+    "collection_surface": "user-selected Chrome",
+    "root": {
+      "title": "사족보행 로봇 MPC WBC 총정리",
+      "url": "https://app.notion.com/p/MPC-WBC-3cace2d5e06080d197a5e1be5f2e7ffa"
+    },
+    "pages": [
+      {
+        "title": "Centroidal MPC 동역학 기초 - A·B·c 행렬, Skew, SO(3), Jacobian 연결",
+        "url": "https://app.notion.com/p/Centroidal-MPC-A-B-c-Skew-SO-3-Jacobian-3cace2d5e06081a1b935d48be865b92a?pvs=25",
+        "section_count": 19,
+        "captured_text_characters": 8997
+      },
+      {
+        "title": "Centroidal MPC Prediction부터 OSQP까지 - M·S·d, Q/R, Constraint, Receding Horizon",
+        "url": "https://app.notion.com/p/Centroidal-MPC-Prediction-OSQP-M-S-d-Q-R-Constraint-Receding-Horizon-3cace2d5e06081a1a9e6c85d98930ff3?pvs=25",
+        "section_count": 27,
+        "captured_text_characters": 10051
+      },
+      {
+        "title": "Centroidal MPC Reference Generator - Position·Velocity·Body Pose와 Terrain-adaptive 확장",
+        "url": "https://app.notion.com/p/Centroidal-MPC-Reference-Generator-Position-Velocity-Body-Pose-Terrain-adaptive-3cace2d5e06081e29170c780ebfcff83?pvs=25",
+        "section_count": 21,
+        "captured_text_characters": 7452
+      },
+      {
+        "title": "Centroidal MPC Gait Schedule - Phase·Duty Factor·Trot Contact Prediction",
+        "url": "https://app.notion.com/p/Centroidal-MPC-Gait-Schedule-Phase-Duty-Factor-Trot-Contact-Prediction-3cace2d5e06081429b17e225b77c7597?pvs=25",
+        "section_count": 20,
+        "captured_text_characters": 7197
+      },
+      {
+        "title": "Centroidal MPC Foothold Planner - Raibert Touchdown·Velocity Feedback·Terrain 확장",
+        "url": "https://app.notion.com/p/Centroidal-MPC-Foothold-Planner-Raibert-Touchdown-Velocity-Feedback-Terrain-3cace2d5e0608179abd9c64298186a0e?pvs=25",
+        "section_count": 20,
+        "captured_text_characters": 7362
+      },
+      {
+        "title": "Centroidal MPC Swing Trajectory - Cubic Bézier·Apex·Velocity Continuity",
+        "url": "https://app.notion.com/p/Centroidal-MPC-Swing-Trajectory-Cubic-B-zier-Apex-Velocity-Continuity-3cace2d5e0608165a4eaf3c4cbb88f93?pvs=25",
+        "section_count": 26,
+        "captured_text_characters": 7681
+      }
+    ],
+    "attachment_audit": {
+      "image_count": 0,
+      "file_download_count": 0,
+      "malformed_auto_links": [
+        "http://gait.py/",
+        "http://planner.py/",
+        "http://trajectory.py/",
+        "http://estimator.py/"
+      ]
+    }
+  },
+  "pdf": {
+    "portable_path": "%USERPROFILE%/Downloads/convex_mpc_2fix_260706_135518.pdf",
+    "title": "Dynamic Locomotion in the MIT Cheetah 3 Through Convex Model-Predictive Control",
+    "page_count": 8,
+    "file_size_bytes": 5037596,
+    "sha256": "edbbc5415c6c7bef5c959ce290f218acdfbf2f315e2de665495f6d78fc76ab1d",
+    "rendered_page_count": 8,
+    "visual_review": "complete",
+    "dedicated_review": "docs/MIT_CHEETAH3_CONVEX_MPC_PAPER_REVIEW_20260830.md",
+    "review_scope": [
+      "equations_1_to_33",
+      "table_1",
+      "figures_2_to_10",
+      "page_by_page_evidence",
+      "go2_adoption_boundary"
+    ],
+    "repository_copy": false,
+    "repository_copy_reason": "저작권·재배포 범위를 확인하지 않아 원본 대신 portable path, hash, analysis만 보존"
+  },
+  "integration": {
+    "primary_document": "docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md",
+    "readme_linked": true,
+    "project_brief_updated": true,
+    "notes_updated": true,
+    "controller_code_changed": false,
+    "new_dependency_added": false
+  }
+}

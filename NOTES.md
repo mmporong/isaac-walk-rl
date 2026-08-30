@@ -53,3 +53,12 @@
 - 공간 혼합 마찰 결과는 직선 보행 한계와 전 방향 회전 gate를 따로 읽는다. 단일 seed에서 중간 계수 실패 뒤 더 낮은 계수가 다시 통과하면 연속 통과 하한만 보수적 한계로 사용한다.
 - 그룹별 질량 screen에서 scale이 같아도 thigh와 foot의 총질량 변화는 다르다. scale 기준 민감도와 동일 kg 추가 질량 민감도를 같은 결과로 취급하지 않는다.
 - 실행 동작이 바뀌는 stage는 정량 JSON만 남기지 않는다. 로컬 MP4, 공개 GIF, 네 방향 PNG, checkpoint·물리 readback·파일 해시 JSON을 같은 단계의 완료 증거로 묶는다.
+
+## MPC/WBC 수령 자료 메모
+
+- Notion 여섯 문서는 QUATTRO 구현을 기준으로 12-state affine dynamics, OSQP, `N=12`, `dt=0.02s`, `1.4Hz` trot, duty factor `0.65`, Raibert+velocity-feedback foothold, two-Bézier swing을 설명한다. 현재 Go2 PPO나 MIT Cheetah 3 원 논문의 고정값으로 취급하지 않는다.
+- 원 논문은 gravity를 포함한 13-state yaw-dependent LTV 모델, `0.33~0.5s` horizon, 10~16 step, `25~50Hz` prediction, qpOASES, stance 발당 6개 force inequality와 swing-force equality를 사용한다.
+- Notion의 발당 7개 constraint row, `rpy_next≈rpy+omega dt`, velocity-error foothold 항과 3.5cm two-Bézier swing은 원 논문과 분리해 구현별 가설로 보존한다.
+- 이 자료의 WBC 범위는 주로 `stance GRF -> J^T F`와 swing Cartesian 제어다. full-body hierarchical QP 전체가 제시된 것은 아니다.
+- 현재 G009 RECOVER의 몸통·비발 접촉과 CPU/GPU force divergence는 논문의 stance-foot single-rigid-body MPC 가정으로 직접 해결하지 않는다.
+- 전체 분석과 단계별 적용 게이트는 `docs/MPC_WBC_SOURCE_AND_INTEGRATION_20260830.md`, 논문 전용 식·표·그림 검토는 `docs/MIT_CHEETAH3_CONVEX_MPC_PAPER_REVIEW_20260830.md`, 출처와 PDF hash는 `reports/research/mpc_wbc_material_intake_20260830.json`에 있다.
