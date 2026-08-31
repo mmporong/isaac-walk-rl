@@ -107,6 +107,7 @@ def test_runtime_contract_preserves_no_learning_governance() -> None:
         "physics_steps": 150,
         "physics_dt_s": 0.005,
         "headless": True,
+        "fast_shutdown": False,
         "render": False,
     }
     assert contract["governance"]["reward_computed"] is False
@@ -462,7 +463,8 @@ def test_app_close_failure_cannot_consume_pass_canonical_output(
             raise RuntimeError("close failed")
 
     class FakeAppLauncher:
-        def __init__(self, _args: argparse.Namespace) -> None:
+        def __init__(self, _args: argparse.Namespace, **kwargs: object) -> None:
+            assert kwargs == {"fast_shutdown": False}
             self.app = FakeApp()
 
     isaaclab_module = ModuleType("isaaclab")
@@ -525,7 +527,8 @@ def test_failed_adapter_decision_stays_local_only(
             return None
 
     class FakeAppLauncher:
-        def __init__(self, _args: argparse.Namespace) -> None:
+        def __init__(self, _args: argparse.Namespace, **kwargs: object) -> None:
+            assert kwargs == {"fast_shutdown": False}
             self.app = FakeApp()
 
     app_module = ModuleType("isaaclab.app")

@@ -22,7 +22,7 @@
     "synthesis": "reports/runs/g009_r0_rev20_terrain_contact_matrix_synthesis_2x2_s42.json",
     "synthesis_sha256": "dcb8f446a212390f94f9ae5ccad97d9e770f9b8f5961f5ffb0c920f8d62580b3",
     "required_outcome": "terrain_pair_matrix_authority_candidate_validated",
-    "reuse_scope": "unchanged Isaac AppLauncher, terrain filter, reset, action, physics and safety instrumentation"
+    "reuse_scope": "unchanged terrain filter, reset, action, physics and safety instrumentation; non-physics AppLauncher fast shutdown is disabled so close returns before canonical publication"
   },
   "adapter_implementation": {
     "module": "isaac_walk_g009.matrix_observation_adapter",
@@ -81,6 +81,7 @@
     "physics_dt_s": 0.005,
     "control_dt_s": 0.02,
     "headless": true,
+    "fast_shutdown": false,
     "render": false,
     "devices": [
       "cpu",

@@ -175,6 +175,7 @@ def load_preregistration() -> dict[str, Any]:
         and runtime.get("physics_dt_s") == PHYSICS_DT_S
         and runtime.get("control_dt_s") == 0.02
         and runtime.get("headless") is True
+        and runtime.get("fast_shutdown") is False
         and runtime.get("render") is False
         and runtime.get("devices") == ["cpu", "cuda:0"]
         and runtime.get("replicates_per_device") == 2
@@ -658,6 +659,7 @@ def runtime_contract(device: str, replicate: int, adapter_contract_sha256: str) 
             "physics_steps": PHYSICS_STEPS,
             "physics_dt_s": PHYSICS_DT_S,
             "headless": True,
+            "fast_shutdown": False,
             "render": False,
         },
         "governance": governance(),
@@ -1408,7 +1410,7 @@ def main(argv: list[str] | None = None) -> int:
 
     app = None
     try:
-        app = AppLauncher(args).app
+        app = AppLauncher(args, fast_shutdown=False).app
         report = diagnose(args, execution)
     except Exception as error:
         if app is not None:
