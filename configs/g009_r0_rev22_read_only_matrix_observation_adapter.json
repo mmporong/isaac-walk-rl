@@ -1,0 +1,249 @@
+{
+  "schema_version": "g009.r0.rev22.read_only_matrix_observation_adapter_preregistration.v1",
+  "evidence_id": "G009-5-E015",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "revision": "rev22",
+  "seed": 42,
+  "single_changed_axis": "read-only terrain-pair contact-matrix observation adapter contract only",
+  "predecessor": {
+    "path": "reports/runs/g009_r0_rev21_matrix_authority_safety_gate_s42.json",
+    "sha256": "68a60383d9d49bf009d189498f94e6fe1c03155259932dcff8965caa7d9aa250",
+    "required_schema_version": "g009.r0.rev21.matrix_authority_safety_gate.v1",
+    "required_evidence_id": "G009-5-E014",
+    "required_outcome": "matrix_authority_safety_gate_passed_for_diagnostic_preregistration",
+    "required_next_step": "preregister_read_only_matrix_observation_adapter",
+    "required_source_commit": "e202ae1d514c7abfe05ce0da130c2db47e9e05f3",
+    "required_source_bundle_sha256": "3589f3852c4365afadb8dbdc871ffb2fe81888155b7e66c274034b5506eaf40e",
+    "full_read_only_verification_required": true
+  },
+  "rev22_source_binding": {
+    "required_committed_path_scoped_clean": true,
+    "ordered_paths": [
+      "configs/g009_r0_rev22_read_only_matrix_observation_adapter.json",
+      "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+      "scripts/run_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+      "scripts/summarize_g009_r0_rev21_matrix_authority_safety_gate.py"
+    ],
+    "per_path_digest": "sha256 of exact git blob/worktree bytes",
+    "aggregate_serialization": "ordered path:sha256 rows joined with LF, UTF-8, no trailing LF",
+    "expected_aggregate_sha256": null
+  },
+  "adapter_contract": {
+    "authority_role": "world_xyz_authority_preserving_output",
+    "policy_observation_connected": false,
+    "source": {
+      "name": "terrain_pair_force_matrix_w",
+      "status_required": "available",
+      "quantity_semantics": "filtered_normal_contact_force_vector",
+      "total_contact_force_included": false,
+      "tangential_friction_force_included": false,
+      "friction_effect_directly_observed": false,
+      "upstream_semantics_source": "Isaac Lab ContactSensorData.force_matrix_w",
+      "coordinate_frame": "world",
+      "axis_order": [
+        "environment",
+        "body",
+        "filter",
+        "xyz"
+      ],
+      "component_order": [
+        "x",
+        "y",
+        "z"
+      ],
+      "shape": [
+        "N",
+        19,
+        1,
+        3
+      ],
+      "dtype": "torch.float32",
+      "device_rule": "preserve_source_device_without_fallback_or_transfer",
+      "body_order_authority": "rev20 validated sensor body order",
+      "filter_order_authority": "rev20 validated terrain filter order",
+      "units": "N"
+    },
+    "world_xyz_output": {
+      "name": "terrain_pair_force_w_xyz_n",
+      "formula": "source.sum(dim=2)",
+      "reduction_order": "sum_filter_before_any_vector_norm",
+      "coordinate_frame": "world",
+      "component_order": [
+        "x",
+        "y",
+        "z"
+      ],
+      "shape": [
+        "N",
+        19,
+        3
+      ],
+      "dtype_rule": "exact_source_dtype",
+      "device_rule": "exact_source_device",
+      "units": "N",
+      "authoritative": true
+    },
+    "magnitude_projection": {
+      "name": "terrain_pair_force_magnitude_n",
+      "formula": "linalg_vector_norm(world_xyz_output,dim=-1)",
+      "shape": [
+        "N",
+        19
+      ],
+      "dtype_rule": "exact_source_dtype",
+      "device_rule": "exact_source_device",
+      "units": "N",
+      "authoritative": false,
+      "diagnostic_only": true,
+      "policy_input_allowed": false,
+      "direction_and_sign_preserved": false
+    },
+    "contact_mask": {
+      "name": "terrain_pair_contact_mask",
+      "formula": "magnitude_projection > 0.000001",
+      "threshold_n": 0.000001,
+      "threshold_comparison": "strict_greater_than",
+      "shape": [
+        "N",
+        19
+      ],
+      "dtype": "torch.bool",
+      "device_rule": "exact_source_device"
+    },
+    "missing_contact": {
+      "valid_zero_source_vector": "emit exact zero XYZ, zero magnitude, and false mask",
+      "threshold_equal_magnitude": "false mask without changing XYZ or magnitude",
+      "missing_or_unavailable_source": "fail_closed",
+      "none_source": "fail_closed",
+      "wrong_shape_dtype_device_or_nonfinite": "fail_closed",
+      "zero_fill_for_invalid_source_allowed": false
+    },
+    "normalization_and_clipping": {
+      "normalization": "none",
+      "empirical_normalization": false,
+      "body_weight_normalization": false,
+      "clipping": "none",
+      "saturation": "none",
+      "policy_load_projection_deferred": true
+    },
+    "source_immutability": {
+      "in_place_operation_allowed": false,
+      "source_shape_dtype_device_stride_must_match_before_after": true,
+      "source_storage_identity_must_match_before_after": true,
+      "source_version_must_match_before_after": true,
+      "source_exact_values_and_sha256_must_match_before_after": true,
+      "outputs_must_not_alias_source_storage": true,
+      "operations_must_be_out_of_place": true,
+      "correctness_hash_sampling_excluded_from_throughput_timing": true
+    },
+    "claim_limits": {
+      "normal_contact_force_vector_claim_allowed": true,
+      "total_contact_force_claim_allowed": false,
+      "tangential_friction_force_claim_allowed": false,
+      "friction_effect_directly_observed_claim_allowed": false,
+      "surface_normal_or_tangential_decomposition_claim_allowed": false,
+      "contact_point_or_separation_claim_allowed": false,
+      "policy_input_claim_allowed": false,
+      "physics_ground_truth_authority": false
+    }
+  },
+  "decision": {
+    "reason_priority": [
+      "rev22_preregistration_invalid",
+      "canonical_output_path_invalid",
+      "canonical_output_already_exists",
+      "rev22_source_provenance_invalid",
+      "rev21_predecessor_missing_or_path_invalid",
+      "rev21_predecessor_sha256_mismatch",
+      "rev21_predecessor_json_or_schema_invalid",
+      "rev21_predecessor_decision_or_governance_mismatch",
+      "rev21_predecessor_full_verification_failed",
+      "adapter_representation_contract_invalid",
+      "adapter_coordinate_or_axis_order_invalid",
+      "adapter_filter_reduction_invalid",
+      "adapter_dtype_device_or_shape_invalid",
+      "adapter_numeric_or_missing_contact_contract_invalid",
+      "adapter_normalization_or_clipping_contract_invalid",
+      "adapter_source_immutability_contract_invalid",
+      "rev22_governance_or_claim_limit_mismatch",
+      "read_only_matrix_observation_adapter_preregistration_passed"
+    ],
+    "check_states": [
+      "pass",
+      "fail",
+      "not_evaluated"
+    ],
+    "pass_outcome": "read_only_matrix_observation_adapter_preregistration_passed",
+    "pass_next_step": "implement_and_run_read_only_matrix_observation_adapter_runtime_probe",
+    "single_primary_reason": true,
+    "dependency_failure_marks_downstream_not_evaluated": true
+  },
+  "assurance_tiers": {
+    "predecessor_byte_and_full_verification_required": true,
+    "adapter_semantics_preregistered_not_runtime_observed": true,
+    "runtime_and_throughput_deferred": true
+  },
+  "claim_limits": {
+    "adapter_implemented": false,
+    "adapter_runtime_observed": false,
+    "policy_observation_connected": false,
+    "reward_computed": false,
+    "ppo_training_executed": false,
+    "walking_turning_slope_or_self_recovery_qualified": false,
+    "physics_ground_truth_authority": false,
+    "simulator_launched": false,
+    "rollout_steps": 0,
+    "optimizer_updates": 0
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "gate_execution_allowed": false,
+    "qualification_eligible": false,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  },
+  "output_contract": {
+    "canonical_path": "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json",
+    "schema_version": "g009.r0.rev22.read_only_matrix_observation_adapter_preregistration_artifact.v1",
+    "immutable_no_overwrite": true,
+    "pass_only_canonical_write": true,
+    "check_only_is_read_only": true,
+    "verify_artifact_is_read_only": true,
+    "self_aggregate_digest_forbidden": true
+  },
+  "runtime_and_throughput_deferred": {
+    "runtime_probe_required_after_pass": true,
+    "initial_correctness_probe": "8 env, 150 physics steps, CPU 2x and cuda:0 2x",
+    "throughput_measurement_before_runtime_correctness_pass_allowed": false,
+    "throughput_contract_requires_separate_preregistration": true,
+    "stable_maximum_definition": "maximum median env-control-steps-per-second among stable rungs, not maximum environment count or 100 percent GPU utilization"
+  },
+  "forbidden_changes": [
+    "friction",
+    "mass_or_inertia",
+    "terrain",
+    "reset_distribution",
+    "action",
+    "solver",
+    "contact_or_rest_offset",
+    "reward",
+    "policy",
+    "ppo",
+    "checkpoint",
+    "curriculum",
+    "simulator_runtime"
+  ],
+  "stop_rules": {
+    "fail_closed_on_missing_or_mismatch": true,
+    "network_fetch_allowed": false,
+    "glob_or_directory_discovery_allowed": false,
+    "isaac_import_allowed": false,
+    "simulator_launch_allowed": false,
+    "runtime_adapter_implementation_allowed": false,
+    "canonical_reject_write_allowed": false
+  }
+}
