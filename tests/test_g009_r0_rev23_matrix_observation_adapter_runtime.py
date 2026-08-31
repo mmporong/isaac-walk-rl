@@ -66,6 +66,15 @@ def test_preregistration_matches_runtime_contract() -> None:
     )
 
 
+def test_predecessor_passes_full_rev22_verification() -> None:
+    value = probe.validate_predecessor()
+    assert value["full_verification_passed"] is True
+    assert value["outcome"] == "read_only_matrix_observation_adapter_preregistration_passed"
+    assert value["adapter_contract_sha256"] == (
+        "05105dbb7cf8646d0c7a5bf667cc9ab78de76131819a9654e43d9465a31d5b43"
+    )
+
+
 @pytest.mark.parametrize(
     ("device", "replicate", "expected"),
     [

@@ -221,7 +221,10 @@ def validate_predecessor() -> dict[str, Any]:
     verified = rev22_verifier.verify_artifact(PREDECESSOR_PATH)
     value = strict_json_bytes(raw, "rev22 predecessor")
     require(
-        verified.get("verified") is True
+        verified.get("decision") == value.get("decision")
+        and verified.get("adapter_contract_sha256") == value.get("adapter_contract_sha256")
+        and verified.get("rev22_source_binding") == value.get("rev22_source_binding")
+        and value.get("decision", {}).get("passed") is True
         and value.get("decision", {}).get("outcome") == "read_only_matrix_observation_adapter_preregistration_passed"
         and value.get("decision", {}).get("next_step") == "implement_and_run_read_only_matrix_observation_adapter_runtime_probe"
         and value.get("adapter_contract_sha256")
