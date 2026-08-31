@@ -1,0 +1,163 @@
+{
+  "schema_version": "g009.r0.rev22.read_only_matrix_observation_adapter_preregistration_artifact.v1",
+  "evidence_id": "G009-5-E015",
+  "status": "complete",
+  "mode": "static_read_only_adapter_preregistration",
+  "predecessor": {
+    "path": "reports/runs/g009_r0_rev21_matrix_authority_safety_gate_s42.json",
+    "sha256": "68a60383d9d49bf009d189498f94e6fe1c03155259932dcff8965caa7d9aa250",
+    "outcome": "matrix_authority_safety_gate_passed_for_diagnostic_preregistration",
+    "next_step": "preregister_read_only_matrix_observation_adapter",
+    "source_commit": "e202ae1d514c7abfe05ce0da130c2db47e9e05f3",
+    "source_bundle_sha256": "3589f3852c4365afadb8dbdc871ffb2fe81888155b7e66c274034b5506eaf40e",
+    "full_read_only_verification_required": true
+  },
+  "adapter_contract_sha256": "05105dbb7cf8646d0c7a5bf667cc9ab78de76131819a9654e43d9465a31d5b43",
+  "decision": {
+    "passed": true,
+    "outcome": "read_only_matrix_observation_adapter_preregistration_passed",
+    "primary_reason": "read_only_matrix_observation_adapter_preregistration_passed",
+    "next_step": "implement_and_run_read_only_matrix_observation_adapter_runtime_probe"
+  },
+  "checks": [
+    {
+      "reason": "rev22_preregistration_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "canonical_output_path_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "canonical_output_already_exists",
+      "status": "pass"
+    },
+    {
+      "reason": "rev22_source_provenance_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev21_predecessor_missing_or_path_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev21_predecessor_sha256_mismatch",
+      "status": "pass"
+    },
+    {
+      "reason": "rev21_predecessor_json_or_schema_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev21_predecessor_decision_or_governance_mismatch",
+      "status": "pass"
+    },
+    {
+      "reason": "rev21_predecessor_full_verification_failed",
+      "status": "pass"
+    },
+    {
+      "reason": "adapter_representation_contract_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "adapter_coordinate_or_axis_order_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "adapter_filter_reduction_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "adapter_dtype_device_or_shape_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "adapter_numeric_or_missing_contact_contract_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "adapter_normalization_or_clipping_contract_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "adapter_source_immutability_contract_invalid",
+      "status": "pass"
+    },
+    {
+      "reason": "rev22_governance_or_claim_limit_mismatch",
+      "status": "pass"
+    },
+    {
+      "reason": "read_only_matrix_observation_adapter_preregistration_passed",
+      "status": "pass"
+    }
+  ],
+  "assurance_tiers": {
+    "predecessor_byte_and_full_verification_required": true,
+    "adapter_semantics_preregistered_not_runtime_observed": true,
+    "runtime_and_throughput_deferred": true
+  },
+  "claim_limits": {
+    "adapter_implemented": false,
+    "adapter_runtime_observed": false,
+    "policy_observation_connected": false,
+    "reward_computed": false,
+    "ppo_training_executed": false,
+    "walking_turning_slope_or_self_recovery_qualified": false,
+    "physics_ground_truth_authority": false,
+    "simulator_launched": false,
+    "rollout_steps": 0,
+    "optimizer_updates": 0
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "gate_execution_allowed": false,
+    "qualification_eligible": false,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  },
+  "execution_metrics": {
+    "simulator_launched": false,
+    "rollout_steps": 0,
+    "optimizer_updates": 0
+  },
+  "runtime_and_throughput_deferred": {
+    "runtime_probe_required_after_pass": true,
+    "initial_correctness_probe": "8 env, 150 physics steps, CPU 2x and cuda:0 2x",
+    "throughput_measurement_before_runtime_correctness_pass_allowed": false,
+    "throughput_contract_requires_separate_preregistration": true,
+    "stable_maximum_definition": "maximum median env-control-steps-per-second among stable rungs, not maximum environment count or 100 percent GPU utilization"
+  },
+  "source_binding_projection": {
+    "source_bundle_sha256": "db4cd56fa83bb97bb4d335a6ca1c4181c71314b9cbaedb70eb517877f87d1489",
+    "path_scoped_clean": true
+  },
+  "rev22_source_binding": {
+    "schema_version": 1,
+    "git_commit": "0eca6b7cd4ec74e9cf28762b8e51ae80ddb73766",
+    "source_binding_paths": [
+      "configs/g009_r0_rev22_read_only_matrix_observation_adapter.json",
+      "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+      "scripts/run_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+      "scripts/summarize_g009_r0_rev21_matrix_authority_safety_gate.py"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0_rev22_read_only_matrix_observation_adapter.json": "9c0c5eabd168e49a25de3d21e4c82b6bdba78300d91972aaec97fb8b8078bcd1",
+      "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py": "d6f590ce090258c43835fc4f5bed8eb80daa97c8ec7dfd5ffe272f3ee1b8c6b2",
+      "scripts/run_g009_r0_rev22_read_only_matrix_observation_adapter.py": "2bc3b9c5b76a226c273b3ea9f2067d23ae3f540f6ca0cf519cb9acdc3b878f0b",
+      "scripts/summarize_g009_r0_rev21_matrix_authority_safety_gate.py": "709c6b616e26603f49936a8729eff8ccfee15b573951b9f7f6a489554fd7e9e7"
+    },
+    "source_bundle_sha256": "db4cd56fa83bb97bb4d335a6ca1c4181c71314b9cbaedb70eb517877f87d1489",
+    "path_scoped_clean": true
+  },
+  "execution": {
+    "execution_id": "9320566d739e45e285afdae75fed0db7",
+    "started_at_utc": "2026-08-31T02:55:42.944334Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json",
+    "no_overwrite": true
+  }
+}

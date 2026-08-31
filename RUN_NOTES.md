@@ -621,3 +621,24 @@ py C:\Users\LIMMM\isaac-walk-rl\scripts\run_g009_r0_rev21_matrix_authority_safet
 py C:\Users\LIMMM\isaac-walk-rl\scripts\summarize_g009_r0_rev21_matrix_authority_safety_gate.py --verify-artifact C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0_rev21_matrix_authority_safety_gate_s42.json
 Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0_rev21_matrix_authority_safety_gate_s42.json
 ```
+
+#### rev22 E015 read-only matrix observation adapter 사전등록 실제 결과
+
+- source commit `0eca6b7cd4ec74e9cf28762b8e51ae80ddb73766`에서 정적 계약 gate를 실행했다. rev22 source bundle SHA-256은 `db4cd56fa83bb97bb4d335a6ca1c4181c71314b9cbaedb70eb517877f87d1489`, adapter contract SHA-256은 `05105dbb7cf8646d0c7a5bf667cc9ab78de76131819a9654e43d9465a31d5b43`다. canonical artifact는 `reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json`, SHA-256은 `a8e536c7f5b739b983c8d1ce05c701b725b46b8926acc33b457c56ff9fad2343`, execution ID는 `9320566d739e45e285afdae75fed0db7`다.
+- `18/18` 판정 항목이 PASS했고 outcome은 `read_only_matrix_observation_adapter_preregistration_passed`, next step은 `implement_and_run_read_only_matrix_observation_adapter_runtime_probe`다. canonical 생성 전 `--check-only`는 exit code `0`으로 끝났고 worktree와 output을 바꾸지 않았다. 생성 후 full verifier도 exit code `0`이었다. 같은 runner의 재실행은 exit code `2`, reason `canonical_output_already_exists`로 닫혔고 canonical SHA-256은 유지됐다. 실패 envelope는 `C:\Users\LIMMM\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\failed_attempts\rev22\g009_5_e015_rev22_read_only_matrix_observation_adapter_e585c8e237254f56892db39c9dc3d225.json`에만 보존했다.
+- authoritative 후보 출력은 `terrain_pair_force_matrix_w [N,19,1,3]`의 filter 축을 먼저 합산한 world-frame XYZ `[N,19,3]`, `torch.float32`, source와 같은 device다. magnitude `[N,19]`는 합산 뒤 norm을 계산하는 진단값이며 정책 입력으로 허용하지 않는다. contact mask는 `magnitude > 1e-6N`이고, 정확히 임계값과 같은 값은 `false`다. 정상적인 zero contact는 XYZ·magnitude `0`, mask `false`로 유지하지만 source missing, shape·dtype·device 불일치, nonfinite는 zero-fill 없이 fail-closed한다. normalization, clipping, saturation, device fallback은 모두 금지했다.
+- adapter는 source의 shape·dtype·device·stride·storage identity·version·exact value SHA-256을 바꾸지 않아야 하며 모든 output은 source storage와 non-alias여야 한다. 이 계약은 구현 전 oracle과 fixture를 고정한 것이며 runtime adapter 구현이나 PhysX tensor 재관찰 결과가 아니다.
+- Isaac Lab 2.1.1의 `ContactSensorData.force_matrix_w` 의미를 다시 대조해 이 source를 **world-frame filtered normal contact force vector**로 제한했다. total contact force나 tangential friction force가 포함된다고 주장하지 않으며, 마찰 효과를 이 matrix만으로 직접 관측했다고도 주장하지 않는다. 이후 공간 마찰 실험은 발 미끄럼·접선 상대속도·command tracking·base drift를 별도 관측해야 한다.
+- simulator launch `0`, rollout step `0`, reward 계산 `0`, policy 연결 `0`, PPO/optimizer update `0`이다. 보행·앞뒤·좌우 회전·경사 주행·전복 복구·마찰 적응·강화학습 성공 증거가 아니다. 실행 동작, 물리 조건, checkpoint가 바뀌지 않아 새 영상·GIF·PNG를 만들지 않았다. E013 telemetry는 predecessor 문맥으로만 재사용하며 rev22 성공 미디어로 표시하지 않는다.
+- 검증은 rev22 대상 `56 passed`, rev20·rev21·Gate01을 포함한 통합 회귀 `245 passed`, JSON parse, `py_compile`, `git diff --check`, placeholder/skip scan PASS다. 독립 verifier 최종 판정은 CRITICAL/HIGH/MEDIUM/LOW `0/0/0/0`, `APPROVE`다. Windows 권한상 실제 symlink/reparse-point 생성 probe는 실행하지 못했고, 해당 입력을 거부하도록 작성된 코드 경로만 검토했다. `ruff`, `pyright`, `basedpyright`, `mypy`는 현재 환경에 설치되지 않아 실행하지 않았다.
+- Garden 발행은 보류한다. rev22만으로는 새 시뮬레이션 동작, 새 물리·학습 결과, 직접 관련된 새 미디어가 없어 별도 공개 글의 핵심 성과로 삼기 부족하다. 다음 실제 CPU/GPU runtime adapter 결과와 직접 관련 telemetry chart·GIF/PNG가 생기면 rev20 공개 글의 후속 내용으로 묶어 발행 여부를 다시 판정한다.
+- 다음은 adapter만 구현한 뒤 `8 env × 150 physics steps`를 CPU `2회`, `cuda:0` `2회` 독립 실행한다. 네 실행에서 source 불변성, XYZ·magnitude·mask oracle, shape·dtype·device, finite, repeatability를 모두 통과하기 전에는 Gate01, reward, policy, PPO를 열지 않는다. correctness PASS 뒤 별도 throughput 계약을 사전등록하고 GPU env ladder `[8,32,128,256,512,1024]`에서 median env-control-steps/s, peak VRAM, GPU utilization, OOM·numeric·physics stability를 기록한다. 목표는 GPU 점유율 `100%`가 아니라 반복 안정성을 유지하는 최대 throughput이다.
+
+현재 canonical artifact가 이미 존재하므로 아래 runner를 `--check-only`로 다시 실행하면 no-overwrite 규칙에 따라 exit code `2`가 정상이다. full verifier와 해시 확인은 계속 read-only로 실행할 수 있다.
+
+```powershell
+cd C:\Users\LIMMM\isaac-walk-rl
+py C:\Users\LIMMM\isaac-walk-rl\scripts\run_g009_r0_rev22_read_only_matrix_observation_adapter.py --check-only
+py C:\Users\LIMMM\isaac-walk-rl\scripts\summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py --verify-artifact C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json
+Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json
+```
