@@ -29,4 +29,9 @@
 /reports/runs/g009_r0_rev22_*.json text eol=lf
 /scripts/*g009_r0_rev22*.py text eol=lf
 /tests/test_g009_r0_rev22_*.py text eol=lf
+/configs/g009_r0_rev23_*.json text eol=lf
+/reports/runs/g009_r0_rev23_*.json text eol=lf
+/scripts/*g009_r0_rev23*.py text eol=lf
+/tests/test_g009_r0_rev23_*.py text eol=lf
+/src/isaac_walk_g009/matrix_observation_adapter.py text eol=lf
 /scripts/validate_rbq_assets.py text eol=lf
