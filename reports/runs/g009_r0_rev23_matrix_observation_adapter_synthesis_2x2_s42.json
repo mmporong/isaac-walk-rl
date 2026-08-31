@@ -1,0 +1,632 @@
+{
+  "schema_version": "g009.r0.rev23.matrix_observation_adapter_runtime_synthesis.v1",
+  "evidence_id": "G009-5-E016",
+  "status": "complete",
+  "mode": "final_2x2",
+  "input_report_count": 4,
+  "input_reports": [
+    {
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep01_s42.json",
+      "sha256": "1f01963e09574ec1388669dac75ed44cddd787f18f8dc7d806c72b11951d3660"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep02_s42.json",
+      "sha256": "6ccd4ce4cdf681524505c5122a2a0282097afd31f23129e0a30101e27f632844"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_gpu_rep01_s42.json",
+      "sha256": "049487df5fdc6a2c3310fcf65eb1ef15761a1a06c1160e52af619d96293c2446"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_gpu_rep02_s42.json",
+      "sha256": "273d2242a6bbc55bd169507b35b4bb7db15caf96d082edab98006f8e2b63a7ae"
+    }
+  ],
+  "integrity": {
+    "passed": true,
+    "hash_bound": true,
+    "unique_report_paths": true,
+    "unique_report_sha256": true,
+    "unique_execution_ids": true,
+    "exact_slots": [
+      "cpu.rep1",
+      "cpu.rep2",
+      "cuda:0.rep1",
+      "cuda:0.rep2"
+    ],
+    "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+    "probe_source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+    "synthesis_source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+    "cpu_preflight": {
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_preflight_2x_s42.json",
+      "sha256": "f8e1d203a5f2fce679a7ad7b9bf7e244b68bade845431f1582fc34fa443f29a7"
+    }
+  },
+  "repeatability": {
+    "cpu": {
+      "exact_fields": [
+        "adapter_contract_sha256",
+        "sample_count",
+        "source_shape",
+        "world_xyz_shape",
+        "magnitude_shape",
+        "contact_mask_shape",
+        "source_dtype",
+        "world_xyz_dtype",
+        "magnitude_dtype",
+        "contact_mask_dtype",
+        "source_device",
+        "world_xyz_device",
+        "magnitude_device",
+        "contact_mask_device",
+        "checks",
+        "source_mutation_steps",
+        "oracle_mismatch_steps",
+        "alias_violation_steps"
+      ],
+      "numeric_fields": [
+        "max_magnitude_n",
+        "magnitude_integral_n_s"
+      ],
+      "exact_field_matches": {
+        "adapter_contract_sha256": true,
+        "sample_count": true,
+        "source_shape": true,
+        "world_xyz_shape": true,
+        "magnitude_shape": true,
+        "contact_mask_shape": true,
+        "source_dtype": true,
+        "world_xyz_dtype": true,
+        "magnitude_dtype": true,
+        "contact_mask_dtype": true,
+        "source_device": true,
+        "world_xyz_device": true,
+        "magnitude_device": true,
+        "contact_mask_device": true,
+        "checks": true,
+        "source_mutation_steps": true,
+        "oracle_mismatch_steps": true,
+        "alias_violation_steps": true
+      },
+      "numeric_field_matches": {
+        "max_magnitude_n": true,
+        "magnitude_integral_n_s": true
+      },
+      "exact_fields_match": true,
+      "numeric_fields_within_tolerance": true,
+      "repeatable": true,
+      "absolute_tolerance": 1e-05,
+      "relative_tolerance": 1e-06
+    },
+    "cuda:0": {
+      "exact_fields": [
+        "adapter_contract_sha256",
+        "sample_count",
+        "source_shape",
+        "world_xyz_shape",
+        "magnitude_shape",
+        "contact_mask_shape",
+        "source_dtype",
+        "world_xyz_dtype",
+        "magnitude_dtype",
+        "contact_mask_dtype",
+        "source_device",
+        "world_xyz_device",
+        "magnitude_device",
+        "contact_mask_device",
+        "checks",
+        "source_mutation_steps",
+        "oracle_mismatch_steps",
+        "alias_violation_steps"
+      ],
+      "numeric_fields": [
+        "max_magnitude_n",
+        "magnitude_integral_n_s"
+      ],
+      "exact_field_matches": {
+        "adapter_contract_sha256": true,
+        "sample_count": true,
+        "source_shape": true,
+        "world_xyz_shape": true,
+        "magnitude_shape": true,
+        "contact_mask_shape": true,
+        "source_dtype": true,
+        "world_xyz_dtype": true,
+        "magnitude_dtype": true,
+        "contact_mask_dtype": true,
+        "source_device": true,
+        "world_xyz_device": true,
+        "magnitude_device": true,
+        "contact_mask_device": true,
+        "checks": true,
+        "source_mutation_steps": true,
+        "oracle_mismatch_steps": true,
+        "alias_violation_steps": true
+      },
+      "numeric_field_matches": {
+        "max_magnitude_n": true,
+        "magnitude_integral_n_s": true
+      },
+      "exact_fields_match": true,
+      "numeric_fields_within_tolerance": true,
+      "repeatable": true,
+      "absolute_tolerance": 1e-05,
+      "relative_tolerance": 1e-06
+    }
+  },
+  "rows": [
+    {
+      "slot": "cpu.rep1",
+      "device": "cpu",
+      "replicate_index": 1,
+      "binding": {
+        "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep01_s42.json",
+        "sha256": "1f01963e09574ec1388669dac75ed44cddd787f18f8dc7d806c72b11951d3660"
+      },
+      "execution_id": "d539a1102a524e0a9ab196668edfb260",
+      "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+      "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+      "source_bundle": {
+        "schema_version": 1,
+        "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+        "source_binding_paths": [
+          "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json",
+          "src/isaac_walk_g009/matrix_observation_adapter.py",
+          "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+          "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+          "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+          "configs/g009_r0_rev20_terrain_contact_matrix.json",
+          "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+          "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json"
+        ],
+        "source_binding_files": {
+          "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json": "52f1b40a19c9016fa5d2aa5f2a132101a488bf9fa32e142834e8815d83fbd02e",
+          "src/isaac_walk_g009/matrix_observation_adapter.py": "7d838b9d57090b2cffec0fcb89612175fdb6f36e94ac7ffe492317f37142df32",
+          "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py": "74dd7e1aee327b14f77e9ad0c1fb2f958bdc7c2dad18d88834278ebccc6ba425",
+          "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py": "181359c4878c17a18305af476ec4ae1a1599e93bdb154af8dc3b38101eac46b6",
+          "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py": "1816ecf569d83b81e77d192d9ab4bce6c84a4b1cbc64b407a22ae3c1a85dcfc2",
+          "configs/g009_r0_rev20_terrain_contact_matrix.json": "9110109f92f0678bc70fb1e73702bb984246ac7b364a304686dcbde4f9f65482",
+          "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py": "d6f590ce090258c43835fc4f5bed8eb80daa97c8ec7dfd5ffe272f3ee1b8c6b2",
+          "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json": "a8e536c7f5b739b983c8d1ce05c701b725b46b8926acc33b457c56ff9fad2343"
+        },
+        "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+        "path_scoped_clean": true
+      },
+      "cpu_preflight_binding": {
+        "status": "not_required_for_cpu",
+        "path": null,
+        "sha256": null,
+        "git_commit": null,
+        "probe_source_bundle_sha256": null,
+        "input_reports": []
+      },
+      "runtime_parent_passed": true,
+      "adapter_decision_passed": true,
+      "adapter_runtime_passed": true,
+      "adapter_contract_sha256": "05105dbb7cf8646d0c7a5bf667cc9ab78de76131819a9654e43d9465a31d5b43",
+      "sample_count": 150,
+      "source_shape": [
+        8,
+        19,
+        1,
+        3
+      ],
+      "world_xyz_shape": [
+        8,
+        19,
+        3
+      ],
+      "magnitude_shape": [
+        8,
+        19
+      ],
+      "contact_mask_shape": [
+        8,
+        19
+      ],
+      "source_dtype": "torch.float32",
+      "world_xyz_dtype": "torch.float32",
+      "magnitude_dtype": "torch.float32",
+      "contact_mask_dtype": "torch.bool",
+      "source_device": "cpu",
+      "world_xyz_device": "cpu",
+      "magnitude_device": "cpu",
+      "contact_mask_device": "cpu",
+      "checks": {
+        "exact_150_samples": true,
+        "source_available_150_of_150": true,
+        "source_contract_150_of_150": true,
+        "source_unchanged_150_of_150": true,
+        "world_xyz_oracle_150_of_150": true,
+        "magnitude_oracle_150_of_150": true,
+        "contact_mask_oracle_150_of_150": true,
+        "source_output_non_alias_150_of_150": true,
+        "output_output_non_alias_150_of_150": true,
+        "zero_contact_semantics_150_of_150": true,
+        "finite_150_of_150": true,
+        "requested_device_preserved_150_of_150": true,
+        "representative_snapshots_exact": true,
+        "collection_error_absent": true
+      },
+      "source_mutation_steps": [],
+      "oracle_mismatch_steps": [],
+      "alias_violation_steps": [],
+      "max_magnitude_n": 1386.23046875,
+      "magnitude_integral_n_s": 112.00597896575924
+    },
+    {
+      "slot": "cpu.rep2",
+      "device": "cpu",
+      "replicate_index": 2,
+      "binding": {
+        "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep02_s42.json",
+        "sha256": "6ccd4ce4cdf681524505c5122a2a0282097afd31f23129e0a30101e27f632844"
+      },
+      "execution_id": "810a50e8837c4ca498f33a73ba592fdc",
+      "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+      "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+      "source_bundle": {
+        "schema_version": 1,
+        "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+        "source_binding_paths": [
+          "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json",
+          "src/isaac_walk_g009/matrix_observation_adapter.py",
+          "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+          "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+          "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+          "configs/g009_r0_rev20_terrain_contact_matrix.json",
+          "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+          "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json"
+        ],
+        "source_binding_files": {
+          "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json": "52f1b40a19c9016fa5d2aa5f2a132101a488bf9fa32e142834e8815d83fbd02e",
+          "src/isaac_walk_g009/matrix_observation_adapter.py": "7d838b9d57090b2cffec0fcb89612175fdb6f36e94ac7ffe492317f37142df32",
+          "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py": "74dd7e1aee327b14f77e9ad0c1fb2f958bdc7c2dad18d88834278ebccc6ba425",
+          "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py": "181359c4878c17a18305af476ec4ae1a1599e93bdb154af8dc3b38101eac46b6",
+          "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py": "1816ecf569d83b81e77d192d9ab4bce6c84a4b1cbc64b407a22ae3c1a85dcfc2",
+          "configs/g009_r0_rev20_terrain_contact_matrix.json": "9110109f92f0678bc70fb1e73702bb984246ac7b364a304686dcbde4f9f65482",
+          "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py": "d6f590ce090258c43835fc4f5bed8eb80daa97c8ec7dfd5ffe272f3ee1b8c6b2",
+          "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json": "a8e536c7f5b739b983c8d1ce05c701b725b46b8926acc33b457c56ff9fad2343"
+        },
+        "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+        "path_scoped_clean": true
+      },
+      "cpu_preflight_binding": {
+        "status": "not_required_for_cpu",
+        "path": null,
+        "sha256": null,
+        "git_commit": null,
+        "probe_source_bundle_sha256": null,
+        "input_reports": []
+      },
+      "runtime_parent_passed": true,
+      "adapter_decision_passed": true,
+      "adapter_runtime_passed": true,
+      "adapter_contract_sha256": "05105dbb7cf8646d0c7a5bf667cc9ab78de76131819a9654e43d9465a31d5b43",
+      "sample_count": 150,
+      "source_shape": [
+        8,
+        19,
+        1,
+        3
+      ],
+      "world_xyz_shape": [
+        8,
+        19,
+        3
+      ],
+      "magnitude_shape": [
+        8,
+        19
+      ],
+      "contact_mask_shape": [
+        8,
+        19
+      ],
+      "source_dtype": "torch.float32",
+      "world_xyz_dtype": "torch.float32",
+      "magnitude_dtype": "torch.float32",
+      "contact_mask_dtype": "torch.bool",
+      "source_device": "cpu",
+      "world_xyz_device": "cpu",
+      "magnitude_device": "cpu",
+      "contact_mask_device": "cpu",
+      "checks": {
+        "exact_150_samples": true,
+        "source_available_150_of_150": true,
+        "source_contract_150_of_150": true,
+        "source_unchanged_150_of_150": true,
+        "world_xyz_oracle_150_of_150": true,
+        "magnitude_oracle_150_of_150": true,
+        "contact_mask_oracle_150_of_150": true,
+        "source_output_non_alias_150_of_150": true,
+        "output_output_non_alias_150_of_150": true,
+        "zero_contact_semantics_150_of_150": true,
+        "finite_150_of_150": true,
+        "requested_device_preserved_150_of_150": true,
+        "representative_snapshots_exact": true,
+        "collection_error_absent": true
+      },
+      "source_mutation_steps": [],
+      "oracle_mismatch_steps": [],
+      "alias_violation_steps": [],
+      "max_magnitude_n": 1386.23046875,
+      "magnitude_integral_n_s": 112.00597896575924
+    },
+    {
+      "slot": "cuda:0.rep1",
+      "device": "cuda:0",
+      "replicate_index": 1,
+      "binding": {
+        "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_gpu_rep01_s42.json",
+        "sha256": "049487df5fdc6a2c3310fcf65eb1ef15761a1a06c1160e52af619d96293c2446"
+      },
+      "execution_id": "0801f4b50c804d92b3079838f6ba23cc",
+      "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+      "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+      "source_bundle": {
+        "schema_version": 1,
+        "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+        "source_binding_paths": [
+          "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json",
+          "src/isaac_walk_g009/matrix_observation_adapter.py",
+          "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+          "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+          "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+          "configs/g009_r0_rev20_terrain_contact_matrix.json",
+          "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+          "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json"
+        ],
+        "source_binding_files": {
+          "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json": "52f1b40a19c9016fa5d2aa5f2a132101a488bf9fa32e142834e8815d83fbd02e",
+          "src/isaac_walk_g009/matrix_observation_adapter.py": "7d838b9d57090b2cffec0fcb89612175fdb6f36e94ac7ffe492317f37142df32",
+          "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py": "74dd7e1aee327b14f77e9ad0c1fb2f958bdc7c2dad18d88834278ebccc6ba425",
+          "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py": "181359c4878c17a18305af476ec4ae1a1599e93bdb154af8dc3b38101eac46b6",
+          "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py": "1816ecf569d83b81e77d192d9ab4bce6c84a4b1cbc64b407a22ae3c1a85dcfc2",
+          "configs/g009_r0_rev20_terrain_contact_matrix.json": "9110109f92f0678bc70fb1e73702bb984246ac7b364a304686dcbde4f9f65482",
+          "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py": "d6f590ce090258c43835fc4f5bed8eb80daa97c8ec7dfd5ffe272f3ee1b8c6b2",
+          "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json": "a8e536c7f5b739b983c8d1ce05c701b725b46b8926acc33b457c56ff9fad2343"
+        },
+        "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+        "path_scoped_clean": true
+      },
+      "cpu_preflight_binding": {
+        "status": "validated_for_gpu",
+        "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_preflight_2x_s42.json",
+        "sha256": "f8e1d203a5f2fce679a7ad7b9bf7e244b68bade845431f1582fc34fa443f29a7",
+        "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+        "probe_source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+        "input_reports": [
+          {
+            "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep01_s42.json",
+            "sha256": "1f01963e09574ec1388669dac75ed44cddd787f18f8dc7d806c72b11951d3660"
+          },
+          {
+            "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep02_s42.json",
+            "sha256": "6ccd4ce4cdf681524505c5122a2a0282097afd31f23129e0a30101e27f632844"
+          }
+        ]
+      },
+      "runtime_parent_passed": true,
+      "adapter_decision_passed": true,
+      "adapter_runtime_passed": true,
+      "adapter_contract_sha256": "05105dbb7cf8646d0c7a5bf667cc9ab78de76131819a9654e43d9465a31d5b43",
+      "sample_count": 150,
+      "source_shape": [
+        8,
+        19,
+        1,
+        3
+      ],
+      "world_xyz_shape": [
+        8,
+        19,
+        3
+      ],
+      "magnitude_shape": [
+        8,
+        19
+      ],
+      "contact_mask_shape": [
+        8,
+        19
+      ],
+      "source_dtype": "torch.float32",
+      "world_xyz_dtype": "torch.float32",
+      "magnitude_dtype": "torch.float32",
+      "contact_mask_dtype": "torch.bool",
+      "source_device": "cuda:0",
+      "world_xyz_device": "cuda:0",
+      "magnitude_device": "cuda:0",
+      "contact_mask_device": "cuda:0",
+      "checks": {
+        "exact_150_samples": true,
+        "source_available_150_of_150": true,
+        "source_contract_150_of_150": true,
+        "source_unchanged_150_of_150": true,
+        "world_xyz_oracle_150_of_150": true,
+        "magnitude_oracle_150_of_150": true,
+        "contact_mask_oracle_150_of_150": true,
+        "source_output_non_alias_150_of_150": true,
+        "output_output_non_alias_150_of_150": true,
+        "zero_contact_semantics_150_of_150": true,
+        "finite_150_of_150": true,
+        "requested_device_preserved_150_of_150": true,
+        "representative_snapshots_exact": true,
+        "collection_error_absent": true
+      },
+      "source_mutation_steps": [],
+      "oracle_mismatch_steps": [],
+      "alias_violation_steps": [],
+      "max_magnitude_n": 1385.014404296875,
+      "magnitude_integral_n_s": 119.45139554977413
+    },
+    {
+      "slot": "cuda:0.rep2",
+      "device": "cuda:0",
+      "replicate_index": 2,
+      "binding": {
+        "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_gpu_rep02_s42.json",
+        "sha256": "273d2242a6bbc55bd169507b35b4bb7db15caf96d082edab98006f8e2b63a7ae"
+      },
+      "execution_id": "136c70463699438d8fd5d3fb24841dae",
+      "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+      "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+      "source_bundle": {
+        "schema_version": 1,
+        "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+        "source_binding_paths": [
+          "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json",
+          "src/isaac_walk_g009/matrix_observation_adapter.py",
+          "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+          "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+          "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+          "configs/g009_r0_rev20_terrain_contact_matrix.json",
+          "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+          "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json"
+        ],
+        "source_binding_files": {
+          "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json": "52f1b40a19c9016fa5d2aa5f2a132101a488bf9fa32e142834e8815d83fbd02e",
+          "src/isaac_walk_g009/matrix_observation_adapter.py": "7d838b9d57090b2cffec0fcb89612175fdb6f36e94ac7ffe492317f37142df32",
+          "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py": "74dd7e1aee327b14f77e9ad0c1fb2f958bdc7c2dad18d88834278ebccc6ba425",
+          "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py": "181359c4878c17a18305af476ec4ae1a1599e93bdb154af8dc3b38101eac46b6",
+          "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py": "1816ecf569d83b81e77d192d9ab4bce6c84a4b1cbc64b407a22ae3c1a85dcfc2",
+          "configs/g009_r0_rev20_terrain_contact_matrix.json": "9110109f92f0678bc70fb1e73702bb984246ac7b364a304686dcbde4f9f65482",
+          "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py": "d6f590ce090258c43835fc4f5bed8eb80daa97c8ec7dfd5ffe272f3ee1b8c6b2",
+          "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json": "a8e536c7f5b739b983c8d1ce05c701b725b46b8926acc33b457c56ff9fad2343"
+        },
+        "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+        "path_scoped_clean": true
+      },
+      "cpu_preflight_binding": {
+        "status": "validated_for_gpu",
+        "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_preflight_2x_s42.json",
+        "sha256": "f8e1d203a5f2fce679a7ad7b9bf7e244b68bade845431f1582fc34fa443f29a7",
+        "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+        "probe_source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+        "input_reports": [
+          {
+            "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep01_s42.json",
+            "sha256": "1f01963e09574ec1388669dac75ed44cddd787f18f8dc7d806c72b11951d3660"
+          },
+          {
+            "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep02_s42.json",
+            "sha256": "6ccd4ce4cdf681524505c5122a2a0282097afd31f23129e0a30101e27f632844"
+          }
+        ]
+      },
+      "runtime_parent_passed": true,
+      "adapter_decision_passed": true,
+      "adapter_runtime_passed": true,
+      "adapter_contract_sha256": "05105dbb7cf8646d0c7a5bf667cc9ab78de76131819a9654e43d9465a31d5b43",
+      "sample_count": 150,
+      "source_shape": [
+        8,
+        19,
+        1,
+        3
+      ],
+      "world_xyz_shape": [
+        8,
+        19,
+        3
+      ],
+      "magnitude_shape": [
+        8,
+        19
+      ],
+      "contact_mask_shape": [
+        8,
+        19
+      ],
+      "source_dtype": "torch.float32",
+      "world_xyz_dtype": "torch.float32",
+      "magnitude_dtype": "torch.float32",
+      "contact_mask_dtype": "torch.bool",
+      "source_device": "cuda:0",
+      "world_xyz_device": "cuda:0",
+      "magnitude_device": "cuda:0",
+      "contact_mask_device": "cuda:0",
+      "checks": {
+        "exact_150_samples": true,
+        "source_available_150_of_150": true,
+        "source_contract_150_of_150": true,
+        "source_unchanged_150_of_150": true,
+        "world_xyz_oracle_150_of_150": true,
+        "magnitude_oracle_150_of_150": true,
+        "contact_mask_oracle_150_of_150": true,
+        "source_output_non_alias_150_of_150": true,
+        "output_output_non_alias_150_of_150": true,
+        "zero_contact_semantics_150_of_150": true,
+        "finite_150_of_150": true,
+        "requested_device_preserved_150_of_150": true,
+        "representative_snapshots_exact": true,
+        "collection_error_absent": true
+      },
+      "source_mutation_steps": [],
+      "oracle_mismatch_steps": [],
+      "alias_violation_steps": [],
+      "max_magnitude_n": 1385.014404296875,
+      "magnitude_integral_n_s": 119.45139554977413
+    }
+  ],
+  "decision": {
+    "outcome": "read_only_matrix_observation_adapter_runtime_2x2_validated",
+    "next_step": "preregister_and_run_gpu_throughput_ladder_before_matrix_gate01",
+    "third_run_allowed": false
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "gate_execution_allowed": false,
+    "qualification_eligible": false,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  },
+  "claim_limits": {
+    "adapter_runtime_observed_after_pass": true,
+    "policy_observation_connected": false,
+    "reward_computed": false,
+    "ppo_training_executed": false,
+    "normal_contact_force_vector_claim_allowed": true,
+    "total_contact_force_claim_allowed": false,
+    "tangential_friction_force_claim_allowed": false,
+    "friction_effect_directly_observed_claim_allowed": false,
+    "walking_turning_slope_or_self_recovery_qualified": false,
+    "physics_ground_truth_authority": false
+  },
+  "synthesis_source_bundle": {
+    "schema_version": 1,
+    "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+    "source_binding_paths": [
+      "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json",
+      "src/isaac_walk_g009/matrix_observation_adapter.py",
+      "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+      "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+      "configs/g009_r0_rev20_terrain_contact_matrix.json",
+      "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+      "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json": "52f1b40a19c9016fa5d2aa5f2a132101a488bf9fa32e142834e8815d83fbd02e",
+      "src/isaac_walk_g009/matrix_observation_adapter.py": "7d838b9d57090b2cffec0fcb89612175fdb6f36e94ac7ffe492317f37142df32",
+      "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py": "74dd7e1aee327b14f77e9ad0c1fb2f958bdc7c2dad18d88834278ebccc6ba425",
+      "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py": "181359c4878c17a18305af476ec4ae1a1599e93bdb154af8dc3b38101eac46b6",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py": "1816ecf569d83b81e77d192d9ab4bce6c84a4b1cbc64b407a22ae3c1a85dcfc2",
+      "configs/g009_r0_rev20_terrain_contact_matrix.json": "9110109f92f0678bc70fb1e73702bb984246ac7b364a304686dcbde4f9f65482",
+      "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py": "d6f590ce090258c43835fc4f5bed8eb80daa97c8ec7dfd5ffe272f3ee1b8c6b2",
+      "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json": "a8e536c7f5b739b983c8d1ce05c701b725b46b8926acc33b457c56ff9fad2343"
+    },
+    "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+    "path_scoped_clean": true
+  },
+  "execution": {
+    "execution_id": "5f990c2365494cce9c37bb8757bea884",
+    "started_at_utc": "2026-08-31T11:34:26.232710Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_rev23_matrix_observation_adapter_synthesis_2x2_s42.json",
+    "no_overwrite": true
+  }
+}

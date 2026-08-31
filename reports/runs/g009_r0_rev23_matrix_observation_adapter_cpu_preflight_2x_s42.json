@@ -1,0 +1,152 @@
+{
+  "schema_version": "g009.r0.rev23.matrix_observation_adapter_cpu_preflight.v1",
+  "evidence_id": "G009-5-E016",
+  "status": "complete",
+  "mode": "cpu_preflight_2x",
+  "input_report_count": 2,
+  "input_reports": [
+    {
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep01_s42.json",
+      "sha256": "1f01963e09574ec1388669dac75ed44cddd787f18f8dc7d806c72b11951d3660"
+    },
+    {
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep02_s42.json",
+      "sha256": "6ccd4ce4cdf681524505c5122a2a0282097afd31f23129e0a30101e27f632844"
+    }
+  ],
+  "integrity": {
+    "passed": true,
+    "hash_bound": true,
+    "unique_report_paths": true,
+    "unique_report_sha256": true,
+    "unique_execution_ids": true,
+    "exact_slots": [
+      "cpu.rep1",
+      "cpu.rep2"
+    ],
+    "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+    "probe_source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+    "synthesis_source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4"
+  },
+  "cpu_preflight": {
+    "passed": true,
+    "runtime_parent_passed": true,
+    "adapter_150_of_150_passed": true,
+    "within_cpu_repeatability_passed": true,
+    "gpu_stage_allowed": true
+  },
+  "repeatability": {
+    "exact_fields": [
+      "adapter_contract_sha256",
+      "sample_count",
+      "source_shape",
+      "world_xyz_shape",
+      "magnitude_shape",
+      "contact_mask_shape",
+      "source_dtype",
+      "world_xyz_dtype",
+      "magnitude_dtype",
+      "contact_mask_dtype",
+      "source_device",
+      "world_xyz_device",
+      "magnitude_device",
+      "contact_mask_device",
+      "checks",
+      "source_mutation_steps",
+      "oracle_mismatch_steps",
+      "alias_violation_steps"
+    ],
+    "numeric_fields": [
+      "max_magnitude_n",
+      "magnitude_integral_n_s"
+    ],
+    "exact_field_matches": {
+      "adapter_contract_sha256": true,
+      "sample_count": true,
+      "source_shape": true,
+      "world_xyz_shape": true,
+      "magnitude_shape": true,
+      "contact_mask_shape": true,
+      "source_dtype": true,
+      "world_xyz_dtype": true,
+      "magnitude_dtype": true,
+      "contact_mask_dtype": true,
+      "source_device": true,
+      "world_xyz_device": true,
+      "magnitude_device": true,
+      "contact_mask_device": true,
+      "checks": true,
+      "source_mutation_steps": true,
+      "oracle_mismatch_steps": true,
+      "alias_violation_steps": true
+    },
+    "numeric_field_matches": {
+      "max_magnitude_n": true,
+      "magnitude_integral_n_s": true
+    },
+    "exact_fields_match": true,
+    "numeric_fields_within_tolerance": true,
+    "repeatable": true,
+    "absolute_tolerance": 1e-05,
+    "relative_tolerance": 1e-06
+  },
+  "decision": {
+    "outcome": "gpu_stage_authorized",
+    "next_step": "run_cuda_runtime_replicates_1_and_2",
+    "third_run_allowed": false
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "gate_execution_allowed": false,
+    "qualification_eligible": false,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  },
+  "claim_limits": {
+    "adapter_runtime_observed_after_pass": true,
+    "policy_observation_connected": false,
+    "reward_computed": false,
+    "ppo_training_executed": false,
+    "normal_contact_force_vector_claim_allowed": true,
+    "total_contact_force_claim_allowed": false,
+    "tangential_friction_force_claim_allowed": false,
+    "friction_effect_directly_observed_claim_allowed": false,
+    "walking_turning_slope_or_self_recovery_qualified": false,
+    "physics_ground_truth_authority": false
+  },
+  "synthesis_source_bundle": {
+    "schema_version": 1,
+    "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+    "source_binding_paths": [
+      "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json",
+      "src/isaac_walk_g009/matrix_observation_adapter.py",
+      "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+      "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py",
+      "configs/g009_r0_rev20_terrain_contact_matrix.json",
+      "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py",
+      "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json"
+    ],
+    "source_binding_files": {
+      "configs/g009_r0_rev23_read_only_matrix_observation_adapter_runtime.json": "52f1b40a19c9016fa5d2aa5f2a132101a488bf9fa32e142834e8815d83fbd02e",
+      "src/isaac_walk_g009/matrix_observation_adapter.py": "7d838b9d57090b2cffec0fcb89612175fdb6f36e94ac7ffe492317f37142df32",
+      "scripts/probe_g009_r0_rev23_matrix_observation_adapter_runtime.py": "74dd7e1aee327b14f77e9ad0c1fb2f958bdc7c2dad18d88834278ebccc6ba425",
+      "scripts/summarize_g009_r0_rev23_matrix_observation_adapter_runtime.py": "181359c4878c17a18305af476ec4ae1a1599e93bdb154af8dc3b38101eac46b6",
+      "scripts/probe_g009_r0_rev20_terrain_contact_matrix.py": "1816ecf569d83b81e77d192d9ab4bce6c84a4b1cbc64b407a22ae3c1a85dcfc2",
+      "configs/g009_r0_rev20_terrain_contact_matrix.json": "9110109f92f0678bc70fb1e73702bb984246ac7b364a304686dcbde4f9f65482",
+      "scripts/summarize_g009_r0_rev22_read_only_matrix_observation_adapter.py": "d6f590ce090258c43835fc4f5bed8eb80daa97c8ec7dfd5ffe272f3ee1b8c6b2",
+      "reports/runs/g009_r0_rev22_read_only_matrix_observation_adapter_preregistration_s42.json": "a8e536c7f5b739b983c8d1ce05c701b725b46b8926acc33b457c56ff9fad2343"
+    },
+    "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4",
+    "path_scoped_clean": true
+  },
+  "execution": {
+    "execution_id": "edb7f3ca06ab48bdbfad914e34d2fc2e",
+    "started_at_utc": "2026-08-31T11:25:17.504905Z",
+    "output_path_repo_relative": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_preflight_2x_s42.json",
+    "no_overwrite": true
+  }
+}
