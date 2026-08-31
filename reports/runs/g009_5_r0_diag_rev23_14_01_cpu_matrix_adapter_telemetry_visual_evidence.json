@@ -1,0 +1,116 @@
+{
+  "schema_version": "g009.r0.rev23.matrix_observation_adapter_visual_evidence.v1",
+  "goal_id": "g009",
+  "stage_id": "R0",
+  "stage_number": "14",
+  "sequence_number": "14.01",
+  "revision": "rev23",
+  "evidence_id": "G009-5-E016",
+  "phase": "cpu",
+  "status": "diagnostic_complete",
+  "integrity": {
+    "passed": true,
+    "hash_bound": true,
+    "all_inputs_revalidated": true,
+    "no_overwrite": true
+  },
+  "labels": [
+    "14.01",
+    "DIAGNOSTIC · TELEMETRY ANIMATION · NOT CAMERA FOOTAGE · READ-ONLY · NO PPO · NOT QUALIFIED"
+  ],
+  "claim_limits": {
+    "telemetry_animation_only": true,
+    "camera_footage_claimed": false,
+    "robot_motion_claimed": false,
+    "training_success_claimed": false,
+    "reward_claimed": false,
+    "qualification_claimed": false,
+    "normal_contact_force_vector_only": true,
+    "tangential_or_friction_effect_claimed": false
+  },
+  "governance": {
+    "diagnostic_only": true,
+    "learned": false,
+    "reward_computed": false,
+    "ppo_updates": 0,
+    "qualification_status": "not_run",
+    "physics_ground_truth_authority": false
+  },
+  "input_bindings": [
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep01_s42.json",
+      "sha256": "1f01963e09574ec1388669dac75ed44cddd787f18f8dc7d806c72b11951d3660"
+    },
+    {
+      "role": "run",
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_rep02_s42.json",
+      "sha256": "6ccd4ce4cdf681524505c5122a2a0282097afd31f23129e0a30101e27f632844"
+    },
+    {
+      "role": "synthesis",
+      "path": "reports/runs/g009_r0_rev23_matrix_observation_adapter_cpu_preflight_2x_s42.json",
+      "sha256": "f8e1d203a5f2fce679a7ad7b9bf7e244b68bade845431f1582fc34fa443f29a7"
+    }
+  ],
+  "source": {
+    "git_commit": "4f4fb71b5948fa909ea298ff5cce2809f66ef05f",
+    "source_bundle_sha256": "60e77825dc1616cd32cc314343c65e4723842359fd0c6d8c93f34a34135407c4"
+  },
+  "artifacts": {
+    "visual_summary": {
+      "path": "reports/runs/g009_5_r0_diag_rev23_14_01_cpu_matrix_adapter_telemetry_visual_summary.json",
+      "sha256": "c0dd859a814fefe2cf7960f72a3741daeb7870c22eac64428ff2765cdbda0a95",
+      "bytes": 57631,
+      "intended_for_git": true,
+      "git_policy": "git_public_after_review"
+    },
+    "public": {
+      "gif": {
+        "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev23_14_01_cpu_matrix_adapter_telemetry.gif",
+        "sha256": "ef172f1f66b526aea9bf32f4f862baa902b6d29d715f6b28f54a3eaaee1836ef",
+        "bytes": 125320,
+        "intended_for_git": true,
+        "git_policy": "git_public_after_review",
+        "width": 1280,
+        "height": 720,
+        "frame_count": 8,
+        "duration_ms": 5600
+      },
+      "png": {
+        "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev23_14_01_cpu_matrix_adapter_telemetry.png",
+        "sha256": "7ff7bdda8eec382300472d9dce05688d45bbedfeb20d4bbcacc78f02fb4326e8",
+        "bytes": 78153,
+        "intended_for_git": true,
+        "git_policy": "git_public_after_review",
+        "width": 1280,
+        "height": 720,
+        "representative_frame": 8
+      }
+    },
+    "local_video": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev23_14_01_cpu_matrix_adapter_telemetry_s42.mp4",
+      "sha256": "42fe4696ffd7fc4d719a84b2c72a94de8321ef6d270295e2979b7aaae652beb6",
+      "bytes": 74253,
+      "intended_for_git": false,
+      "git_policy": "local_only",
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "fps": "30/1",
+      "frames": 168,
+      "duration_seconds": 5.6
+    }
+  },
+  "contract": {
+    "builder": {
+      "path": "scripts/build_g009_r0_rev23_matrix_observation_adapter_media.py",
+      "sha256": "5e239021c96cb0c2b90d5882b5d1a2ce191329ad57d27f7519d64ab8615cfb75"
+    },
+    "validator": {
+      "path": "scripts/validate_g009_r0_rev23_matrix_observation_adapter_media.py",
+      "sha256": "b529e63c9a2bd697585bdbb7c9796f1f6139d9984ff616547fa2f6c4009f5984",
+      "command": "%PYTHON% scripts/validate_g009_r0_rev23_matrix_observation_adapter_media.py --phase cpu --check-only"
+    }
+  }
+}
