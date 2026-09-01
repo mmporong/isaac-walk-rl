@@ -68,10 +68,10 @@ G008-1 command smoke -> G008-2 command PPO
 | `G009-2` | 6개 경사 × 4개 방위 analytic gate (`S0`) | 지형 검증 | `24/24` 통과 |
 | `G009-3` | collision mesh·마찰·support-normal reset (`S0`) | Isaac runtime 검증 | 완료 |
 | `G009-4` | 5°·15°·25° 동일 조건 재생 (`S0`) | 시각 증거 | 완료, 25°는 실패 경계 |
-| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전·관측 진단 | rev23 read-only adapter CPU/GPU `2×2` correctness 완료, throughput·matrix Gate01·PPO 미실행 |
+| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전·관측 진단 | rev24 active `8/0` 계약과 공식 `1024 → 2048 env` GPU benchmark 준비 완료, 실제 throughput·matrix Gate01·새 PPO 미실행 |
 | `G009-6` | 5°·10° 횡경사 WALK (`S1-low`) | 다음 강화학습 | R0·calibration 뒤 실행 |
 
-G008의 상세 번호표는 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md), G009의 전체 후속 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에서 이어집니다.
+G008의 상세 번호표는 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md), G009의 전체 후속 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에서 이어집니다. 현재 중단 위치와 다음 GPU 실행 순서는 [`docs/G009_REV24_GPU_THROUGHPUT_CHECKPOINT.md`](docs/G009_REV24_GPU_THROUGHPUT_CHECKPOINT.md)에 따로 고정했습니다.
 
 ## 저장소 경계
 
@@ -248,7 +248,7 @@ rev23 E016은 이 adapter를 실제 `contact_forces.data.force_matrix_w [8,19,1,
 
 `repeatable=true`는 CPU 내부 두 반복과 `cuda:0` 내부 두 반복에 각각 적용됩니다. CPU와 GPU 사이의 수치 동등성을 승인한 결과가 아닙니다. 장치 간 참고 차이는 max magnitude `1.216064453125N`(`0.0877%`), magnitude integral `7.445416584014893N·s`(`6.6473%`), zero source vector `23`(`0.1245%`)입니다. Windows의 `SimulationApp.close()` 과정에서는 access-violation 경고가 출력됐지만 exit code `0`, canonical strict validation PASS, 150개 sample, source binding과 temporary file `0`을 함께 확인했습니다. 이 판정은 해당 canonical artifact의 무결성 근거이며 종료 경고가 일반적으로 무해하다는 뜻은 아닙니다.
 
-rev23은 강화학습이 아닙니다. policy observation 연결, reward, PPO·optimizer update, Gate01, qualification을 실행하지 않았습니다. source는 filtered normal contact-force vector이므로 total·tangential friction force나 마찰 효과의 직접 관측으로 해석하지 않습니다. 보행·회전·경사·자가복구 성능도 주장하지 않습니다. 다음은 GPU env `[8,32,128,256,512,1024]` throughput ladder를 별도 사전등록해 stable maximum을 찾는 단계이며, 그 뒤에도 matrix Gate01을 별도로 통과해야 scratch PPO qualification을 열 수 있습니다. 전체 계보와 raw report는 [G009 산 비탈 횡단·전복 복구 강화학습](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에 있습니다. 번호 `14.01/14.02` 공개 자료는 simulation camera가 아닌 telemetry animation으로 분리합니다.
+rev23은 강화학습이 아닙니다. policy observation 연결, reward, PPO·optimizer update, Gate01, qualification을 실행하지 않았습니다. source는 filtered normal contact-force vector이므로 total·tangential friction force나 마찰 효과의 직접 관측으로 해석하지 않습니다. 보행·회전·경사·자가복구 성능도 주장하지 않습니다. rev24에서는 active solver `8/0`, action scale `0.70` 계약을 복원하고 공식 benchmark를 감싼 `1024 → 2048 env` throughput smoke를 사전등록했습니다. 아직 GPU 실행은 시작하지 않았으며, 1024가 모든 gate를 통과할 때만 2048을 엽니다. 그 뒤에도 matrix Gate01을 별도로 통과해야 scratch PPO qualification을 열 수 있습니다. 전체 계보와 raw report는 [G009 산 비탈 횡단·전복 복구 강화학습](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에 있습니다. 번호 `14.01/14.02` 공개 자료는 simulation camera가 아닌 telemetry animation으로 분리합니다.
 
 ![G009-5 rev23 14.01 CPU matrix adapter telemetry](docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev23_14_01_cpu_matrix_adapter_telemetry.gif)
 
