@@ -155,10 +155,15 @@ $maxIterations = [int](Get-ArgumentValue '--max_iterations')
 $timestamp = '2026-08-28_120000'
 $logDirectory = Join-Path $env:G009_FAKE_LOG_ROOT ($timestamp + '_' + $runName)
 New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
+if ($env:G009_FAKE_SAFETY_CASE -eq 'ambiguous_timestamp') {
+    New-Item -ItemType Directory -Path (Join-Path $env:G009_FAKE_LOG_ROOT ($timestamp + '-alt_' + $runName)) -Force | Out-Null
+}
 [IO.File]::WriteAllText((Join-Path $logDirectory 'events.out.tfevents.fake'), 'fake')
 [IO.File]::WriteAllText((Join-Path $logDirectory ("model_$($maxIterations - 1).pt")), 'fake checkpoint')
 Write-Output "[INFO] Logging experiment in directory: $env:G009_FAKE_LOG_ROOT"
-Write-Output "Exact experiment name requested from command line: $timestamp"
+if ($env:G009_FAKE_SAFETY_CASE -notin @('no_timestamp', 'ambiguous_timestamp')) {
+    Write-Output "Exact experiment name requested from command line: $timestamp"
+}
 Write-Output "Learning iteration  $($maxIterations - 1)/$maxIterations"
 Write-Output 'Computation: 100 steps/s'
 Write-Output 'Mean reward: 1.0'
@@ -210,6 +215,16 @@ try {
     Assert ($default.ExitCode -eq 0) 'default execution must not enforce the diagnostic gate'
     Assert ($default.Report.training_safety_gate.requested -eq $false) 'default report must record gate not requested'
     Assert ($null -eq $default.Report.training_safety_gate.passed) 'default diagnostic verdict must remain null'
+
+    $noTimestamp = Invoke-TrainingCase -CaseName 'no_timestamp'
+    Assert ($noTimestamp.ExitCode -eq 0) 'official benchmark-style output without exact timestamp must pass'
+    Assert ($noTimestamp.Report.success_checks.log_directory_exists -eq $true) 'log directory fallback must resolve the run-name directory'
+    Assert (-not [string]::IsNullOrWhiteSpace($noTimestamp.Report.artifacts.checkpoint)) 'log directory fallback must bind the checkpoint'
+
+    $ambiguousTimestamp = Invoke-TrainingCase -CaseName 'ambiguous_timestamp'
+    Assert ($ambiguousTimestamp.ExitCode -eq 1) 'ambiguous benchmark-style log directories must fail closed'
+    Assert ($ambiguousTimestamp.Report.log_directory_resolution.mode -eq 'ambiguous_new_run_name_directories') 'ambiguity reason must be recorded'
+    Assert ($ambiguousTimestamp.Report.success_checks.log_directory_exists -eq $false) 'ambiguous fallback must not select a directory'
 
     $resumeOutput = @(& $pwsh -NoProfile -File $harness `
         -Task 'Isaac-G009-Recover-Flat-Go2-R0-v0' -NumEnvs 1 -MaxIterations 1 -Seed 42 `

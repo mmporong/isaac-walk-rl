@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -39,7 +40,10 @@ from isaac_walk_g009.recover_contracts import (
 
 
 MANIFEST = ROOT / "configs" / "g009_r0.json"
+REV15_MANIFEST = ROOT / "configs" / "g009_r0_rev15.json"
 REV12_CONTRACT_SHA256 = "d4b48d2b5fc1ea7684684a6324ba22fbfae767effeae45668c7310df382392e0"
+REV15_CONTRACT_SHA256 = "5f29ba19458404b5009d3734294c57e79294efecc7fe03bf8c71c71656129832"
+REV15_MANIFEST_FILE_SHA256 = "88f9d5e7f7c4025fce4ee921fcee690a771e042a6861ab19975514757b774eb1"
 
 
 def _rotate_body_up_wxyz(quaternion: tuple[float, float, float, float]) -> tuple[float, float, float]:
@@ -160,22 +164,22 @@ def test_r0_reward_and_ppo_contract_match_the_frozen_document_revision() -> None
 
 def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     contract = recover_contract()
-    assert contract["contract_id"] == "g009_r0_recover_rev15"
+    assert contract["contract_id"] == "g009_r0_recover_rev24"
     assert contract["physics"] == {
-        "articulation_solver_position_iteration_count": 16,
+        "articulation_solver_position_iteration_count": 8,
         "articulation_solver_velocity_iteration_count": 0,
         "max_depenetration_velocity_m_s": 1.0,
         "rev12_baseline_articulation_solver_position_iteration_count": 8,
         "single_variable_change": (
-            "increase only the Go2 articulation position-solver iteration count "
-            "from the accepted rev12 runtime baseline 8 to 16; restore and retain "
-            "the rev12 velocity-solver count at 0 and rigid-body maximum "
-            "depenetration velocity at 1.0 m/s instead of inheriting rejected "
-            "rev13/rev14 semantics; retain action, reset, reward, curriculum, "
+            "restore only the Go2 articulation position-solver iteration count "
+            "from the rejected rev15 value 16 to the accepted rev12 runtime "
+            "baseline 8; retain the velocity-solver count at 0, rigid-body "
+            "maximum depenetration velocity at 1.0 m/s, action scale 0.70, "
+            "EMA alpha 0.2, PPO initial noise 0.5, reset, reward, curriculum, "
             "torque, joint-limit tolerance, and observation-noise contracts"
         ),
     }
-    assert ARTICULATION_SOLVER_POSITION_ITERATION_COUNT == 16
+    assert ARTICULATION_SOLVER_POSITION_ITERATION_COUNT == 8
     assert ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT == 0
     assert MAX_DEPENETRATION_VELOCITY_M_S == 1.0
     assert REV12_BASELINE_ARTICULATION_SOLVER_POSITION_ITERATION_COUNT == 8
@@ -252,7 +256,8 @@ def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
 
 
 def test_rev15_changes_only_position_iterations_against_historical_rev12() -> None:
-    contract = recover_contract()
+    rev15_manifest = json.loads(REV15_MANIFEST.read_text(encoding="utf-8"))
+    contract = rev15_manifest["contract"]
     reconstructed_rev12 = json.loads(
         json.dumps(contract, ensure_ascii=False, allow_nan=False)
     )
@@ -301,6 +306,16 @@ def test_rev15_changes_only_position_iterations_against_historical_rev12() -> No
         name: metadata["noise_uniform"]
         for name, metadata in ACTOR_OBSERVATION_METADATA.items()
     }
+
+
+def test_rev15_manifest_is_preserved_with_its_canonical_contract_hash() -> None:
+    raw = REV15_MANIFEST.read_bytes()
+    manifest = json.loads(raw.decode("utf-8"))
+
+    assert hashlib.sha256(raw).hexdigest() == REV15_MANIFEST_FILE_SHA256
+    assert manifest["contract"]["contract_id"] == "g009_r0_recover_rev15"
+    assert manifest["contract_sha256"] == REV15_CONTRACT_SHA256
+    assert canonical_sha256(manifest["contract"]) == REV15_CONTRACT_SHA256
 
 
 def test_json_manifest_is_canonically_bound_to_the_import_light_code_contract() -> None:

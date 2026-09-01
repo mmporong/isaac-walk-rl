@@ -1,0 +1,86 @@
+{
+  "schema_version": "g009.r0.rev24.gpu_throughput_preregistration.v1",
+  "evidence_id": "G009-5-E017",
+  "revision": "rev24",
+  "experiment": {
+    "purpose": "headless scratch PPO GPU throughput smoke",
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-v0",
+    "seed": 42,
+    "qualification_claim": false,
+    "recovery_success_claim": false,
+    "claim_limit": "This experiment measures short-run execution health and throughput only; it does not qualify a policy or demonstrate recovery success."
+  },
+  "source_bindings": {
+    "isaaclab": {
+      "version": "v2.1.1",
+      "commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba"
+    },
+    "official_benchmark": {
+      "path": "scripts/benchmarks/benchmark_rsl_rl.py",
+      "sha256": "2d5a88b9c07bfb38852082a0b9bf00f4213043b16ce0294776646ab06d351c82"
+    },
+    "repository_entrypoint": "scripts/bootstrap_benchmark_g009.py",
+    "active_contract": {
+      "path": "configs/g009_r0.json",
+      "contract_sha256": "64eb108bb736d9ba8c1727c3a56ddc3fefaafaba25a98f93c1f8505704c5dd91"
+    }
+  },
+  "protocol": {
+    "ordered_environment_counts": [1024, 2048],
+    "advance_rule": "2048 environments may run only after the 1024-environment report passes every gate",
+    "max_iterations": 5,
+    "num_steps_per_env": 24,
+    "ppo_num_learning_epochs": 5,
+    "ppo_num_mini_batches": 4,
+    "headless": true,
+    "scratch": true,
+    "resume_allowed": false
+  },
+  "report_contract": {
+    "schema_version": 1,
+    "run_health_and_passed_required": true,
+    "repository_clean_required": true,
+    "source_bundle_matches_commit_required": true,
+    "success_checks_required_true": [
+      "process_exit_zero",
+      "no_traceback_or_error",
+      "requested_iteration_reached",
+      "log_directory_exists",
+      "tensorboard_exists",
+      "checkpoint_exists",
+      "gpu_measurement_complete",
+      "gpu_recovered_to_baseline"
+    ],
+    "steps_per_second": {
+      "exact_sample_count": 5,
+      "all_positive_finite": true
+    },
+    "gpu": {
+      "required_finite_fields": [
+        "device_count",
+        "total_mib",
+        "peak_used_mib",
+        "peak_utilization_gpu_percent",
+        "peak_temperature_c"
+      ],
+      "visible_gpu_policy": "exactly_one",
+      "power_draw_policy": "finite_nonnegative_required",
+      "peak_memory_fraction_maximum": 0.9,
+      "unavailable_required_measurement_blocks": true,
+      "unavailable_power_draw_blocks": true
+    },
+    "numeric_invalid": {
+      "when_present": "finite maximum must equal zero",
+      "when_absent": "record unavailable",
+      "absence_blocks_throughput_smoke": false,
+      "nonzero_or_nonfinite_blocks": true
+    }
+  },
+  "partial_synthesis": {
+    "missing_2048_input_allowed": true,
+    "missing_1024_input_allowed": false,
+    "stable_max_envs_after_1024_pass": 1024,
+    "stable_max_envs_after_both_pass": 2048
+  },
+  "output": "reports/runs/g009_r0_rev24_gpu_throughput_synthesis_s42.json"
+}

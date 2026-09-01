@@ -114,7 +114,7 @@ def test_r0_flat_scene_and_disabled_randomization_contract():
     assert (
         cfg.scene.robot.spawn.articulation_props.solver_position_iteration_count
         == ARTICULATION_SOLVER_POSITION_ITERATION_COUNT
-        == 16
+        == 8
     )
     assert (
         cfg.scene.robot.spawn.articulation_props.solver_velocity_iteration_count

@@ -42,7 +42,7 @@ PHYSICS_DT_S = 0.005
 CONTROL_DECIMATION = 4
 CONTROL_DT_S = PHYSICS_DT_S * CONTROL_DECIMATION
 EPISODE_LENGTH_S = 8.0
-ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 16
+ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 8
 ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT = 0
 MAX_DEPENETRATION_VELOCITY_M_S = 1.0
 REV12_BASELINE_ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 8
@@ -302,7 +302,7 @@ def recover_contract() -> dict[str, Any]:
         for pose in RECOVER_POSES.values()
     ]
     return {
-        "contract_id": "g009_r0_recover_rev15",
+        "contract_id": "g009_r0_recover_rev24",
         "stage_id": "R0",
         "policy_schema": "P-RECOVER-83/C-RECOVER-107",
         "poses": poses,
@@ -325,11 +325,11 @@ def recover_contract() -> dict[str, Any]:
                 REV12_BASELINE_ARTICULATION_SOLVER_POSITION_ITERATION_COUNT
             ),
             "single_variable_change": (
-                "increase only the Go2 articulation position-solver iteration count "
-                "from the accepted rev12 runtime baseline 8 to 16; restore and retain "
-                "the rev12 velocity-solver count at 0 and rigid-body maximum "
-                "depenetration velocity at 1.0 m/s instead of inheriting rejected "
-                "rev13/rev14 semantics; retain action, reset, reward, curriculum, "
+                "restore only the Go2 articulation position-solver iteration count "
+                "from the rejected rev15 value 16 to the accepted rev12 runtime "
+                "baseline 8; retain the velocity-solver count at 0, rigid-body "
+                "maximum depenetration velocity at 1.0 m/s, action scale 0.70, "
+                "EMA alpha 0.2, PPO initial noise 0.5, reset, reward, curriculum, "
                 "torque, joint-limit tolerance, and observation-noise contracts"
             ),
         },

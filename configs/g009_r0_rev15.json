@@ -2,9 +2,9 @@
   "schema_version": 2,
   "goal_id": "g009",
   "stage_id": "R0",
-  "contract_sha256": "64eb108bb736d9ba8c1727c3a56ddc3fefaafaba25a98f93c1f8505704c5dd91",
+  "contract_sha256": "5f29ba19458404b5009d3734294c57e79294efecc7fe03bf8c71c71656129832",
   "contract": {
-    "contract_id": "g009_r0_recover_rev24",
+    "contract_id": "g009_r0_recover_rev15",
     "stage_id": "R0",
     "policy_schema": "P-RECOVER-83/C-RECOVER-107",
     "poses": [
@@ -105,11 +105,11 @@
       "max_episode_steps": 400
     },
     "physics": {
-      "articulation_solver_position_iteration_count": 8,
+      "articulation_solver_position_iteration_count": 16,
       "articulation_solver_velocity_iteration_count": 0,
       "max_depenetration_velocity_m_s": 1.0,
       "rev12_baseline_articulation_solver_position_iteration_count": 8,
-      "single_variable_change": "restore only the Go2 articulation position-solver iteration count from the rejected rev15 value 16 to the accepted rev12 runtime baseline 8; retain the velocity-solver count at 0, rigid-body maximum depenetration velocity at 1.0 m/s, action scale 0.70, EMA alpha 0.2, PPO initial noise 0.5, reset, reward, curriculum, torque, joint-limit tolerance, and observation-noise contracts"
+      "single_variable_change": "increase only the Go2 articulation position-solver iteration count from the accepted rev12 runtime baseline 8 to 16; restore and retain the rev12 velocity-solver count at 0 and rigid-body maximum depenetration velocity at 1.0 m/s instead of inheriting rejected rev13/rev14 semantics; retain action, reset, reward, curriculum, torque, joint-limit tolerance, and observation-noise contracts"
     },
     "reset": {
       "assignment_mode": "random",

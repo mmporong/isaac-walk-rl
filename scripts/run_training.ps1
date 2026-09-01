@@ -64,29 +64,97 @@ function Convert-ToPortablePath {
     return $fullPath
 }
 
-function Get-GpuMemoryUsedMiB {
+function Convert-ToNullableDouble {
+    param([AllowNull()][object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    [double]$parsed = 0.0
+    $style = [System.Globalization.NumberStyles]::Float
+    $culture = [System.Globalization.CultureInfo]::InvariantCulture
+    if ([double]::TryParse(([string]$Value).Trim(), $style, $culture, [ref]$parsed)) {
+        return $parsed
+    }
+    return $null
+}
+
+function Get-GpuMetrics {
     $nvidiaSmi = Get-Command nvidia-smi -ErrorAction SilentlyContinue
     if ($null -eq $nvidiaSmi) {
         return $null
     }
 
-    $sample = & $nvidiaSmi.Source --query-gpu=memory.used --format=csv,noheader,nounits 2>$null
+    $sample = & $nvidiaSmi.Source `
+        --query-gpu=memory.used,utilization.gpu,temperature.gpu,power.draw,memory.total `
+        --format=csv,noheader,nounits 2>$null
     if ($LASTEXITCODE -ne 0 -or -not $sample) {
         return $null
     }
 
-    $total = 0
+    [double]$usedMiB = 0.0
+    [double]$totalMiB = 0.0
+    [double]$powerW = 0.0
+    $utilizationPercent = $null
+    $temperatureC = $null
     $parsedCount = 0
+    $totalCount = 0
+    $powerCount = 0
     foreach ($line in @($sample)) {
-        if ($line -match '^\s*(\d+)\s*$') {
-            $total += [int]$Matches[1]
-            $parsedCount++
+        $columns = @(([string]$line).Split(',') | ForEach-Object { $_.Trim() })
+        $used = Convert-ToNullableDouble $columns[0]
+        if ($null -eq $used) {
+            continue
+        }
+        $usedMiB += $used
+        $parsedCount++
+
+        if ($columns.Count -ge 2) {
+            $utilization = Convert-ToNullableDouble $columns[1]
+            if ($null -ne $utilization -and ($null -eq $utilizationPercent -or $utilization -gt $utilizationPercent)) {
+                $utilizationPercent = $utilization
+            }
+        }
+        if ($columns.Count -ge 3) {
+            $temperature = Convert-ToNullableDouble $columns[2]
+            if ($null -ne $temperature -and ($null -eq $temperatureC -or $temperature -gt $temperatureC)) {
+                $temperatureC = $temperature
+            }
+        }
+        if ($columns.Count -ge 4) {
+            $power = Convert-ToNullableDouble $columns[3]
+            if ($null -ne $power) {
+                $powerW += $power
+                $powerCount++
+            }
+        }
+        if ($columns.Count -ge 5) {
+            $total = Convert-ToNullableDouble $columns[4]
+            if ($null -ne $total) {
+                $totalMiB += $total
+                $totalCount++
+            }
         }
     }
     if ($parsedCount -eq 0) {
         return $null
     }
-    return $total
+    return [pscustomobject]@{
+        device_count = $parsedCount
+        used_mib = [int][math]::Round($usedMiB)
+        total_mib = if ($totalCount -eq $parsedCount) { [int][math]::Round($totalMiB) } else { $null }
+        utilization_gpu_percent = $utilizationPercent
+        temperature_c = $temperatureC
+        power_draw_w = if ($powerCount -eq $parsedCount) { [math]::Round($powerW, 3) } else { $null }
+    }
+}
+
+function Get-GpuMemoryUsedMiB {
+    $metrics = Get-GpuMetrics
+    if ($null -eq $metrics) {
+        return $null
+    }
+    return $metrics.used_mib
 }
 
 function Convert-ToWindowsCommandLineArgument {
@@ -422,12 +490,24 @@ $argumentLine = ($arguments | ForEach-Object {
     Convert-ToWindowsCommandLineArgument ([string]$_)
 }) -join ' '
 
-$baselineGpuMiB = Get-GpuMemoryUsedMiB
+$baselineGpuMetrics = Get-GpuMetrics
+$baselineGpuMiB = if ($null -ne $baselineGpuMetrics) { $baselineGpuMetrics.used_mib } else { $null }
 if ($null -eq $baselineGpuMiB) {
     throw 'GPU 메모리 baseline 측정 실패: nvidia-smi 실행 가능 여부와 출력을 확인하세요. 학습은 시작되지 않았습니다.'
 }
+if ($baselineGpuMetrics.device_count -ne 1) {
+    throw "GPU throughput 측정은 단일 visible GPU만 허용합니다: detected=$($baselineGpuMetrics.device_count)"
+}
 $gpuSamples = [System.Collections.Generic.List[object]]::new()
 $gpuMeasurementFailureCount = 0
+$preexistingLogDirectories = @()
+$rslRlLogRoot = Join-Path $isaacLabFullPath 'logs\rsl_rl'
+if (Test-Path -LiteralPath $rslRlLogRoot -PathType Container) {
+    $preexistingLogDirectories = @(
+        Get-ChildItem -LiteralPath $rslRlLogRoot -Directory -Recurse -Filter "*_$RunName" -ErrorAction SilentlyContinue |
+            ForEach-Object { $_.FullName.ToLowerInvariant() }
+    )
+}
 $startedAt = Get-Date
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
@@ -440,13 +520,18 @@ $process = Start-Process -FilePath $pythonBat `
     -PassThru
 
 while (-not $process.HasExited) {
-    $usedMiB = Get-GpuMemoryUsedMiB
-    if ($null -eq $usedMiB) {
+    $gpuMetrics = Get-GpuMetrics
+    if ($null -eq $gpuMetrics -or $null -eq $gpuMetrics.used_mib) {
         $gpuMeasurementFailureCount++
     }
     $gpuSamples.Add([ordered]@{
         elapsed_seconds = [math]::Round($stopwatch.Elapsed.TotalSeconds, 3)
-        used_mib = $usedMiB
+        device_count = if ($null -ne $gpuMetrics) { $gpuMetrics.device_count } else { $null }
+        used_mib = if ($null -ne $gpuMetrics) { $gpuMetrics.used_mib } else { $null }
+        total_mib = if ($null -ne $gpuMetrics) { $gpuMetrics.total_mib } else { $null }
+        utilization_gpu_percent = if ($null -ne $gpuMetrics) { $gpuMetrics.utilization_gpu_percent } else { $null }
+        temperature_c = if ($null -ne $gpuMetrics) { $gpuMetrics.temperature_c } else { $null }
+        power_draw_w = if ($null -ne $gpuMetrics) { $gpuMetrics.power_draw_w } else { $null }
     })
     Start-Sleep -Seconds $GpuSampleIntervalSeconds
     $process.Refresh()
@@ -458,13 +543,19 @@ $endedAt = Get-Date
 $gpuRecoverySamples = [System.Collections.Generic.List[object]]::new()
 $gpuRecoveryDeadline = (Get-Date).AddSeconds(30)
 do {
-    $recoveryUsedMiB = Get-GpuMemoryUsedMiB
+    $recoveryMetrics = Get-GpuMetrics
+    $recoveryUsedMiB = if ($null -ne $recoveryMetrics) { $recoveryMetrics.used_mib } else { $null }
     if ($null -eq $recoveryUsedMiB) {
         $gpuMeasurementFailureCount++
     }
     $gpuRecoverySamples.Add([ordered]@{
         elapsed_seconds = [math]::Round(((Get-Date) - $endedAt).TotalSeconds, 3)
+        device_count = if ($null -ne $recoveryMetrics) { $recoveryMetrics.device_count } else { $null }
         used_mib = $recoveryUsedMiB
+        total_mib = if ($null -ne $recoveryMetrics) { $recoveryMetrics.total_mib } else { $null }
+        utilization_gpu_percent = if ($null -ne $recoveryMetrics) { $recoveryMetrics.utilization_gpu_percent } else { $null }
+        temperature_c = if ($null -ne $recoveryMetrics) { $recoveryMetrics.temperature_c } else { $null }
+        power_draw_w = if ($null -ne $recoveryMetrics) { $recoveryMetrics.power_draw_w } else { $null }
     })
     if ($null -ne $recoveryUsedMiB -and $recoveryUsedMiB -le ($baselineGpuMiB + 128)) {
         break
@@ -479,8 +570,41 @@ $combined = $stdout + [Environment]::NewLine + $stderr
 $logRootMatch = Get-LastMatchValue -Text $combined -Pattern '\[INFO\] Logging experiment in directory:\s*(.+?)\s*$'
 $timestampMatch = Get-LastMatchValue -Text $combined -Pattern '^Exact experiment name requested from command line:\s*(\S+)\s*$'
 $actualLogDirectory = $null
+$logDirectoryResolutionMode = 'unresolved'
+$logDirectoryCandidatePaths = @()
 if ($logRootMatch -and $timestampMatch) {
-    $actualLogDirectory = Join-Path $logRootMatch.Trim() ($timestampMatch.Trim() + '_' + $RunName)
+    $exactCandidate = [System.IO.Path]::GetFullPath(
+        (Join-Path $logRootMatch.Trim() ($timestampMatch.Trim() + '_' + $RunName))
+    )
+    $logDirectoryCandidatePaths = @($exactCandidate)
+    if ($preexistingLogDirectories -notcontains $exactCandidate.ToLowerInvariant()) {
+        $actualLogDirectory = $exactCandidate
+        $logDirectoryResolutionMode = 'exact_timestamp_new_directory'
+    }
+    else {
+        $logDirectoryResolutionMode = 'exact_timestamp_preexisting_collision'
+    }
+}
+elseif ($logRootMatch -and (Test-Path -LiteralPath $logRootMatch.Trim() -PathType Container)) {
+    $newCandidates = @(
+        Get-ChildItem -LiteralPath $logRootMatch.Trim() -Directory -Filter "*_$RunName" |
+            Where-Object {
+                $_.LastWriteTime -ge $startedAt.AddMinutes(-1) -and
+                $preexistingLogDirectories -notcontains $_.FullName.ToLowerInvariant()
+            } |
+            Sort-Object FullName
+    )
+    $logDirectoryCandidatePaths = @($newCandidates | ForEach-Object { $_.FullName })
+    if ($newCandidates.Count -eq 1) {
+        $actualLogDirectory = $newCandidates[0].FullName
+        $logDirectoryResolutionMode = 'single_new_run_name_directory'
+    }
+    elseif ($newCandidates.Count -eq 0) {
+        $logDirectoryResolutionMode = 'no_new_run_name_directory'
+    }
+    else {
+        $logDirectoryResolutionMode = 'ambiguous_new_run_name_directories'
+    }
 }
 
 $iterationMatches = [regex]::Matches($combined, 'Learning iteration\s+(\d+)/(\d+)')
@@ -548,6 +672,13 @@ $peakGpuMiB = if ($gpuValues.Count -gt 0) { ($gpuValues | Measure-Object -Maximu
 $finalGpuMiB = if ($gpuRecoverySamples.Count -gt 0) { $gpuRecoverySamples[$gpuRecoverySamples.Count - 1].used_mib } else { Get-GpuMemoryUsedMiB }
 $gpuMeasurementComplete = ($gpuMeasurementFailureCount -eq 0 -and $null -ne $finalGpuMiB)
 $recoveredToBaseline = ($gpuMeasurementComplete -and $finalGpuMiB -le ($baselineGpuMiB + 128))
+$gpuUtilizationValues = @($gpuSamples | ForEach-Object { $_.utilization_gpu_percent } | Where-Object { $null -ne $_ })
+$gpuTemperatureValues = @($gpuSamples | ForEach-Object { $_.temperature_c } | Where-Object { $null -ne $_ })
+$gpuPowerValues = @($gpuSamples | ForEach-Object { $_.power_draw_w } | Where-Object { $null -ne $_ })
+$peakGpuUtilization = if ($gpuUtilizationValues.Count -gt 0) { ($gpuUtilizationValues | Measure-Object -Maximum).Maximum } else { $null }
+$meanGpuUtilization = if ($gpuUtilizationValues.Count -gt 0) { [math]::Round(($gpuUtilizationValues | Measure-Object -Average).Average, 2) } else { $null }
+$peakGpuTemperature = if ($gpuTemperatureValues.Count -gt 0) { ($gpuTemperatureValues | Measure-Object -Maximum).Maximum } else { $null }
+$peakGpuPower = if ($gpuPowerValues.Count -gt 0) { ($gpuPowerValues | Measure-Object -Maximum).Maximum } else { $null }
 $fatalPatterns = @('Traceback (most recent call last)', '[Error]')
 $fatalMatches = @($fatalPatterns | Where-Object { $combined.Contains($_) })
 $expectedLastIteration = if ($Resume) {
@@ -634,9 +765,15 @@ $report = [ordered]@{
     last_iteration = $lastIteration
     iteration_target = $iterationTarget
     gpu = [ordered]@{
+        device_count = $baselineGpuMetrics.device_count
         baseline_used_mib = $baselineGpuMiB
+        total_mib = if ($null -ne $baselineGpuMetrics) { $baselineGpuMetrics.total_mib } else { $null }
         peak_used_mib = $peakGpuMiB
         delta_used_mib = $peakGpuMiB - $baselineGpuMiB
+        peak_utilization_gpu_percent = $peakGpuUtilization
+        mean_utilization_gpu_percent = $meanGpuUtilization
+        peak_temperature_c = $peakGpuTemperature
+        peak_power_draw_w = $peakGpuPower
         sample_interval_seconds = $GpuSampleIntervalSeconds
         samples = $gpuSamples
         recovery_samples = $gpuRecoverySamples
@@ -675,6 +812,12 @@ $report = [ordered]@{
         tensorboard_directory = Convert-ToPortablePath $actualLogDirectory
         checkpoint = if ($checkpoint) { Convert-ToPortablePath $checkpoint.FullName } else { $null }
         checkpoint_sha256 = $checkpointHash
+    }
+    log_directory_resolution = [ordered]@{
+        mode = $logDirectoryResolutionMode
+        candidates = @($logDirectoryCandidatePaths | ForEach-Object { Convert-ToPortablePath $_ })
+        selected = Convert-ToPortablePath $actualLogDirectory
+        preexisting_match_count = $preexistingLogDirectories.Count
     }
     tensorboard = $tensorboardScalars
     fatal_patterns_found = $fatalMatches
