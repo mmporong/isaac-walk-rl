@@ -2,6 +2,8 @@
 
 Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 사족보행 PPO 실험을 재현하고, 보상·지형·외란 회복을 한 축씩 확장하는 프로젝트입니다.
 
+학습은 [`docs/learning/README.md`](docs/learning/README.md)에서 시작합니다. 기존 G003~G009 결과를 `상태/센서 → Observation → Policy → Action → Joint target → PD/Actuator → Torque → Physics → 다음 상태 → Reward → PPO Update` 폐루프로 다시 찾고, Python·동역학·PPO·reward를 현재 Go2 실험에 직접 적용합니다. 실행 순서는 아래 goal 번호를 유지하지만, 학습 순서는 이론 목차보다 현재 실험의 원인과 다음 한 변수 검증을 우선합니다.
+
 ## 고정 스택
 
 | 구성 | 고정값 | 상태 |
@@ -22,6 +24,7 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 - RTX 3060 12GB에서 2048/4096 environments가 된다는 보장은 없습니다. 64부터 단계적으로 올리며 peak VRAM과 steps/s를 실측합니다.
 - Go2를 "가장 많이 쓰이는 모델"이라고 단정하지 않습니다. ANYmal-C 공식 baseline을 관문으로 삼고, Isaac Lab 내장 Go2 태스크를 심화 대상으로 사용합니다.
 - RBQ v1.20.0에는 공개 URDF·STL 경로가 있습니다. 공식 Isaac Lab v2.1.1·v2.3.2·조사 시점 main에는 대상 구현이 없으므로, 마지막 단계는 외부 커스텀 자산의 라이선스와 호환성을 fail-closed로 판정합니다.
+- 2026-08-31 현재 Isaac Lab 3.0 Beta 계열이 최신 공개 개발선이지만 beta·breaking-change 상태입니다. 이 프로젝트는 최신 개념과 actuator/backend 변화를 학습 자료에서 비교하되, 재현 실험의 2.1.1 고정 버전은 별도 migration 검증 없이 변경하지 않습니다.
 
 ## 실행 순서
 

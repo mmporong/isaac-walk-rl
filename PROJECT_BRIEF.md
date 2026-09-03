@@ -4,6 +4,8 @@
 
 Isaac Sim 4.5 / Isaac Lab 2.1.1 / RSL-RL PPO의 Windows 네이티브 재현 환경을 고정하고, ANYmal-C baseline에서 시작해 Go2의 보상·지형·외란 회복 실험을 정량 비교한다. 이어서 네 방향 명령과 마찰·다리 링크 질량의 단계별 dynamics randomization을 단일축으로 검증한다. RBQ 공개 자산은 외부 커스텀 자산으로 분류하고 라이선스·호환성 게이트를 증거 기반으로 판정한다.
 
+학습 결과는 별도의 이론 완독이 아니라, 이 프로젝트의 `상태/센서 → Observation → Policy → Action → Joint target → PD/Actuator → Torque → Physics → 다음 상태 → Reward → PPO Update` 폐루프를 자료 없이 설명하고 코드·설정·checkpoint·평가 수치로 검증할 수 있는 상태다. 기존 G003~G009와 MPC/WBC 자료는 삭제하지 않고 [`docs/learning/README.md`](docs/learning/README.md)의 폐루프 위치와 통제실험 단계로 재분류한다.
+
 ## 성공 기준
 
 1. 버전, 소스 commit, Python, PyTorch, CUDA wheel, 드라이버, GPU를 자동 수집한 환경 manifest가 있다.
@@ -15,6 +17,8 @@ Isaac Sim 4.5 / Isaac Lab 2.1.1 / RSL-RL PPO의 Windows 네이티브 재현 환�
 7. 외란 회복 성공 조건을 코드로 고정하고 baseline/개선 정책에 동일한 push grid를 적용해 회복률, 분자/분모, Wilson 95% 신뢰구간을 보고한다.
 8. RBQ URDF·mesh 경로와 source commit을 고정하고, 자산 라이선스 범위와 로컬 처리 권한을 확인한다. 허가가 불명확하면 자산을 받거나 변환하지 않고 재현 가능한 blocker를 문서화한다.
 9. 전진·후진·좌회전·우회전 명령을 고정 평가하고, 마찰과 16개 다리 링크 질량을 별도 S1→S2→S3 태스크로 확장한다. 각 단계는 randomized-domain과 nominal-domain guardrail을 통과해야 다음 범위로 간다.
+10. 학습한 각 주제에서 자료 없이 폐루프 설명, 코드/설정 위치 확인, 직접 실행, 한 조건 변경, baseline/variant 수치 비교, 실패 원인 귀속을 수행한다.
+11. 각 실험을 `무엇을 했나 / 왜 이 방법인가 / 어디까지가 내 구현인가 / 다시 하면 무엇을 바꾸나` 네 질문으로 설명하고 upstream과 로컬 구현 경계를 구분한다.
 
 ## 검증된 고정값
 
