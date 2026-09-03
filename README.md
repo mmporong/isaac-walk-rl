@@ -4,6 +4,24 @@ Windows 네이티브 환경에서 Isaac Sim 4.5와 Isaac Lab 2.1.1을 사용해 
 
 학습은 [`docs/learning/README.md`](docs/learning/README.md)에서 시작합니다. 기존 G003~G009 결과를 `상태/센서 → Observation → Policy → Action → Joint target → PD/Actuator → Torque → Physics → 다음 상태 → Reward → PPO Update` 폐루프로 다시 찾고, Python·동역학·PPO·reward를 현재 Go2 실험에 직접 적용합니다. 실행 순서는 아래 goal 번호를 유지하지만, 학습 순서는 이론 목차보다 현재 실험의 원인과 다음 한 변수 검증을 우선합니다.
 
+## 결과 요약
+
+처음 보신다면 **[`docs/RESULTS_SUMMARY.md`](docs/RESULTS_SUMMARY.md)** 한 장으로 시작하십시오. G003~G008의 완료된 결과와 그 한계를 수치로 정리했습니다.
+
+| 무엇을 | 규모 | 결과 |
+| --- | --- | --- |
+| [환경 수 사다리](docs/RESULTS_SUMMARY.md#1-자원-한계를-실측으로-정했다) | Go2 flat, 64 → 4,096 envs | 6/6 PASS. 4,096 envs에서 **50,680 steps/s**, peak VRAM **39.24%** (RTX 3060 12GB) |
+| [보상 ablation](docs/RESULTS_SUMMARY.md#2-보상-항목을-하나씩-빼서-trade-off를-분리했다) | 4,096 envs × 300 it, 4 variants × 3 seeds | **12/12 완주, 실패 0.** `action_rate` 제거 시 추종 오차와 에너지가 동시에 악화 |
+| [외란 회복](docs/RESULTS_SUMMARY.md#3-개선이-없을-때-없다고-기록했다) | push 6,480 trials + guardrail 540 trials | 99.5370% → 99.5988%. 95% CI가 0을 포함해 **유의한 개선을 주장하지 않음** |
+| [단일축 curriculum](docs/RESULTS_SUMMARY.md#4-커스텀-태스크와-단일축-curriculum) | 마찰 / 링크 질량 S1 | 평면 gate는 통과했으나 **두 축 모두 S2 미승인** |
+
+<p align="center">
+  <img src="docs/media/summary/g004_scale_ladder.png" width="49%" alt="G004 환경 수 사다리">
+  <img src="docs/media/summary/g006_push_recovery.png" width="49%" alt="G006 외란 회복">
+</p>
+
+`G009`(산 비탈 보행·전복 복구)는 **진행 중이며 완료가 아닙니다.** R0 strict success는 `0`이고, rev14~rev22는 성공 정책이 아니라 접촉력 진단 기록입니다.
+
 ## 고정 스택
 
 | 구성 | 고정값 | 상태 |
