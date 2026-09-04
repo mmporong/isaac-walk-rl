@@ -1,0 +1,172 @@
+{
+  "schema_version": "g009.r0.rev29.action_scale_smoke_rejection.v1",
+  "report_id": "G009-5-E022-rejected",
+  "status": "rejected",
+  "result": "hard_joint_limit_gate_failed",
+  "run_name": "go2_flat_g009_r0_rev29_action_scale_smoke_retry01_s42_20260904-2103",
+  "source_commit": "a288e285e2b8bf03ff9c5c1761013afbd4c5c58b",
+  "single_experimental_variable": {
+    "name": "normalized_joint_position_action_scale",
+    "previous_value": 0.7,
+    "candidate_value": 0.65
+  },
+  "training": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "device": "cuda:0",
+    "headless": true,
+    "seed": 42,
+    "scratch": true,
+    "num_envs": 1024,
+    "num_steps_per_env": 24,
+    "max_iterations": 50,
+    "transitions": 1228800,
+    "ppo_num_learning_epochs": 5,
+    "ppo_num_mini_batches": 4,
+    "optimizer_mini_batch_updates": 1000,
+    "wall_time_seconds": 160.276,
+    "mean_steps_per_second": 8744.1,
+    "median_steps_per_second": 8828.5,
+    "final_mean_reward": -10.31,
+    "final_mean_episode_length": 400.0
+  },
+  "evidence": {
+    "raw_report": {
+      "path": "reports/runs/go2_flat_g009_r0_rev29_action_scale_smoke_retry01_s42_20260904-2103.json",
+      "sha256": "575c38b015f0d04552bd7276524339a6ec40ed1336903c580ca38b401bce852d"
+    },
+    "preregistration": {
+      "path": "configs/g009_r0_rev29_action_scale_smoke.json",
+      "sha256": "4afc575b750a2e3f8ac4f7e9a20426a28e603cd412ed302df0c2981768684820"
+    },
+    "tensorboard_event": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_21-02-19_go2_flat_g009_r0_rev29_action_scale_smoke_retry01_s42_20260904-2103\\events.out.tfevents.1788523343.DESKTOP-991BNBV.29296.0",
+      "sha256": "24c9feb2ece20ca6536e15f38f61a5d4276f613bf2268501cc2967a75064da55"
+    },
+    "checkpoint": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_21-02-19_go2_flat_g009_r0_rev29_action_scale_smoke_retry01_s42_20260904-2103\\model_49.pt",
+      "sha256": "55d4c3793858ddd2522bf4bac6e163d0b7faf00c1e76664bcbaf112b990f40ad",
+      "iteration": 49,
+      "std_vector_dimension": 12,
+      "std_vector_all_finite": true,
+      "std_vector_mean": 0.47849053144454956,
+      "std_vector": [
+        0.49575331807136536,
+        0.4842188358306885,
+        0.48381307721138,
+        0.4728987216949463,
+        0.4666644334793091,
+        0.4641079306602478,
+        0.4473199248313904,
+        0.4746718108654022,
+        0.4898339509963989,
+        0.49694380164146423,
+        0.47837668657302856,
+        0.4872838854789734
+      ]
+    }
+  },
+  "acceptance_gate": {
+    "hard_joint_limit": {
+      "sample_count": 50,
+      "maximum": 0.0416666679084301,
+      "mean": 0.000833333358168602,
+      "nonzero_sample_count": 1,
+      "nonzero_events": [
+        {
+          "iteration": 19,
+          "value": 0.0416666679084301
+        }
+      ],
+      "required_maximum": 0.0,
+      "required_nonzero_sample_count": 0,
+      "passed": false
+    },
+    "numeric_invalid": {
+      "sample_count": 50,
+      "maximum": 0.0,
+      "nonzero_sample_count": 0,
+      "passed": true
+    },
+    "mean_noise_std": {
+      "sample_count": 50,
+      "latest": 0.4784904718399048,
+      "all_finite": true,
+      "passed": true
+    },
+    "gpu": {
+      "peak_used_mib": 4417.0,
+      "peak_utilization_percent": 63.0,
+      "mean_utilization_percent": 24.63,
+      "peak_temperature_c": 54.0,
+      "peak_power_draw_w": 56.68,
+      "fatal_event_count": 0,
+      "descendants_exited": true,
+      "recovered_to_baseline": true,
+      "passed": true
+    },
+    "source_snapshot_stable": true,
+    "runtime_agent_yaml_readback_passed": true,
+    "runtime_env_yaml_readback_passed": true,
+    "overall_passed": false
+  },
+  "matched_50_iteration_comparison": {
+    "rev28_action_scale_0_70": {
+      "hard_joint_limit_maximum": 0.0833333358168602,
+      "hard_joint_limit_mean": 0.005000000149011612,
+      "hard_joint_limit_nonzero_sample_count": 4,
+      "mean_noise_std_latest": 0.47734370827674866
+    },
+    "rev29_action_scale_0_65": {
+      "hard_joint_limit_maximum": 0.0416666679084301,
+      "hard_joint_limit_mean": 0.000833333358168602,
+      "hard_joint_limit_nonzero_sample_count": 1,
+      "mean_noise_std_latest": 0.4784904718399048
+    },
+    "observed_change": {
+      "hard_joint_limit_maximum_delta": -0.0416666679084301,
+      "hard_joint_limit_mean_delta": -0.00416666679084301,
+      "hard_joint_limit_nonzero_sample_count_delta": -3,
+      "mean_noise_std_latest_delta": 0.00114676356315614
+    },
+    "interpretation": "The smaller action scale coincided with fewer and smaller hard-limit termination samples while exploration noise remained nearly unchanged. The exact zero-event gate still failed, and one seed plus one 50-iteration window does not establish causality."
+  },
+  "canonical_summarizer": {
+    "status": "fail_closed",
+    "error": "hard_joint_limit maximum must be zero",
+    "accepted_summary_written": false
+  },
+  "launch_audit": {
+    "first_invocation": "rejected_before_Isaac_launch_by_PowerShell_array_parameter_binding",
+    "first_invocation_created_rollout_or_checkpoint": false,
+    "completed_training_invocation": "retry01"
+  },
+  "resume_point": {
+    "full_300_iteration_training_status": "forbidden",
+    "held_out_seed_evaluation_status": "forbidden",
+    "next_single_variable_candidate": {
+      "name": "normalized_joint_position_action_scale",
+      "current_value": 0.65,
+      "candidate_value": 0.6,
+      "status": "candidate_only_requires_preregistration",
+      "rationale": "Rev29 reduced hard-limit frequency and magnitude without materially changing exploration noise, so one further bounded reduction is the smallest direct control intervention consistent with the observed trend. The candidate must pass the same 50-iteration zero-event gate before any full run."
+    },
+    "frozen_for_next_smoke": [
+      "ppo_entropy_coefficient=0.0",
+      "ppo_init_noise_std=0.5",
+      "action_ema_alpha=0.2",
+      "asset_soft_joint_limit_factor=0.9",
+      "solver_position_iterations=8",
+      "solver_velocity_iterations=0",
+      "max_depenetration_velocity_m_s=1.0",
+      "reset, reward, curriculum, seed, environment count, rollout length, and acceptance gate"
+    ]
+  },
+  "claim_limits": {
+    "policy_qualified": false,
+    "recovery_success_measured": false,
+    "action_scale_change_proved_causal": false,
+    "checkpoint_may_be_used_for_qualification": false,
+    "garden_or_portfolio_publication_allowed": false,
+    "new_visual_media_warranted": false
+  }
+}
