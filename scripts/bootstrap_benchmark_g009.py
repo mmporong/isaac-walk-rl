@@ -7,6 +7,7 @@ import runpy
 import subprocess
 import sys
 from pathlib import Path
+from typing import Callable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -50,9 +51,7 @@ def validate_isaaclab_checkout(root: Path) -> None:
         raise RuntimeError("Isaac Lab tracked source is dirty")
 
 
-def main() -> None:
-    """Register the local task before delegating to the official benchmark."""
-
+def _prepare_upstream() -> Path:
     register_tasks()
     upstream = Path.cwd() / "scripts" / "benchmarks" / "benchmark_rsl_rl.py"
     if not upstream.is_file():
@@ -68,7 +67,48 @@ def main() -> None:
     validate_isaaclab_checkout(Path.cwd())
     if str(upstream.parent) not in sys.path:
         sys.path.insert(0, str(upstream.parent))
+    return upstream
+
+
+def main() -> None:
+    """Register the local task before delegating to the official benchmark."""
+
+    upstream = _prepare_upstream()
     runpy.run_path(str(upstream), run_name="__main__")
+
+
+def run_with_before_close(callback: Callable[[bool], None]) -> None:
+    """Run the pinned benchmark and call ``callback`` before closing Isaac Sim."""
+
+    upstream = _prepare_upstream()
+    namespace = runpy.run_path(str(upstream), run_name="g009_pinned_benchmark_runtime")
+    official_main = namespace["main"]
+    simulation_app = namespace["simulation_app"]
+
+    main_error: tuple[BaseException, object] | None = None
+    try:
+        official_main()
+    except BaseException as error:
+        main_error = (error, error.__traceback__)
+
+    callback_error: tuple[BaseException, object] | None = None
+    try:
+        callback(main_error is None)
+    except BaseException as error:
+        callback_error = (error, error.__traceback__)
+
+    close_error: tuple[BaseException, object] | None = None
+    try:
+        simulation_app.close()
+    except BaseException as error:
+        close_error = (error, error.__traceback__)
+
+    if main_error is not None:
+        raise main_error[0].with_traceback(main_error[1])
+    if callback_error is not None:
+        raise callback_error[0].with_traceback(callback_error[1])
+    if close_error is not None:
+        raise close_error[0].with_traceback(close_error[1])
 
 
 if __name__ == "__main__":

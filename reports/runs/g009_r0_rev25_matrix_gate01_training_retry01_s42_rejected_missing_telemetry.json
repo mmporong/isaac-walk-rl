@@ -1,0 +1,772 @@
+{
+  "schema_version": 1,
+  "run_name": "g009_r0_rev25_matrix_gate01_retry01_s42",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-MatrixGate01-v0",
+  "num_envs": 1024,
+  "max_iterations": 1,
+  "seed": 42,
+  "headless": true,
+  "qualification_mode": {
+    "enabled": false,
+    "preflight_passed": null,
+    "policy_qualification_status": "not_run"
+  },
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\worktrees\\isaac-walk-rl-g009-r0\\scripts\\bootstrap_matrix_gate01_g009.py",
+    "--task",
+    "Isaac-G009-Recover-Flat-Go2-R0-MatrixGate01-v0",
+    "--num_envs",
+    1024,
+    "--max_iterations",
+    1,
+    "--seed",
+    42,
+    "--run_name",
+    "g009_r0_rev25_matrix_gate01_retry01_s42",
+    "--headless"
+  ],
+  "resume": {
+    "enabled": false,
+    "load_run": null,
+    "checkpoint": null
+  },
+  "training_safety_gate": {
+    "requested": true,
+    "required": true,
+    "scratch_required": true,
+    "hard_joint_limit_series_present": true,
+    "numeric_invalid_series_present": true,
+    "requires_both_maximum_counts_zero": true,
+    "passed": true
+  },
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\worktrees\\isaac-walk-rl-g009-r0\\scripts\\bootstrap_matrix_gate01_g009.py",
+    "sha256": "7157bb89e393fdba1ed8a5f03e7ff3a6c799314594741910f9b1056b2c405fcc",
+    "repository_internal": true
+  },
+  "repository": {
+    "commit": "b0f3fd7097ebec36997cb6c527e76a7455f2b24a",
+    "dirty": false
+  },
+  "source_bundle": {
+    "sha256": "fbedfca8e53f92e0792bc6f4be7946f4becb66d97818a831c429b26e2545e495",
+    "files": {
+      "configs/g009_r0.json": "d3ae13d5be523a9c61946f3f78ef3741371b89f9d111d154a6596e66c4f1a1af",
+      "configs/g009_r0_rev25_matrix_gate01.json": "bd75fe5f51e8c7c412d40231d1331bd3404881f2923477c09761cebb35ef8839",
+      "scripts/bootstrap_benchmark_g009.py": "aece6d43ba8c43a8ac5828b92eedee42fb2342bd60396b3893d014f1a347e2b4",
+      "scripts/bootstrap_matrix_gate01_g009.py": "7157bb89e393fdba1ed8a5f03e7ff3a6c799314594741910f9b1056b2c405fcc",
+      "scripts/run_training.ps1": "f9914751ebcbc012a743bc572de47215b14de5a9cc5a65019d580fcd8d5f3d85",
+      "scripts/summarize_g009_r0_rev25_matrix_gate01.py": "50479a42c905c63cc5b8ea27f5d1c44d9ea4c3a8adbcc1a400fd301e26b32d68",
+      "src/isaac_walk_g009/agent_cfg.py": "d88ea424dc403bba94fd4d69ee0f60c71e7786639b143d1454c9862b84662404",
+      "src/isaac_walk_g009/matrix_gate01.py": "3ccd13296d6c3da922ea2ed088233e7f05563d8b268c830a9069487a46c2d5b3",
+      "src/isaac_walk_g009/matrix_observation_adapter.py": "7d838b9d57090b2cffec0fcb89612175fdb6f36e94ac7ffe492317f37142df32",
+      "src/isaac_walk_g009/mdp/__init__.py": "657147710718d87f432b1a9120a4580ad3df8166e5b1f2106c98c847edd62076",
+      "src/isaac_walk_g009/mdp/events.py": "da474178b54d89f7a70bb80872869a486ec7751d8b7e185c72401f44e343cfdb",
+      "src/isaac_walk_g009/mdp/recover.py": "b3c5ac4b9c9007d3897d3e384531e2807a876371eefb4a8efab50f027f077a2d",
+      "src/isaac_walk_g009/recover_contracts.py": "dce7a1be3e12f95b1940788fc052d8f07cd378e9c34431c3faec5bf0bec41fea",
+      "src/isaac_walk_g009/recover_env_cfg.py": "b6c28da82ac8a2aee62534bd682f5f8a021af225b958e25d1fc6b9ae45beaacc",
+      "src/isaac_walk_g009/registry.py": "f386aaeacc8e88d93e2e41d8b36edc09f4137a55ced333f0eeb988c9b7e0c245"
+    },
+    "matches_repository_commit": true
+  },
+  "started_at": "2026-09-04T14:31:05.1994592+09:00",
+  "ended_at": "2026-09-04T14:31:33.2152966+09:00",
+  "wall_time_seconds": 28.014,
+  "exit_code": 0,
+  "last_iteration": 0,
+  "iteration_target": 1,
+  "gpu": {
+    "device_count": 1,
+    "baseline_used_mib": 1480,
+    "total_mib": 12288,
+    "peak_used_mib": 4430.0,
+    "delta_used_mib": 2950.0,
+    "peak_utilization_gpu_percent": 48.0,
+    "mean_utilization_gpu_percent": 11.15,
+    "peak_temperature_c": 54.0,
+    "peak_power_draw_w": 48.98,
+    "sample_interval_seconds": 1,
+    "samples": [
+      {
+        "elapsed_seconds": 0.08,
+        "device_count": 1,
+        "used_mib": 1483,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 4.0,
+        "temperature_c": 52.0,
+        "power_draw_w": 38.8
+      },
+      {
+        "elapsed_seconds": 1.171,
+        "device_count": 1,
+        "used_mib": 1483,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 6.0,
+        "temperature_c": 52.0,
+        "power_draw_w": 38.88
+      },
+      {
+        "elapsed_seconds": 2.241,
+        "device_count": 1,
+        "used_mib": 1483,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 5.0,
+        "temperature_c": 52.0,
+        "power_draw_w": 38.82
+      },
+      {
+        "elapsed_seconds": 3.327,
+        "device_count": 1,
+        "used_mib": 1575,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 6.0,
+        "temperature_c": 52.0,
+        "power_draw_w": 38.86
+      },
+      {
+        "elapsed_seconds": 4.412,
+        "device_count": 1,
+        "used_mib": 1575,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 6.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.89
+      },
+      {
+        "elapsed_seconds": 5.482,
+        "device_count": 1,
+        "used_mib": 1575,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 6.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.74
+      },
+      {
+        "elapsed_seconds": 6.551,
+        "device_count": 1,
+        "used_mib": 1607,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 7.0,
+        "temperature_c": 52.0,
+        "power_draw_w": 38.79
+      },
+      {
+        "elapsed_seconds": 7.623,
+        "device_count": 1,
+        "used_mib": 1607,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 6.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.78
+      },
+      {
+        "elapsed_seconds": 8.693,
+        "device_count": 1,
+        "used_mib": 1607,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 6.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.79
+      },
+      {
+        "elapsed_seconds": 9.764,
+        "device_count": 1,
+        "used_mib": 1664,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 5.0,
+        "temperature_c": 52.0,
+        "power_draw_w": 38.82
+      },
+      {
+        "elapsed_seconds": 10.834,
+        "device_count": 1,
+        "used_mib": 1664,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 5.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.81
+      },
+      {
+        "elapsed_seconds": 11.907,
+        "device_count": 1,
+        "used_mib": 1664,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 7.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.77
+      },
+      {
+        "elapsed_seconds": 12.976,
+        "device_count": 1,
+        "used_mib": 1704,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 9.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.9
+      },
+      {
+        "elapsed_seconds": 14.082,
+        "device_count": 1,
+        "used_mib": 3186,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 32.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.08
+      },
+      {
+        "elapsed_seconds": 15.165,
+        "device_count": 1,
+        "used_mib": 4080,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 6.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.49
+      },
+      {
+        "elapsed_seconds": 16.25,
+        "device_count": 1,
+        "used_mib": 4146,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 8.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.83
+      },
+      {
+        "elapsed_seconds": 17.321,
+        "device_count": 1,
+        "used_mib": 4184,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 7.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.02
+      },
+      {
+        "elapsed_seconds": 18.407,
+        "device_count": 1,
+        "used_mib": 4188,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 24.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.94
+      },
+      {
+        "elapsed_seconds": 19.478,
+        "device_count": 1,
+        "used_mib": 4190,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 12.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.91
+      },
+      {
+        "elapsed_seconds": 20.547,
+        "device_count": 1,
+        "used_mib": 4254,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 28.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 43.31
+      },
+      {
+        "elapsed_seconds": 21.619,
+        "device_count": 1,
+        "used_mib": 4254,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 26.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 43.95
+      },
+      {
+        "elapsed_seconds": 22.703,
+        "device_count": 1,
+        "used_mib": 4430,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 48.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 44.27
+      },
+      {
+        "elapsed_seconds": 23.789,
+        "device_count": 1,
+        "used_mib": 4430,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 5.0,
+        "temperature_c": 54.0,
+        "power_draw_w": 48.98
+      },
+      {
+        "elapsed_seconds": 24.86,
+        "device_count": 1,
+        "used_mib": 4430,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 5.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 43.54
+      },
+      {
+        "elapsed_seconds": 25.928,
+        "device_count": 1,
+        "used_mib": 4430,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 5.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.69
+      },
+      {
+        "elapsed_seconds": 27.005,
+        "device_count": 1,
+        "used_mib": 1974,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 6.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.81
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.075,
+        "device_count": 1,
+        "used_mib": 1480,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 4.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 38.92
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [
+      5054
+    ],
+    "mean_steps_per_second": 5054.0,
+    "median_steps_per_second": 5054,
+    "final_mean_reward": -0.48,
+    "final_mean_episode_length": 12.92
+  },
+  "training_safety_aggregate": {
+    "metric_semantics": "TensorBoard statistics over per-reset-batch termination counts across every logged scalar sample",
+    "scalar_reservoir": "unbounded (size_guidance scalars=0)",
+    "hard_joint_limit": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "numeric_invalid": {
+      "sample_count": 1,
+      "latest": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "mean": 0.0,
+      "nonzero_sample_count": 0
+    },
+    "qualification_requires_both_maximum_counts_zero": false,
+    "qualification_passed": null,
+    "diagnostic_gate_requested": true,
+    "diagnostic_gate_passed": true,
+    "unavailable_fields": [
+      "hard_limit_total_count",
+      "hard_limit_max_excess_rad",
+      "hard_limit_by_joint",
+      "hard_limit_by_pose"
+    ],
+    "unavailable_reason": "RSL-RL episode summaries expose rates only; joint/pose attribution requires dedicated runtime instrumentation"
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g009_r0_rev25_matrix_gate01_retry01_s42.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\g009_r0_rev25_matrix_gate01_retry01_s42.stderr.log",
+    "tensorboard_directory": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_14-31-17_g009_r0_rev25_matrix_gate01_retry01_s42",
+    "checkpoint": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_14-31-17_g009_r0_rev25_matrix_gate01_retry01_s42\\model_0.pt",
+    "checkpoint_sha256": "8096d5ecc9dd54d4c48f76bc7e51f5aee073b6eac428bcedb51347561ed2ef9e"
+  },
+  "log_directory_resolution": {
+    "mode": "single_new_run_name_directory",
+    "candidates": [
+      "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_14-31-17_g009_r0_rev25_matrix_gate01_retry01_s42"
+    ],
+    "selected": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_14-31-17_g009_r0_rev25_matrix_gate01_retry01_s42",
+    "preexisting_match_count": 0
+  },
+  "tensorboard": {
+    "tags": [
+      "Episode_Reward/upright_progress",
+      "Episode_Reward/gated_base_height_progress",
+      "Episode_Reward/soft_stand_progress",
+      "Episode_Reward/stable_support",
+      "Episode_Reward/upright_hold",
+      "Episode_Reward/stable_success_once",
+      "Episode_Reward/gated_angvel_l2",
+      "Episode_Reward/joint_limit",
+      "Episode_Reward/torque_l2",
+      "Episode_Reward/joint_acc_l2",
+      "Episode_Reward/gated_action_rate_l2",
+      "Episode_Reward/mechanical_power_proxy",
+      "Episode_Reward/undesired_collision",
+      "Curriculum/recover_pose_distribution/phase_index",
+      "Curriculum/recover_pose_distribution/common_control_step",
+      "Curriculum/recover_pose_distribution/probability_prone",
+      "Curriculum/recover_pose_distribution/probability_supine",
+      "Curriculum/recover_pose_distribution/probability_left_side",
+      "Curriculum/recover_pose_distribution/probability_right_side",
+      "Episode_Termination/time_out",
+      "Episode_Termination/stable_success",
+      "Episode_Termination/numeric_invalid",
+      "Episode_Termination/hard_joint_limit",
+      "Loss/value_function",
+      "Loss/surrogate",
+      "Loss/entropy",
+      "Loss/learning_rate",
+      "Policy/mean_noise_std",
+      "Perf/total_fps",
+      "Perf/collection time",
+      "Perf/learning_time",
+      "Train/mean_reward",
+      "Train/mean_episode_length",
+      "Train/mean_reward/time",
+      "Train/mean_episode_length/time"
+    ],
+    "latest": {
+      "Episode_Reward/upright_progress": -0.02829468809068203,
+      "Episode_Reward/gated_base_height_progress": -0.012253211811184883,
+      "Episode_Reward/soft_stand_progress": -0.011766381561756134,
+      "Episode_Reward/stable_support": 0.0,
+      "Episode_Reward/upright_hold": 0.0,
+      "Episode_Reward/stable_success_once": 0.0,
+      "Episode_Reward/gated_angvel_l2": -0.0006131874397397041,
+      "Episode_Reward/joint_limit": 0.0,
+      "Episode_Reward/torque_l2": -0.001872275024652481,
+      "Episode_Reward/joint_acc_l2": -0.0020042243413627148,
+      "Episode_Reward/gated_action_rate_l2": -0.0003617938491515815,
+      "Episode_Reward/mechanical_power_proxy": -2.8478094463935122E-05,
+      "Episode_Reward/undesired_collision": 0.0,
+      "Curriculum/recover_pose_distribution/phase_index": 0.0,
+      "Curriculum/recover_pose_distribution/common_control_step": 12.458333969116211,
+      "Curriculum/recover_pose_distribution/probability_prone": 1.0,
+      "Curriculum/recover_pose_distribution/probability_supine": 0.0,
+      "Curriculum/recover_pose_distribution/probability_left_side": 0.0,
+      "Curriculum/recover_pose_distribution/probability_right_side": 0.0,
+      "Episode_Termination/time_out": 2.7916667461395264,
+      "Episode_Termination/stable_success": 0.0,
+      "Episode_Termination/numeric_invalid": 0.0,
+      "Episode_Termination/hard_joint_limit": 0.0,
+      "Loss/value_function": 1.0444458723068237,
+      "Loss/surrogate": 0.18471749126911163,
+      "Loss/entropy": 8.762211799621582,
+      "Loss/learning_rate": 9.999999747378752E-06,
+      "Policy/mean_noise_std": 0.5024882555007935,
+      "Perf/total_fps": 5054.0,
+      "Perf/collection time": 4.504022598266602,
+      "Perf/learning_time": 0.35814762115478516,
+      "Train/mean_reward": -0.4797447621822357,
+      "Train/mean_episode_length": 12.919354438781738,
+      "Train/mean_reward/time": -0.4797447621822357,
+      "Train/mean_episode_length/time": 12.919354438781738
+    },
+    "series_summary": {
+      "Episode_Reward/upright_progress": {
+        "sample_count": 1,
+        "latest": -0.02829468809068203,
+        "minimum": -0.02829468809068203,
+        "maximum": -0.02829468809068203,
+        "mean": -0.02829468809068203,
+        "nonzero_sample_count": 1
+      },
+      "Episode_Reward/gated_base_height_progress": {
+        "sample_count": 1,
+        "latest": -0.012253211811184883,
+        "minimum": -0.012253211811184883,
+        "maximum": -0.012253211811184883,
+        "mean": -0.012253211811184883,
+        "nonzero_sample_count": 1
+      },
+      "Episode_Reward/soft_stand_progress": {
+        "sample_count": 1,
+        "latest": -0.011766381561756134,
+        "minimum": -0.011766381561756134,
+        "maximum": -0.011766381561756134,
+        "mean": -0.011766381561756134,
+        "nonzero_sample_count": 1
+      },
+      "Episode_Reward/stable_support": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Reward/upright_hold": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Reward/stable_success_once": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Reward/gated_angvel_l2": {
+        "sample_count": 1,
+        "latest": -0.0006131874397397041,
+        "minimum": -0.0006131874397397041,
+        "maximum": -0.0006131874397397041,
+        "mean": -0.0006131874397397041,
+        "nonzero_sample_count": 1
+      },
+      "Episode_Reward/joint_limit": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Reward/torque_l2": {
+        "sample_count": 1,
+        "latest": -0.001872275024652481,
+        "minimum": -0.001872275024652481,
+        "maximum": -0.001872275024652481,
+        "mean": -0.001872275024652481,
+        "nonzero_sample_count": 1
+      },
+      "Episode_Reward/joint_acc_l2": {
+        "sample_count": 1,
+        "latest": -0.0020042243413627148,
+        "minimum": -0.0020042243413627148,
+        "maximum": -0.0020042243413627148,
+        "mean": -0.0020042243413627148,
+        "nonzero_sample_count": 1
+      },
+      "Episode_Reward/gated_action_rate_l2": {
+        "sample_count": 1,
+        "latest": -0.0003617938491515815,
+        "minimum": -0.0003617938491515815,
+        "maximum": -0.0003617938491515815,
+        "mean": -0.0003617938491515815,
+        "nonzero_sample_count": 1
+      },
+      "Episode_Reward/mechanical_power_proxy": {
+        "sample_count": 1,
+        "latest": -2.8478094463935122E-05,
+        "minimum": -2.8478094463935122E-05,
+        "maximum": -2.8478094463935122E-05,
+        "mean": -2.8478094463935122E-05,
+        "nonzero_sample_count": 1
+      },
+      "Episode_Reward/undesired_collision": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Curriculum/recover_pose_distribution/phase_index": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Curriculum/recover_pose_distribution/common_control_step": {
+        "sample_count": 1,
+        "latest": 12.458333969116211,
+        "minimum": 12.458333969116211,
+        "maximum": 12.458333969116211,
+        "mean": 12.458333969116211,
+        "nonzero_sample_count": 1
+      },
+      "Curriculum/recover_pose_distribution/probability_prone": {
+        "sample_count": 1,
+        "latest": 1.0,
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "mean": 1.0,
+        "nonzero_sample_count": 1
+      },
+      "Curriculum/recover_pose_distribution/probability_supine": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Curriculum/recover_pose_distribution/probability_left_side": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Curriculum/recover_pose_distribution/probability_right_side": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Termination/time_out": {
+        "sample_count": 1,
+        "latest": 2.7916667461395264,
+        "minimum": 2.7916667461395264,
+        "maximum": 2.7916667461395264,
+        "mean": 2.7916667461395264,
+        "nonzero_sample_count": 1
+      },
+      "Episode_Termination/stable_success": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Termination/numeric_invalid": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Episode_Termination/hard_joint_limit": {
+        "sample_count": 1,
+        "latest": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "nonzero_sample_count": 0
+      },
+      "Loss/value_function": {
+        "sample_count": 1,
+        "latest": 1.0444458723068237,
+        "minimum": 1.0444458723068237,
+        "maximum": 1.0444458723068237,
+        "mean": 1.0444458723068237,
+        "nonzero_sample_count": 1
+      },
+      "Loss/surrogate": {
+        "sample_count": 1,
+        "latest": 0.18471749126911163,
+        "minimum": 0.18471749126911163,
+        "maximum": 0.18471749126911163,
+        "mean": 0.18471749126911163,
+        "nonzero_sample_count": 1
+      },
+      "Loss/entropy": {
+        "sample_count": 1,
+        "latest": 8.762211799621582,
+        "minimum": 8.762211799621582,
+        "maximum": 8.762211799621582,
+        "mean": 8.762211799621582,
+        "nonzero_sample_count": 1
+      },
+      "Loss/learning_rate": {
+        "sample_count": 1,
+        "latest": 9.999999747378752E-06,
+        "minimum": 9.999999747378752E-06,
+        "maximum": 9.999999747378752E-06,
+        "mean": 9.999999747378752E-06,
+        "nonzero_sample_count": 1
+      },
+      "Policy/mean_noise_std": {
+        "sample_count": 1,
+        "latest": 0.5024882555007935,
+        "minimum": 0.5024882555007935,
+        "maximum": 0.5024882555007935,
+        "mean": 0.5024882555007935,
+        "nonzero_sample_count": 1
+      },
+      "Perf/total_fps": {
+        "sample_count": 1,
+        "latest": 5054.0,
+        "minimum": 5054.0,
+        "maximum": 5054.0,
+        "mean": 5054.0,
+        "nonzero_sample_count": 1
+      },
+      "Perf/collection time": {
+        "sample_count": 1,
+        "latest": 4.504022598266602,
+        "minimum": 4.504022598266602,
+        "maximum": 4.504022598266602,
+        "mean": 4.504022598266602,
+        "nonzero_sample_count": 1
+      },
+      "Perf/learning_time": {
+        "sample_count": 1,
+        "latest": 0.35814762115478516,
+        "minimum": 0.35814762115478516,
+        "maximum": 0.35814762115478516,
+        "mean": 0.35814762115478516,
+        "nonzero_sample_count": 1
+      },
+      "Train/mean_reward": {
+        "sample_count": 1,
+        "latest": -0.4797447621822357,
+        "minimum": -0.4797447621822357,
+        "maximum": -0.4797447621822357,
+        "mean": -0.4797447621822357,
+        "nonzero_sample_count": 1
+      },
+      "Train/mean_episode_length": {
+        "sample_count": 1,
+        "latest": 12.919354438781738,
+        "minimum": 12.919354438781738,
+        "maximum": 12.919354438781738,
+        "mean": 12.919354438781738,
+        "nonzero_sample_count": 1
+      },
+      "Train/mean_reward/time": {
+        "sample_count": 1,
+        "latest": -0.4797447621822357,
+        "minimum": -0.4797447621822357,
+        "maximum": -0.4797447621822357,
+        "mean": -0.4797447621822357,
+        "nonzero_sample_count": 1
+      },
+      "Train/mean_episode_length/time": {
+        "sample_count": 1,
+        "latest": 12.919354438781738,
+        "minimum": 12.919354438781738,
+        "maximum": 12.919354438781738,
+        "mean": 12.919354438781738,
+        "nonzero_sample_count": 1
+      }
+    }
+  },
+  "fatal_patterns_found": [],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": true,
+    "requested_iteration_reached": true,
+    "log_directory_exists": true,
+    "tensorboard_exists": true,
+    "checkpoint_exists": true,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true,
+    "qualification_training_safety_zero": null,
+    "requested_training_safety_gate_zero": true
+  },
+  "run_health_passed": true,
+  "qualification_passed": null,
+  "passed": true
+}

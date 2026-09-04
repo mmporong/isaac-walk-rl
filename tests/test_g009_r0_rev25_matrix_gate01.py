@@ -21,7 +21,7 @@ SPEC.loader.exec_module(SUMMARY)
 
 def _load_bootstrap_writer(monkeypatch, *, install_matrix=True):
     benchmark = types.ModuleType("bootstrap_benchmark_g009")
-    benchmark.main = lambda: None
+    benchmark.run_with_before_close = lambda callback: callback(True)
     matrix = types.ModuleType("isaac_walk_g009.matrix_gate01")
     matrix.MATRIX_CRITIC_OBSERVATION_DIM = 164
     matrix.MATRIX_OBSERVATION_DIM = 57
@@ -127,10 +127,11 @@ def test_matrix_bootstrap_main_uses_runtime_installed_canonical_module(
     telemetry_calls = []
     sentinel.runtime_telemetry = lambda: telemetry_calls.append(sentinel) or runtime
 
-    def install_runtime_module():
+    def install_runtime_module(callback):
         monkeypatch.setitem(sys.modules, "isaac_walk_g009.matrix_gate01", sentinel)
+        callback(True)
 
-    monkeypatch.setattr(bootstrap, "benchmark_main", install_runtime_module)
+    monkeypatch.setattr(bootstrap, "run_with_before_close", install_runtime_module)
     monkeypatch.setattr(bootstrap, "telemetry_path", lambda _run_name: output)
     monkeypatch.setattr(sys, "argv", ["bootstrap", "--run_name", "sentinel"])
     bootstrap.main()
@@ -153,12 +154,15 @@ def test_matrix_bootstrap_main_emits_fail_closed_identity_when_module_not_loaded
 ):
     bootstrap = _load_bootstrap_writer(monkeypatch, install_matrix=False)
     output = tmp_path / "missing.matrix_gate01.json"
+    monkeypatch.setattr(
+        bootstrap, "run_with_before_close", lambda callback: callback(False)
+    )
     monkeypatch.setattr(bootstrap, "telemetry_path", lambda _run_name: output)
     monkeypatch.setattr(sys, "argv", ["bootstrap", "--run_name", "missing"])
     bootstrap.main()
 
     payload = json.loads(output.read_text(encoding="utf-8"))
-    assert payload["benchmark_completed"] is True
+    assert payload["benchmark_completed"] is False
     assert payload["runtime"] == {
         "bootstrap_error": "matrix_gate01_module_not_loaded_after_app_launch"
     }

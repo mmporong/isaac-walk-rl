@@ -16,7 +16,7 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from bootstrap_benchmark_g009 import main as benchmark_main  # noqa: E402
+from bootstrap_benchmark_g009 import run_with_before_close  # noqa: E402
 
 
 def _argument_value(name: str) -> str:
@@ -58,11 +58,8 @@ def write_telemetry(path: Path, value: dict) -> None:
 def main() -> None:
     run_name = _argument_value("--run_name")
     output = telemetry_path(run_name)
-    completed = False
-    try:
-        benchmark_main()
-        completed = True
-    finally:
+
+    def persist_runtime_telemetry(completed: bool) -> None:
         matrix_gate = sys.modules.get("isaac_walk_g009.matrix_gate01")
         if matrix_gate is None:
             snapshot = {"bootstrap_error": "matrix_gate01_module_not_loaded_after_app_launch"}
@@ -102,6 +99,8 @@ def main() -> None:
                 "runtime": snapshot,
             },
         )
+
+    run_with_before_close(persist_runtime_telemetry)
 
 
 if __name__ == "__main__":
