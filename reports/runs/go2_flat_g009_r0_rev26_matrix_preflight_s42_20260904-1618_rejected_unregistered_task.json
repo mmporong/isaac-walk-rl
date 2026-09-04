@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "run_name": "go2_flat_g009_r0_rev26_matrix_preflight_s42_20260904-1618",
+  "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+  "num_envs": 1024,
+  "max_iterations": 1,
+  "seed": 42,
+  "headless": true,
+  "qualification_mode": {
+    "enabled": false,
+    "preflight_passed": null,
+    "policy_qualification_status": "not_run"
+  },
+  "command": [
+    "%USERPROFILE%\\IsaacLab\\_isaac_sim\\python.bat",
+    "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "--task",
+    "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "--num_envs",
+    1024,
+    "--max_iterations",
+    1,
+    "--seed",
+    42,
+    "--run_name",
+    "go2_flat_g009_r0_rev26_matrix_preflight_s42_20260904-1618",
+    "--headless"
+  ],
+  "resume": {
+    "enabled": false,
+    "load_run": null,
+    "checkpoint": null
+  },
+  "training_safety_gate": {
+    "requested": true,
+    "required": true,
+    "scratch_required": true,
+    "hard_joint_limit_series_present": false,
+    "numeric_invalid_series_present": false,
+    "requires_both_maximum_counts_zero": true,
+    "passed": false
+  },
+  "effective_hydra_overrides": [],
+  "training_entrypoint": {
+    "path": "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "sha256": "8b995f75ac57ce7403973ff1f3f2715fbff9563ef2cdcdc321a7edc5dd15f5df",
+    "repository_internal": false
+  },
+  "upstream": {
+    "isaac_lab_expected_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+    "isaac_lab_commit": null,
+    "official_train_path": "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+    "official_train_expected_sha256": "8b995f75ac57ce7403973ff1f3f2715fbff9563ef2cdcdc321a7edc5dd15f5df",
+    "official_train_sha256": null,
+    "tracked_clean": null
+  },
+  "qualification_contract": null,
+  "repository": {
+    "commit": "402b3fdbc5cfd91a011f3d142084ceebfb2cc577",
+    "dirty": false
+  },
+  "source_bundle": {
+    "sha256": "0a4ae44a47b681f6347ed0177917a36589e12039c960356916c05cb225c4a583",
+    "files": {
+      "configs/g009_r0.json": "d3ae13d5be523a9c61946f3f78ef3741371b89f9d111d154a6596e66c4f1a1af",
+      "configs/g009_r0_rev26_qualification.json": "82126c3c17b82105a8594657b649fb3162b4952473f39f21bce58f004535fa8f",
+      "scripts/bootstrap_benchmark_g009.py": "8a8454d115ba961b9c148028afda23088a4c1e68a107dcb6823122e5fc667f4d",
+      "scripts/bootstrap_train_g009.py": "95a057cff8020d1c06ed129ad3ad8b77e46dc34443042ea31ac993455de131bd",
+      "scripts/evaluate_g009_r0.py": "c06c825b9d3499d3f2d181dfb151049e3f7bd298c8f24335bf3fd77c0cd0dfe7",
+      "scripts/run_training.ps1": "1299172638a146361dee228295a4865f2303c8288d55769a1ebfa74ad7358c10",
+      "scripts/summarize_g009_r0_rev26_qualification.py": "22723c384a56e8d9335a52344786edd82ad7c353e75e756266b4646dc5cb2a6c",
+      "src/isaac_walk_g009/agent_cfg.py": "d88ea424dc403bba94fd4d69ee0f60c71e7786639b143d1454c9862b84662404",
+      "src/isaac_walk_g009/matrix_gate01.py": "bf177403341bd19c38afb912114b23a821986b456e77e84ecf2fce1502fee2f4",
+      "src/isaac_walk_g009/matrix_observation_adapter.py": "7d838b9d57090b2cffec0fcb89612175fdb6f36e94ac7ffe492317f37142df32",
+      "src/isaac_walk_g009/mdp/__init__.py": "657147710718d87f432b1a9120a4580ad3df8166e5b1f2106c98c847edd62076",
+      "src/isaac_walk_g009/mdp/events.py": "da474178b54d89f7a70bb80872869a486ec7751d8b7e185c72401f44e343cfdb",
+      "src/isaac_walk_g009/mdp/recover.py": "b3c5ac4b9c9007d3897d3e384531e2807a876371eefb4a8efab50f027f077a2d",
+      "src/isaac_walk_g009/recover_contracts.py": "dce7a1be3e12f95b1940788fc052d8f07cd378e9c34431c3faec5bf0bec41fea",
+      "src/isaac_walk_g009/recover_env_cfg.py": "d0dfeb18bcd43e1c3263505c973cf7581492dd9de7f47e00739ddfdde3ba6947",
+      "src/isaac_walk_g009/registry.py": "1d28dfeac14c35b8be280f38fcd40548e099b37e84ace7fed25134231991f100"
+    },
+    "matches_repository_commit": true
+  },
+  "started_at": "2026-09-04T16:18:24.6860430+09:00",
+  "ended_at": "2026-09-04T16:18:35.0384058+09:00",
+  "wall_time_seconds": 10.351,
+  "exit_code": 0,
+  "last_iteration": null,
+  "iteration_target": null,
+  "gpu": {
+    "device_count": 1,
+    "baseline_used_mib": 1490,
+    "total_mib": 12288,
+    "peak_used_mib": 1631.0,
+    "delta_used_mib": 141.0,
+    "peak_utilization_gpu_percent": 12.0,
+    "mean_utilization_gpu_percent": 10.8,
+    "peak_temperature_c": 53.0,
+    "peak_power_draw_w": 39.48,
+    "sample_interval_seconds": 2,
+    "samples": [
+      {
+        "elapsed_seconds": 0.076,
+        "device_count": 1,
+        "used_mib": 1493,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 11.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.48
+      },
+      {
+        "elapsed_seconds": 2.158,
+        "device_count": 1,
+        "used_mib": 1493,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 11.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.46
+      },
+      {
+        "elapsed_seconds": 4.221,
+        "device_count": 1,
+        "used_mib": 1585,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 12.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.48
+      },
+      {
+        "elapsed_seconds": 6.283,
+        "device_count": 1,
+        "used_mib": 1617,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 8.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.42
+      },
+      {
+        "elapsed_seconds": 8.347,
+        "device_count": 1,
+        "used_mib": 1631,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 12.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.46
+      }
+    ],
+    "recovery_samples": [
+      {
+        "elapsed_seconds": 0.058,
+        "device_count": 1,
+        "used_mib": 1489,
+        "total_mib": 12288,
+        "utilization_gpu_percent": 11.0,
+        "temperature_c": 53.0,
+        "power_draw_w": 39.63
+      }
+    ],
+    "measurement_failure_count": 0,
+    "measurement_complete": true,
+    "recovered_to_baseline": true,
+    "qualification_safety": {
+      "required": false,
+      "temperature_threshold_c": 90.0,
+      "sustained_sample_count": 3,
+      "consecutive_sample_observation_span_seconds": 4,
+      "maximum_consecutive_hot_samples": 0,
+      "fatal_pattern": "(?i)(CUDA\\s+out\\s+of\\s+memory|out\\s+of\\s+memory|\\bXid\\b|driver\\s+reset|device\\s+lost)",
+      "fatal_matches": [],
+      "abort_reason": null,
+      "observed_descendant_process_ids": [],
+      "process_tree_termination": null,
+      "descendants_exited": null,
+      "passed": null
+    }
+  },
+  "performance": {
+    "metric_source": "stdout; TensorBoard event file existence verified",
+    "steps_per_second_samples": [],
+    "mean_steps_per_second": null,
+    "median_steps_per_second": null,
+    "final_mean_reward": null,
+    "final_mean_episode_length": null
+  },
+  "training_safety_aggregate": {
+    "metric_semantics": "TensorBoard statistics over per-reset-batch termination counts across every logged scalar sample",
+    "scalar_reservoir": "unbounded (size_guidance scalars=0)",
+    "hard_joint_limit": null,
+    "numeric_invalid": null,
+    "qualification_requires_both_maximum_counts_zero": false,
+    "qualification_passed": null,
+    "diagnostic_gate_requested": true,
+    "diagnostic_gate_passed": false,
+    "unavailable_fields": [
+      "hard_limit_total_count",
+      "hard_limit_max_excess_rad",
+      "hard_limit_by_joint",
+      "hard_limit_by_pose"
+    ],
+    "unavailable_reason": "RSL-RL episode summaries expose rates only; joint/pose attribution requires dedicated runtime instrumentation"
+  },
+  "artifacts": {
+    "raw_stdout": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_g009_r0_rev26_matrix_preflight_s42_20260904-1618.stdout.log",
+    "raw_stderr": "%USERPROFILE%\\IsaacLab\\logs\\harness\\go2_flat_g009_r0_rev26_matrix_preflight_s42_20260904-1618.stderr.log",
+    "tensorboard_directory": null,
+    "checkpoint": null,
+    "checkpoint_sha256": null
+  },
+  "log_directory_resolution": {
+    "mode": "unresolved",
+    "candidates": [],
+    "selected": null,
+    "preexisting_match_count": 0
+  },
+  "tensorboard": null,
+  "fatal_patterns_found": [
+    "Traceback (most recent call last)"
+  ],
+  "success_checks": {
+    "process_exit_zero": true,
+    "no_traceback_or_error": false,
+    "requested_iteration_reached": false,
+    "log_directory_exists": false,
+    "tensorboard_exists": false,
+    "checkpoint_exists": false,
+    "gpu_measurement_complete": true,
+    "gpu_recovered_to_baseline": true,
+    "qualification_training_safety_zero": null,
+    "qualification_gpu_safety": null,
+    "requested_training_safety_gate_zero": false
+  },
+  "run_health_passed": false,
+  "qualification_passed": null,
+  "passed": false
+}
