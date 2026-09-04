@@ -2,13 +2,13 @@
 
 - 체크포인트 날짜: 2026-09-01
 - 증거 ID: `G009-5-E017`
-- 구현 커밋: `134b6ee31c5ef220048eaaf632f7872a86122258`
-- 실행 상태: `1024 env` 첫 실행은 교차언어 source-bundle 정렬 불일치로 기각, `2048 env` 미실행
-- 다음 세션의 중단 해제 조건: ordinal 정렬 수정이 반영된 원격 `main`과 일치하는 clean worktree
+- 구현·실행 커밋: `0437e3766e6ff50a6b05a788a6cc7872ee582b89`
+- 실행 상태: 첫 `1024 env`는 source-bundle 정렬 불일치로 기각했고, 수정 후 fresh `1024/2048 env`를 모두 PASS
+- 확정 stable maximum: 이번 사전등록 ladder의 상한인 `2048 env`
 
 ## 지금 멈춘 위치
 
-rev24의 `1024 env × 24 steps × 5 iterations` headless scratch PPO diagnostic은 실제 Isaac Sim에서 실행했고 checkpoint와 TensorBoard 로그를 생성했다. wrapper run-health는 PASS했지만 PowerShell과 Python의 source path 정렬 차이로 canonical source-bundle gate가 FAIL해 1024 rung을 기각했다. 계약에 따라 `2048 env`, Matrix Gate01과 정식 policy qualification은 실행하지 않았고 MP4·GIF·PNG도 만들지 않았다. Garden 글은 canonical runtime 결과와 미디어가 생긴 뒤 다시 판단한다.
+교차언어 ordinal 정렬을 수정한 clean commit에서 rev24의 `1024 env`와 `2048 env` headless scratch PPO throughput rung을 새 실행 ID와 새 checkpoint로 다시 실행했다. 두 rung 모두 wrapper run-health와 canonical source binding, VRAM·NaN·exit gate를 통과했고 최종 synthesis는 `stable_max_envs=2048`로 PASS했다. 이는 처리량 smoke이며 복구 정책 qualification이나 복구 성공 증거가 아니다. Matrix Gate01은 별도 rev25 계약·코드·검증기 구현과 사전등록을 완료했지만 actual GPU Gate01은 아직 실행하지 않았고, 정식 policy qualification도 미실행이다. `15.01/15.02` 미디어도 아직 만들지 않았으므로 Garden 발행 판단은 보류한다.
 
 | 항목 | 현재 상태 |
 | --- | --- |
@@ -19,7 +19,7 @@ rev24의 `1024 env × 24 steps × 5 iterations` headless scratch PPO diagnostic�
 | action | scale `0.70`, EMA alpha `0.2` |
 | PPO 초기 noise | `0.5` |
 | throughput protocol | `1024 env` PASS 뒤에만 `2048 env` |
-| 실제 throughput 결과 | 1024 runtime 건강 수치만 진단 보존, canonical gate 기각 |
+| 실제 throughput 결과 | fresh 1024·2048 canonical PASS, stable maximum `2048 env` |
 | policy qualification | `not_run` |
 | recovery success claim | `false` |
 
@@ -45,6 +45,28 @@ rev24의 `1024 env × 24 steps × 5 iterations` headless scratch PPO diagnostic�
 - stderr: 같은 harness 경로의 `.stderr.log`, 빈 파일 SHA-256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
 
 따라서 이 실행은 PPO 처리량 참고 수치일 뿐 rev24 1024 PASS가 아니다. `2048 env`는 실행하지 않았고 stable maximum도 확정하지 않았다. ordinal source 정렬 수정과 회귀 테스트가 clean commit으로 반영된 뒤 1024부터 새 report·checkpoint로 다시 실행한다. 기각된 단계에는 `15.01` 성공 미디어를 만들지 않으며, 재실행 PASS 뒤에만 `PPO THROUGHPUT SMOKE / NOT POLICY QUALIFICATION / NOT RECOVERY EVIDENCE` 표기를 붙여 생성한다.
+
+## 2026-09-04 수정 후 canonical 재실행
+
+source path를 repository-relative 실제 casing으로 정규화하고 ordinal 정렬하는 수정이 반영된 clean commit `0437e3766e6ff50a6b05a788a6cc7872ee582b89`에서 두 rung을 새 실행 ID로 수행했다. source bundle SHA-256은 두 실행 모두 `5b244f87797754926c30dbc64a30fad9d7220859f160cfef2571c60cc25aaec0`으로 일치했다.
+
+| 항목 | `1024 env` | `2048 env` |
+| --- | ---: | ---: |
+| run name | `g009_r0_rev24_throughput_1024_retry01_s42` | `g009_r0_rev24_throughput_2048_retry01_s42` |
+| `steps/s` | `8062, 12549, 12941, 13128, 12670` | `14874, 22947, 23020, 23168, 22576` |
+| 평균 / 중앙값 | `11,870 / 12,670` | `21,317 / 22,947` |
+| peak VRAM | `4,397 MiB` | `4,859 MiB` |
+| peak / mean utilization | `55% / 14.96%` | `67% / 15.58%` |
+| peak temperature / power | `54°C / 63.74W` | `55°C / 68.54W` |
+| numeric invalid maximum | `0` | `0` |
+| checkpoint SHA-256 | `0d745dca05a97dd1849b584a0dae100642990afaf07432f416910507c41b67be` | `fce57b96b0c3b0ff50e85cae273b8bc11d91c6f63a6417b69f67e91609a40e41` |
+| canonical decision | PASS | PASS |
+
+- 1024 report SHA-256: `5f39c701bbfd889c2a44f470abcf1d4e4632398e34fd9d9e70406cc7da51fb50`
+- 2048 report SHA-256: `27da732b114dc2c6432926814777d4335e5df4309acaf760af45288abb1ca8e9`
+- final synthesis SHA-256: `15281e134159974525fc53050e186e8e16d79108f9a068fe717d8ea26b805358`
+
+따라서 이번 ladder 안의 안정 최대 환경 수는 `2048`이다. 더 큰 수를 시험하지 않았으므로 GPU의 절대 최대치라는 뜻은 아니다. 학습 중 hard-joint-limit 통계는 1024에서 최대 `0.25`, 2048에서 최대 `0.2083333`이었지만 rev24 throughput smoke는 이를 qualification gate로 사용하지 않는다. rev25 Matrix Gate01과 이후 정식 qualification은 hard-joint-limit maximum `0`을 별도로 요구한다.
 
 기존 rev15 계약은 active baseline이 아니다. [`g009_r0_rev15.json`](../configs/g009_r0_rev15.json)에 historical snapshot으로 보존했고, 당시 계약 SHA-256은 `5f29ba19458404b5009d3734294c57e79294efecc7fe03bf8c71c71656129832`다. rev15의 solver position `16`은 GPU non-foot force gate 실패로 기각된 값이다.
 
@@ -171,11 +193,11 @@ py .\scripts\summarize_g009_r0_rev24_gpu_throughput.py `
   --input-2048 .\reports\runs\g009_r0_rev24_gpu_throughput_2048env_5iter_s42.json
 ```
 
-staging에 남은 partial synthesis는 1024 단독 판정 원본으로 보존한다. 최종 synthesis가 두 입력의 순서와 시간 경계를 검증한다. 1024 종료 시각이 2048 시작 시각보다 늦으면 fail-closed한다.
+위 명령은 완료된 rev24 실행을 재현하기 위한 역사적 절차다. 실제 실행에서는 staging에 남은 partial synthesis를 1024 단독 판정 원본으로 보존했고, 최종 synthesis가 두 입력의 순서와 시간 경계를 검증했다. 1024 종료 시각이 2048 시작 시각보다 늦으면 fail-closed하는 계약도 유지했다. rev24는 canonical 1024·2048 PASS와 `stable_max_envs=2048` 확정까지 완료됐다.
 
 ## 미디어와 공개 기록
 
-실제 rung을 실행한 뒤 단계마다 자료를 만든다.
+rev24의 실제 rung과 final synthesis는 완료됐지만 `15.01/15.02` 미디어는 만들지 않았다. 아래 표는 검증된 report를 바탕으로 회고 미디어를 만들 경우 적용할 계약이며, 미디어 부재는 rev24 throughput PASS를 복구 정책 성공 영상으로 대체하지 않았다는 뜻이다.
 
 | 번호 | 시점 | 공개 자료 | 로컬 전용 자료 |
 | --- | --- | --- | --- |
@@ -186,13 +208,13 @@ throughput 단계는 카메라로 로봇 동작을 평가하는 실험이 아니
 
 원본 MP4는 30fps로 보존한다. 공개 GIF는 15fps를 목표로 만들며 12fps 아래로 낮추지 않는다. `15.01/15.02`처럼 그래프를 직접 그리는 텔레메트리는 몇 장의 정지 화면을 오래 표시하지 않고, 재생 구간 전체의 중간 프레임을 렌더링한다. GIF가 10 MiB를 넘으면 길이, 해상도, 팔레트 순서로 줄이고 프레임레이트는 유지한다. sidecar에는 source FPS, target·actual GIF FPS, frame count, duration, 가장 긴 frame 표시 시간과 temporal strategy를 남긴다. 고정 압축 우선순위와 실제 적용 단계는 각각 `compression_policy_order`, `compression_steps_applied`에 구분해 기록한다. `15.01/15.02` builder는 MP4를 ffprobe로 검사하고 실제 GIF를 `inspect_gif_encoding()`으로 측정한 뒤 계약 검사를 통과해야 한다.
 
-Garden은 이번 준비 상태만으로 새 글을 발행하지 않는다. 최종 runtime 결과와 `15.01/15.02`가 생긴 뒤 공개 가치가 있는지 다시 판단한다. 실패가 나면 내부 기록으로 먼저 보존하고, 후속 성공이나 원인 규명과 함께 설명할 수 있을 때 공개 글에 넣는다.
+Garden 새 글은 아직 발행하지 않는다. rev24 canonical runtime 결과는 확보했지만 `15.01/15.02` 미디어가 없고 rev25 Matrix Gate01 actual run도 미실행이므로, 후속 실행과 미디어가 갖춰진 뒤 공개 가치를 다시 판단한다. 실패가 나면 내부 기록으로 먼저 보존하고, 후속 성공이나 원인 규명과 함께 설명할 수 있을 때 공개 글에 넣는다.
 
-## throughput 뒤에 이어질 작업
+## 현재 상태와 rev24 이후 작업
 
-1. rev24 final synthesis에서 stable maximum을 확정한다.
-2. normal-force matrix를 policy observation에 연결하는 Gate01을 별도 사전등록한다.
-3. matrix Gate01을 fresh scratch로 실행해 safety termination과 observation provenance를 확인한다.
+1. `[완료]` rev24 final synthesis에서 canonical `1024 env`와 `2048 env` PASS를 확인하고 stable maximum을 `2048 env`로 확정했다.
+2. `[준비 완료·미실행]` rev25 whole-body terrain-contact Matrix Gate01의 계약·코드·검증기를 사전등록했다.
+3. `[다음 실행]` Matrix Gate01을 fresh scratch `1024 env × 24 steps × 1 iteration`으로 실행해 connectivity, safety termination, observation provenance를 확인한다.
 4. Gate01 PASS 뒤에만 R0 scratch qualification을 실행한다.
 5. 네 전복 자세별 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과한 checkpoint만 복구 정책으로 승인한다.
 6. 승인 뒤 `S1-low` 횡경사 WALK, 외란, residual height, 발별·공간 마찰, 낮은/높은 경사 RECOVER, link-mass 순으로 연다.

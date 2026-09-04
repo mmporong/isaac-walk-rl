@@ -14,10 +14,16 @@ TASK_ENTRY_POINTS = {
 }
 RECOVER_TASK_ENTRY_POINTS = {
     "Isaac-G009-Recover-Flat-Go2-R0-v0": "isaac_walk_g009.recover_env_cfg:G009FlatRecoverEnvCfg",
+    "Isaac-G009-Recover-Flat-Go2-R0-MatrixGate01-v0": (
+        "isaac_walk_g009.recover_env_cfg:G009FlatRecoverMatrixGate01EnvCfg"
+    ),
 }
 AGENT_ENTRY_POINTS = {
     "Isaac-G009-Velocity-Slope-Go2-S0-v0": AGENT_ENTRY_POINT,
     "Isaac-G009-Recover-Flat-Go2-R0-v0": "isaac_walk_g009.agent_cfg:G009RecoverPPORunnerCfg",
+    "Isaac-G009-Recover-Flat-Go2-R0-MatrixGate01-v0": (
+        "isaac_walk_g009.agent_cfg:G009RecoverPPORunnerCfg"
+    ),
 }
 
 

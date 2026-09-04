@@ -121,7 +121,7 @@ upstream Isaac Lab은 수정하지 않고 별도 태스크로 등록했다.
 
 ## 8. 아직 진행 중 (미완결)
 
-`G009` 산 비탈 보행·전복 복구는 **R0 strict success = 0** 이며 완료가 아니다. rev14~rev24는 접촉력 진단과 관측 계약 기록이고, GPU 접촉 콜백 부재(`unavailable_on_gpu`) 등 플랫폼 한계를 수치와 권위 경계로 좁힌 단계다. 최신 rev24는 GPU throughput **실행 직전 체크포인트**이며 아직 결과가 없다. 어느 것도 성공 정책의 증거가 아니다. 상세는 [`G009_MOUNTAIN_SLOPE_RECOVERY.md`](G009_MOUNTAIN_SLOPE_RECOVERY.md)에 있다.
+`G009` 산 비탈 보행·전복 복구는 **R0 strict success = 0** 이며 완료가 아니다. rev14~rev23은 접촉력 진단과 관측 계약 기록이고, GPU 접촉 콜백 부재(`unavailable_on_gpu`) 등 플랫폼 한계를 수치와 권위 경계로 좁힌 단계다. rev24는 fresh 1024/2048 GPU throughput smoke를 canonical PASS해 이번 ladder의 stable maximum을 `2048 env`로 확정했다. 이는 처리량 증거이며 복구 성능 증거가 아니다. rev25 whole-body matrix connectivity/safety smoke는 준비 중이고 아직 실행하지 않았으며 recovery qualification은 false다. 상세는 [`G009_MOUNTAIN_SLOPE_RECOVERY.md`](G009_MOUNTAIN_SLOPE_RECOVERY.md)에 있다.
 
 실기체 이관은 범위 밖이다. 로봇이 바뀌면 링크 질량·관성·COM, 관절 범위와 순서, 모터 torque-speed envelope, action scale, 발 마찰, 제어 dt가 모두 달라지므로 정책 weight와 절대 임계값은 재사용하지 않는다. 재사용 가능한 것은 terrain generator, 평가 grid, reward 구조, support-plane 계측, media/report schema다.
 

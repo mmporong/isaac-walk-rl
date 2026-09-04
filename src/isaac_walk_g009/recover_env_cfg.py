@@ -24,6 +24,10 @@ from .mdp.events import (
     recovery_pose_curriculum,
     reset_root_and_joints_for_recovery,
 )
+from .matrix_gate01 import (
+    TERRAIN_FILTER_PATHS,
+    whole_body_terrain_contact_matrix_base_normalized,
+)
 from .recover_contracts import (
     ACTION_EMA_ALPHA,
     ACTION_SCALE,
@@ -208,6 +212,50 @@ class RecoverCriticCfg(ObsGroup):
 class RecoverObservationsCfg:
     policy: RecoverPolicyCfg = RecoverPolicyCfg()
     critic: RecoverCriticCfg = RecoverCriticCfg()
+
+
+@configclass
+class G009MatrixGate01PolicyCfg(RecoverPolicyCfg):
+    """P-RECOVER-83 plus the bounded 57-D base-frame matrix projection."""
+
+    whole_body_terrain_contact_matrix_base_normalized = ObsTerm(
+        func=whole_body_terrain_contact_matrix_base_normalized,
+        params={
+            "sensor_cfg": SceneEntityCfg("contact_forces"),
+            "asset_cfg": SceneEntityCfg("robot"),
+            "collect_gate_telemetry": True,
+        },
+    )
+
+
+@configclass
+class G009MatrixGate01CriticCfg(G009MatrixGate01PolicyCfg):
+    """Uncorrupted 140-D actor prefix plus the 24-D privileged suffix."""
+
+    terrain_normal_gt = ObsTerm(func=recover_mdp.terrain_normal_gt)
+    base_height_gt = ObsTerm(func=recover_mdp.base_height_gt)
+    four_foot_effective_static_dynamic_friction = ObsTerm(
+        func=recover_mdp.four_foot_effective_static_dynamic_friction,
+        params={
+            "configured_static_friction": GROUND_STATIC_FRICTION * FOOT_STATIC_FRICTION,
+            "configured_dynamic_friction": GROUND_DYNAMIC_FRICTION * FOOT_DYNAMIC_FRICTION,
+        },
+    )
+    whole_body_com_base = ObsTerm(func=recover_mdp.whole_body_com_base)
+    total_mass = ObsTerm(func=recover_mdp.total_mass)
+    commanded_wrench = ObsTerm(func=recover_mdp.commanded_wrench)
+    normalized_pulse_time_remaining = ObsTerm(func=recover_mdp.normalized_pulse_time_remaining)
+    source_fall_class_one_hot = ObsTerm(func=recover_mdp.source_fall_class_one_hot)
+
+    def __post_init__(self):
+        self.enable_corruption = False
+        self.concatenate_terms = True
+
+
+@configclass
+class G009MatrixGate01ObservationsCfg:
+    policy: G009MatrixGate01PolicyCfg = G009MatrixGate01PolicyCfg()
+    critic: G009MatrixGate01CriticCfg = G009MatrixGate01CriticCfg()
 
 
 @configclass
@@ -401,9 +449,26 @@ class G009FlatRecoverEnvCfg(G008CommandEnvCfg):
         self.sim.physics_material = self.scene.terrain.physics_material
 
 
+@configclass
+class G009FlatRecoverMatrixGate01EnvCfg(G009FlatRecoverEnvCfg):
+    """Isolated Gate01 task that connects the validated matrix to the actor."""
+
+    observations: G009MatrixGate01ObservationsCfg = G009MatrixGate01ObservationsCfg()
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.observations = G009MatrixGate01ObservationsCfg()
+        self.scene.contact_forces.filter_prim_paths_expr = list(TERRAIN_FILTER_PATHS)
+        self.scene.contact_forces.history_length = 1
+
+
 __all__ = [
     "CONTACT_FORCE_THRESHOLD_N",
     "G009FlatRecoverEnvCfg",
+    "G009FlatRecoverMatrixGate01EnvCfg",
+    "G009MatrixGate01CriticCfg",
+    "G009MatrixGate01ObservationsCfg",
+    "G009MatrixGate01PolicyCfg",
     "MAX_ANGULAR_SPEED_RAD_S",
     "MIN_BASE_HEIGHT_M",
     "MIN_FOOT_CONTACTS",

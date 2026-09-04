@@ -1,0 +1,216 @@
+{
+  "schema_version": "g009.r0.rev24.gpu_throughput_synthesis.v1",
+  "evidence_id": "G009-5-E017",
+  "revision": "rev24",
+  "status": "complete",
+  "experiment_class": "headless_scratch_ppo_throughput_smoke",
+  "claim_limits": {
+    "policy_qualification": "not_run",
+    "recovery_success": "not_measured",
+    "statement": "This experiment measures short-run execution health and throughput only; it does not qualify a policy or demonstrate recovery success."
+  },
+  "protocol": {
+    "ordered_environment_counts": [
+      1024,
+      2048
+    ],
+    "advance_rule": "2048 environments may run only after the 1024-environment report passes every gate",
+    "max_iterations": 5,
+    "num_steps_per_env": 24,
+    "ppo_num_learning_epochs": 5,
+    "ppo_num_mini_batches": 4,
+    "headless": true,
+    "scratch": true,
+    "resume_allowed": false
+  },
+  "source_bindings": {
+    "isaaclab": {
+      "version": "v2.1.1",
+      "commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba"
+    },
+    "official_benchmark": {
+      "path": "scripts/benchmarks/benchmark_rsl_rl.py",
+      "sha256": "2d5a88b9c07bfb38852082a0b9bf00f4213043b16ce0294776646ab06d351c82"
+    },
+    "repository_entrypoint": "scripts/bootstrap_benchmark_g009.py",
+    "active_contract": {
+      "path": "configs/g009_r0.json",
+      "contract_sha256": "64eb108bb736d9ba8c1727c3a56ddc3fefaafaba25a98f93c1f8505704c5dd91"
+    }
+  },
+  "active_contract": {
+    "path": "configs/g009_r0.json",
+    "contract_sha256": "64eb108bb736d9ba8c1727c3a56ddc3fefaafaba25a98f93c1f8505704c5dd91",
+    "file_sha256": "d3ae13d5be523a9c61946f3f78ef3741371b89f9d111d154a6596e66c4f1a1af"
+  },
+  "rows": [
+    {
+      "num_envs": 1024,
+      "input_report": {
+        "path": "reports/runs/g009_r0_rev24_gpu_throughput_1024env_5iter_s42.json",
+        "sha256": "5f39c701bbfd889c2a44f470abcf1d4e4632398e34fd9d9e70406cc7da51fb50"
+      },
+      "passed": true,
+      "gates": {
+        "run_health": true,
+        "repository_clean": true,
+        "source_bundle_matches_commit": true,
+        "success_checks": true,
+        "gpu_measurement_and_recovery": true,
+        "steps_per_second": true,
+        "gpu_required_measurements": true,
+        "gpu_power": true,
+        "numeric_invalid": true,
+        "timing": true,
+        "log_directory_resolution": true
+      },
+      "success_checks": {
+        "process_exit_zero": true,
+        "no_traceback_or_error": true,
+        "requested_iteration_reached": true,
+        "log_directory_exists": true,
+        "tensorboard_exists": true,
+        "checkpoint_exists": true,
+        "gpu_measurement_complete": true,
+        "gpu_recovered_to_baseline": true
+      },
+      "steps_per_second": {
+        "samples": [
+          8062,
+          12549,
+          12941,
+          13128,
+          12670
+        ],
+        "sample_count": 5,
+        "mean": 11870.0,
+        "median": 12670
+      },
+      "gpu": {
+        "device_count": 1,
+        "total_mib": 12288,
+        "peak_used_mib": 4397.0,
+        "peak_memory_fraction": 0.3578287760416667,
+        "peak_utilization_gpu_percent": 55.0,
+        "mean_utilization_gpu_percent": 14.96,
+        "peak_temperature_c": 54.0,
+        "power": {
+          "availability": "available",
+          "blocking": false,
+          "passed": true,
+          "peak_power_draw_w": 63.74
+        },
+        "required_measurement_checks": {
+          "single_visible_gpu": true,
+          "total_mib_valid": true,
+          "peak_used_mib_valid": true,
+          "peak_utilization_gpu_percent_valid": true,
+          "peak_temperature_c_valid": true,
+          "peak_memory_fraction_at_most_0_90": true
+        }
+      },
+      "numeric_invalid": {
+        "availability": "available",
+        "blocking": false,
+        "passed": true,
+        "maximum": 0.0
+      },
+      "timing": {
+        "started_at": "2026-09-04T13:24:45.9586962+09:00",
+        "ended_at": "2026-09-04T13:25:16.0642258+09:00",
+        "wall_time_seconds": 30.104
+      }
+    },
+    {
+      "num_envs": 2048,
+      "input_report": {
+        "path": "reports/runs/g009_r0_rev24_gpu_throughput_2048env_5iter_s42.json",
+        "sha256": "27da732b114dc2c6432926814777d4335e5df4309acaf760af45288abb1ca8e9"
+      },
+      "passed": true,
+      "gates": {
+        "run_health": true,
+        "repository_clean": true,
+        "source_bundle_matches_commit": true,
+        "success_checks": true,
+        "gpu_measurement_and_recovery": true,
+        "steps_per_second": true,
+        "gpu_required_measurements": true,
+        "gpu_power": true,
+        "numeric_invalid": true,
+        "timing": true,
+        "log_directory_resolution": true
+      },
+      "success_checks": {
+        "process_exit_zero": true,
+        "no_traceback_or_error": true,
+        "requested_iteration_reached": true,
+        "log_directory_exists": true,
+        "tensorboard_exists": true,
+        "checkpoint_exists": true,
+        "gpu_measurement_complete": true,
+        "gpu_recovered_to_baseline": true
+      },
+      "steps_per_second": {
+        "samples": [
+          14874,
+          22947,
+          23020,
+          23168,
+          22576
+        ],
+        "sample_count": 5,
+        "mean": 21317.0,
+        "median": 22947
+      },
+      "gpu": {
+        "device_count": 1,
+        "total_mib": 12288,
+        "peak_used_mib": 4859.0,
+        "peak_memory_fraction": 0.3954264322916667,
+        "peak_utilization_gpu_percent": 67.0,
+        "mean_utilization_gpu_percent": 15.58,
+        "peak_temperature_c": 55.0,
+        "power": {
+          "availability": "available",
+          "blocking": false,
+          "passed": true,
+          "peak_power_draw_w": 68.54
+        },
+        "required_measurement_checks": {
+          "single_visible_gpu": true,
+          "total_mib_valid": true,
+          "peak_used_mib_valid": true,
+          "peak_utilization_gpu_percent_valid": true,
+          "peak_temperature_c_valid": true,
+          "peak_memory_fraction_at_most_0_90": true
+        }
+      },
+      "numeric_invalid": {
+        "availability": "available",
+        "blocking": false,
+        "passed": true,
+        "maximum": 0.0
+      },
+      "timing": {
+        "started_at": "2026-09-04T13:25:59.7822741+09:00",
+        "ended_at": "2026-09-04T13:26:33.0978912+09:00",
+        "wall_time_seconds": 33.314
+      }
+    }
+  ],
+  "sequence_gate": {
+    "environment_order": [
+      1024,
+      2048
+    ],
+    "stage_1024_passed": true,
+    "stage_2048_authorized": true,
+    "stage_2048_input_status": "provided"
+  },
+  "decision": {
+    "passed": true,
+    "stable_max_envs": 2048,
+    "outcome": "throughput_2048_passed"
+  }
+}
