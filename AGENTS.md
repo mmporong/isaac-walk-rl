@@ -47,6 +47,11 @@
 - 학습 stage, 물리 randomization 범위, 평가 지형 또는 정책 checkpoint가 바뀌면 완료 보고 전에 해당 단계의 동작을 다시 촬영한다.
 - 촬영 세트는 로컬 전용 원본 MP4, Git 공개 GIF, 대표 방향 스크린샷 PNG, 촬영 조건·checkpoint·물리 readback·파일 SHA-256을 담은 JSON으로 구성한다.
 - MP4는 `%USERPROFILE%\IsaacLab\logs\visual_evidence\<goal_id>`에만 두고 저장소에는 넣지 않는다. 기존 G008 증거의 `goal_id`는 `g008`이며 경로와 해시는 그대로 유지한다. GIF와 PNG는 각각 10 MiB 아래로 만든다.
+- 다음 촬영부터 원본 MP4는 30fps로 보존한다. 공개 GIF는 15fps를 목표로 만들고 12fps 미만으로 낮추지 않는다.
+- 카메라 GIF는 30fps 원본에서 프레임을 직접 샘플링한다. 텔레메트리 GIF는 소수의 정지 화면을 반복하지 않고 중간 프레임을 실제로 렌더링한다.
+- GIF가 10 MiB를 넘으면 `길이 → 해상도 → 팔레트` 순서로 줄인다. 프레임레이트를 12fps 아래로 낮춰 용량을 맞추지 않는다.
+- sidecar에는 source FPS, target·actual GIF FPS, frame count, duration, 최대 frame duration, temporal strategy, 해상도와 palette 색상 수를 기록한다. 압축 우선순위는 `compression_policy_order`, 실제 수행한 단계는 `compression_steps_applied`로 구분한다.
+- 새 미디어 builder는 MP4를 ffprobe로 검사해 30fps인지 확인하고, `inspect_gif_encoding()`의 실제 측정값을 `validate_gif_encoding_metadata()`로 검증한 뒤에만 결과를 발행한다.
 - 영상은 동작 증거다. 성능 판정은 같은 단계의 다중 환경 정량 평가 JSON을 기준으로 하고, 시각 증거 보고서에서 그 파일의 경로와 SHA-256을 연결한다.
 - 집계 문구나 문서만 바뀌고 실행 동작·물리 조건·checkpoint가 그대로라면 기존 촬영을 재사용할 수 있다. 재사용 여부와 근거는 시각 증거 보고서에 남긴다.
 

@@ -161,6 +161,8 @@ staging에 남은 partial synthesis는 1024 단독 판정 원본으로 보존한
 
 throughput 단계는 카메라로 로봇 동작을 평가하는 실험이 아니다. 모든 프레임에 `PPO THROUGHPUT SMOKE / NOT POLICY QUALIFICATION / NOT RECOVERY EVIDENCE`를 표시한다. 실제 off-screen camera를 녹화하지 않았다면 robot camera footage라고 쓰지 않는다.
 
+원본 MP4는 30fps로 보존한다. 공개 GIF는 15fps를 목표로 만들며 12fps 아래로 낮추지 않는다. `15.01/15.02`처럼 그래프를 직접 그리는 텔레메트리는 몇 장의 정지 화면을 오래 표시하지 않고, 재생 구간 전체의 중간 프레임을 렌더링한다. GIF가 10 MiB를 넘으면 길이, 해상도, 팔레트 순서로 줄이고 프레임레이트는 유지한다. sidecar에는 source FPS, target·actual GIF FPS, frame count, duration, 가장 긴 frame 표시 시간과 temporal strategy를 남긴다. 고정 압축 우선순위와 실제 적용 단계는 각각 `compression_policy_order`, `compression_steps_applied`에 구분해 기록한다. `15.01/15.02` builder는 MP4를 ffprobe로 검사하고 실제 GIF를 `inspect_gif_encoding()`으로 측정한 뒤 계약 검사를 통과해야 한다.
+
 Garden은 이번 준비 상태만으로 새 글을 발행하지 않는다. 최종 runtime 결과와 `15.01/15.02`가 생긴 뒤 공개 가치가 있는지 다시 판단한다. 실패가 나면 내부 기록으로 먼저 보존하고, 후속 성공이나 원인 규명과 함께 설명할 수 있을 때 공개 글에 넣는다.
 
 ## throughput 뒤에 이어질 작업

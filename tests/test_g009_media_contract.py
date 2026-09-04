@@ -14,14 +14,21 @@ from isaac_walk_g009.media_contract import (  # noqa: E402
     C0_EXECUTION_LOG_PATH,
     C0_REQUIRED_EVIDENCE,
     C0_VALIDATOR_JSON_PATH,
+    GIF_COMPRESSION_ORDER,
+    MAX_PUBLIC_GIF_FRAME_DURATION_MS,
     MAX_PUBLIC_MEDIA_BYTES,
+    MIN_PUBLIC_GIF_FPS,
+    SOURCE_VIDEO_FPS,
     STAGE_REGISTRY,
+    TARGET_PUBLIC_GIF_FPS,
     canonical_json_sha256,
     count_g008_local_video_evidence,
+    inspect_gif_encoding,
     local_video_directory,
     public_media_directory,
     validate_c0_evidence,
     validate_contract,
+    validate_gif_encoding_metadata,
     validate_repository_media_rules,
     validate_sidecar,
 )
@@ -33,6 +40,27 @@ EXPECTED_STAGE_IDS = (
     "R3-controlled", "R3-spatial", "D2", "F0B-TV", "R4", "I0",
     "F0B-FINAL", "I1", "D3",
 )
+
+
+def _smooth_gif_metadata(**overrides: object) -> dict[str, object]:
+    value: dict[str, object] = {
+        "source_video_fps": 30.0,
+        "target_gif_fps": 15.0,
+        "actual_gif_fps": 15.0,
+        "gif_frame_count": 84,
+        "gif_duration_seconds": 5.6,
+        "maximum_frame_duration_ms": 70.0,
+        "media_kind": "telemetry",
+        "temporal_strategy": "rendered_intermediate_frames",
+        "compression_policy_order": list(GIF_COMPRESSION_ORDER),
+        "compression_steps_applied": ["trim_duration", "reduce_resolution"],
+        "width": 960,
+        "height": 540,
+        "palette_colors": 128,
+        "bytes": 4 * 1024 * 1024,
+    }
+    value.update(overrides)
+    return value
 
 
 def _artifact(kind: str, path: str, content: bytes, policy: str) -> dict[str, object]:
@@ -60,6 +88,114 @@ def test_registry_is_the_prd_single_source_of_truth() -> None:
         assert {"local_mp4", "public_gif", "public_png", "sidecar_json", "quantitative_report"} <= set(
             contract.required_evidence
         )
+
+
+def test_future_g009_gifs_use_smooth_temporal_contract() -> None:
+    assert SOURCE_VIDEO_FPS == 30.0
+    assert TARGET_PUBLIC_GIF_FPS == 15.0
+    assert MIN_PUBLIC_GIF_FPS == 12.0
+    assert MAX_PUBLIC_GIF_FRAME_DURATION_MS == 84.0
+    assert GIF_COMPRESSION_ORDER == ("trim_duration", "reduce_resolution", "reduce_palette")
+    assert validate_gif_encoding_metadata(_smooth_gif_metadata()) == []
+    assert validate_gif_encoding_metadata(
+        _smooth_gif_metadata(
+            media_kind="camera",
+            temporal_strategy="source_frame_sampling",
+            actual_gif_fps=12.5,
+            gif_frame_count=75,
+            gif_duration_seconds=6.0,
+            maximum_frame_duration_ms=80.0,
+        )
+    ) == []
+
+
+def test_future_g009_gifs_reject_frame_hold_slideshows_and_fps_sacrifice() -> None:
+    errors = validate_gif_encoding_metadata(
+        _smooth_gif_metadata(
+            actual_gif_fps=8 / 5.6,
+            gif_frame_count=8,
+            gif_duration_seconds=5.6,
+            maximum_frame_duration_ms=700.0,
+            temporal_strategy="frame_hold_duplicates",
+            compression_policy_order=["reduce_palette", "reduce_resolution", "trim_duration"],
+            compression_steps_applied=["trim_duration", "reduce_palette"],
+        )
+    )
+    assert any("actual_gif_fps must be between 12 and 30" in error for error in errors)
+    assert any("maximum_frame_duration_ms must be at most 84" in error for error in errors)
+    assert any("telemetry temporal_strategy must be rendered_intermediate_frames" in error for error in errors)
+    assert any("compression_policy_order" in error for error in errors)
+    assert any("compression_steps_applied" in error for error in errors)
+    assert any(
+        "compression_policy_order" in error
+        for error in validate_gif_encoding_metadata(
+            _smooth_gif_metadata(compression_policy_order=None)
+        )
+    )
+
+
+def test_compression_history_accepts_only_policy_prefixes() -> None:
+    for applied in (
+        [],
+        ["trim_duration"],
+        ["trim_duration", "reduce_resolution"],
+        list(GIF_COMPRESSION_ORDER),
+    ):
+        assert validate_gif_encoding_metadata(
+            _smooth_gif_metadata(compression_steps_applied=applied)
+        ) == []
+
+    errors = validate_gif_encoding_metadata(
+        _smooth_gif_metadata(compression_steps_applied=["reduce_resolution"])
+    )
+    assert errors == [
+        "compression_steps_applied must be a prefix of compression_policy_order"
+    ]
+
+
+def test_smooth_gif_metadata_rejects_non_objects_without_crashing() -> None:
+    for metadata in (None, [], "bad", 1):
+        assert validate_gif_encoding_metadata(metadata) == ["gif_encoding must be an object"]
+
+
+def test_smooth_gif_metadata_rejects_invalid_dimensions_palette_and_size() -> None:
+    cases = (
+        ({"width": None}, "width must be a positive integer"),
+        ({"height": True}, "height must be a positive integer"),
+        ({"palette_colors": -1}, "palette_colors must be an integer from 2 through 256"),
+        ({"bytes": -1}, "bytes must be a positive integer"),
+        ({"bytes": MAX_PUBLIC_MEDIA_BYTES + 1}, "GIF exceeds 10 MiB"),
+    )
+    for overrides, expected_error in cases:
+        assert expected_error in validate_gif_encoding_metadata(
+            _smooth_gif_metadata(**overrides)
+        )
+
+
+def test_smooth_gif_inspector_exposes_encoded_timing(tmp_path: Path) -> None:
+    from PIL import Image
+
+    path = tmp_path / "choppy.gif"
+    frames = [Image.new("RGB", (2, 2), (index * 20, 0, 0)) for index in range(8)]
+    try:
+        frames[0].save(
+            path,
+            save_all=True,
+            append_images=frames[1:],
+            duration=700,
+            loop=0,
+            optimize=False,
+        )
+    finally:
+        for frame in frames:
+            frame.close()
+
+    measured = inspect_gif_encoding(path)
+    errors = validate_gif_encoding_metadata(_smooth_gif_metadata(**measured))
+    assert measured["gif_frame_count"] == 8
+    assert measured["maximum_frame_duration_ms"] == 700.0
+    assert any("actual_gif_fps must be between 12 and 30" in error for error in errors)
+    assert any("maximum_frame_duration_ms must be at most 84" in error for error in errors)
 
 
 def test_c0_allows_only_governance_evidence() -> None:
@@ -316,6 +452,18 @@ def test_cli_emits_json_and_nonzero_on_failure(tmp_path: Path) -> None:
     assert result["g008_regression"]["execution_status"] == "not_run"
     assert result["g008_regression"]["local_video_references_checked"] > 0
     assert result["rule_diff"]["g008_compatibility_preserved"] is True
+    assert result["gif_encoding"] == {
+        "source_video_fps": 30.0,
+        "target_gif_fps": 15.0,
+        "minimum_gif_fps": 12.0,
+        "maximum_frame_duration_ms": 84.0,
+        "compression_policy_order": [
+            "trim_duration",
+            "reduce_resolution",
+            "reduce_palette",
+        ],
+    }
+    assert "smooth_gif_temporal_contract" in result["checked"]
     assert set(result["source_bindings"]) == {"agents_sha256", "contract_sha256", "validator_sha256"}
 
     invalid = tmp_path / "invalid.json"

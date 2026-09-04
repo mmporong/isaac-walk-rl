@@ -673,3 +673,9 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 - source 검증은 `test_g009_benchmark_bootstrap.py`, `test_g009_r0_rev24_gpu_throughput.py`, `test_g009_recover_contracts.py`, `test_g009_training_qualification.py`를 묶어 `46 passed`로 마쳤다. Isaac 번들 구성은 `test_g009_recover_config.py`의 `7 passed`다. PowerShell safety gate와 G005/G006 queue regression, canonical contract sync, `py_compile`, PowerShell parser, `git diff --check`, 공식 benchmark source binding도 PASS했다. 독립 검토에서 HIGH/MEDIUM blocker는 없었다.
 - 이번 체크포인트에서는 실제 `1024/2048 env` 프로세스를 시작하지 않았다. 새 PPO checkpoint, runtime report, MP4, GIF, PNG가 없고 Garden에도 발행하지 않는다. 다음 세션은 원격 `main`과 일치하는 clean worktree에서 1024 rung부터 재개한다.
 - exact 실행 명령, 1024 partial report의 staging, 2048 승인 조건, 번호 `15.01/15.02` 미디어 계획은 `docs/G009_REV24_GPU_THROUGHPUT_CHECKPOINT.md`에 기록했다. throughput PASS는 matrix Gate01 또는 policy qualification PASS가 아니다.
+
+#### rev24 E017 이후 미디어 프레임 계약 보정
+
+- rev23 번호 `14.01/14.02` GIF는 `8 frames / 5.6s`, 약 `1.43fps`라서 각 화면이 `700ms`씩 멈춰 보였다. 로컬 MP4를 30fps로 인코딩해도 원본 key frame이 8장뿐이면 GIF 움직임은 부드러워지지 않는다.
+- 다음 번호 `15.01/15.02`부터 원본 MP4는 30fps로 보존하고 GIF는 15fps를 목표로 만든다. hard floor는 12fps다. 카메라는 원본 프레임을 샘플링하고 텔레메트리는 구간별 중간 프레임을 실제로 렌더링한다.
+- 10 MiB를 넘으면 길이, 해상도, 팔레트 순서로 조정한다. 용량을 맞추려고 12fps 아래로 낮추거나 같은 frame을 반복해 FPS 숫자만 올리지 않는다. sidecar에 실제 frame count, duration, 최대 frame duration과 temporal strategy를 기록하고, 고정 우선순위 `compression_policy_order`와 실제 적용 이력 `compression_steps_applied`를 분리한다.

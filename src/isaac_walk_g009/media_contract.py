@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 from dataclasses import dataclass
@@ -18,6 +19,15 @@ C0_EXECUTION_LOG_PATH = "reports/validation/g009_c0_media_contract.log"
 G008_LOCAL_VIDEO_PREFIX = "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g008\\"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GIT_COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+SOURCE_VIDEO_FPS = 30.0
+TARGET_PUBLIC_GIF_FPS = 15.0
+MIN_PUBLIC_GIF_FPS = 12.0
+MAX_PUBLIC_GIF_FRAME_DURATION_MS = 84.0
+GIF_COMPRESSION_ORDER = ("trim_duration", "reduce_resolution", "reduce_palette")
+GIF_TEMPORAL_STRATEGIES: Mapping[str, str] = {
+    "camera": "source_frame_sampling",
+    "telemetry": "rendered_intermediate_frames",
+}
 
 
 @dataclass(frozen=True)
@@ -125,6 +135,133 @@ def canonical_json_sha256(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def _finite_number(value: Any) -> bool:
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(float(value))
+    )
+
+
+def _positive_integer(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+
+def validate_gif_encoding_metadata(metadata: Any) -> list[str]:
+    """Validate metadata produced from a future G009 GIF after encoding."""
+
+    if not isinstance(metadata, Mapping):
+        return ["gif_encoding must be an object"]
+
+    errors: list[str] = []
+    source_fps = metadata.get("source_video_fps")
+    target_fps = metadata.get("target_gif_fps")
+    actual_fps = metadata.get("actual_gif_fps")
+    frame_count = metadata.get("gif_frame_count")
+    duration_seconds = metadata.get("gif_duration_seconds")
+    maximum_frame_duration_ms = metadata.get("maximum_frame_duration_ms")
+    media_kind = metadata.get("media_kind")
+    temporal_strategy = metadata.get("temporal_strategy")
+
+    if not _finite_number(source_fps) or not math.isclose(float(source_fps), SOURCE_VIDEO_FPS):
+        errors.append(f"source_video_fps must be {SOURCE_VIDEO_FPS:g}")
+    if not _finite_number(target_fps) or not math.isclose(float(target_fps), TARGET_PUBLIC_GIF_FPS):
+        errors.append(f"target_gif_fps must be {TARGET_PUBLIC_GIF_FPS:g}")
+    if not _finite_number(actual_fps):
+        errors.append("actual_gif_fps must be finite")
+    elif not MIN_PUBLIC_GIF_FPS <= float(actual_fps) <= SOURCE_VIDEO_FPS:
+        errors.append(
+            f"actual_gif_fps must be between {MIN_PUBLIC_GIF_FPS:g} and {SOURCE_VIDEO_FPS:g}"
+        )
+
+    if not isinstance(frame_count, int) or isinstance(frame_count, bool) or frame_count < 2:
+        errors.append("gif_frame_count must be an integer greater than one")
+    if not _finite_number(duration_seconds) or float(duration_seconds) <= 0.0:
+        errors.append("gif_duration_seconds must be positive and finite")
+    if (
+        isinstance(frame_count, int)
+        and not isinstance(frame_count, bool)
+        and frame_count >= 2
+        and _finite_number(duration_seconds)
+        and float(duration_seconds) > 0.0
+        and _finite_number(actual_fps)
+    ):
+        derived_fps = frame_count / float(duration_seconds)
+        if not math.isclose(float(actual_fps), derived_fps, rel_tol=0.02, abs_tol=0.05):
+            errors.append("actual_gif_fps does not match frame_count/duration")
+
+    if not _finite_number(maximum_frame_duration_ms):
+        errors.append("maximum_frame_duration_ms must be finite")
+    elif not 0.0 < float(maximum_frame_duration_ms) <= MAX_PUBLIC_GIF_FRAME_DURATION_MS:
+        errors.append(
+            f"maximum_frame_duration_ms must be at most {MAX_PUBLIC_GIF_FRAME_DURATION_MS:g}"
+        )
+
+    if media_kind not in GIF_TEMPORAL_STRATEGIES:
+        errors.append("media_kind must be camera or telemetry")
+    elif temporal_strategy != GIF_TEMPORAL_STRATEGIES[media_kind]:
+        errors.append(f"{media_kind} temporal_strategy must be {GIF_TEMPORAL_STRATEGIES[media_kind]}")
+
+    compression_policy = metadata.get("compression_policy_order")
+    if not isinstance(compression_policy, list) or tuple(compression_policy) != GIF_COMPRESSION_ORDER:
+        errors.append(
+            "compression_policy_order must be trim_duration, reduce_resolution, reduce_palette"
+        )
+
+    compression_steps = metadata.get("compression_steps_applied")
+    if not isinstance(compression_steps, list) or tuple(compression_steps) != GIF_COMPRESSION_ORDER[
+        : len(compression_steps)
+    ]:
+        errors.append("compression_steps_applied must be a prefix of compression_policy_order")
+
+    for field in ("width", "height"):
+        if not _positive_integer(metadata.get(field)):
+            errors.append(f"{field} must be a positive integer")
+    palette_colors = metadata.get("palette_colors")
+    if not _positive_integer(palette_colors) or not 2 <= palette_colors <= 256:
+        errors.append("palette_colors must be an integer from 2 through 256")
+    byte_count = metadata.get("bytes")
+    if not _positive_integer(byte_count):
+        errors.append("bytes must be a positive integer")
+    elif byte_count > MAX_PUBLIC_MEDIA_BYTES:
+        errors.append("GIF exceeds 10 MiB")
+
+    return errors
+
+
+def inspect_gif_encoding(path: Path) -> dict[str, Any]:
+    """Read the timing fields future builders must write to their sidecar."""
+
+    try:
+        from PIL import Image
+
+        with Image.open(path) as image:
+            if image.format != "GIF":
+                raise ValueError("file is not a GIF")
+            width, height = image.size
+            frame_count = image.n_frames
+            frame_durations_ms: list[float] = []
+            for frame_index in range(frame_count):
+                image.seek(frame_index)
+                duration_ms = image.info.get("duration")
+                if not _finite_number(duration_ms) or float(duration_ms) <= 0.0:
+                    raise ValueError(f"frame {frame_index} has no positive duration")
+                frame_durations_ms.append(float(duration_ms))
+    except OSError as exc:
+        raise ValueError(f"timing inspection failed: {exc}") from exc
+
+    total_duration_seconds = sum(frame_durations_ms) / 1000.0
+    return {
+        "actual_gif_fps": frame_count / total_duration_seconds,
+        "gif_frame_count": frame_count,
+        "gif_duration_seconds": total_duration_seconds,
+        "maximum_frame_duration_ms": max(frame_durations_ms),
+        "width": width,
+        "height": height,
+        "bytes": path.stat().st_size,
+    }
+
+
 def local_video_directory(stage_id: str) -> str:
     _require_known_stage(stage_id)
     return f"{LOCAL_VIDEO_PREFIX}\\{stage_id}"
@@ -179,6 +316,15 @@ def validate_contract() -> list[str]:
         errors.append("stage report prefix registry mismatch")
     if set(C0_REQUIRED_EVIDENCE) & set(C0_FORBIDDEN_EVIDENCE):
         errors.append("C0 required and forbidden evidence overlap")
+    if not SOURCE_VIDEO_FPS >= TARGET_PUBLIC_GIF_FPS >= MIN_PUBLIC_GIF_FPS >= 12.0:
+        errors.append("smooth GIF frame-rate contract is invalid")
+    if GIF_COMPRESSION_ORDER != ("trim_duration", "reduce_resolution", "reduce_palette"):
+        errors.append("smooth GIF compression order is invalid")
+    if GIF_TEMPORAL_STRATEGIES != {
+        "camera": "source_frame_sampling",
+        "telemetry": "rendered_intermediate_frames",
+    }:
+        errors.append("smooth GIF temporal strategies are invalid")
     for stage_id, contract in STAGE_REGISTRY.items():
         if len(contract.required_evidence) != len(set(contract.required_evidence)):
             errors.append(f"{stage_id}: duplicate required evidence")
