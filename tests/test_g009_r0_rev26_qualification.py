@@ -220,6 +220,21 @@ def test_bootstrap_validates_pinned_commit_and_train_hash(
         bootstrap.validate_upstream(tmp_path)
 
 
+def test_bootstrap_git_failure_preserves_exit_and_stderr(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        bootstrap.subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args=args[0], returncode=23, stdout="partial stdout\n", stderr="fatal: fixture failure\n"
+        ),
+    )
+
+    with pytest.raises(RuntimeError, match=r"exit=23.*fatal: fixture failure"):
+        bootstrap._git_stdout(tmp_path, "status", "--porcelain=v1")
+
+
 def test_evaluator_revalidates_upstream_source_and_cleanliness(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

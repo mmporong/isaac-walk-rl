@@ -29,25 +29,30 @@ def _file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _git_stdout(root: Path, *arguments: str) -> str:
+    result = subprocess.run(
+        ["git", *arguments], cwd=root, check=False, capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            "Isaac Lab git command failed: "
+            f"args={list(arguments)!r} exit={result.returncode} "
+            f"stdout={result.stdout.strip()!r} stderr={result.stderr.strip()!r}"
+        )
+    return result.stdout
+
+
 def validate_upstream(isaaclab_root: Path) -> Path:
     root = isaaclab_root.resolve()
     upstream = root / "scripts" / "reinforcement_learning" / "rsl_rl" / "train.py"
     if not upstream.is_file():
         raise FileNotFoundError(f"official train.py not found under Isaac Lab working directory: {upstream}")
-    commit = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=root, check=True, capture_output=True, text=True
-    ).stdout.strip()
+    commit = _git_stdout(root, "rev-parse", "HEAD").strip()
     if commit != EXPECTED_ISAACLAB_COMMIT:
         raise RuntimeError(
             f"Isaac Lab commit mismatch: expected={EXPECTED_ISAACLAB_COMMIT} actual={commit}"
         )
-    tracked_status = subprocess.run(
-        ["git", "status", "--porcelain=v1", "--untracked-files=no"],
-        cwd=root,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout
+    tracked_status = _git_stdout(root, "status", "--porcelain=v1", "--untracked-files=no")
     if tracked_status.strip():
         raise RuntimeError("Isaac Lab tracked worktree must be clean")
     actual_sha256 = _file_sha256(upstream)

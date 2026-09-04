@@ -15,6 +15,7 @@ function Assert {
 $root = Split-Path -Parent $PSScriptRoot
 $harness = Join-Path $root 'scripts\run_training.ps1'
 $pwsh = (Get-Command pwsh -ErrorAction Stop).Source
+$actualGit = (Get-Command git -ErrorAction Stop).Source
 $tempRoot = Join-Path $PSScriptRoot ('.g009-training-safety-' + [guid]::NewGuid().ToString('N'))
 $fakeLab = Join-Path $tempRoot 'IsaacLab'
 $fakePythonDirectory = Join-Path $fakeLab '_isaac_sim'
@@ -23,6 +24,28 @@ $mockBin = Join-Path $tempRoot 'bin'
 $originalPath = $env:PATH
 $originalCase = [Environment]::GetEnvironmentVariable('G009_FAKE_SAFETY_CASE', 'Process')
 $originalLogRoot = [Environment]::GetEnvironmentVariable('G009_FAKE_LOG_ROOT', 'Process')
+$originalGitCase = [Environment]::GetEnvironmentVariable('G009_FAKE_GIT_CASE', 'Process')
+
+function Invoke-QualificationGitCase {
+    param([string]$CaseName)
+
+    $env:G009_FAKE_GIT_CASE = $CaseName
+    $arguments = @(
+        '-NoProfile', '-File', $harness,
+        '-Task', 'Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0',
+        '-NumEnvs', '1024',
+        '-MaxIterations', '300',
+        '-Seed', '42',
+        '-RunName', "g009_git_$CaseName",
+        '-Qualification',
+        '-IsaacLabPath', $fakeLab,
+        '-ReportPath', (Join-Path $tempRoot "git-$CaseName.json"),
+        '-TrainingEntrypointPath', (Join-Path $root 'scripts\bootstrap_train_g009.py'),
+        '-SourceBindingPaths', 'configs/g009_r0_rev26_qualification.json'
+    )
+    $output = @(& $pwsh @arguments 2>&1)
+    return [pscustomobject]@{ ExitCode = $LASTEXITCODE; Output = $output -join "`n" }
+}
 
 function Invoke-TrainingCase {
     param(
@@ -67,6 +90,8 @@ New-Item -ItemType Directory -Path $fakePythonDirectory, $fakeLogRoot, $mockBin 
 $fakePythonBat = Join-Path $fakePythonDirectory 'python.bat'
 $fakePythonHelper = Join-Path $fakePythonDirectory 'fake_python.ps1'
 $nvidiaSmiFixture = Join-Path $mockBin 'nvidia-smi.cmd'
+$gitFixture = Join-Path $mockBin 'git.cmd'
+$gitFixtureHelper = Join-Path $mockBin 'git-fixture.ps1'
 
 [IO.File]::WriteAllLines(
     $fakePythonBat,
@@ -177,10 +202,68 @@ exit 0
     @('@echo off', 'echo 1000, 10, 50, 20, 12288', 'exit /b 0'),
     [Text.Encoding]::ASCII
 )
+[IO.File]::WriteAllText(
+    $gitFixtureHelper,
+    @"
+param([Parameter(ValueFromRemainingArguments = `$true)][string[]]`$Remaining)
+`$fakeLab = '$fakeLab'
+`$cIndex = [Array]::IndexOf(`$Remaining, '-C')
+`$targetsFakeLab = `$cIndex -ge 0 -and `$cIndex + 1 -lt `$Remaining.Count -and `$Remaining[`$cIndex + 1] -eq `$fakeLab
+if (`$targetsFakeLab -and `$Remaining -contains 'rev-parse' -and `$Remaining -contains 'HEAD') {
+    if (`$env:G009_FAKE_GIT_CASE -eq 'commit_failure_status_clean') {
+        [Console]::Error.WriteLine('fatal: fixture-commit-failure')
+        exit 23
+    }
+    Write-Output '90b79bb2d44feb8d833f260f2bf37da3487180ba'
+    exit 0
+}
+if (`$targetsFakeLab -and `$Remaining -contains 'status' -and `$Remaining -contains '--untracked-files=no') {
+    if (`$env:G009_FAKE_GIT_CASE -eq 'status_failure') {
+        [Console]::Error.WriteLine('fatal: fixture-status-failure')
+        exit 31
+    }
+    if (`$env:G009_FAKE_GIT_CASE -eq 'tracked_line') {
+        Write-Output ' M scripts/reinforcement_learning/rsl_rl/train.py'
+    }
+    exit 0
+}
+& '$actualGit' @Remaining
+exit `$LASTEXITCODE
+"@,
+    [Text.UTF8Encoding]::new($false)
+)
+[IO.File]::WriteAllLines(
+    $gitFixture,
+    @('@echo off', 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0git-fixture.ps1" %*', 'exit /b %ERRORLEVEL%'),
+    [Text.Encoding]::ASCII
+)
 
 $env:PATH = $mockBin + [IO.Path]::PathSeparator + $originalPath
 $env:G009_FAKE_LOG_ROOT = $fakeLogRoot
 try {
+    $cleanGit = Invoke-QualificationGitCase -CaseName 'clean_empty'
+    Assert ($cleanGit.ExitCode -ne 0) "clean git fixture still stops at unrelated qualification prerequisites; actual=$($cleanGit.Output)"
+    Assert (-not $cleanGit.Output.Contains('git status 실패')) 'clean empty status must not be reported as git failure'
+    Assert (-not $cleanGit.Output.Contains('tracked 변경 감지')) 'clean empty status must not be reported as tracked changes'
+
+    $staleExit = Invoke-QualificationGitCase -CaseName 'commit_failure_status_clean'
+    $staleText = (($staleExit.Output -replace '\s*\|\s*', ' ') -replace '\s+', ' ')
+    Assert ($staleText.Contains('git rev-parse 실패: exit=23')) "commit failure exit code must be captured immediately; actual=$($staleExit.Output)"
+    Assert ($staleText.Contains('fixture-commit-failure')) 'commit failure stderr must be preserved'
+    Assert (-not $staleExit.Output.Contains('tracked 변경 감지')) 'prior nonzero exit must not poison clean status result'
+
+    $gitFailure = Invoke-QualificationGitCase -CaseName 'status_failure'
+    $gitFailureText = (($gitFailure.Output -replace '\s*\|\s*', ' ') -replace '\s+', ' ')
+    Assert ($gitFailureText.Contains('git status 실패: exit=31')) 'status failure exit code must be distinct'
+    Assert ($gitFailureText.Contains('fixture-status-failure')) 'status failure stderr must be preserved'
+    Assert (-not $gitFailure.Output.Contains('tracked 변경 감지')) 'git failure must not be mislabeled as tracked changes'
+
+    $trackedLine = Invoke-QualificationGitCase -CaseName 'tracked_line'
+    $trackedLineText = (($trackedLine.Output -replace '\s*\|\s*', ' ') -replace '\s+', ' ')
+    Assert ($trackedLineText.Contains('tracked 변경 감지: count=1')) 'one normalized tracked line must report exact count'
+    Assert ($trackedLineText.Contains('M scripts/reinforcement_learning/rsl_rl/train.py')) 'tracked line details must be preserved'
+
+    Remove-Item Env:G009_FAKE_GIT_CASE -ErrorAction SilentlyContinue
     $pass = Invoke-TrainingCase -CaseName 'pass' -SafetyGate
     Assert ($pass.ExitCode -eq 0) 'zero-valued required series must pass'
     Assert ($pass.Report.passed -eq $true) 'pass report must be passed'
@@ -326,6 +409,12 @@ finally {
     }
     else {
         $env:G009_FAKE_LOG_ROOT = $originalLogRoot
+    }
+    if ($null -eq $originalGitCase) {
+        Remove-Item Env:G009_FAKE_GIT_CASE -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:G009_FAKE_GIT_CASE = $originalGitCase
     }
     if (Test-Path -LiteralPath $tempRoot) {
         Remove-Item -LiteralPath $tempRoot -Recurse -Force

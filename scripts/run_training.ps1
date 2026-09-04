@@ -602,20 +602,71 @@ if ($Qualification) {
         if (-not $trainScript.Equals($expectedG009Entrypoint, [System.StringComparison]::OrdinalIgnoreCase)) {
             $qualificationFailures.Add('G009 R0 training entrypoint가 bootstrap_train_g009.py와 일치하지 않음')
         }
-        [string[]]$isaacLabCommit = if ($null -ne $gitCommand) {
-            @(& $gitCommand.Source -C $isaacLabFullPath rev-parse HEAD 2>$null)
+        $isaacLabCommitStderrPath = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-git-commit-' + [guid]::NewGuid().ToString('N') + '.stderr')
+        try {
+            [string[]]$isaacLabCommitStdout = @()
+            if ($null -ne $gitCommand) {
+                $isaacLabCommitStdout = @(& $gitCommand.Source -C $isaacLabFullPath rev-parse HEAD 2> $isaacLabCommitStderrPath)
+                $isaacLabCommitExitCode = $LASTEXITCODE
+            }
+            else {
+                $isaacLabCommitExitCode = 127
+            }
+            $isaacLabCommitStderr = if (Test-Path -LiteralPath $isaacLabCommitStderrPath) {
+                $commitStderrContent = Get-Content -LiteralPath $isaacLabCommitStderrPath -Raw
+                if ($null -eq $commitStderrContent) { '' } else { $commitStderrContent.Trim() }
+            }
+            else { '' }
         }
-        else { @() }
-        if ($isaacLabCommit.Count -eq 0 -or $LASTEXITCODE -ne 0 -or ([string]$isaacLabCommit[-1]).Trim() -ne $expectedIsaacLabCommit) {
-            $qualificationFailures.Add('Isaac Lab commit이 pinned v2.1.1 commit과 일치하지 않음')
+        finally {
+            Remove-Item -LiteralPath $isaacLabCommitStderrPath -Force -ErrorAction SilentlyContinue
         }
-        [string[]]$isaacLabTrackedStatus = if ($null -ne $gitCommand) {
-            @(& $gitCommand.Source -C $isaacLabFullPath status --porcelain=v1 --untracked-files=no 2>$null)
+        [string[]]$isaacLabCommitLines = @(
+            $isaacLabCommitStdout |
+                ForEach-Object { ([string]$_).Trim() } |
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+        )
+        $isaacLabCommit = if ($isaacLabCommitLines.Count -eq 1) { $isaacLabCommitLines[0] } else { $null }
+        if ($isaacLabCommitExitCode -ne 0) {
+            $qualificationFailures.Add("Isaac Lab git rev-parse 실패: exit=$isaacLabCommitExitCode stderr=$isaacLabCommitStderr")
         }
-        else { @('__git_unavailable__') }
-        $isaacLabTrackedClean = $LASTEXITCODE -eq 0 -and @($isaacLabTrackedStatus).Count -eq 0
-        if (-not $isaacLabTrackedClean) {
-            $qualificationFailures.Add('Isaac Lab tracked worktree가 clean 상태가 아님')
+        elseif ($isaacLabCommit -ne $expectedIsaacLabCommit) {
+            $actualCommitText = if ($null -eq $isaacLabCommit) { '<missing-or-multiple>' } else { $isaacLabCommit }
+            $qualificationFailures.Add("Isaac Lab commit 불일치: expected=$expectedIsaacLabCommit actual=$actualCommitText")
+        }
+
+        $isaacLabStatusStderrPath = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-git-status-' + [guid]::NewGuid().ToString('N') + '.stderr')
+        try {
+            [string[]]$isaacLabStatusStdout = @()
+            if ($null -ne $gitCommand) {
+                $isaacLabStatusStdout = @(& $gitCommand.Source -C $isaacLabFullPath status --porcelain=v1 --untracked-files=no 2> $isaacLabStatusStderrPath)
+                $isaacLabStatusExitCode = $LASTEXITCODE
+            }
+            else {
+            $isaacLabStatusExitCode = 127
+            }
+            $isaacLabStatusStderr = if (Test-Path -LiteralPath $isaacLabStatusStderrPath) {
+                $statusStderrContent = Get-Content -LiteralPath $isaacLabStatusStderrPath -Raw
+                if ($null -eq $statusStderrContent) { '' } else { $statusStderrContent.Trim() }
+            }
+            else { '' }
+        }
+        finally {
+            Remove-Item -LiteralPath $isaacLabStatusStderrPath -Force -ErrorAction SilentlyContinue
+        }
+        [string[]]$isaacLabTrackedStatusLines = @(
+            $isaacLabStatusStdout |
+                ForEach-Object { ([string]$_).TrimEnd() } |
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+        )
+        $isaacLabTrackedClean = $isaacLabStatusExitCode -eq 0 -and $isaacLabTrackedStatusLines.Count -eq 0
+        if ($isaacLabStatusExitCode -ne 0) {
+            $qualificationFailures.Add("Isaac Lab git status 실패: exit=$isaacLabStatusExitCode stderr=$isaacLabStatusStderr")
+        }
+        elseif ($isaacLabTrackedStatusLines.Count -gt 0) {
+            $qualificationFailures.Add(
+                "Isaac Lab tracked 변경 감지: count=$($isaacLabTrackedStatusLines.Count) lines=$($isaacLabTrackedStatusLines -join ' | ')"
+            )
         }
         $officialTrainHash = if (Test-Path -LiteralPath $officialTrainScript -PathType Leaf) {
             (Get-FileHash -LiteralPath $officialTrainScript -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -1004,7 +1055,7 @@ $report = [ordered]@{
     }
     upstream = [ordered]@{
         isaac_lab_expected_commit = $expectedIsaacLabCommit
-        isaac_lab_commit = if ($Qualification) { ([string]$isaacLabCommit[-1]).Trim() } else { $null }
+        isaac_lab_commit = if ($Qualification) { $isaacLabCommit } else { $null }
         official_train_path = Convert-ToPortablePath $officialTrainScript
         official_train_expected_sha256 = $expectedOfficialTrainSha256
         official_train_sha256 = if ($Qualification) { $officialTrainHash } else { $null }
