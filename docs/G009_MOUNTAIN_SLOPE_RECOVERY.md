@@ -5,8 +5,8 @@
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0·S0 완료, G009-5 R0 rev1~rev16 학습·안전 실패 진단과 rev17~rev23 접촉 관측 계보를 마쳤다. rev23 E016에서 read-only matrix observation adapter의 CPU/GPU `2×2` runtime correctness를 검증했고, rev24 E017에서는 active `8/0` 계약과 공식 `1024 → 2048 env` GPU throughput smoke의 실행 경로·판정기를 고정했다.
-- 현재 한계: 최신 실제 runtime 결과는 rev23이다. rev24는 소스·사전등록·검증만 끝났고 새 Isaac Sim 실행, PPO rollout, optimizer update, checkpoint, 영상은 없다. throughput smoke는 실행해도 policy qualification이나 복구 성공을 뜻하지 않는다. source는 filtered normal contact-force vector이며 total·tangential force, 마찰 효과의 직접 관측, physics ground truth, CPU↔GPU 수치 동등성, 보행·회전·경사·전복 복구 성공을 뜻하지 않는다. `learned_policy_qualified=false`를 유지한다.
+- 현재 단계: C0·S0 완료, G009-5 R0 rev1~rev16 학습·안전 실패 진단과 rev17~rev23 접촉 관측 계보를 마쳤다. rev23 E016에서 read-only matrix observation adapter의 CPU/GPU `2×2` runtime correctness를 검증했고, rev24 E017에서는 active `8/0` 계약과 공식 `1024 → 2048 env` GPU throughput smoke의 실행 경로·판정기를 고정했다. 1024 첫 실행은 runtime 건강 수치를 얻었지만 교차언어 source-bundle 정렬 불일치로 canonical gate에서 기각했고, 2048은 열지 않았다.
+- 현재 한계: rev24에서 새 Isaac Sim headless PPO throughput diagnostic과 checkpoint가 실제로 생성됐지만 wrapper의 runtime health PASS와 별개로 canonical source-bundle gate가 FAIL해 1024 rung 자체는 기각됐다. 2048, Matrix Gate01과 정식 qualification은 미실행이며 새 영상도 없다. throughput smoke는 policy qualification이나 복구 성공을 뜻하지 않는다. source는 filtered normal contact-force vector이며 total·tangential force, 마찰 효과의 직접 관측, physics ground truth, CPU↔GPU 수치 동등성, 보행·회전·경사·전복 복구 성공을 뜻하지 않는다. `learned_policy_qualified=false`를 유지한다.
 
 ## 작업 순번
 
@@ -18,7 +18,7 @@
 | `G009-2` | `S0` | 6개 경사 × 4개 방위 analytic gate | `24/24` 통과 |
 | `G009-3` | `S0` | collision mesh, material, support-normal reset의 Isaac runtime readback | 완료 |
 | `G009-4` | `S0` | 5°·15°·25° 동일 조건 headless 재생 | 완료, 25°는 실패 경계 |
-| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO와 선행 안전·관측 진단 | rev24 E017 GPU throughput 계약·하네스 준비 완료, 실제 `1024/2048` 실행·matrix Gate01·새 PPO 미실행 |
+| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO와 선행 안전·관측 진단 | rev24 E017 1024 첫 실행은 provenance 정렬 오류로 기각, 2048·matrix Gate01·정식 PPO 미실행 |
 | `G009-6` | `S1-low` | 5°·10° 횡경사 WALK PPO | R0·calibration 뒤 실행 |
 
 이후 `S1-high`, 외란, residual terrain, 발별·공간 마찰, 경사 RECOVER와 link-mass를 순차적으로 연다. 전체 stage 순서는 [다음 학습과 검증 순서](#다음-학습과-검증-순서)에 있다.
@@ -1609,7 +1609,15 @@ active 계약은 `g009_r0_recover_rev24`, SHA-256 `64eb108bb736d9ba8c1727c3a56dd
 
 실행 wrapper는 G009 task를 등록한 뒤 Isaac Lab 공식 `scripts/benchmarks/benchmark_rsl_rl.py`로 넘긴다. 공식 파일 SHA-256, Isaac Lab commit과 tracked source clean 상태가 다르면 시작 전에 닫힌다. 각 report는 정확히 5개의 양의 유한 `steps/s`, 단일 visible GPU, VRAM `≤90%`, utilization·temperature·power telemetry, checkpoint·TensorBoard, GPU baseline recovery, 저장소 HEAD와 필수 source 12개의 hash binding을 요구한다. 1024 report가 PASS하지 않으면 2048을 실행하지 않는다.
 
-구현 커밋은 `134b6ee31c5ef220048eaaf632f7872a86122258`이다. 이 커밋에서 source와 판정기를 검증했지만 실제 `1024/2048 env` 프로세스는 시작하지 않았다. 새 PPO checkpoint, runtime report, 영상, GIF, PNG도 없다. Garden 발행은 최종 runtime 결과와 번호 `15.01/15.02` telemetry media가 생긴 뒤 다시 판단한다. 실행 명령, staging 순서와 중단 해제 조건은 [rev24 GPU throughput 실행 인계](G009_REV24_GPU_THROUGHPUT_CHECKPOINT.md)에 고정했다.
+구현 커밋 `134b6ee31c5ef220048eaaf632f7872a86122258`에서는 source와 판정기만 검증했고 실제 `1024/2048 env` 프로세스를 시작하지 않았다. 이후 commit `1c0b35c2f13b77620d57ad62175ddb87f68bf828`에서 1024 diagnostic run과 checkpoint를 생성했지만 아래 canonical provenance gate에서 기각했다. 2048과 번호 `15.01/15.02` 미디어는 아직 없다. Garden 발행은 최종 runtime 결과와 telemetry media가 생긴 뒤 다시 판단한다. 실행 명령, staging 순서와 중단 해제 조건은 [rev24 GPU throughput 실행 인계](G009_REV24_GPU_THROUGHPUT_CHECKPOINT.md)에 고정했다.
+
+##### rev24 E017 1024 첫 실행 기각과 source-bundle 정렬 보정
+
+- 2026-09-04 clean commit `1c0b35c2f13b77620d57ad62175ddb87f68bf828`에서 seed `42`, `1024 env × 24 steps × 5 iterations` headless scratch PPO를 실제 실행했다. exit code `0`, 정확히 5개 `steps/s` 표본, peak VRAM `4,397/12,288MiB`, peak GPU utilization `64%`, peak temperature `55°C`, numeric invalid maximum `0`, checkpoint SHA-256 `0d745dca05a97dd1849b584a0dae100642990afaf07432f416910507c41b67be`를 얻었다.
+- 이 수치만 보면 runtime health gate는 통과했지만 canonical synthesis는 `source_bundle_matches_commit=false`로 기각했다. 원인은 PowerShell `Sort-Object`의 문화권 정렬과 Python `sorted()`의 ordinal 정렬이 `configs/g009_r0.json`과 `configs/g009_r0_rev24_gpu_throughput.json`의 순서를 다르게 만든 교차언어 aggregate SHA-256 버그다.
+- 기각 raw report SHA-256은 `fd798eb3afd6e79e123f1d85971b6a9b24599f4a4724aa94ca6c06cbfe57c828`, 기각 synthesis SHA-256은 `6782044cbd46dadc4f2becba4eb5d5efb27ebcbc182447630980d75f0dbef596`다. 이 결과를 1024 PASS나 policy qualification으로 재사용하지 않는다.
+- `run_training.ps1`은 raw 입력을 repo-relative path로 정규화하고 Git tracked path의 실제 casing으로 canonicalize한 뒤 `OrdinalIgnoreCase`로 absolute/relative·case alias를 중복 제거하고 `StringComparer.Ordinal`로 정렬한다. 새 교차언어·alias 회귀를 포함한 rev24/qualification pytest는 `47 passed`, 기존 PowerShell training safety gate와 parser도 PASS했다.
+- 계약에 따라 `2048 env`, Matrix Gate01, R0 qualification은 열지 않았다. 수정이 clean commit으로 반영된 뒤 1024부터 새 canonical report로 다시 실행한다. 기각 시도에는 `15.01` 미디어를 만들지 않는다.
 
 ![rev12 gate10 full-state 역학 진단](media/g009/R0/diagnostic/g009_5_r0_diag_rev12_gate10_fullstate_dynamics.png)
 
@@ -1869,6 +1877,8 @@ G009를 포트폴리오에 넣을 때 핵심은 “Isaac Sim에서 로봇을 걸
 18. 공식 benchmark 파일과 Isaac Lab commit을 hash로 고정하고, clean HEAD·필수 source bundle·단일 GPU telemetry·VRAM 상한·단계 순서를 검증하는 throughput 실행 계약을 먼저 만들었다.
 
 현재 공개 가능한 성과는 C0/S0의 deterministic terrain, 계측 수학, Isaac runtime 물성 readback과 동일 조건 시각 재생, R0의 actor privilege 경계·보상/성공 계약, rev1~rev9 실패 진단, rev10 CPU 실패 재현, rev11·rev12 runtime 및 safety gate, rev12 Gate10 full-state GPU fresh `3/3` 귀속, rev13 CPU `3/3` 기각, rev14 CPU·GPU 각 `3/3`의 force/separation trade-off, rev15 CPU/GPU 각 `3/3`의 backend force divergence, rev16 Arm A/B × CPU/GPU 12-run attribution, rev17 E010의 hash-bound mechanism split, rev18 E011의 raw-contact capability `2×2` 진단, rev19 E012의 contact-offset `2×2×2` 개입 검증, rev20 E013의 terrain-pair matrix CPU/GPU `2×2` 후보 검증, rev21 E014의 bounded recursive safety gate `17/17`, rev22 E015의 read-only adapter 계약 `18/18`, rev23 E016의 actual runtime adapter CPU/GPU `2×2` correctness 검증이다. rev24 E017은 실행 결과가 아니라 공식 GPU benchmark의 사전등록·source binding·판정기 준비 증거로만 포함한다. rev14는 force를 낮췄지만 separation이 기준보다 `0.9901875mm` 깊어 기각됐고, rev15는 CPU force와 separation을 통과했지만 GPU force가 `15 BW`보다 `11.92%` 높아 기각됐다. rev16은 B GPU의 더 이른 peak와 root·joint speed 상승을 재현했지만 concentration 증가는 `18.36%`로 사전 기준 `20%`에 못 미쳐 가설을 `inconclusive`로 닫았다. rev17은 peak base force `+26.72%`와 17-step 전신 impulse `+1.42%`를 분리하고 CPU 접촉 순서를 확인했지만 GPU contact-pair authority가 없어 원인 lever를 고르지 않았다. rev18은 CPU raw callback을 `2/2` 재현했지만 GPU에서는 positive force stimulus가 있는 동안에도 callback이 `0/2`여서 `unavailable_on_gpu`로 닫았다. rev19는 offset `×1.5` 적용 무결성과 CPU safety를 확인했지만 두 arm 모두 GPU callback `0/150`, 동일 force proxy였으므로 `selected_lever=null`로 닫았다. rev20은 single GroundPlane terrain filter에서 direct/buffer parity `150/150`, same-body overlap `8/8`, 장치별 반복성과 진단 안전을 통과해 matrix를 다음 safety authority의 후보로만 승인했다. rev21은 historical source와 raw evidence까지 재검증하는 no-overwrite 정적 gate를 고정했고, rev22는 normal-force matrix의 output·mask·missing-contact·immutability 의미를 runtime 구현 전에 고정했다. rev23은 simulator를 실제 실행해 adapter correctness와 장치별 반복성을 확인했지만 reward·policy·PPO는 실행하지 않았다. CPU와 GPU 사이의 수치 차이는 참고값이며 cross-device equivalence를 승인하지 않았다. 이는 모르는 부분을 수치와 권위 경계로 제한한 진단 증거이며 성공 정책 증거는 아니다. 새 물리 파라미터·matrix Gate01·PPO qualification은 rev24 throughput smoke와 별도 안전 사전등록을 통과하기 전까지 열지 않는다. `25°`는 최대 주행 가능 경사가 아니라 현재 stress cell이며, 기존 정책이 크게 기울고 아래로 밀린 실패 결과로 공개한다. R0 strict success `0`과 hard-joint-limit 실패도 경계 조건으로 함께 남긴다. 성공한 전복 복구 영상은 향후 revision이 네 자세별 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`의 qualification gate를 통과한 뒤 별도로 추가한다.
+
+위 문단의 “rev24 E017은 실행 결과가 아니다”는 **canonical PASS 결과가 아니다**라는 뜻으로 한정한다. 실제로는 1024 diagnostic run과 checkpoint가 생성됐고 wrapper run-health는 PASS했지만, aggregate source-bundle의 교차언어 정렬 불일치로 canonical decision은 FAIL이었다. 따라서 처리량 수치는 기각 원인 분석용으로만 남기며 공개 성과, stable maximum, Matrix Gate01 승인 또는 policy qualification으로 사용하지 않는다.
 
 ## 실물 로봇과 Mini Pupper에 대한 범위 제한
 

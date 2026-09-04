@@ -679,3 +679,11 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 - rev23 번호 `14.01/14.02` GIF는 `8 frames / 5.6s`, 약 `1.43fps`라서 각 화면이 `700ms`씩 멈춰 보였다. 로컬 MP4를 30fps로 인코딩해도 원본 key frame이 8장뿐이면 GIF 움직임은 부드러워지지 않는다.
 - 다음 번호 `15.01/15.02`부터 원본 MP4는 30fps로 보존하고 GIF는 15fps를 목표로 만든다. hard floor는 12fps다. 카메라는 원본 프레임을 샘플링하고 텔레메트리는 구간별 중간 프레임을 실제로 렌더링한다.
 - 10 MiB를 넘으면 길이, 해상도, 팔레트 순서로 조정한다. 용량을 맞추려고 12fps 아래로 낮추거나 같은 frame을 반복해 FPS 숫자만 올리지 않는다. sidecar에 실제 frame count, duration, 최대 frame duration과 temporal strategy를 기록하고, 고정 우선순위 `compression_policy_order`와 실제 적용 이력 `compression_steps_applied`를 분리한다.
+
+#### rev24 E017 1024 첫 실행 기각과 ordinal source-bundle 수정
+
+- 2026-09-04 원격 `main`과 일치하는 clean commit `1c0b35c2f13b77620d57ad62175ddb87f68bf828`에서 `Isaac-G009-Recover-Flat-Go2-R0-v0`, seed `42`, headless scratch, `1024 env × 24 steps × 5 iterations`를 실행했다. Isaac Lab은 `90b79bb2d44feb8d833f260f2bf37da3487180ba`, 공식 benchmark SHA-256은 `2d5a88b9c07bfb38852082a0b9bf00f4213043b16ce0294776646ab06d351c82`였다.
+- wrapper는 exit code `0`, `steps/s=[7355,11977,11829,12220,11614]`, mean `10999`, median `11829`, peak VRAM `4397/12288MiB`, peak/mean GPU utilization `64%/9.63%`, peak temperature `55°C`, peak power `61.8W`, numeric invalid maximum `0`, baseline GPU memory recovery를 기록했다. checkpoint `model_4.pt` SHA-256은 `0d745dca05a97dd1849b584a0dae100642990afaf07432f416910507c41b67be`다.
+- strict synthesis는 `source_bundle_matches_commit=false`로 fail-closed했다. `run_training.ps1`이 `Sort-Object` 문화권 순서로 source path를 배열한 반면 Python verifier는 ordinal 순서를 사용해, 같은 파일과 개별 SHA라도 bundle payload 순서가 달라졌다. raw report `fd798eb3afd6e79e123f1d85971b6a9b24599f4a4724aa94ca6c06cbfe57c828`와 synthesis `6782044cbd46dadc4f2becba4eb5d5efb27ebcbc182447630980d75f0dbef596`는 `_rejected_ordinal_sort.json` 이름으로 보존했다.
+- 이 실행은 rev24 1024 PASS가 아니며 stable maximum, Matrix Gate01, policy qualification, recovery success를 승인하지 않는다. 계약에 따라 2048은 시작하지 않았다. 기각 단계의 `15.01` 미디어도 만들지 않는다.
+- 수정은 raw 입력을 repo-relative path로 정규화하고 Git tracked path의 실제 casing으로 canonicalize한 뒤 `OrdinalIgnoreCase`로 alias를 중복 제거하고 `Array.Sort(..., StringComparer.Ordinal)`로 배열하도록 제한했다. 교차언어 순서·absolute/relative·case alias 회귀를 추가했고 rev24/benchmark/contracts/qualification pytest `47 passed`, training safety PowerShell test PASS, PowerShell parser PASS를 확인했다. 수정이 clean commit에 반영된 뒤 1024부터 새 canonical 실행으로 재개한다.

@@ -3,12 +3,12 @@
 - 체크포인트 날짜: 2026-09-01
 - 증거 ID: `G009-5-E017`
 - 구현 커밋: `134b6ee31c5ef220048eaaf632f7872a86122258`
-- 실행 상태: 소스·사전등록·검증 완료, `1024/2048 env` 실제 실행 미시작
-- 다음 세션의 중단 해제 조건: 원격 `main`과 일치하는 clean worktree
+- 실행 상태: `1024 env` 첫 실행은 교차언어 source-bundle 정렬 불일치로 기각, `2048 env` 미실행
+- 다음 세션의 중단 해제 조건: ordinal 정렬 수정이 반영된 원격 `main`과 일치하는 clean worktree
 
 ## 지금 멈춘 위치
 
-rev24는 GPU에서 짧은 scratch PPO를 실행하기 직전까지 준비했다. 실제 Isaac Sim 프로세스, PPO rollout, optimizer update는 이번 체크포인트에서 시작하지 않았다. 새 checkpoint, TensorBoard 로그, MP4, GIF, PNG도 만들지 않았다. Garden 글은 실행 결과와 미디어가 생긴 뒤 다시 판단한다.
+rev24의 `1024 env × 24 steps × 5 iterations` headless scratch PPO diagnostic은 실제 Isaac Sim에서 실행했고 checkpoint와 TensorBoard 로그를 생성했다. wrapper run-health는 PASS했지만 PowerShell과 Python의 source path 정렬 차이로 canonical source-bundle gate가 FAIL해 1024 rung을 기각했다. 계약에 따라 `2048 env`, Matrix Gate01과 정식 policy qualification은 실행하지 않았고 MP4·GIF·PNG도 만들지 않았다. Garden 글은 canonical runtime 결과와 미디어가 생긴 뒤 다시 판단한다.
 
 | 항목 | 현재 상태 |
 | --- | --- |
@@ -19,9 +19,32 @@ rev24는 GPU에서 짧은 scratch PPO를 실행하기 직전까지 준비했다.
 | action | scale `0.70`, EMA alpha `0.2` |
 | PPO 초기 noise | `0.5` |
 | throughput protocol | `1024 env` PASS 뒤에만 `2048 env` |
-| 실제 throughput 결과 | 없음 |
+| 실제 throughput 결과 | 1024 runtime 건강 수치만 진단 보존, canonical gate 기각 |
 | policy qualification | `not_run` |
 | recovery success claim | `false` |
+
+## 2026-09-04 첫 1024 실행과 기각 판정
+
+원격 `main`과 일치하는 clean source commit `1c0b35c2f13b77620d57ad62175ddb87f68bf828`에서 `1024 env × 24 steps × 5 iterations`, seed `42`, headless scratch PPO를 실제 실행했다. Isaac Lab commit과 공식 benchmark SHA-256은 고정 계약과 일치했고 프로세스 exit code는 `0`이었다.
+
+| 항목 | 실제 측정값 |
+| --- | ---: |
+| `steps/s` | `7,355`, `11,977`, `11,829`, `12,220`, `11,614` |
+| 평균 / 중앙값 | `10,999 / 11,829 steps/s` |
+| peak VRAM | `4,397 / 12,288 MiB` (`35.78%`) |
+| peak / mean GPU utilization | `64% / 9.63%` |
+| peak temperature / power | `55°C / 61.8W` |
+| numeric invalid maximum | `0` |
+| checkpoint | `model_4.pt`, SHA-256 `0d745dca05a97dd1849b584a0dae100642990afaf07432f416910507c41b67be` |
+
+하지만 canonical synthesis는 `source_bundle_matches_commit=false`로 fail-closed했다. `run_training.ps1`은 `Sort-Object`의 Windows 문화권 순서로 source path를 배열했고 Python synthesis는 Unicode ordinal 순서로 배열했다. 이 때문에 동일한 12개 파일과 동일한 개별 SHA-256을 사용했지만 aggregate SHA-256의 바이트 순서가 달라졌다. runtime report의 `source_bundle.matches_repository_commit=true`만으로 이 불일치를 우회하지 않는다.
+
+- rejected raw report: `reports/runs/g009_r0_rev24_gpu_throughput_1024env_5iter_s42_rejected_ordinal_sort.json`, SHA-256 `fd798eb3afd6e79e123f1d85971b6a9b24599f4a4724aa94ca6c06cbfe57c828`
+- rejected synthesis: `reports/runs/g009_r0_rev24_gpu_throughput_synthesis_s42_rejected_ordinal_sort.json`, SHA-256 `6782044cbd46dadc4f2becba4eb5d5efb27ebcbc182447630980d75f0dbef596`
+- stdout: `%USERPROFILE%\IsaacLab\logs\harness\g009_r0_rev24_throughput_1024_s42.stdout.log`, SHA-256 `af8b9555de934318b3d4f555968f4e8aee3c6c588c5234cfb6669a951732d5e9`
+- stderr: 같은 harness 경로의 `.stderr.log`, 빈 파일 SHA-256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+
+따라서 이 실행은 PPO 처리량 참고 수치일 뿐 rev24 1024 PASS가 아니다. `2048 env`는 실행하지 않았고 stable maximum도 확정하지 않았다. ordinal source 정렬 수정과 회귀 테스트가 clean commit으로 반영된 뒤 1024부터 새 report·checkpoint로 다시 실행한다. 기각된 단계에는 `15.01` 성공 미디어를 만들지 않으며, 재실행 PASS 뒤에만 `PPO THROUGHPUT SMOKE / NOT POLICY QUALIFICATION / NOT RECOVERY EVIDENCE` 표기를 붙여 생성한다.
 
 기존 rev15 계약은 active baseline이 아니다. [`g009_r0_rev15.json`](../configs/g009_r0_rev15.json)에 historical snapshot으로 보존했고, 당시 계약 SHA-256은 `5f29ba19458404b5009d3734294c57e79294efecc7fe03bf8c71c71656129832`다. rev15의 solver position `16`은 GPU non-foot force gate 실패로 기각된 값이다.
 

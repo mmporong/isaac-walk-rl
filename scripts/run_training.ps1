@@ -352,7 +352,24 @@ if (-not (Test-Path -LiteralPath $trainScript -PathType Leaf)) {
 $trainingEntrypointHash = (Get-FileHash -LiteralPath $trainScript -Algorithm SHA256).Hash.ToLowerInvariant()
 $sourceBindingFiles = [ordered]@{}
 $repoBoundary = [System.IO.Path]::GetFullPath($repoRoot).TrimEnd('\') + '\'
-foreach ($sourcePath in @($SourceBindingPaths | Sort-Object -Unique)) {
+$gitCommand = Get-Command git -ErrorAction SilentlyContinue
+$trackedPathByCase = [System.Collections.Generic.Dictionary[string,string]]::new(
+    [System.StringComparer]::OrdinalIgnoreCase
+)
+if ($null -ne $gitCommand) {
+    $trackedPaths = @(& $gitCommand.Source -C $repoRoot ls-files --full-name 2>$null)
+    if ($LASTEXITCODE -eq 0) {
+        foreach ($trackedPath in $trackedPaths) {
+            if (-not $trackedPathByCase.ContainsKey($trackedPath)) {
+                $trackedPathByCase.Add($trackedPath, $trackedPath)
+            }
+        }
+    }
+}
+$canonicalSourcePathToFullPath = [System.Collections.Generic.Dictionary[string,string]]::new(
+    [System.StringComparer]::OrdinalIgnoreCase
+)
+foreach ($sourcePath in $SourceBindingPaths) {
     $fullSourcePath = if ([System.IO.Path]::IsPathRooted($sourcePath)) {
         [System.IO.Path]::GetFullPath($sourcePath)
     }
@@ -366,8 +383,22 @@ foreach ($sourcePath in @($SourceBindingPaths | Sort-Object -Unique)) {
         throw "SourceBindingPaths 파일을 찾을 수 없습니다: $fullSourcePath"
     }
     $relativeSourcePath = [System.IO.Path]::GetRelativePath($repoRoot, $fullSourcePath).Replace('\', '/')
-    $sourceBindingFiles[$relativeSourcePath] = (
-        Get-FileHash -LiteralPath $fullSourcePath -Algorithm SHA256
+    $canonicalRelativeSourcePath = $relativeSourcePath
+    if ($trackedPathByCase.ContainsKey($relativeSourcePath)) {
+        $canonicalRelativeSourcePath = $trackedPathByCase[$relativeSourcePath]
+    }
+    if (-not $canonicalSourcePathToFullPath.ContainsKey($canonicalRelativeSourcePath)) {
+        $canonicalFullSourcePath = [System.IO.Path]::GetFullPath(
+            (Join-Path $repoRoot $canonicalRelativeSourcePath)
+        )
+        $canonicalSourcePathToFullPath.Add($canonicalRelativeSourcePath, $canonicalFullSourcePath)
+    }
+}
+$sortedSourceBindingPaths = [string[]]@($canonicalSourcePathToFullPath.Keys)
+[Array]::Sort($sortedSourceBindingPaths, [System.StringComparer]::Ordinal)
+foreach ($canonicalRelativeSourcePath in $sortedSourceBindingPaths) {
+    $sourceBindingFiles[$canonicalRelativeSourcePath] = (
+        Get-FileHash -LiteralPath $canonicalSourcePathToFullPath[$canonicalRelativeSourcePath] -Algorithm SHA256
     ).Hash.ToLowerInvariant()
 }
 $sourceBundlePayload = (
@@ -382,7 +413,6 @@ else {
 $repositoryCommit = $null
 $repositoryDirty = $null
 $sourceBundleMatchesHead = $null
-$gitCommand = Get-Command git -ErrorAction SilentlyContinue
 if ($null -ne $gitCommand) {
     $commitOutput = & $gitCommand.Source -C $repoRoot rev-parse HEAD 2>$null
     if ($LASTEXITCODE -eq 0 -and $commitOutput) {
