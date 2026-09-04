@@ -1,0 +1,132 @@
+{
+  "schema_version": "g009.r0.rev29.action_scale_smoke_preregistration.v1",
+  "evidence_id": "G009-5-E022",
+  "revision": "rev29",
+  "purpose": "single-variable safety smoke of normalized joint-position action scale 0.70 to 0.65 after rejected rev28 entropy smoke",
+  "single_experimental_variable": {
+    "name": "normalized_joint_position_action_scale",
+    "rejected_rev28_value": 0.7,
+    "candidate_value": 0.65
+  },
+  "historical_evidence": {
+    "rev27_diagnostic_report": {
+      "path": "reports/runs/g009_5_r0_rev27_model299_joint_limit_diagnostic_s42_20260904-1813.json",
+      "sha256": "ffd373d3937558aa71b5afccc70468aff068a28443f728a94343e488046bc315"
+    },
+    "rev28_training_report": {
+      "path": "reports/runs/go2_flat_g009_r0_rev28_entropy_smoke_retry01_s42_20260904-2015.json",
+      "sha256": "a3178b3e35969b94a234e98a97106c2be9c4a7fa182d0f8a1fee166201e4e49d"
+    },
+    "rev28_rejection_report": {
+      "path": "reports/runs/g009_5_r0_rev28_entropy_smoke_rejection_s42_20260904-2015.json",
+      "sha256": "712d8f1e788c14d03e86211dd7d44813c3467a577f26a9ed8268b9c1b379577f"
+    },
+    "rev28_step49_mean_noise_std": 0.47734370827674866,
+    "interpretation": "rev28 reduced exploration noise but failed the zero-event hard-joint-limit gate; rev29 tests target-range narrowing without claiming causality"
+  },
+  "training": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "device": "cuda:0",
+    "headless": true,
+    "seed": 42,
+    "scratch": true,
+    "resume": false,
+    "num_envs": 1024,
+    "num_steps_per_env": 24,
+    "max_iterations": 50,
+    "transitions": 1228800,
+    "ppo_num_learning_epochs": 5,
+    "ppo_num_mini_batches": 4,
+    "optimizer_updates_per_iteration": 20,
+    "optimizer_mini_batch_updates": 1000,
+    "expected_checkpoint_name": "model_49.pt",
+    "pose_curriculum_phase": 0,
+    "pose_distribution": {
+      "prone": 1.0,
+      "supine": 0.0,
+      "left_side": 0.0,
+      "right_side": 0.0
+    }
+  },
+  "frozen_contract": {
+    "ppo_entropy_coefficient": 0.0,
+    "ppo_init_noise_std": 0.5,
+    "action_ema_alpha": 0.2,
+    "articulation_solver_position_iteration_count": 8,
+    "articulation_solver_velocity_iteration_count": 0,
+    "max_depenetration_velocity_m_s": 1.0,
+    "asset_soft_joint_limit_factor": 0.9,
+    "policy_observation_dimension": 140,
+    "critic_observation_dimension": 164,
+    "reset_reward_observation_contract": "canonical configs/g009_r0.json"
+  },
+  "runtime_readback": {
+    "agent_yaml": {
+      "entropy_coef": 0.0,
+      "init_noise_std": 0.5,
+      "num_steps_per_env": 24,
+      "num_learning_epochs": 5,
+      "num_mini_batches": 4,
+      "max_iterations": 50,
+      "device": "cuda:0"
+    },
+    "env_yaml": {
+      "action_scale": 0.65,
+      "rescale_to_limits": true,
+      "action_ema_alpha": 0.2,
+      "asset_soft_joint_limit_factor": 0.9,
+      "articulation_solver_position_iteration_count": 8,
+      "articulation_solver_velocity_iteration_count": 0,
+      "max_depenetration_velocity_m_s": 1.0
+    }
+  },
+  "acceptance_gate": {
+    "tensorboard_exact_sample_count": 50,
+    "required_series": [
+      "Episode_Termination/hard_joint_limit",
+      "Episode_Termination/numeric_invalid",
+      "Policy/mean_noise_std"
+    ],
+    "hard_joint_limit_maximum": 0.0,
+    "hard_joint_limit_nonzero_sample_count": 0,
+    "numeric_invalid_maximum": 0.0,
+    "numeric_invalid_nonzero_sample_count": 0,
+    "mean_noise_std_all_finite": true,
+    "checkpoint_std_vector_dimension": 12,
+    "checkpoint_std_vector_all_finite": true,
+    "gpu_temperature_threshold_c": 90.0,
+    "gpu_sustained_hot_sample_count": 3,
+    "gpu_fatal_events_maximum": 0,
+    "gpu_descendants_must_exit": true
+  },
+  "source_binding_paths": [
+    "configs/g009_r0.json",
+    "configs/g009_r0_rev29_action_scale_smoke.json",
+    "scripts/bootstrap_train_g009.py",
+    "scripts/run_training.ps1",
+    "scripts/summarize_g009_r0_rev29_action_scale_smoke.py",
+    "scripts/validate_g009_r0_rev29_action_scale_smoke.py",
+    "src/isaac_walk_g009/agent_cfg.py",
+    "src/isaac_walk_g009/matrix_gate01.py",
+    "src/isaac_walk_g009/matrix_observation_adapter.py",
+    "src/isaac_walk_g009/mdp/__init__.py",
+    "src/isaac_walk_g009/mdp/events.py",
+    "src/isaac_walk_g009/mdp/recover.py",
+    "src/isaac_walk_g009/recover_contracts.py",
+    "src/isaac_walk_g009/recover_env_cfg.py",
+    "src/isaac_walk_g009/registry.py"
+  ],
+  "source_binding_path_manifest_sha256": "cbd542ae61179ee47be8f313d083ae9dc75d27864af103693affa662d1b5892d",
+  "execution_order": {
+    "prelaunch_validator_required": true,
+    "smoke_must_pass_before_full_300_iteration_training": true,
+    "held_out_seed_1042_forbidden_until_full_300_training_safety_zero": true
+  },
+  "claim_limits": {
+    "smoke_acceptance_is_policy_qualification": false,
+    "recovery_success_measured": false,
+    "action_scale_change_proved_causal": false,
+    "held_out_evaluation_status": "forbidden_until_full_300_training_safety_zero",
+    "full_300_iteration_training_status": "forbidden_until_smoke_accepted"
+  }
+}

@@ -136,6 +136,64 @@ function Invoke-EntropySmokeSingleLinePreflightCase {
     return [pscustomobject]@{ ExitCode = $exitCode; Output = $output -join "`n" }
 }
 
+function Invoke-ActionScaleSmokeSingleLinePreflightCase {
+    $env:G009_FAKE_SAFETY_CASE = 'action_scale_preflight_single_line'
+    Remove-Item Env:G009_FAKE_GIT_CASE -ErrorAction SilentlyContinue
+    $preregistration = Get-Content -LiteralPath (Join-Path $root 'configs\g009_r0_rev29_action_scale_smoke.json') -Raw |
+        ConvertFrom-Json
+    $sourcePaths = @($preregistration.source_binding_paths)
+    $historicalPaths = @(
+        $preregistration.historical_evidence.rev27_diagnostic_report.path,
+        $preregistration.historical_evidence.rev28_training_report.path,
+        $preregistration.historical_evidence.rev28_rejection_report.path
+    )
+    $fixtureRepo = Join-Path $tempRoot 'action-scale-repo'
+    & $actualGit clone --quiet --no-hardlinks $root $fixtureRepo
+    if ($LASTEXITCODE -ne 0) { throw 'action-scale fixture clone failed' }
+    foreach ($relativePath in $sourcePaths) {
+        $destination = Join-Path $fixtureRepo $relativePath
+        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+        Copy-Item -LiteralPath (Join-Path $root $relativePath) -Destination $destination -Force
+    }
+    foreach ($relativePath in $historicalPaths) {
+        $destination = Join-Path $fixtureRepo $relativePath
+        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+        Copy-Item -LiteralPath (Join-Path $root $relativePath) -Destination $destination -Force
+    }
+    & $actualGit -C $fixtureRepo add -- $sourcePaths $historicalPaths
+    & $actualGit -C $fixtureRepo -c user.name=g009-fixture -c user.email=g009-fixture@example.invalid commit --quiet -m 'fixture'
+    if ($LASTEXITCODE -ne 0) { throw 'action-scale fixture commit failed' }
+    $fixtureHarness = Join-Path $fixtureRepo 'scripts\run_training.ps1'
+    $wrapperPath = Join-Path $tempRoot 'invoke-action-scale-single-line.ps1'
+    $quotedSourcePaths = ($sourcePaths | ForEach-Object {
+        "'" + ([string]$_).Replace("'", "''") + "'"
+    }) -join ', '
+    $wrapper = @"
+& '$($fixtureHarness.Replace("'", "''"))' ``
+    -Task 'Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0' ``
+    -NumEnvs 1024 -MaxIterations 50 -Seed 42 ``
+    -RunName 'g009_action_scale_single_line_preflight' -ActionScaleSmoke ``
+    -IsaacLabPath '$((Join-Path $HOME 'IsaacLab').Replace("'", "''"))' ``
+    -ReportPath '$((Join-Path $tempRoot 'action-scale-single-line.json').Replace("'", "''"))' ``
+    -TrainingEntrypointPath '$((Join-Path $fixtureRepo 'scripts\bootstrap_train_g009.py').Replace("'", "''"))' ``
+    -SourceBindingPaths @($quotedSourcePaths)
+"@
+    [IO.File]::WriteAllText($wrapperPath, $wrapper, [Text.UTF8Encoding]::new($true))
+    $nvidiaOnlyBin = Join-Path $tempRoot 'action-scale-nvidia-only-bin'
+    New-Item -ItemType Directory -Path $nvidiaOnlyBin -Force | Out-Null
+    Copy-Item -LiteralPath $nvidiaSmiFixture -Destination (Join-Path $nvidiaOnlyBin 'nvidia-smi.cmd') -Force
+    $fixturePath = $env:PATH
+    try {
+        $env:PATH = $nvidiaOnlyBin + [IO.Path]::PathSeparator + $originalPath
+        $output = @(& $currentPowerShell -NoProfile -File $wrapperPath 2>&1)
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $env:PATH = $fixturePath
+    }
+    return [pscustomobject]@{ ExitCode = $exitCode; Output = $output -join "`n" }
+}
+
 New-Item -ItemType Directory -Path $fakePythonDirectory, $fakeLogRoot, $mockBin -Force | Out-Null
 $fakePythonBat = Join-Path $fakePythonDirectory 'python.bat'
 $fakePythonHelper = Join-Path $fakePythonDirectory 'fake_python.ps1'
@@ -257,6 +315,7 @@ exit 0
     @(
         '@echo off',
         'if "%G009_FAKE_SAFETY_CASE%"=="entropy_preflight_single_line" exit /b 19',
+        'if "%G009_FAKE_SAFETY_CASE%"=="action_scale_preflight_single_line" exit /b 19',
         'echo 1000, 10, 50, 20, 12288',
         'exit /b 0'
     ),
@@ -320,9 +379,13 @@ try {
     }
 
     $entropyPreflight = Invoke-EntropySmokeSingleLinePreflightCase
-    Assert ($entropyPreflight.Output.Contains('nvidia-smi')) "single-line validator JSON must pass preflight and reach the GPU boundary; actual=$($entropyPreflight.Output)"
-    Assert (-not $entropyPreflight.Output.Contains('validator')) 'single-line validator JSON must not fail before the GPU boundary'
+    Assert ($entropyPreflight.Output.Contains('historical evidence')) "historical rev28 mode must stop after parsing the single-line validator result; actual=$($entropyPreflight.Output)"
     Assert (-not $entropyPreflight.Output.Contains("Property 'Count' cannot be found")) 'single-line validator stdout must remain an array under StrictMode'
+
+    $actionScalePreflight = Invoke-ActionScaleSmokeSingleLinePreflightCase
+    Assert ($actionScalePreflight.Output.Contains('nvidia-smi')) "single-line rev29 validator JSON must pass preflight and reach the GPU boundary; actual=$($actionScalePreflight.Output)"
+    Assert (-not $actionScalePreflight.Output.Contains('validator 실패')) 'single-line rev29 validator JSON must not fail before the GPU boundary'
+    Assert (-not $actionScalePreflight.Output.Contains("Property 'Count' cannot be found")) 'single-line rev29 validator stdout must remain an array under StrictMode'
 
     $cleanGit = Invoke-QualificationGitCase -CaseName 'clean_empty'
     Assert ($cleanGit.ExitCode -ne 0) "clean git fixture still stops at unrelated qualification prerequisites; actual=$($cleanGit.Output)"

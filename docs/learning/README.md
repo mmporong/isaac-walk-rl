@@ -73,7 +73,7 @@ Advantage·Return -> PPO clipped update -> 새 checkpoint
 | world frame `W` | `+Z`가 위쪽인 시뮬레이션 전역 좌표 | base 위치 `[m]`, 지형 normal, `net_forces_w [N]` |
 | base/body frame `B` | Go2 몸통 기준 `+X` 전진, `+Y` 왼쪽, `+Z` 위 | base 선속도 `[m/s]`, 각속도 `[rad/s]`, projected gravity |
 | joint frame | 각 관절축의 양의 회전은 URDF/USD joint axis가 결정 | 관절각 `q [rad]`, 관절속도 `q_dot [rad/s]`, 토크 `tau [N·m]` |
-| action space | 신경망이 출력하는 무차원 정규화 값 | `a_t` 12차원, 보행 기본 scale `0.25`, RECOVER scale `0.70` |
+| action space | 신경망이 출력하는 무차원 정규화 값 | `a_t` 12차원, 보행 기본 scale `0.25`, RECOVER rev29 후보 scale `0.65` |
 
 회전은 오른손 법칙을 사용해요. base frame의 `+omega_z`는 위에서 내려다볼 때 반시계 방향인 좌회전, `-omega_z`는 우회전이에요. hip, thigh, calf의 굽힘·폄 방향은 다리와 joint axis마다 부호가 다를 수 있으므로 “양수는 항상 굽힘”처럼 일반화하지 않고 asset의 joint axis와 실제 readback을 확인해요.
 
@@ -131,7 +131,7 @@ q_{des,t}=q_{default}+s_a a_t
 | `a_t` | actor의 정규화 출력 | 무차원 | 양·음 부호가 각 joint axis 방향으로 목표를 이동 |
 | `q_des,t` | actuator가 추종할 목표각 | `[rad]` | PD가 실제로 따라갈 관절 목표 |
 
-G006·G008 보행 기본 scale은 `0.25`예요. G009 RECOVER는 큰 자세 변화와 joint limit 안전을 함께 다루기 위해 `EMAJointPositionToLimitsAction`, scale `0.70`, EMA `0.2`, soft-limit factor `0.9`를 사용해요. RECOVER 경로는 [`recover_env_cfg.py`](../../src/isaac_walk_g009/recover_env_cfg.py)와 [`recover_contracts.py`](../../src/isaac_walk_g009/recover_contracts.py)에서 확인해요.
+G006·G008 보행 기본 scale은 `0.25`예요. G009 RECOVER는 `EMAJointPositionToLimitsAction`, EMA `0.2`, soft-limit factor `0.9`를 유지하면서 rev28의 scale `0.70`에서 hard-joint-limit이 남은 원인을 좁히기 위해 rev29 후보 scale `0.65`를 시험해요. `0.65`는 아직 자격을 통과한 최종값이 아니라 50-iteration zero-event gate를 검증할 단일 변수예요. RECOVER 경로는 [`recover_env_cfg.py`](../../src/isaac_walk_g009/recover_env_cfg.py)와 [`recover_contracts.py`](../../src/isaac_walk_g009/recover_contracts.py)에서 확인해요.
 
 따라서 “policy가 토크를 출력한다”라고 설명하면 현재 프로젝트에는 틀려요. 이 프로젝트의 WALK·RECOVER actor는 joint-position action을 출력하고, Action Manager가 scale·offset·clip·EMA를 적용해 joint target을 만든 뒤 actuator가 torque를 만들어요.
 

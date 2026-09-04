@@ -748,3 +748,10 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 3. Python·PowerShell 안전 테스트, parser, `git diff --check`, clean source binding을 모두 통과한 커밋을 원격 `main`에 올린 뒤에만 공용 G009 GPU lease를 획득한다.
 4. seed `42`, `cuda:0`, headless scratch, `1024 env × 24 steps × 50 iterations`를 정확히 한 번 실행한다. numeric-invalid maximum/nonzero와 hard-joint-limit maximum/nonzero가 모두 `0`일 때만 full 300 iteration을 승인한다. 실패하면 결과를 보존하고 같은 설정을 무근거 반복하지 않는다.
 5. 이 safety smoke는 policy qualification이나 복구 성공 영상이 아니다. 미디어 번호는 acceptance를 통과해 stage가 실제로 바뀐 뒤에만 부여하며, 촬영할 때 원본 MP4 `30fps`, GIF 목표 `15fps`·hard floor `12fps` 계약을 적용한다.
+
+#### rev29 E022 action-scale safety smoke 사전등록·실행 준비
+
+- rev29의 유일한 실험 변수는 normalized joint-position action scale `0.70 → 0.65`다. entropy coefficient `0.0`, initial noise std `0.5`, EMA alpha `0.2`, soft joint limit factor `0.9`, solver `8/0`, max depenetration velocity `1.0m/s`, reset·reward·curriculum·seed·환경 수·rollout 길이·acceptance gate는 rev28에서 고정한다.
+- 실행 계약은 seed `42`, `cuda:0`, headless scratch, `1024 env × 24 steps/env × 50 iterations = 1,228,800 transitions`, PPO epoch `5`, mini-batch `4`, optimizer mini-batch update `1,000회`다. `params/agent.yaml`과 `params/env.yaml`을 실행 뒤 다시 읽어 frozen PPO와 action/physics 값을 검증한다.
+- acceptance는 TensorBoard 50개 sample에서 numeric-invalid와 hard-joint-limit의 maximum 및 nonzero sample count가 모두 정확히 `0`이고, exploration noise와 checkpoint의 12개 std가 finite이며, GPU 보호·source snapshot·runtime YAML gate가 모두 PASS하는 경우로 제한한다. 통과해도 policy qualification이나 복구 성공을 뜻하지 않으며, 다음 seed42 300-iteration 계약을 열 수 있다는 의미만 가진다.
+- 전용 사전등록은 `configs/g009_r0_rev29_action_scale_smoke.json`, prelaunch validator는 `scripts/validate_g009_r0_rev29_action_scale_smoke.py`, canonical summarizer는 `scripts/summarize_g009_r0_rev29_action_scale_smoke.py`다. historical rev28 실행 경로는 재실행을 차단하고 기존 증거를 보존한다.

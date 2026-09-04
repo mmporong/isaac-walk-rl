@@ -258,7 +258,7 @@ def test_matrix_gate01_projects_world_force_to_bounded_base_frame_and_records_ru
     live_contract = {
         "solver_position_velocity": [[8, 0], [8, 0]],
         "max_depenetration_velocity_m_s": [1.0, 1.0],
-        "action_scale": 0.70,
+        "action_scale": 0.65,
         "action_ema_alpha": 0.2,
     }
     monkeypatch.setattr(matrix_gate01, "_live_contract_readback", lambda _env, _asset: live_contract)
@@ -388,7 +388,7 @@ def test_r0_flat_scene_and_disabled_randomization_contract():
         == 1.0
     )
     assert cfg.actions.joint_pos.class_type.__name__ == "EMAJointPositionToLimitsAction"
-    assert cfg.actions.joint_pos.scale == ACTION_SCALE == 0.70
+    assert cfg.actions.joint_pos.scale == ACTION_SCALE == 0.65
     assert cfg.actions.joint_pos.alpha == ACTION_EMA_ALPHA == 0.2
     assert cfg.actions.joint_pos.rescale_to_limits is True
     assert cfg.scene.robot.soft_joint_pos_limit_factor == GO2_SOFT_JOINT_LIMIT_FACTOR == 0.9

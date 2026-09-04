@@ -94,13 +94,13 @@ def test_standalone_validator_does_not_import_agent_cfg() -> None:
     assert validation.validate_semantics(validation.load_preregistration())["entropy_coef"] == 0.0
 
 
-def test_canonical_manifest_matches_rev28_contract() -> None:
+def test_canonical_manifest_remains_synced_after_rev28() -> None:
     binding = validation.validate_canonical_manifest()
     manifest = json.loads((ROOT / "configs" / "g009_r0.json").read_text(encoding="utf-8"))
 
     assert binding["sha256"] == validation.file_sha256(ROOT / "configs" / "g009_r0.json")
     assert manifest["contract"]["ppo"]["entropy_coefficient"] == 0.0
-    assert manifest["contract"]["ppo"]["entropy_experiment_evidence"]["revision"] == "rev28"
+    assert manifest["contract"]["contract_id"] == "g009_r0_recover_rev29"
 
 
 def _zero_series() -> dict:
@@ -447,8 +447,8 @@ def test_summary_exclusive_create_has_one_race_winner(tmp_path: Path) -> None:
 def test_harness_has_separate_fail_closed_entropy_smoke_mode() -> None:
     source = HARNESS.read_text(encoding="utf-8-sig")
     assert "[switch]$EntropySmoke" in source
-    assert "$protectedGpuRun = [bool]($Qualification -or $EntropySmoke)" in source
-    assert "scratch_required = [bool]($RequireZeroTrainingSafetyTerminations -or $EntropySmoke)" in source
+    assert "$protectedGpuRun = [bool]($Qualification -or $EntropySmoke -or $ActionScaleSmoke)" in source
+    assert "scratch_required = [bool]($RequireZeroTrainingSafetyTerminations -or $EntropySmoke -or $ActionScaleSmoke)" in source
     assert "entropy_smoke_training_safety_zero" in source
     assert "entropy_smoke_gpu_safety" in source
     assert "protected_run_safety" in source

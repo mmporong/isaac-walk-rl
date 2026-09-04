@@ -33,6 +33,8 @@ param(
 
     [switch]$EntropySmoke,
 
+    [switch]$ActionScaleSmoke,
+
     [switch]$RequireZeroTrainingSafetyTerminations,
 
     [switch]$Resume,
@@ -293,16 +295,20 @@ $g009QualificationTask = 'Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0'
 $g009QualificationConfigPath = Join-Path $repoRoot 'configs\g009_r0_rev26_qualification.json'
 $g009EntropySmokeConfigPath = Join-Path $repoRoot 'configs\g009_r0_rev28_entropy_smoke.json'
 $g009EntropySmokeValidatorPath = Join-Path $repoRoot 'scripts\validate_g009_r0_rev28_entropy_smoke.py'
+$g009ActionScaleSmokeConfigPath = Join-Path $repoRoot 'configs\g009_r0_rev29_action_scale_smoke.json'
+$g009ActionScaleSmokeValidatorPath = Join-Path $repoRoot 'scripts\validate_g009_r0_rev29_action_scale_smoke.py'
 $expectedIsaacLabCommit = '90b79bb2d44feb8d833f260f2bf37da3487180ba'
 $expectedOfficialTrainSha256 = '8b995f75ac57ce7403973ff1f3f2715fbff9563ef2cdcdc321a7edc5dd15f5df'
 $expectedQualificationSourceManifestSha256 = 'bd3023481434813fdaf10d80280ff243d4f2af04ed92975d68adec4bc96b1334'
 $expectedEntropySmokeSourceManifestSha256 = '230473fa68c7121656a50beb01e8a013c7230de5762b03230c806b3988dc3b07'
+$expectedActionScaleSmokeSourceManifestSha256 = 'cbd542ae61179ee47be8f313d083ae9dc75d27864af103693affa662d1b5892d'
 $qualificationTemperatureC = 90.0
 $qualificationSustainedTemperatureSamples = 3
-$protectedGpuRun = [bool]($Qualification -or $EntropySmoke)
+$protectedGpuRun = [bool]($Qualification -or $EntropySmoke -or $ActionScaleSmoke)
 
-if ($Qualification -and $EntropySmoke) {
-    throw 'Qualification과 EntropySmoke는 동시에 실행할 수 없습니다.'
+$exclusiveModeCount = [int][bool]$Qualification + [int][bool]$EntropySmoke + [int][bool]$ActionScaleSmoke
+if ($exclusiveModeCount -gt 1) {
+    throw 'Qualification, EntropySmoke, ActionScaleSmoke는 동시에 실행할 수 없습니다.'
 }
 
 function Test-FiniteSeriesSummary {
@@ -380,6 +386,9 @@ if ($Qualification -and $Resume) {
 if ($EntropySmoke -and $Resume) {
     throw 'Entropy smoke는 scratch 실행만 허용합니다.'
 }
+if ($ActionScaleSmoke -and $Resume) {
+    throw 'Action-scale smoke는 scratch 실행만 허용합니다.'
+}
 if ($RequireZeroTrainingSafetyTerminations -and $Resume) {
     throw 'Training safety gate는 scratch 진단 학습에서만 사용할 수 있으며 Resume과 함께 사용할 수 없습니다.'
 }
@@ -391,6 +400,9 @@ if ($Qualification -and $HydraOverrides.Count -gt 0) {
 }
 if ($EntropySmoke -and $HydraOverrides.Count -gt 0) {
     throw 'Entropy smoke는 단일 변수 계약을 보존하기 위해 Hydra override를 허용하지 않습니다.'
+}
+if ($ActionScaleSmoke -and $HydraOverrides.Count -gt 0) {
+    throw 'Action-scale smoke는 단일 변수 계약을 보존하기 위해 Hydra override를 허용하지 않습니다.'
 }
 
 function Get-DescendantProcessIds {
@@ -484,6 +496,12 @@ if ($EntropySmoke -and $Task -ne $g009QualificationTask) {
 if ($EntropySmoke -and ($NumEnvs -ne 1024 -or $MaxIterations -ne 50 -or $Seed -ne 42)) {
     throw 'G009 R0 Entropy smoke는 num_envs=1024, max_iterations=50, seed=42만 허용합니다.'
 }
+if ($ActionScaleSmoke -and $Task -ne $g009QualificationTask) {
+    throw "G009 R0 Action-scale smoke는 task=$g009QualificationTask 만 허용합니다."
+}
+if ($ActionScaleSmoke -and ($NumEnvs -ne 1024 -or $MaxIterations -ne 50 -or $Seed -ne 42)) {
+    throw 'G009 R0 Action-scale smoke는 num_envs=1024, max_iterations=50, seed=42만 허용합니다.'
+}
 if (-not (Test-Path -LiteralPath $pythonBat -PathType Leaf)) {
     throw "Isaac Sim bundled python.bat을 찾을 수 없습니다: $pythonBat"
 }
@@ -495,6 +513,9 @@ $qualificationSourceBindingPaths = @()
 $entropySmokeContract = $null
 $entropySmokeSourceBindingPaths = @()
 $entropySmokePreflight = $null
+$actionScaleSmokeContract = $null
+$actionScaleSmokeSourceBindingPaths = @()
+$actionScaleSmokePreflight = $null
 $isaacLabCommit = $null
 $officialTrainHash = $null
 $isaacLabTrackedClean = $null
@@ -616,6 +637,67 @@ if ($EntropySmoke) {
         $entropySmokeContract.source_binding_path_manifest_sha256 -ne $expectedEntropySmokeSourceManifestSha256
     ) {
         throw 'rev28 entropy smoke source binding path manifest가 유효하지 않습니다.'
+    }
+}
+if ($ActionScaleSmoke) {
+    if (-not (Test-Path -LiteralPath $g009ActionScaleSmokeConfigPath -PathType Leaf)) {
+        throw "rev29 action-scale smoke preregistration을 찾을 수 없습니다: $g009ActionScaleSmokeConfigPath"
+    }
+    if (-not (Test-Path -LiteralPath $g009ActionScaleSmokeValidatorPath -PathType Leaf)) {
+        throw "rev29 action-scale smoke validator를 찾을 수 없습니다: $g009ActionScaleSmokeValidatorPath"
+    }
+    $actionScaleSmokeContract = Get-Content -LiteralPath $g009ActionScaleSmokeConfigPath -Raw | ConvertFrom-Json
+    if (
+        $actionScaleSmokeContract.schema_version -ne 'g009.r0.rev29.action_scale_smoke_preregistration.v1' -or
+        $actionScaleSmokeContract.evidence_id -ne 'G009-5-E022' -or
+        $actionScaleSmokeContract.revision -ne 'rev29' -or
+        $actionScaleSmokeContract.single_experimental_variable.name -ne 'normalized_joint_position_action_scale' -or
+        $actionScaleSmokeContract.single_experimental_variable.rejected_rev28_value -ne 0.70 -or
+        $actionScaleSmokeContract.single_experimental_variable.candidate_value -ne 0.65 -or
+        $actionScaleSmokeContract.training.task -ne $g009QualificationTask -or
+        $actionScaleSmokeContract.training.device -ne 'cuda:0' -or
+        $actionScaleSmokeContract.training.headless -ne $true -or
+        $actionScaleSmokeContract.training.seed -ne 42 -or
+        $actionScaleSmokeContract.training.scratch -ne $true -or
+        $actionScaleSmokeContract.training.resume -ne $false -or
+        $actionScaleSmokeContract.training.num_envs -ne 1024 -or
+        $actionScaleSmokeContract.training.num_steps_per_env -ne 24 -or
+        $actionScaleSmokeContract.training.max_iterations -ne 50 -or
+        $actionScaleSmokeContract.training.transitions -ne 1228800 -or
+        $actionScaleSmokeContract.training.ppo_num_learning_epochs -ne 5 -or
+        $actionScaleSmokeContract.training.ppo_num_mini_batches -ne 4 -or
+        $actionScaleSmokeContract.training.optimizer_mini_batch_updates -ne 1000 -or
+        $actionScaleSmokeContract.training.expected_checkpoint_name -ne 'model_49.pt' -or
+        $actionScaleSmokeContract.training.pose_curriculum_phase -ne 0 -or
+        $actionScaleSmokeContract.runtime_readback.agent_yaml.entropy_coef -ne 0.0 -or
+        $actionScaleSmokeContract.runtime_readback.env_yaml.action_scale -ne 0.65 -or
+        $actionScaleSmokeContract.runtime_readback.env_yaml.action_ema_alpha -ne 0.2 -or
+        $actionScaleSmokeContract.acceptance_gate.tensorboard_exact_sample_count -ne 50 -or
+        $actionScaleSmokeContract.acceptance_gate.gpu_temperature_threshold_c -ne 90.0 -or
+        $actionScaleSmokeContract.acceptance_gate.gpu_sustained_hot_sample_count -ne 3 -or
+        $actionScaleSmokeContract.execution_order.prelaunch_validator_required -ne $true -or
+        $actionScaleSmokeContract.execution_order.smoke_must_pass_before_full_300_iteration_training -ne $true -or
+        $actionScaleSmokeContract.execution_order.held_out_seed_1042_forbidden_until_full_300_training_safety_zero -ne $true
+    ) {
+        throw 'rev29 action-scale smoke preregistration의 고정 계약이 일치하지 않습니다.'
+    }
+    [string[]]$actionScaleSmokeSourceBindingPaths = @($actionScaleSmokeContract.source_binding_paths)
+    [string[]]$sortedActionScaleSmokePaths = @($actionScaleSmokeSourceBindingPaths)
+    [Array]::Sort($sortedActionScaleSmokePaths, [System.StringComparer]::Ordinal)
+    $uniqueActionScaleSmokePaths = [System.Collections.Generic.HashSet[string]]::new(
+        [System.StringComparer]::Ordinal
+    )
+    foreach ($actionScaleSmokePath in $actionScaleSmokeSourceBindingPaths) {
+        [void]$uniqueActionScaleSmokePaths.Add($actionScaleSmokePath)
+    }
+    if (
+        $actionScaleSmokeSourceBindingPaths.Count -eq 0 -or
+        $uniqueActionScaleSmokePaths.Count -ne $actionScaleSmokeSourceBindingPaths.Count -or
+        (($actionScaleSmokeSourceBindingPaths | ConvertTo-Json -Compress) -ne ($sortedActionScaleSmokePaths | ConvertTo-Json -Compress)) -or
+        (Get-TextSha256 ($actionScaleSmokeSourceBindingPaths | ConvertTo-Json -Compress)) -ne $actionScaleSmokeContract.source_binding_path_manifest_sha256 -or
+        $actionScaleSmokeContract.source_binding_path_manifest_sha256 -ne $expectedActionScaleSmokeSourceManifestSha256
+    ) {
+        throw 'rev29 action-scale smoke source binding path manifest가 유효하지 않습니다.'
     }
 }
 $trainingEntrypointHash = (Get-FileHash -LiteralPath $trainScript -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -831,7 +913,7 @@ if ($Qualification) {
         exit 1
     }
     $qualificationPreflightPassed = $true
-    throw 'rev28 entropy=0.0 코드는 rev26/E019 Qualification으로 실행할 수 없습니다. accepted smoke에 결합된 rev28 full300/E022 계약이 구현될 때까지 차단합니다.'
+    throw 'rev29 action scale=0.65 코드는 rev26/E019 Qualification으로 실행할 수 없습니다. accepted rev29 smoke에 결합된 새 full300 계약이 구현될 때까지 차단합니다.'
 }
 if ($EntropySmoke) {
     $entropySmokeFailures = [System.Collections.Generic.List[string]]::new()
@@ -906,6 +988,90 @@ if ($EntropySmoke) {
     if ($entropySmokePreflight.status -ne 'pass' -or
         $entropySmokePreflight.canonical_static_readback.entropy_coef -ne 0.0) {
         throw 'Entropy smoke validator가 통과 상태와 canonical entropy_coef=0.0을 반환하지 않았습니다.'
+    }
+    throw 'rev28 EntropySmoke는 historical evidence입니다. current rev29 source에서는 재실행할 수 없습니다.'
+}
+if ($ActionScaleSmoke) {
+    $actionScaleSmokeFailures = [System.Collections.Generic.List[string]]::new()
+    [string[]]$actualActionScaleSmokePaths = @($sourceBindingFiles.Keys)
+    if (
+        $actualActionScaleSmokePaths.Count -ne $actionScaleSmokeSourceBindingPaths.Count -or
+        (($actualActionScaleSmokePaths | ConvertTo-Json -Compress) -ne ($actionScaleSmokeSourceBindingPaths | ConvertTo-Json -Compress))
+    ) {
+        $actionScaleSmokeFailures.Add('source binding paths가 rev29 preregistration exact set과 일치하지 않음')
+    }
+    if ($null -eq $repositoryCommit -or $repositoryCommit -notmatch '^[0-9a-f]{40}$') {
+        $actionScaleSmokeFailures.Add('유효한 repository commit을 읽지 못함')
+    }
+    if ($repositoryDirty -ne $false) {
+        $actionScaleSmokeFailures.Add('repository가 clean 상태가 아님')
+    }
+    if ($sourceBundleMatchesHead -ne $true) {
+        $actionScaleSmokeFailures.Add('source bundle이 현재 HEAD와 일치하지 않음')
+    }
+    $expectedG009Entrypoint = [System.IO.Path]::GetFullPath(
+        (Join-Path $repoRoot 'scripts\bootstrap_train_g009.py')
+    )
+    if ([string]::IsNullOrWhiteSpace($TrainingEntrypointPath) -or
+        -not $trainScript.Equals($expectedG009Entrypoint, [System.StringComparison]::OrdinalIgnoreCase)) {
+        $actionScaleSmokeFailures.Add('G009 R0 training entrypoint가 bootstrap_train_g009.py와 일치하지 않음')
+    }
+    if ($actionScaleSmokeFailures.Count -gt 0) {
+        throw ('Action-scale smoke 사전 검증 실패: ' + ($actionScaleSmokeFailures -join '; '))
+    }
+    $actionScaleValidatorCaptureId = [guid]::NewGuid().ToString('N')
+    $actionScaleValidatorStdout = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-rev29-validator-' + $actionScaleValidatorCaptureId + '.stdout')
+    $actionScaleValidatorStderr = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-rev29-validator-' + $actionScaleValidatorCaptureId + '.stderr')
+    try {
+        $validatorArgumentLine = @(
+            (Convert-ToWindowsCommandLineArgument $g009ActionScaleSmokeValidatorPath),
+            '--preregistration',
+            (Convert-ToWindowsCommandLineArgument $g009ActionScaleSmokeConfigPath),
+            '--isaac-lab-path',
+            (Convert-ToWindowsCommandLineArgument $isaacLabFullPath)
+        ) -join ' '
+        $actionScaleValidatorProcess = Start-Process -FilePath $pythonBat `
+            -ArgumentList $validatorArgumentLine `
+            -WorkingDirectory $repoRoot `
+            -WindowStyle Hidden `
+            -RedirectStandardOutput $actionScaleValidatorStdout `
+            -RedirectStandardError $actionScaleValidatorStderr `
+            -Wait `
+            -PassThru
+        $actionScaleValidatorExitCode = $actionScaleValidatorProcess.ExitCode
+        $actionScaleValidatorOutput = @(
+            if (Test-Path -LiteralPath $actionScaleValidatorStdout) {
+                Get-Content -LiteralPath $actionScaleValidatorStdout -ErrorAction Stop
+            }
+            else { }
+        )
+        $actionScaleValidatorError = if (Test-Path -LiteralPath $actionScaleValidatorStderr) {
+            [string](Get-Content -LiteralPath $actionScaleValidatorStderr -Raw)
+        }
+        else { '' }
+    }
+    finally {
+        Remove-Item -LiteralPath $actionScaleValidatorStdout -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $actionScaleValidatorStderr -Force -ErrorAction SilentlyContinue
+    }
+    if ($actionScaleValidatorExitCode -ne 0 -or $actionScaleValidatorOutput.Count -eq 0) {
+        throw "Action-scale smoke validator 실패: exit=$actionScaleValidatorExitCode stderr=$($actionScaleValidatorError.Trim())"
+    }
+    try {
+        $actionScaleSmokePreflight = $actionScaleValidatorOutput[-1] | ConvertFrom-Json
+    }
+    catch {
+        throw "Action-scale smoke validator JSON 해석 실패: $($_.Exception.Message)"
+    }
+    if (
+        $actionScaleSmokePreflight.status -ne 'pass' -or
+        $actionScaleSmokePreflight.canonical_static_readback.action_scale -ne 0.65 -or
+        $actionScaleSmokePreflight.canonical_static_readback.agent_yaml.entropy_coef -ne 0.0 -or
+        $actionScaleSmokePreflight.upstream.isaac_lab_commit -ne $expectedIsaacLabCommit -or
+        $actionScaleSmokePreflight.upstream.official_train_sha256 -ne $expectedOfficialTrainSha256 -or
+        $actionScaleSmokePreflight.upstream.tracked_clean -ne $true
+    ) {
+        throw 'Action-scale smoke validator가 canonical action scale, frozen PPO, pinned upstream 계약을 반환하지 않았습니다.'
     }
 }
 
@@ -996,6 +1162,12 @@ if ($EntropySmoke -and (-not $prelaunchSnapshotMatchesValidated -or
     $entropySmokePreflight.source_state.executed_worktree_sha256.bundle -ne $prelaunchSourceBundleHash -or
     (($entropySmokePreflight.source_state.executed_worktree_sha256.files | ConvertTo-Json -Compress) -ne ($prelaunchSourceFiles | ConvertTo-Json -Compress)))) {
     throw 'Entropy smoke source snapshot이 validator 이후 변경되었습니다.'
+}
+if ($ActionScaleSmoke -and (-not $prelaunchSnapshotMatchesValidated -or
+    $actionScaleSmokePreflight.source_state.repository_commit -ne $prelaunchRepositoryCommit -or
+    $actionScaleSmokePreflight.source_state.executed_worktree_sha256.bundle -ne $prelaunchSourceBundleHash -or
+    (($actionScaleSmokePreflight.source_state.executed_worktree_sha256.files | ConvertTo-Json -Compress) -ne ($prelaunchSourceFiles | ConvertTo-Json -Compress)))) {
+    throw 'Action-scale smoke source snapshot이 validator 이후 변경되었습니다.'
 }
 
 $process = Start-Process -FilePath $pythonBat `
@@ -1242,7 +1414,7 @@ if ($null -ne $agentYamlPath -and (Test-Path -LiteralPath $agentYamlPath -PathTy
         Remove-Item -LiteralPath $yamlStderr -Force -ErrorAction SilentlyContinue
     }
 }
-if ($EntropySmoke -and $null -ne $agentYamlReadback) {
+if (($EntropySmoke -or $ActionScaleSmoke) -and $null -ne $agentYamlReadback) {
     $agentYamlReadbackPassed = (
         $agentYamlReadback.entropy_coef -eq 0.0 -and
         $agentYamlReadback.init_noise_std -eq 0.5 -and
@@ -1254,6 +1426,57 @@ if ($EntropySmoke -and $null -ne $agentYamlReadback) {
     )
 }
 
+$envYamlPath = if ($actualLogDirectory) { Join-Path $actualLogDirectory 'params\env.yaml' } else { $null }
+$envYamlHash = $null
+$envYamlReadback = $null
+$envYamlReadbackPassed = $false
+if ($ActionScaleSmoke -and $null -ne $envYamlPath -and (Test-Path -LiteralPath $envYamlPath -PathType Leaf)) {
+    $envYamlHash = (Get-FileHash -LiteralPath $envYamlPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $envCaptureId = [guid]::NewGuid().ToString('N')
+    $envStdout = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-rev29-env-yaml-' + $envCaptureId + '.stdout')
+    $envStderr = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-rev29-env-yaml-' + $envCaptureId + '.stderr')
+    $envYamlCode = "import json,sys,yaml;d=yaml.unsafe_load(open(sys.argv[1],encoding='utf-8'));a=d['actions']['joint_pos'];r=d['scene']['robot'];ap=r['spawn']['articulation_props'];rp=r['spawn']['rigid_props'];print(json.dumps({'action_scale':a['scale'],'rescale_to_limits':a['rescale_to_limits'],'action_ema_alpha':a['alpha'],'asset_soft_joint_limit_factor':r['soft_joint_pos_limit_factor'],'articulation_solver_position_iteration_count':ap['solver_position_iteration_count'],'articulation_solver_velocity_iteration_count':ap['solver_velocity_iteration_count'],'max_depenetration_velocity_m_s':rp['max_depenetration_velocity']}))"
+    try {
+        $envArgumentLine = @(
+            '-c',
+            (Convert-ToWindowsCommandLineArgument $envYamlCode),
+            (Convert-ToWindowsCommandLineArgument $envYamlPath)
+        ) -join ' '
+        $envProcess = Start-Process -FilePath $pythonBat `
+            -ArgumentList $envArgumentLine `
+            -WorkingDirectory $repoRoot `
+            -WindowStyle Hidden `
+            -RedirectStandardOutput $envStdout `
+            -RedirectStandardError $envStderr `
+            -Wait `
+            -PassThru
+        if ($envProcess.ExitCode -eq 0) {
+            $envLines = @(Get-Content -LiteralPath $envStdout -ErrorAction Stop)
+            if ($envLines.Count -gt 0) {
+                $envYamlReadback = $envLines[-1] | ConvertFrom-Json
+            }
+        }
+    }
+    catch {
+        $envYamlReadback = $null
+    }
+    finally {
+        Remove-Item -LiteralPath $envStdout -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $envStderr -Force -ErrorAction SilentlyContinue
+    }
+}
+if ($ActionScaleSmoke -and $null -ne $envYamlReadback) {
+    $envYamlReadbackPassed = (
+        $envYamlReadback.action_scale -eq 0.65 -and
+        $envYamlReadback.rescale_to_limits -eq $true -and
+        $envYamlReadback.action_ema_alpha -eq 0.2 -and
+        $envYamlReadback.asset_soft_joint_limit_factor -eq 0.9 -and
+        $envYamlReadback.articulation_solver_position_iteration_count -eq 8 -and
+        $envYamlReadback.articulation_solver_velocity_iteration_count -eq 0 -and
+        $envYamlReadback.max_depenetration_velocity_m_s -eq 1.0
+    )
+}
+
 $checkpoint = $null
 if ($actualLogDirectory -and (Test-Path -LiteralPath $actualLogDirectory -PathType Container)) {
     if ($Qualification) {
@@ -1262,7 +1485,7 @@ if ($actualLogDirectory -and (Test-Path -LiteralPath $actualLogDirectory -PathTy
             $checkpoint = Get-Item -LiteralPath $expectedCheckpointPath
         }
     }
-    elseif ($EntropySmoke) {
+    elseif ($EntropySmoke -or $ActionScaleSmoke) {
         $expectedCheckpointPath = Join-Path $actualLogDirectory 'model_49.pt'
         if (Test-Path -LiteralPath $expectedCheckpointPath -PathType Leaf) {
             $checkpoint = Get-Item -LiteralPath $expectedCheckpointPath
@@ -1299,7 +1522,7 @@ if ($tensorboardScalars -and $tensorboardScalars.series_summary) {
     if ($numericInvalidProperty) { $numericInvalidSummary = $numericInvalidProperty.Value }
     if ($meanNoiseStdProperty) { $meanNoiseStdSummary = $meanNoiseStdProperty.Value }
 }
-$trainingSafetyGateRequired = [bool]($Qualification -or $EntropySmoke -or $RequireZeroTrainingSafetyTerminations)
+$trainingSafetyGateRequired = [bool]($Qualification -or $EntropySmoke -or $ActionScaleSmoke -or $RequireZeroTrainingSafetyTerminations)
 $trainingSafetyGatePassed = if ($trainingSafetyGateRequired) {
     (Test-ZeroFiniteSafetySummary $hardJointLimitSummary) -and
     (Test-ZeroFiniteSafetySummary $numericInvalidSummary)
@@ -1313,6 +1536,13 @@ $entropySmokeMetricGatePassed = if ($EntropySmoke) {
     (Test-FiniteSeriesSummary -Summary $numericInvalidSummary -ExpectedSampleCount 50) -and
     (Test-FiniteSeriesSummary -Summary $meanNoiseStdSummary -ExpectedSampleCount 50) -and
     $meanNoiseStdSummary.latest -le 0.5513023734
+}
+else { $null }
+$actionScaleSmokeMetricGatePassed = if ($ActionScaleSmoke) {
+    $trainingSafetyGatePassed -and
+    (Test-FiniteSeriesSummary -Summary $hardJointLimitSummary -ExpectedSampleCount 50) -and
+    (Test-FiniteSeriesSummary -Summary $numericInvalidSummary -ExpectedSampleCount 50) -and
+    (Test-FiniteSeriesSummary -Summary $meanNoiseStdSummary -ExpectedSampleCount 50)
 }
 else { $null }
 
@@ -1344,6 +1574,7 @@ $protectedGpuSafetyPassed = if ($protectedGpuRun) {
 else { $null }
 $qualificationGpuSafetyPassed = if ($Qualification) { $protectedGpuSafetyPassed } else { $null }
 $entropySmokeGpuSafetyPassed = if ($EntropySmoke) { $protectedGpuSafetyPassed } else { $null }
+$actionScaleSmokeGpuSafetyPassed = if ($ActionScaleSmoke) { $protectedGpuSafetyPassed } else { $null }
 $expectedLastIteration = if ($Resume) {
     # RSL-RL includes the loaded iteration in the resumed learning range.
     # model_N plus M iterations therefore ends at model_(N + M - 1).
@@ -1370,6 +1601,11 @@ $successChecks = [ordered]@{
     entropy_smoke_gpu_safety = if ($EntropySmoke) { $entropySmokeGpuSafetyPassed } else { $null }
     entropy_smoke_source_snapshot_stable = if ($EntropySmoke) { $sourceSnapshotStable } else { $null }
     entropy_smoke_agent_yaml_readback = if ($EntropySmoke) { $agentYamlReadbackPassed } else { $null }
+    action_scale_smoke_training_safety_zero = if ($ActionScaleSmoke) { $actionScaleSmokeMetricGatePassed } else { $null }
+    action_scale_smoke_gpu_safety = if ($ActionScaleSmoke) { $actionScaleSmokeGpuSafetyPassed } else { $null }
+    action_scale_smoke_source_snapshot_stable = if ($ActionScaleSmoke) { $sourceSnapshotStable } else { $null }
+    action_scale_smoke_agent_yaml_readback = if ($ActionScaleSmoke) { $agentYamlReadbackPassed } else { $null }
+    action_scale_smoke_env_yaml_readback = if ($ActionScaleSmoke) { $envYamlReadbackPassed } else { $null }
     requested_training_safety_gate_zero = if ($RequireZeroTrainingSafetyTerminations) { $trainingSafetyGatePassed } else { $null }
 }
 $passed = -not ($successChecks.Values -contains $false)
@@ -1398,6 +1634,17 @@ $report = [ordered]@{
         full_300_iteration_training_status = if ($EntropySmoke) { 'forbidden_until_smoke_accepted' } else { $null }
         policy_qualification_status = 'not_run'
     }
+    action_scale_smoke_mode = [ordered]@{
+        enabled = [bool]$ActionScaleSmoke
+        preflight_passed = if ($ActionScaleSmoke) { $true } else { $null }
+        runtime_action_scale = if ($ActionScaleSmoke -and $null -ne $envYamlReadback) {
+            $envYamlReadback.action_scale
+        }
+        else { $null }
+        held_out_evaluation_status = if ($ActionScaleSmoke) { 'forbidden_until_full_300_training_safety_zero' } else { $null }
+        full_300_iteration_training_status = if ($ActionScaleSmoke) { 'forbidden_until_smoke_accepted' } else { $null }
+        policy_qualification_status = 'not_run'
+    }
     command = @(
         (Convert-ToPortablePath $pythonBat),
         (Convert-ToPortablePath $trainScript),
@@ -1417,13 +1664,14 @@ $report = [ordered]@{
     training_safety_gate = [ordered]@{
         requested = [bool]$RequireZeroTrainingSafetyTerminations
         required = $trainingSafetyGateRequired
-        scratch_required = [bool]($RequireZeroTrainingSafetyTerminations -or $EntropySmoke)
+        scratch_required = [bool]($RequireZeroTrainingSafetyTerminations -or $EntropySmoke -or $ActionScaleSmoke)
         hard_joint_limit_series_present = ($null -ne $hardJointLimitSummary)
         numeric_invalid_series_present = ($null -ne $numericInvalidSummary)
         mean_noise_std_series_present = ($null -ne $meanNoiseStdSummary)
         requires_both_maximum_counts_zero = $trainingSafetyGateRequired
         passed = $trainingSafetyGatePassed
         entropy_smoke_exact_50_sample_series_passed = $entropySmokeMetricGatePassed
+        action_scale_smoke_exact_50_sample_series_passed = $actionScaleSmokeMetricGatePassed
     }
     effective_hydra_overrides = @($HydraOverrides)
     training_entrypoint = [ordered]@{
@@ -1433,11 +1681,23 @@ $report = [ordered]@{
     }
     upstream = [ordered]@{
         isaac_lab_expected_commit = $expectedIsaacLabCommit
-        isaac_lab_commit = if ($Qualification) { $isaacLabCommit } else { $null }
+        isaac_lab_commit = if ($Qualification) {
+            $isaacLabCommit
+        }
+        elseif ($ActionScaleSmoke) { $actionScaleSmokePreflight.upstream.isaac_lab_commit }
+        else { $null }
         official_train_path = Convert-ToPortablePath $officialTrainScript
         official_train_expected_sha256 = $expectedOfficialTrainSha256
-        official_train_sha256 = if ($Qualification) { $officialTrainHash } else { $null }
-        tracked_clean = if ($Qualification) { $isaacLabTrackedClean } else { $null }
+        official_train_sha256 = if ($Qualification) {
+            $officialTrainHash
+        }
+        elseif ($ActionScaleSmoke) { $actionScaleSmokePreflight.upstream.official_train_sha256 }
+        else { $null }
+        tracked_clean = if ($Qualification) {
+            $isaacLabTrackedClean
+        }
+        elseif ($ActionScaleSmoke) { $actionScaleSmokePreflight.upstream.tracked_clean }
+        else { $null }
     }
     qualification_contract = if ($Qualification) {
         [ordered]@{
@@ -1456,6 +1716,15 @@ $report = [ordered]@{
         }
     }
     else { $null }
+    action_scale_smoke_contract = if ($ActionScaleSmoke) {
+        [ordered]@{
+            path = 'configs/g009_r0_rev29_action_scale_smoke.json'
+            sha256 = (Get-FileHash -LiteralPath $g009ActionScaleSmokeConfigPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            source_binding_path_manifest_sha256 = $actionScaleSmokeContract.source_binding_path_manifest_sha256
+            prelaunch_validation = $actionScaleSmokePreflight
+        }
+    }
+    else { $null }
     repository = [ordered]@{
         commit = $repositoryCommit
         dirty = $repositoryDirty
@@ -1467,6 +1736,9 @@ $report = [ordered]@{
         matches_repository_commit = $sourceBundleMatchesHead
         commit_blob_sha256 = if ($EntropySmoke) {
             $entropySmokePreflight.source_state.commit_blob_sha256
+        }
+        elseif ($ActionScaleSmoke) {
+            $actionScaleSmokePreflight.source_state.commit_blob_sha256
         }
         else { $null }
         prelaunch = [ordered]@{
@@ -1525,7 +1797,12 @@ $report = [ordered]@{
         }
         protected_run_safety = [ordered]@{
             required = $protectedGpuRun
-            mode = if ($Qualification) { 'qualification' } elseif ($EntropySmoke) { 'entropy_smoke' } else { $null }
+            mode = if ($Qualification) {
+                'qualification'
+            }
+            elseif ($EntropySmoke) { 'entropy_smoke' }
+            elseif ($ActionScaleSmoke) { 'action_scale_smoke' }
+            else { $null }
             temperature_threshold_c = $qualificationTemperatureC
             sustained_sample_count = $qualificationSustainedTemperatureSamples
             consecutive_sample_observation_span_seconds = (
@@ -1575,11 +1852,18 @@ $report = [ordered]@{
         checkpoint_sha256 = $checkpointHash
         agent_yaml = Convert-ToPortablePath $agentYamlPath
         agent_yaml_sha256 = $agentYamlHash
+        env_yaml = if ($ActionScaleSmoke) { Convert-ToPortablePath $envYamlPath } else { $null }
+        env_yaml_sha256 = if ($ActionScaleSmoke) { $envYamlHash } else { $null }
     }
     runtime_agent_config = [ordered]@{
         source = 'official train.py params/agent.yaml'
         readback = $agentYamlReadback
-        passed = if ($EntropySmoke) { $agentYamlReadbackPassed } else { $null }
+        passed = if ($EntropySmoke -or $ActionScaleSmoke) { $agentYamlReadbackPassed } else { $null }
+    }
+    runtime_env_config = [ordered]@{
+        source = if ($ActionScaleSmoke) { 'official train.py params/env.yaml' } else { $null }
+        readback = if ($ActionScaleSmoke) { $envYamlReadback } else { $null }
+        passed = if ($ActionScaleSmoke) { $envYamlReadbackPassed } else { $null }
     }
     log_directory_resolution = [ordered]@{
         mode = $logDirectoryResolutionMode

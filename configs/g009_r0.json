@@ -2,9 +2,9 @@
   "schema_version": 2,
   "goal_id": "g009",
   "stage_id": "R0",
-  "contract_sha256": "1f475422daec566043e24b579681fc1fa816f0b3a8c659a5af86a72c6714ff4c",
+  "contract_sha256": "2c54052a9e2dbd480984bd5dff14b28ead7e4f45fe7c0936d2fcb666328fbd45",
   "contract": {
-    "contract_id": "g009_r0_recover_rev28",
+    "contract_id": "g009_r0_recover_rev29",
     "stage_id": "R0",
     "policy_schema": "P-RECOVER-83/C-RECOVER-107",
     "poses": [
@@ -109,7 +109,7 @@
       "articulation_solver_velocity_iteration_count": 0,
       "max_depenetration_velocity_m_s": 1.0,
       "rev12_baseline_articulation_solver_position_iteration_count": 8,
-      "single_variable_change": "restore only the Go2 articulation position-solver iteration count from the rejected rev15 value 16 to the accepted rev12 runtime baseline 8; retain the velocity-solver count at 0, rigid-body maximum depenetration velocity at 1.0 m/s, action scale 0.70, EMA alpha 0.2, PPO initial noise 0.5, reset, reward, curriculum, torque, joint-limit tolerance, and observation-noise contracts"
+      "single_variable_change": "rev29 changes only the normalized joint-position action scale from the rejected rev28 value 0.70 to 0.65; retain solver iterations 8/0, maximum depenetration velocity 1.0 m/s, EMA alpha 0.2, PPO entropy 0.0 and initial noise 0.5, reset, reward, curriculum, torque, joint-limit tolerance, and observation-noise contracts"
     },
     "reset": {
       "assignment_mode": "random",
@@ -189,7 +189,7 @@
     "action": {
       "type": "EMAJointPositionToLimitsAction",
       "dim": 12,
-      "scale": 0.7,
+      "scale": 0.65,
       "ema_alpha": 0.2,
       "ema_control_frequency_hz": 50.0,
       "ema_time_constant_s": 0.08962840235449102,
@@ -200,9 +200,18 @@
       "rescale_to_soft_joint_limits": true,
       "runner_clip_actions": 1.0,
       "asset_soft_joint_limit_factor": 0.9,
-      "effective_target_hard_limit_range_fraction": 0.63,
-      "hard_limit_margin_fraction_per_side": 0.185,
-      "safety_rationale": "seed-42 rev3 smoke terminated 75% of completed episodes at the hard joint limit; scale-only rev4 still terminated 62.5%; scale 0.8 plus alpha 0.2 removed it in the 64-env rev5 smoke, but rev6 still measured 0.0416667 in the 1024-env stress smoke; reducing PPO initial noise to 0.5 produced zero in the rev7 1024-env stress smoke; rev9 prone pilot returned hard-limit terminations in 23 of 50 iterations with a maximum rate of 0.4583333, so rev10 reduced only the action scale to 0.70; rev10 then reproduced a 16.066175 body-weight CPU non-foot contact peak while the -2.40 rad calf reset independently saturated the normalized hold action and shifted its reachable target by 0.026014 rad; rev11 tests this mechanical hypothesis by moving only that reset seed to -2.37 rad inside the scale-0.70 action envelope while retaining EMA alpha 0.2, PPO initial noise 0.5, and the 0.01 rad solver tolerance; stochastic-training terminations remain diagnostic and the official deterministic evaluation still requires zero; rev9 numeric-invalid terminations remained zero throughout the pilot"
+      "effective_target_hard_limit_range_fraction": 0.5850000000000001,
+      "hard_limit_margin_fraction_per_side": 0.20749999999999996,
+      "action_scale_experiment_evidence": {
+        "revision": "rev29",
+        "single_variable": "normalized_joint_position_action_scale",
+        "rejected_rev28_value": 0.7,
+        "candidate_value": 0.65,
+        "all_other_training_and_environment_contracts_frozen": true,
+        "contract_id_change_semantics": "provenance identifier update only; not an additional physics or training variable",
+        "interpretation": "rev29 narrows the soft-limit-rescaled target range after rev27 localized the rejected checkpoint events to prone calf dynamics and rev28 showed that entropy removal alone did not satisfy the zero-event safety gate"
+      },
+      "safety_rationale": "seed-42 rev3 smoke terminated 75% of completed episodes at the hard joint limit; scale-only rev4 still terminated 62.5%; scale 0.8 plus alpha 0.2 removed it in the 64-env rev5 smoke, but rev6 still measured 0.0416667 in the 1024-env stress smoke; reducing PPO initial noise to 0.5 produced zero in the rev7 1024-env stress smoke; rev9 prone pilot returned hard-limit terminations in 23 of 50 iterations with a maximum rate of 0.4583333, so rev10 reduced only the action scale to 0.70; rev10 then reproduced a 16.066175 body-weight CPU non-foot contact peak while the -2.40 rad calf reset independently saturated the normalized hold action and shifted its reachable target by 0.026014 rad; rev11 tests this mechanical hypothesis by moving only that reset seed to -2.37 rad inside the scale-0.70 action envelope while retaining EMA alpha 0.2, PPO initial noise 0.5, and the 0.01 rad solver tolerance; stochastic-training terminations remain diagnostic and the official deterministic evaluation still requires zero; rev9 numeric-invalid terminations remained zero throughout the pilot; rev26 full training was rejected with 57 nonzero hard-limit samples, rev27 localized five replay events to prone calf joints despite processed targets remaining inside the hard bounds, and rev28 entropy=0 still produced four nonzero samples, so rev29 narrows only the action scale from 0.70 to 0.65"
     },
     "materials": {
       "ground": {
