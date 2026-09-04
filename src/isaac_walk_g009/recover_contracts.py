@@ -54,6 +54,7 @@ EFFECTIVE_ACTION_TARGET_HARD_LIMIT_RANGE_FRACTION = (
     ACTION_SCALE * GO2_SOFT_JOINT_LIMIT_FACTOR
 )
 PPO_INIT_NOISE_STD = 0.5
+PPO_ENTROPY_COEF = 0.0
 PPO_GAMMA = 0.99
 
 RESET_POSE_XY_RANGE_M = (-0.05, 0.05)
@@ -302,7 +303,7 @@ def recover_contract() -> dict[str, Any]:
         for pose in RECOVER_POSES.values()
     ]
     return {
-        "contract_id": "g009_r0_recover_rev24",
+        "contract_id": "g009_r0_recover_rev28",
         "stage_id": "R0",
         "policy_schema": "P-RECOVER-83/C-RECOVER-107",
         "poses": poses,
@@ -572,7 +573,22 @@ def recover_contract() -> dict[str, Any]:
             "mini_batches": 4,
             "optimizer_updates_per_iteration": 20,
             "clip_parameter": 0.2,
-            "entropy_coefficient": 0.01,
+            "entropy_coefficient": PPO_ENTROPY_COEF,
+            "entropy_experiment_evidence": {
+                "revision": "rev28",
+                "single_variable": "ppo_entropy_coefficient",
+                "rejected_rev26_value": 0.01,
+                "candidate_value": PPO_ENTROPY_COEF,
+                "all_other_training_and_environment_contracts_frozen": True,
+                "contract_id_change_semantics": (
+                    "provenance identifier update only; not an additional physics or training variable"
+                ),
+                "interpretation": (
+                    "rev28 tests whether removing PPO entropy regularization prevents "
+                    "exploration-noise growth during the prone-only 50-iteration smoke; "
+                    "the smoke is a safety gate, not recovery qualification"
+                ),
+            },
             "gamma": PPO_GAMMA,
             "gae_lambda": 0.95,
             "learning_rate": 0.001,
@@ -704,6 +720,7 @@ __all__ = [
     "NON_FOOT_COLLISION_THRESHOLD_N",
     "PHYSICS_DT_S",
     "PPO_INIT_NOISE_STD",
+    "PPO_ENTROPY_COEF",
     "PPO_GAMMA",
     "POSE_CURRICULUM_PHASE_END_CONTROL_STEPS",
     "POSE_CURRICULUM_PROBABILITIES",

@@ -28,6 +28,7 @@ from isaac_walk_g009.recover_contracts import (
     MIN_TOTAL_FOOT_SUPPORT_RATIO,
     POSE_CURRICULUM_PHASE_END_CONTROL_STEPS,
     POSE_CURRICULUM_PROBABILITIES,
+    PPO_ENTROPY_COEF,
     PPO_INIT_NOISE_STD,
     PPO_GAMMA,
     RECOVER_POSES,
@@ -147,7 +148,22 @@ def test_r0_reward_and_ppo_contract_match_the_frozen_document_revision() -> None
         "mini_batches": 4,
         "optimizer_updates_per_iteration": 20,
         "clip_parameter": 0.2,
-        "entropy_coefficient": 0.01,
+        "entropy_coefficient": PPO_ENTROPY_COEF,
+        "entropy_experiment_evidence": {
+            "revision": "rev28",
+            "single_variable": "ppo_entropy_coefficient",
+            "rejected_rev26_value": 0.01,
+            "candidate_value": PPO_ENTROPY_COEF,
+            "all_other_training_and_environment_contracts_frozen": True,
+            "contract_id_change_semantics": (
+                "provenance identifier update only; not an additional physics or training variable"
+            ),
+            "interpretation": (
+                "rev28 tests whether removing PPO entropy regularization prevents "
+                "exploration-noise growth during the prone-only 50-iteration smoke; "
+                "the smoke is a safety gate, not recovery qualification"
+            ),
+        },
         "gamma": PPO_GAMMA,
         "gae_lambda": 0.95,
         "learning_rate": 0.001,
@@ -164,7 +180,7 @@ def test_r0_reward_and_ppo_contract_match_the_frozen_document_revision() -> None
 
 def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     contract = recover_contract()
-    assert contract["contract_id"] == "g009_r0_recover_rev24"
+    assert contract["contract_id"] == "g009_r0_recover_rev28"
     assert contract["physics"] == {
         "articulation_solver_position_iteration_count": 8,
         "articulation_solver_velocity_iteration_count": 0,

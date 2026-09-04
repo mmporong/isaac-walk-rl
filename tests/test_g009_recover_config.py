@@ -540,7 +540,7 @@ def test_r0_runner_budget_and_ppo_inheritance():
     assert cfg.policy.activation == "elu"
     assert cfg.policy.init_noise_std == PPO_INIT_NOISE_STD
     assert cfg.algorithm.clip_param == 0.2
-    assert cfg.algorithm.entropy_coef == 0.01
+    assert cfg.algorithm.entropy_coef == 0.0
     assert cfg.algorithm.gamma == 0.99
     assert cfg.algorithm.lam == 0.95
     assert cfg.algorithm.learning_rate == 0.001

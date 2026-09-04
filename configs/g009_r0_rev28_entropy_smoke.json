@@ -1,0 +1,112 @@
+{
+  "schema_version": "g009.r0.rev28.entropy_smoke_preregistration.v1",
+  "evidence_id": "G009-5-E021",
+  "revision": "rev28",
+  "purpose": "single-variable smoke test of PPO entropy coefficient 0.01 to 0.0 after rejected rev26 training and rev27 attribution",
+  "single_experimental_variable": {
+    "name": "ppo_entropy_coefficient",
+    "rejected_rev26_value": 0.01,
+    "candidate_value": 0.0
+  },
+  "historical_evidence": {
+    "rev27_diagnostic_report": {
+      "path": "reports/runs/g009_5_r0_rev27_model299_joint_limit_diagnostic_s42_20260904-1813.json",
+      "sha256": "ffd373d3937558aa71b5afccc70468aff068a28443f728a94343e488046bc315"
+    },
+    "rev26_training_report": {
+      "path": "reports/runs/go2_flat_g009_r0_rev26_qualification_retry03_s42_20260904-1637.json",
+      "sha256": "71a3b45129b79f2beaed14fab486423aafdd0f92e860022cf22c2c6242391234"
+    },
+    "rev26_checkpoint": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_16-42-05_go2_flat_g009_r0_rev26_qualification_retry03_s42_20260904-1637\\model_299.pt",
+      "sha256": "75b38ac4c8f8b2ed17d73893350c1ca484ca3ef3c0d633273553e13efdf44c95"
+    },
+    "rev26_step49_mean_noise_std": 0.5513023734,
+    "comparison_semantics": "non-worsening smoke acceptance gate only; equality is allowed and neither strict improvement nor causality is claimed"
+  },
+  "training": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "device": "cuda:0",
+    "headless": true,
+    "seed": 42,
+    "scratch": true,
+    "resume": false,
+    "num_envs": 1024,
+    "num_steps_per_env": 24,
+    "max_iterations": 50,
+    "transitions": 1228800,
+    "ppo_num_learning_epochs": 5,
+    "ppo_num_mini_batches": 4,
+    "optimizer_updates_per_iteration": 20,
+    "optimizer_mini_batch_updates": 1000,
+    "expected_checkpoint_name": "model_49.pt",
+    "pose_curriculum_phase": 0,
+    "pose_distribution": {
+      "prone": 1.0,
+      "supine": 0.0,
+      "left_side": 0.0,
+      "right_side": 0.0
+    }
+  },
+  "frozen_contract": {
+    "ppo_init_noise_std": 0.5,
+    "action_scale": 0.7,
+    "action_ema_alpha": 0.2,
+    "articulation_solver_position_iteration_count": 8,
+    "articulation_solver_velocity_iteration_count": 0,
+    "max_depenetration_velocity_m_s": 1.0,
+    "asset_soft_joint_limit_factor": 0.9,
+    "policy_observation_dimension": 140,
+    "critic_observation_dimension": 164,
+    "reset_reward_observation_contract": "canonical configs/g009_r0.json"
+  },
+  "acceptance_gate": {
+    "tensorboard_exact_sample_count": 50,
+    "required_series": [
+      "Episode_Termination/hard_joint_limit",
+      "Episode_Termination/numeric_invalid",
+      "Policy/mean_noise_std"
+    ],
+    "hard_joint_limit_maximum": 0.0,
+    "hard_joint_limit_nonzero_sample_count": 0,
+    "numeric_invalid_maximum": 0.0,
+    "numeric_invalid_nonzero_sample_count": 0,
+    "checkpoint_std_vector_dimension": 12,
+    "checkpoint_std_vector_all_finite": true,
+    "iteration49_mean_noise_std_maximum": 0.5513023734,
+    "iteration49_mean_noise_std_comparison": "less_than_or_equal_to_rev26_step49",
+    "gpu_temperature_threshold_c": 90.0,
+    "gpu_sustained_hot_sample_count": 3,
+    "gpu_fatal_events_maximum": 0,
+    "gpu_descendants_must_exit": true
+  },
+  "source_binding_paths": [
+    "configs/g009_r0.json",
+    "configs/g009_r0_rev28_entropy_smoke.json",
+    "scripts/bootstrap_train_g009.py",
+    "scripts/run_training.ps1",
+    "scripts/summarize_g009_r0_rev28_entropy_smoke.py",
+    "scripts/validate_g009_r0_rev28_entropy_smoke.py",
+    "src/isaac_walk_g009/agent_cfg.py",
+    "src/isaac_walk_g009/matrix_gate01.py",
+    "src/isaac_walk_g009/matrix_observation_adapter.py",
+    "src/isaac_walk_g009/mdp/__init__.py",
+    "src/isaac_walk_g009/mdp/events.py",
+    "src/isaac_walk_g009/mdp/recover.py",
+    "src/isaac_walk_g009/recover_contracts.py",
+    "src/isaac_walk_g009/recover_env_cfg.py",
+    "src/isaac_walk_g009/registry.py"
+  ],
+  "source_binding_path_manifest_sha256": "230473fa68c7121656a50beb01e8a013c7230de5762b03230c806b3988dc3b07",
+  "execution_order": {
+    "prelaunch_validator_required": true,
+    "smoke_must_pass_before_full_300_iteration_training": true,
+    "held_out_seed_1042_forbidden_until_full_300_training_safety_zero": true
+  },
+  "claim_limits": {
+    "smoke_acceptance_is_policy_qualification": false,
+    "recovery_success_measured": false,
+    "held_out_evaluation_status": "forbidden_until_full_300_training_safety_zero",
+    "full_300_iteration_training_status": "forbidden_until_smoke_accepted"
+  }
+}

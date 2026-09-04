@@ -2,9 +2,9 @@
   "schema_version": 2,
   "goal_id": "g009",
   "stage_id": "R0",
-  "contract_sha256": "64eb108bb736d9ba8c1727c3a56ddc3fefaafaba25a98f93c1f8505704c5dd91",
+  "contract_sha256": "1f475422daec566043e24b579681fc1fa816f0b3a8c659a5af86a72c6714ff4c",
   "contract": {
-    "contract_id": "g009_r0_recover_rev24",
+    "contract_id": "g009_r0_recover_rev28",
     "stage_id": "R0",
     "policy_schema": "P-RECOVER-83/C-RECOVER-107",
     "poses": [
@@ -763,7 +763,16 @@
       "mini_batches": 4,
       "optimizer_updates_per_iteration": 20,
       "clip_parameter": 0.2,
-      "entropy_coefficient": 0.01,
+      "entropy_coefficient": 0.0,
+      "entropy_experiment_evidence": {
+        "revision": "rev28",
+        "single_variable": "ppo_entropy_coefficient",
+        "rejected_rev26_value": 0.01,
+        "candidate_value": 0.0,
+        "all_other_training_and_environment_contracts_frozen": true,
+        "contract_id_change_semantics": "provenance identifier update only; not an additional physics or training variable",
+        "interpretation": "rev28 tests whether removing PPO entropy regularization prevents exploration-noise growth during the prone-only 50-iteration smoke; the smoke is a safety gate, not recovery qualification"
+      },
       "gamma": 0.99,
       "gae_lambda": 0.95,
       "learning_rate": 0.001,

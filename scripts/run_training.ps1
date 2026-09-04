@@ -31,6 +31,8 @@ param(
 
     [switch]$Qualification,
 
+    [switch]$EntropySmoke,
+
     [switch]$RequireZeroTrainingSafetyTerminations,
 
     [switch]$Resume,
@@ -45,6 +47,14 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+
+trap {
+    # Keep validation failures on stdout so Windows PowerShell 5.1 callers can
+    # capture the non-zero exit without converting native stderr into a
+    # terminating NativeCommandError before they inspect $LASTEXITCODE.
+    Write-Output ("ERROR: " + $_.Exception.Message)
+    exit 1
+}
 
 function Convert-ToPortablePath {
     param([AllowNull()][string]$Path)
@@ -281,11 +291,45 @@ $trainScript = $officialTrainScript
 $rawLogRoot = Join-Path $isaacLabFullPath 'logs\harness'
 $g009QualificationTask = 'Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0'
 $g009QualificationConfigPath = Join-Path $repoRoot 'configs\g009_r0_rev26_qualification.json'
+$g009EntropySmokeConfigPath = Join-Path $repoRoot 'configs\g009_r0_rev28_entropy_smoke.json'
+$g009EntropySmokeValidatorPath = Join-Path $repoRoot 'scripts\validate_g009_r0_rev28_entropy_smoke.py'
 $expectedIsaacLabCommit = '90b79bb2d44feb8d833f260f2bf37da3487180ba'
 $expectedOfficialTrainSha256 = '8b995f75ac57ce7403973ff1f3f2715fbff9563ef2cdcdc321a7edc5dd15f5df'
 $expectedQualificationSourceManifestSha256 = 'bd3023481434813fdaf10d80280ff243d4f2af04ed92975d68adec4bc96b1334'
+$expectedEntropySmokeSourceManifestSha256 = '230473fa68c7121656a50beb01e8a013c7230de5762b03230c806b3988dc3b07'
 $qualificationTemperatureC = 90.0
 $qualificationSustainedTemperatureSamples = 3
+$protectedGpuRun = [bool]($Qualification -or $EntropySmoke)
+
+if ($Qualification -and $EntropySmoke) {
+    throw 'Qualification과 EntropySmoke는 동시에 실행할 수 없습니다.'
+}
+
+function Test-FiniteSeriesSummary {
+    param(
+        [AllowNull()][object]$Summary,
+        [Parameter(Mandatory = $true)][int]$ExpectedSampleCount
+    )
+
+    if ($null -eq $Summary) {
+        return $false
+    }
+    $sampleCountProperty = $Summary.PSObject.Properties['sample_count']
+    if ($null -eq $sampleCountProperty -or $sampleCountProperty.Value -ne $ExpectedSampleCount) {
+        return $false
+    }
+    foreach ($field in @('latest', 'minimum', 'maximum', 'mean')) {
+        $property = $Summary.PSObject.Properties[$field]
+        if ($null -eq $property -or $null -eq $property.Value) {
+            return $false
+        }
+        try { [double]$value = $property.Value } catch { return $false }
+        if ([double]::IsNaN($value) -or [double]::IsInfinity($value)) {
+            return $false
+        }
+    }
+    return $true
+}
 
 if (-not [string]::IsNullOrWhiteSpace($TrainingEntrypointPath)) {
     $candidateEntrypoint = [System.IO.Path]::GetFullPath($TrainingEntrypointPath)
@@ -333,6 +377,9 @@ elseif (-not [string]::IsNullOrWhiteSpace($LoadRun) -or -not [string]::IsNullOrW
 if ($Qualification -and $Resume) {
     throw 'Qualification 학습은 scratch 실행만 허용합니다.'
 }
+if ($EntropySmoke -and $Resume) {
+    throw 'Entropy smoke는 scratch 실행만 허용합니다.'
+}
 if ($RequireZeroTrainingSafetyTerminations -and $Resume) {
     throw 'Training safety gate는 scratch 진단 학습에서만 사용할 수 있으며 Resume과 함께 사용할 수 없습니다.'
 }
@@ -341,6 +388,9 @@ if ($RequireZeroTrainingSafetyTerminations -and $HydraOverrides.Count -gt 0) {
 }
 if ($Qualification -and $HydraOverrides.Count -gt 0) {
     throw 'Qualification 학습은 런타임 의미를 바꾸는 Hydra override를 허용하지 않습니다.'
+}
+if ($EntropySmoke -and $HydraOverrides.Count -gt 0) {
+    throw 'Entropy smoke는 단일 변수 계약을 보존하기 위해 Hydra override를 허용하지 않습니다.'
 }
 
 function Get-DescendantProcessIds {
@@ -373,6 +423,31 @@ function Test-ProcessIdsExited {
     return $true
 }
 
+function Stop-PostExitDescendants {
+    param([Parameter(Mandatory = $true)][int]$RootProcessId)
+
+    $postExitIds = @(Get-DescendantProcessIds -RootProcessId $RootProcessId)
+    foreach ($descendantId in $postExitIds) {
+        if ($null -ne (Get-Process -Id $descendantId -ErrorAction SilentlyContinue)) {
+            Stop-Process -Id $descendantId -Force -ErrorAction Stop
+        }
+    }
+    $deadline = (Get-Date).AddSeconds(15)
+    do {
+        if (Test-ProcessIdsExited -ProcessIds $postExitIds) {
+            return [pscustomobject]@{
+                descendant_process_ids = $postExitIds
+                all_processes_exited = $true
+            }
+        }
+        Start-Sleep -Milliseconds 100
+    } while ((Get-Date) -lt $deadline)
+    return [pscustomobject]@{
+        descendant_process_ids = $postExitIds
+        all_processes_exited = $false
+    }
+}
+
 function Stop-VerifiedProcessTree {
     param([Parameter(Mandatory = $true)][int]$RootProcessId)
 
@@ -403,7 +478,12 @@ if ($Qualification -and $Task -ne $g009QualificationTask) {
 if ($Qualification -and ($NumEnvs -ne 1024 -or $MaxIterations -ne 300 -or $Seed -ne 42)) {
     throw 'G009 R0 Qualification은 num_envs=1024, max_iterations=300, seed=42만 허용합니다.'
 }
-
+if ($EntropySmoke -and $Task -ne $g009QualificationTask) {
+    throw "G009 R0 Entropy smoke는 task=$g009QualificationTask 만 허용합니다."
+}
+if ($EntropySmoke -and ($NumEnvs -ne 1024 -or $MaxIterations -ne 50 -or $Seed -ne 42)) {
+    throw 'G009 R0 Entropy smoke는 num_envs=1024, max_iterations=50, seed=42만 허용합니다.'
+}
 if (-not (Test-Path -LiteralPath $pythonBat -PathType Leaf)) {
     throw "Isaac Sim bundled python.bat을 찾을 수 없습니다: $pythonBat"
 }
@@ -412,6 +492,9 @@ if (-not (Test-Path -LiteralPath $trainScript -PathType Leaf)) {
 }
 $qualificationContract = $null
 $qualificationSourceBindingPaths = @()
+$entropySmokeContract = $null
+$entropySmokeSourceBindingPaths = @()
+$entropySmokePreflight = $null
 $isaacLabCommit = $null
 $officialTrainHash = $null
 $isaacLabTrackedClean = $null
@@ -475,6 +558,64 @@ if ($Qualification) {
         $qualificationContract.source_binding_path_manifest_sha256 -ne $expectedQualificationSourceManifestSha256
     ) {
         throw 'rev26 qualification source binding path manifest가 유효하지 않습니다.'
+    }
+}
+if ($EntropySmoke) {
+    if (-not (Test-Path -LiteralPath $g009EntropySmokeConfigPath -PathType Leaf)) {
+        throw "rev28 entropy smoke preregistration을 찾을 수 없습니다: $g009EntropySmokeConfigPath"
+    }
+    if (-not (Test-Path -LiteralPath $g009EntropySmokeValidatorPath -PathType Leaf)) {
+        throw "rev28 entropy smoke validator를 찾을 수 없습니다: $g009EntropySmokeValidatorPath"
+    }
+    $entropySmokeContract = Get-Content -LiteralPath $g009EntropySmokeConfigPath -Raw | ConvertFrom-Json
+    if (
+        $entropySmokeContract.schema_version -ne 'g009.r0.rev28.entropy_smoke_preregistration.v1' -or
+        $entropySmokeContract.evidence_id -ne 'G009-5-E021' -or
+        $entropySmokeContract.revision -ne 'rev28' -or
+        $entropySmokeContract.single_experimental_variable.name -ne 'ppo_entropy_coefficient' -or
+        $entropySmokeContract.single_experimental_variable.rejected_rev26_value -ne 0.01 -or
+        $entropySmokeContract.single_experimental_variable.candidate_value -ne 0.0 -or
+        $entropySmokeContract.training.task -ne $g009QualificationTask -or
+        $entropySmokeContract.training.device -ne 'cuda:0' -or
+        $entropySmokeContract.training.headless -ne $true -or
+        $entropySmokeContract.training.seed -ne 42 -or
+        $entropySmokeContract.training.scratch -ne $true -or
+        $entropySmokeContract.training.resume -ne $false -or
+        $entropySmokeContract.training.num_envs -ne 1024 -or
+        $entropySmokeContract.training.num_steps_per_env -ne 24 -or
+        $entropySmokeContract.training.max_iterations -ne 50 -or
+        $entropySmokeContract.training.transitions -ne 1228800 -or
+        $entropySmokeContract.training.ppo_num_learning_epochs -ne 5 -or
+        $entropySmokeContract.training.ppo_num_mini_batches -ne 4 -or
+        $entropySmokeContract.training.optimizer_mini_batch_updates -ne 1000 -or
+        $entropySmokeContract.training.expected_checkpoint_name -ne 'model_49.pt' -or
+        $entropySmokeContract.training.pose_curriculum_phase -ne 0 -or
+        $entropySmokeContract.acceptance_gate.tensorboard_exact_sample_count -ne 50 -or
+        $entropySmokeContract.acceptance_gate.gpu_temperature_threshold_c -ne 90.0 -or
+        $entropySmokeContract.acceptance_gate.gpu_sustained_hot_sample_count -ne 3 -or
+        $entropySmokeContract.execution_order.prelaunch_validator_required -ne $true -or
+        $entropySmokeContract.execution_order.smoke_must_pass_before_full_300_iteration_training -ne $true -or
+        $entropySmokeContract.execution_order.held_out_seed_1042_forbidden_until_full_300_training_safety_zero -ne $true
+    ) {
+        throw 'rev28 entropy smoke preregistration의 고정 계약이 일치하지 않습니다.'
+    }
+    $entropySmokeSourceBindingPaths = @($entropySmokeContract.source_binding_paths)
+    [string[]]$sortedEntropySmokePaths = @($entropySmokeSourceBindingPaths)
+    [Array]::Sort($sortedEntropySmokePaths, [System.StringComparer]::Ordinal)
+    $uniqueEntropySmokePaths = [System.Collections.Generic.HashSet[string]]::new(
+        [System.StringComparer]::Ordinal
+    )
+    foreach ($entropySmokePath in $entropySmokeSourceBindingPaths) {
+        [void]$uniqueEntropySmokePaths.Add($entropySmokePath)
+    }
+    if (
+        $entropySmokeSourceBindingPaths.Count -eq 0 -or
+        $uniqueEntropySmokePaths.Count -ne $entropySmokeSourceBindingPaths.Count -or
+        (($entropySmokeSourceBindingPaths | ConvertTo-Json -Compress) -ne ($sortedEntropySmokePaths | ConvertTo-Json -Compress)) -or
+        (Get-TextSha256 ($entropySmokeSourceBindingPaths | ConvertTo-Json -Compress)) -ne $entropySmokeContract.source_binding_path_manifest_sha256 -or
+        $entropySmokeContract.source_binding_path_manifest_sha256 -ne $expectedEntropySmokeSourceManifestSha256
+    ) {
+        throw 'rev28 entropy smoke source binding path manifest가 유효하지 않습니다.'
     }
 }
 $trainingEntrypointHash = (Get-FileHash -LiteralPath $trainScript -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -628,7 +769,10 @@ if ($Qualification) {
         )
         $isaacLabCommit = if ($isaacLabCommitLines.Count -eq 1) { $isaacLabCommitLines[0] } else { $null }
         if ($isaacLabCommitExitCode -ne 0) {
-            $qualificationFailures.Add("Isaac Lab git rev-parse 실패: exit=$isaacLabCommitExitCode stderr=$isaacLabCommitStderr")
+            $qualificationFailures.Add("git rev-parse 실패: exit=$isaacLabCommitExitCode")
+            if (-not [string]::IsNullOrWhiteSpace($isaacLabCommitStderr)) {
+                $qualificationFailures.Add($isaacLabCommitStderr)
+            }
         }
         elseif ($isaacLabCommit -ne $expectedIsaacLabCommit) {
             $actualCommitText = if ($null -eq $isaacLabCommit) { '<missing-or-multiple>' } else { $isaacLabCommit }
@@ -661,7 +805,10 @@ if ($Qualification) {
         )
         $isaacLabTrackedClean = $isaacLabStatusExitCode -eq 0 -and $isaacLabTrackedStatusLines.Count -eq 0
         if ($isaacLabStatusExitCode -ne 0) {
-            $qualificationFailures.Add("Isaac Lab git status 실패: exit=$isaacLabStatusExitCode stderr=$isaacLabStatusStderr")
+            $qualificationFailures.Add("git status 실패: exit=$isaacLabStatusExitCode")
+            if (-not [string]::IsNullOrWhiteSpace($isaacLabStatusStderr)) {
+                $qualificationFailures.Add($isaacLabStatusStderr)
+            }
         }
         elseif ($isaacLabTrackedStatusLines.Count -gt 0) {
             $qualificationFailures.Add(
@@ -677,9 +824,87 @@ if ($Qualification) {
         }
     }
     if ($qualificationFailures.Count -gt 0) {
-        throw ('Qualification 사전 검증 실패: ' + ($qualificationFailures -join '; '))
+        Write-Output 'Qualification 사전 검증 실패:'
+        foreach ($qualificationFailure in $qualificationFailures) {
+            Write-Output $qualificationFailure
+        }
+        exit 1
     }
     $qualificationPreflightPassed = $true
+    throw 'rev28 entropy=0.0 코드는 rev26/E019 Qualification으로 실행할 수 없습니다. accepted smoke에 결합된 rev28 full300/E022 계약이 구현될 때까지 차단합니다.'
+}
+if ($EntropySmoke) {
+    $entropySmokeFailures = [System.Collections.Generic.List[string]]::new()
+    $actualEntropySmokePaths = @($sourceBindingFiles.Keys)
+    if (
+        $actualEntropySmokePaths.Count -ne $entropySmokeSourceBindingPaths.Count -or
+        (($actualEntropySmokePaths | ConvertTo-Json -Compress) -ne ($entropySmokeSourceBindingPaths | ConvertTo-Json -Compress))
+    ) {
+        $entropySmokeFailures.Add('source binding paths가 rev28 preregistration exact set과 일치하지 않음')
+    }
+    if ($null -eq $repositoryCommit -or $repositoryCommit -notmatch '^[0-9a-f]{40}$') {
+        $entropySmokeFailures.Add('유효한 repository commit을 읽지 못함')
+    }
+    if ($repositoryDirty -ne $false) {
+        $entropySmokeFailures.Add('repository가 clean 상태가 아님')
+    }
+    if ($sourceBundleMatchesHead -ne $true) {
+        $entropySmokeFailures.Add('source bundle이 현재 HEAD와 일치하지 않음')
+    }
+    $expectedG009Entrypoint = [System.IO.Path]::GetFullPath(
+        (Join-Path $repoRoot 'scripts\bootstrap_train_g009.py')
+    )
+    if ([string]::IsNullOrWhiteSpace($TrainingEntrypointPath) -or
+        -not $trainScript.Equals($expectedG009Entrypoint, [System.StringComparison]::OrdinalIgnoreCase)) {
+        $entropySmokeFailures.Add('G009 R0 training entrypoint가 bootstrap_train_g009.py와 일치하지 않음')
+    }
+    if ($entropySmokeFailures.Count -gt 0) {
+        throw ('Entropy smoke 사전 검증 실패: ' + ($entropySmokeFailures -join '; '))
+    }
+    $entropyValidatorCaptureId = [guid]::NewGuid().ToString('N')
+    $entropyValidatorStdout = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-rev28-validator-' + $entropyValidatorCaptureId + '.stdout')
+    $entropyValidatorStderr = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-rev28-validator-' + $entropyValidatorCaptureId + '.stderr')
+    try {
+        $validatorArgumentLine = @(
+            (Convert-ToWindowsCommandLineArgument $g009EntropySmokeValidatorPath),
+            '--preregistration',
+            (Convert-ToWindowsCommandLineArgument $g009EntropySmokeConfigPath)
+        ) -join ' '
+        $entropyValidatorProcess = Start-Process -FilePath $pythonBat `
+            -ArgumentList $validatorArgumentLine `
+            -WorkingDirectory $repoRoot `
+            -WindowStyle Hidden `
+            -RedirectStandardOutput $entropyValidatorStdout `
+            -RedirectStandardError $entropyValidatorStderr `
+            -Wait `
+            -PassThru
+        $entropyValidatorExitCode = $entropyValidatorProcess.ExitCode
+        $entropyValidatorOutput = if (Test-Path -LiteralPath $entropyValidatorStdout) {
+            @((Get-Content -LiteralPath $entropyValidatorStdout -ErrorAction Stop))
+        }
+        else { @() }
+        $entropyValidatorError = if (Test-Path -LiteralPath $entropyValidatorStderr) {
+            [string](Get-Content -LiteralPath $entropyValidatorStderr -Raw)
+        }
+        else { '' }
+    }
+    finally {
+        Remove-Item -LiteralPath $entropyValidatorStdout -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $entropyValidatorStderr -Force -ErrorAction SilentlyContinue
+    }
+    if ($entropyValidatorExitCode -ne 0 -or $entropyValidatorOutput.Count -eq 0) {
+        throw "Entropy smoke validator 실패: exit=$entropyValidatorExitCode stderr=$($entropyValidatorError.Trim())"
+    }
+    try {
+        $entropySmokePreflight = $entropyValidatorOutput[-1] | ConvertFrom-Json
+    }
+    catch {
+        throw "Entropy smoke validator JSON 해석 실패: $($_.Exception.Message)"
+    }
+    if ($entropySmokePreflight.status -ne 'pass' -or
+        $entropySmokePreflight.canonical_static_readback.entropy_coef -ne 0.0) {
+        throw 'Entropy smoke validator가 통과 상태와 canonical entropy_coef=0.0을 반환하지 않았습니다.'
+    }
 }
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
@@ -707,6 +932,7 @@ $arguments = @(
     '--num_envs', $NumEnvs,
     '--max_iterations', $MaxIterations,
     '--seed', $Seed,
+    '--device', 'cuda:0',
     '--run_name', $RunName,
     '--headless'
 )
@@ -744,6 +970,31 @@ $startedAt = Get-Date
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $observedDescendantProcessIds = [System.Collections.Generic.HashSet[int]]::new()
 $processTreeTermination = $null
+$prelaunchSourceFiles = [ordered]@{}
+foreach ($sourcePath in $sourceBindingFiles.Keys) {
+    $prelaunchSourceFiles[$sourcePath] = (
+        Get-FileHash -LiteralPath (Join-Path $repoRoot $sourcePath) -Algorithm SHA256
+    ).Hash.ToLowerInvariant()
+}
+$prelaunchSourceBundlePayload = (
+    $prelaunchSourceFiles.GetEnumerator() | ForEach-Object { "$($_.Key):$($_.Value)" }
+) -join "`n"
+$prelaunchSourceBundleHash = if ($prelaunchSourceFiles.Count -gt 0) {
+    Get-TextSha256 $prelaunchSourceBundlePayload
+}
+else { $null }
+$prelaunchRepositoryCommit = @(& $gitCommand.Source -C $repoRoot rev-parse HEAD 2>$null)[-1].Trim()
+$prelaunchSnapshotMatchesValidated = (
+    $prelaunchRepositoryCommit -eq $repositoryCommit -and
+    $prelaunchSourceBundleHash -eq $sourceBundleHash -and
+    (($prelaunchSourceFiles | ConvertTo-Json -Compress) -eq ($sourceBindingFiles | ConvertTo-Json -Compress))
+)
+if ($EntropySmoke -and (-not $prelaunchSnapshotMatchesValidated -or
+    $entropySmokePreflight.source_state.repository_commit -ne $prelaunchRepositoryCommit -or
+    $entropySmokePreflight.source_state.executed_worktree_sha256.bundle -ne $prelaunchSourceBundleHash -or
+    (($entropySmokePreflight.source_state.executed_worktree_sha256.files | ConvertTo-Json -Compress) -ne ($prelaunchSourceFiles | ConvertTo-Json -Compress)))) {
+    throw 'Entropy smoke source snapshot이 validator 이후 변경되었습니다.'
+}
 
 $process = Start-Process -FilePath $pythonBat `
     -ArgumentList $argumentLine `
@@ -767,7 +1018,7 @@ while (-not $process.HasExited) {
         temperature_c = if ($null -ne $gpuMetrics) { $gpuMetrics.temperature_c } else { $null }
         power_draw_w = if ($null -ne $gpuMetrics) { $gpuMetrics.power_draw_w } else { $null }
     })
-    if ($Qualification) {
+    if ($protectedGpuRun) {
         try {
             foreach ($descendantId in @(Get-DescendantProcessIds -RootProcessId $process.Id)) {
                 [void]$observedDescendantProcessIds.Add($descendantId)
@@ -812,8 +1063,45 @@ while (-not $process.HasExited) {
     $process.Refresh()
 }
 $process.WaitForExit()
+$postExitDescendantProcessIds = @()
+if ($protectedGpuRun) {
+    try {
+        $postExitCleanup = Stop-PostExitDescendants -RootProcessId $process.Id
+        $postExitDescendantProcessIds = @($postExitCleanup.descendant_process_ids)
+        foreach ($descendantId in $postExitDescendantProcessIds) {
+            [void]$observedDescendantProcessIds.Add($descendantId)
+        }
+        if (-not $postExitCleanup.all_processes_exited) {
+            $qualificationGpuAbortReason = 'post_exit_descendants_remain'
+        }
+    }
+    catch {
+        $qualificationGpuAbortReason = 'post_exit_descendant_cleanup_failed'
+    }
+}
 $stopwatch.Stop()
 $endedAt = Get-Date
+
+$postrunSourceFiles = [ordered]@{}
+foreach ($sourcePath in $sourceBindingFiles.Keys) {
+    $postrunSourceFiles[$sourcePath] = (
+        Get-FileHash -LiteralPath (Join-Path $repoRoot $sourcePath) -Algorithm SHA256
+    ).Hash.ToLowerInvariant()
+}
+$postrunSourceBundlePayload = (
+    $postrunSourceFiles.GetEnumerator() | ForEach-Object { "$($_.Key):$($_.Value)" }
+) -join "`n"
+$postrunSourceBundleHash = if ($postrunSourceFiles.Count -gt 0) {
+    Get-TextSha256 $postrunSourceBundlePayload
+}
+else { $null }
+$postrunRepositoryCommit = @(& $gitCommand.Source -C $repoRoot rev-parse HEAD 2>$null)[-1].Trim()
+$sourceSnapshotStable = (
+    $prelaunchSnapshotMatchesValidated -and
+    $postrunRepositoryCommit -eq $prelaunchRepositoryCommit -and
+    $postrunSourceBundleHash -eq $prelaunchSourceBundleHash -and
+    (($postrunSourceFiles | ConvertTo-Json -Compress) -eq ($prelaunchSourceFiles | ConvertTo-Json -Compress))
+)
 
 $gpuRecoverySamples = [System.Collections.Generic.List[object]]::new()
 $gpuRecoveryDeadline = (Get-Date).AddSeconds(30)
@@ -836,7 +1124,7 @@ do {
     if (
         $null -ne $recoveryUsedMiB -and
         $recoveryUsedMiB -le ($baselineGpuMiB + 128) -and
-        (-not $Qualification -or $qualificationDescendantsExited)
+        (-not $protectedGpuRun -or $qualificationDescendantsExited)
     ) {
         break
     }
@@ -913,10 +1201,67 @@ $finalEpisodeLengthText = Get-LastMatchValue -Text $combined -Pattern '^\s*Mean 
 $finalReward = if ($null -ne $finalRewardText) { [double]::Parse($finalRewardText, [System.Globalization.CultureInfo]::InvariantCulture) } else { $null }
 $finalEpisodeLength = if ($null -ne $finalEpisodeLengthText) { [double]::Parse($finalEpisodeLengthText, [System.Globalization.CultureInfo]::InvariantCulture) } else { $null }
 
+$agentYamlPath = if ($actualLogDirectory) { Join-Path $actualLogDirectory 'params\agent.yaml' } else { $null }
+$agentYamlHash = $null
+$agentYamlReadback = $null
+$agentYamlReadbackPassed = $false
+if ($null -ne $agentYamlPath -and (Test-Path -LiteralPath $agentYamlPath -PathType Leaf)) {
+    $agentYamlHash = (Get-FileHash -LiteralPath $agentYamlPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $yamlCaptureId = [guid]::NewGuid().ToString('N')
+    $yamlStdout = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-rev28-agent-yaml-' + $yamlCaptureId + '.stdout')
+    $yamlStderr = Join-Path ([System.IO.Path]::GetTempPath()) ('.g009-rev28-agent-yaml-' + $yamlCaptureId + '.stderr')
+    $yamlCode = "import json,sys,yaml;d=yaml.safe_load(open(sys.argv[1],encoding='utf-8'));print(json.dumps({'entropy_coef':d['algorithm']['entropy_coef'],'init_noise_std':d['policy']['init_noise_std'],'num_steps_per_env':d['num_steps_per_env'],'num_learning_epochs':d['algorithm']['num_learning_epochs'],'num_mini_batches':d['algorithm']['num_mini_batches'],'max_iterations':d['max_iterations'],'device':d['device']}))"
+    try {
+        $yamlArgumentLine = @(
+            '-c',
+            (Convert-ToWindowsCommandLineArgument $yamlCode),
+            (Convert-ToWindowsCommandLineArgument $agentYamlPath)
+        ) -join ' '
+        $yamlProcess = Start-Process -FilePath $pythonBat `
+            -ArgumentList $yamlArgumentLine `
+            -WorkingDirectory $repoRoot `
+            -WindowStyle Hidden `
+            -RedirectStandardOutput $yamlStdout `
+            -RedirectStandardError $yamlStderr `
+            -Wait `
+            -PassThru
+        if ($yamlProcess.ExitCode -eq 0) {
+            $yamlLines = @(Get-Content -LiteralPath $yamlStdout -ErrorAction Stop)
+            if ($yamlLines.Count -gt 0) {
+                $agentYamlReadback = $yamlLines[-1] | ConvertFrom-Json
+            }
+        }
+    }
+    catch {
+        $agentYamlReadback = $null
+    }
+    finally {
+        Remove-Item -LiteralPath $yamlStdout -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $yamlStderr -Force -ErrorAction SilentlyContinue
+    }
+}
+if ($EntropySmoke -and $null -ne $agentYamlReadback) {
+    $agentYamlReadbackPassed = (
+        $agentYamlReadback.entropy_coef -eq 0.0 -and
+        $agentYamlReadback.init_noise_std -eq 0.5 -and
+        $agentYamlReadback.num_steps_per_env -eq 24 -and
+        $agentYamlReadback.num_learning_epochs -eq 5 -and
+        $agentYamlReadback.num_mini_batches -eq 4 -and
+        $agentYamlReadback.max_iterations -eq 50 -and
+        $agentYamlReadback.device -eq 'cuda:0'
+    )
+}
+
 $checkpoint = $null
 if ($actualLogDirectory -and (Test-Path -LiteralPath $actualLogDirectory -PathType Container)) {
     if ($Qualification) {
         $expectedCheckpointPath = Join-Path $actualLogDirectory 'model_299.pt'
+        if (Test-Path -LiteralPath $expectedCheckpointPath -PathType Leaf) {
+            $checkpoint = Get-Item -LiteralPath $expectedCheckpointPath
+        }
+    }
+    elseif ($EntropySmoke) {
+        $expectedCheckpointPath = Join-Path $actualLogDirectory 'model_49.pt'
         if (Test-Path -LiteralPath $expectedCheckpointPath -PathType Leaf) {
             $checkpoint = Get-Item -LiteralPath $expectedCheckpointPath
         }
@@ -943,13 +1288,16 @@ if ($actualLogDirectory -and (Test-Path -LiteralPath $actualLogDirectory -PathTy
 
 $hardJointLimitSummary = $null
 $numericInvalidSummary = $null
+$meanNoiseStdSummary = $null
 if ($tensorboardScalars -and $tensorboardScalars.series_summary) {
     $hardJointLimitProperty = $tensorboardScalars.series_summary.PSObject.Properties['Episode_Termination/hard_joint_limit']
     $numericInvalidProperty = $tensorboardScalars.series_summary.PSObject.Properties['Episode_Termination/numeric_invalid']
+    $meanNoiseStdProperty = $tensorboardScalars.series_summary.PSObject.Properties['Policy/mean_noise_std']
     if ($hardJointLimitProperty) { $hardJointLimitSummary = $hardJointLimitProperty.Value }
     if ($numericInvalidProperty) { $numericInvalidSummary = $numericInvalidProperty.Value }
+    if ($meanNoiseStdProperty) { $meanNoiseStdSummary = $meanNoiseStdProperty.Value }
 }
-$trainingSafetyGateRequired = [bool]($Qualification -or $RequireZeroTrainingSafetyTerminations)
+$trainingSafetyGateRequired = [bool]($Qualification -or $EntropySmoke -or $RequireZeroTrainingSafetyTerminations)
 $trainingSafetyGatePassed = if ($trainingSafetyGateRequired) {
     (Test-ZeroFiniteSafetySummary $hardJointLimitSummary) -and
     (Test-ZeroFiniteSafetySummary $numericInvalidSummary)
@@ -957,6 +1305,14 @@ $trainingSafetyGatePassed = if ($trainingSafetyGateRequired) {
 else {
     $null
 }
+$entropySmokeMetricGatePassed = if ($EntropySmoke) {
+    $trainingSafetyGatePassed -and
+    (Test-FiniteSeriesSummary -Summary $hardJointLimitSummary -ExpectedSampleCount 50) -and
+    (Test-FiniteSeriesSummary -Summary $numericInvalidSummary -ExpectedSampleCount 50) -and
+    (Test-FiniteSeriesSummary -Summary $meanNoiseStdSummary -ExpectedSampleCount 50) -and
+    $meanNoiseStdSummary.latest -le 0.5513023734
+}
+else { $null }
 
 $gpuValues = @($gpuSamples | ForEach-Object { $_.used_mib } | Where-Object { $null -ne $_ })
 $peakGpuMiB = if ($gpuValues.Count -gt 0) { ($gpuValues | Measure-Object -Maximum).Maximum } else { $baselineGpuMiB }
@@ -975,7 +1331,7 @@ $fatalMatches = @($fatalPatterns | Where-Object { $combined.Contains($_) })
 $qualificationGpuFatalMatches = @(
     [regex]::Matches($combined, $qualificationFatalPattern) | ForEach-Object { $_.Value }
 )
-$qualificationGpuSafetyPassed = if ($Qualification) {
+$protectedGpuSafetyPassed = if ($protectedGpuRun) {
     $gpuMeasurementComplete -and
     $recoveredToBaseline -and
     $qualificationGpuFatalMatches.Count -eq 0 -and
@@ -984,6 +1340,8 @@ $qualificationGpuSafetyPassed = if ($Qualification) {
     $qualificationDescendantsExited
 }
 else { $null }
+$qualificationGpuSafetyPassed = if ($Qualification) { $protectedGpuSafetyPassed } else { $null }
+$entropySmokeGpuSafetyPassed = if ($EntropySmoke) { $protectedGpuSafetyPassed } else { $null }
 $expectedLastIteration = if ($Resume) {
     # RSL-RL includes the loaded iteration in the resumed learning range.
     # model_N plus M iterations therefore ends at model_(N + M - 1).
@@ -1006,6 +1364,10 @@ $successChecks = [ordered]@{
     gpu_recovered_to_baseline = $recoveredToBaseline
     qualification_training_safety_zero = if ($Qualification) { $trainingSafetyGatePassed } else { $null }
     qualification_gpu_safety = if ($Qualification) { $qualificationGpuSafetyPassed } else { $null }
+    entropy_smoke_training_safety_zero = if ($EntropySmoke) { $entropySmokeMetricGatePassed } else { $null }
+    entropy_smoke_gpu_safety = if ($EntropySmoke) { $entropySmokeGpuSafetyPassed } else { $null }
+    entropy_smoke_source_snapshot_stable = if ($EntropySmoke) { $sourceSnapshotStable } else { $null }
+    entropy_smoke_agent_yaml_readback = if ($EntropySmoke) { $agentYamlReadbackPassed } else { $null }
     requested_training_safety_gate_zero = if ($RequireZeroTrainingSafetyTerminations) { $trainingSafetyGatePassed } else { $null }
 }
 $passed = -not ($successChecks.Values -contains $false)
@@ -1023,6 +1385,17 @@ $report = [ordered]@{
         preflight_passed = $qualificationPreflightPassed
         policy_qualification_status = 'not_run'
     }
+    entropy_smoke_mode = [ordered]@{
+        enabled = [bool]$EntropySmoke
+        preflight_passed = if ($EntropySmoke) { $true } else { $null }
+        runtime_algorithm_entropy_coef = if ($EntropySmoke) {
+            $agentYamlReadback.entropy_coef
+        }
+        else { $null }
+        held_out_evaluation_status = if ($EntropySmoke) { 'forbidden_until_full_300_training_safety_zero' } else { $null }
+        full_300_iteration_training_status = if ($EntropySmoke) { 'forbidden_until_smoke_accepted' } else { $null }
+        policy_qualification_status = 'not_run'
+    }
     command = @(
         (Convert-ToPortablePath $pythonBat),
         (Convert-ToPortablePath $trainScript),
@@ -1030,6 +1403,7 @@ $report = [ordered]@{
         '--num_envs', $NumEnvs,
         '--max_iterations', $MaxIterations,
         '--seed', $Seed,
+        '--device', 'cuda:0',
         '--run_name', $RunName,
         '--headless'
     ) + $(if ($Resume) { @('--resume', '--load_run', $LoadRun, '--checkpoint', $ResumeCheckpoint) } else { @() }) + @($HydraOverrides)
@@ -1041,11 +1415,13 @@ $report = [ordered]@{
     training_safety_gate = [ordered]@{
         requested = [bool]$RequireZeroTrainingSafetyTerminations
         required = $trainingSafetyGateRequired
-        scratch_required = [bool]$RequireZeroTrainingSafetyTerminations
+        scratch_required = [bool]($RequireZeroTrainingSafetyTerminations -or $EntropySmoke)
         hard_joint_limit_series_present = ($null -ne $hardJointLimitSummary)
         numeric_invalid_series_present = ($null -ne $numericInvalidSummary)
+        mean_noise_std_series_present = ($null -ne $meanNoiseStdSummary)
         requires_both_maximum_counts_zero = $trainingSafetyGateRequired
         passed = $trainingSafetyGatePassed
+        entropy_smoke_exact_50_sample_series_passed = $entropySmokeMetricGatePassed
     }
     effective_hydra_overrides = @($HydraOverrides)
     training_entrypoint = [ordered]@{
@@ -1069,14 +1445,42 @@ $report = [ordered]@{
         }
     }
     else { $null }
+    entropy_smoke_contract = if ($EntropySmoke) {
+        [ordered]@{
+            path = 'configs/g009_r0_rev28_entropy_smoke.json'
+            sha256 = (Get-FileHash -LiteralPath $g009EntropySmokeConfigPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            source_binding_path_manifest_sha256 = $entropySmokeContract.source_binding_path_manifest_sha256
+            prelaunch_validation = $entropySmokePreflight
+        }
+    }
+    else { $null }
     repository = [ordered]@{
         commit = $repositoryCommit
         dirty = $repositoryDirty
     }
     source_bundle = [ordered]@{
+        hash_domain = 'executed_worktree_bytes'
         sha256 = $sourceBundleHash
         files = $sourceBindingFiles
         matches_repository_commit = $sourceBundleMatchesHead
+        commit_blob_sha256 = if ($EntropySmoke) {
+            $entropySmokePreflight.source_state.commit_blob_sha256
+        }
+        else { $null }
+        prelaunch = [ordered]@{
+            hash_domain = 'executed_worktree_bytes'
+            repository_commit = $prelaunchRepositoryCommit
+            sha256 = $prelaunchSourceBundleHash
+            files = $prelaunchSourceFiles
+            matches_validated_snapshot = $prelaunchSnapshotMatchesValidated
+        }
+        postrun = [ordered]@{
+            hash_domain = 'executed_worktree_bytes'
+            repository_commit = $postrunRepositoryCommit
+            sha256 = $postrunSourceBundleHash
+            files = $postrunSourceFiles
+            stable = $sourceSnapshotStable
+        }
     }
     started_at = $startedAt.ToString('o')
     ended_at = $endedAt.ToString('o')
@@ -1112,9 +1516,28 @@ $report = [ordered]@{
             fatal_matches = $qualificationGpuFatalMatches
             abort_reason = $qualificationGpuAbortReason
             observed_descendant_process_ids = @($observedDescendantProcessIds)
+            post_exit_descendant_process_ids = @($postExitDescendantProcessIds)
             process_tree_termination = $processTreeTermination
             descendants_exited = if ($Qualification) { $qualificationDescendantsExited } else { $null }
             passed = $qualificationGpuSafetyPassed
+        }
+        protected_run_safety = [ordered]@{
+            required = $protectedGpuRun
+            mode = if ($Qualification) { 'qualification' } elseif ($EntropySmoke) { 'entropy_smoke' } else { $null }
+            temperature_threshold_c = $qualificationTemperatureC
+            sustained_sample_count = $qualificationSustainedTemperatureSamples
+            consecutive_sample_observation_span_seconds = (
+                ($qualificationSustainedTemperatureSamples - 1) * $GpuSampleIntervalSeconds
+            )
+            maximum_consecutive_hot_samples = $qualificationMaximumConsecutiveHotSamples
+            fatal_pattern = $qualificationFatalPattern
+            fatal_matches = $qualificationGpuFatalMatches
+            abort_reason = $qualificationGpuAbortReason
+            observed_descendant_process_ids = @($observedDescendantProcessIds)
+            post_exit_descendant_process_ids = @($postExitDescendantProcessIds)
+            process_tree_termination = $processTreeTermination
+            descendants_exited = if ($protectedGpuRun) { $qualificationDescendantsExited } else { $null }
+            passed = $protectedGpuSafetyPassed
         }
     }
     performance = [ordered]@{
@@ -1148,6 +1571,13 @@ $report = [ordered]@{
         tensorboard_directory = Convert-ToPortablePath $actualLogDirectory
         checkpoint = if ($checkpoint) { Convert-ToPortablePath $checkpoint.FullName } else { $null }
         checkpoint_sha256 = $checkpointHash
+        agent_yaml = Convert-ToPortablePath $agentYamlPath
+        agent_yaml_sha256 = $agentYamlHash
+    }
+    runtime_agent_config = [ordered]@{
+        source = 'official train.py params/agent.yaml'
+        readback = $agentYamlReadback
+        passed = if ($EntropySmoke) { $agentYamlReadbackPassed } else { $null }
     }
     log_directory_resolution = [ordered]@{
         mode = $logDirectoryResolutionMode

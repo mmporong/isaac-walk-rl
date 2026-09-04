@@ -5,7 +5,7 @@ from isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_p
     UnitreeGo2RoughPPORunnerCfg,
 )
 
-from .recover_contracts import PPO_INIT_NOISE_STD
+from .recover_contracts import PPO_ENTROPY_COEF, PPO_INIT_NOISE_STD
 
 
 @configclass
@@ -17,6 +17,7 @@ class G009RecoverPPORunnerCfg(UnitreeGo2RoughPPORunnerCfg):
         self.save_interval = 50
         self.clip_actions = 1.0
         self.policy.init_noise_std = PPO_INIT_NOISE_STD
+        self.algorithm.entropy_coef = PPO_ENTROPY_COEF
 
 
 __all__ = ["G009RecoverPPORunnerCfg"]
