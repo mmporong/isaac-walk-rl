@@ -17,17 +17,6 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from bootstrap_benchmark_g009 import main as benchmark_main  # noqa: E402
-from isaac_walk_g009.matrix_gate01 import (  # noqa: E402
-    MATRIX_CRITIC_OBSERVATION_DIM,
-    MATRIX_OBSERVATION_DIM,
-    MATRIX_POLICY_OBSERVATION_DIM,
-    NOMINAL_BODY_WEIGHT_N,
-    ORDERED_BODY_NAMES,
-    ORDERED_BODY_NAMES_SHA256,
-    TERRAIN_FILTER_PATHS,
-    reset_runtime_telemetry,
-    runtime_telemetry,
-)
 
 
 def _argument_value(name: str) -> str:
@@ -69,13 +58,16 @@ def write_telemetry(path: Path, value: dict) -> None:
 def main() -> None:
     run_name = _argument_value("--run_name")
     output = telemetry_path(run_name)
-    reset_runtime_telemetry()
     completed = False
     try:
         benchmark_main()
         completed = True
     finally:
-        snapshot = runtime_telemetry()
+        matrix_gate = sys.modules.get("isaac_walk_g009.matrix_gate01")
+        if matrix_gate is None:
+            snapshot = {"bootstrap_error": "matrix_gate01_module_not_loaded_after_app_launch"}
+        else:
+            snapshot = matrix_gate.runtime_telemetry()
         write_telemetry(
             output,
             {
@@ -90,17 +82,23 @@ def main() -> None:
                     text=True,
                 ).stdout.strip(),
                 "benchmark_completed": completed,
-                "terrain_filter_paths": list(TERRAIN_FILTER_PATHS),
-                "matrix_observation_dimension": MATRIX_OBSERVATION_DIM,
-                "policy_observation_dimension": MATRIX_POLICY_OBSERVATION_DIM,
-                "critic_observation_dimension": MATRIX_CRITIC_OBSERVATION_DIM,
+                "terrain_filter_paths": list(getattr(matrix_gate, "TERRAIN_FILTER_PATHS", ())),
+                "matrix_observation_dimension": getattr(matrix_gate, "MATRIX_OBSERVATION_DIM", None),
+                "policy_observation_dimension": getattr(
+                    matrix_gate, "MATRIX_POLICY_OBSERVATION_DIM", None
+                ),
+                "critic_observation_dimension": getattr(
+                    matrix_gate, "MATRIX_CRITIC_OBSERVATION_DIM", None
+                ),
                 "expected_policy_matrix_slice_from_term_order": [83, 140],
                 "raw_authority_frame": "world",
                 "policy_projection_frame": "base",
-                "nominal_body_weight_n": NOMINAL_BODY_WEIGHT_N,
+                "nominal_body_weight_n": getattr(matrix_gate, "NOMINAL_BODY_WEIGHT_N", None),
                 "bounding": "elementwise_tanh",
-                "ordered_body_names": list(ORDERED_BODY_NAMES),
-                "ordered_body_names_sha256": ORDERED_BODY_NAMES_SHA256,
+                "ordered_body_names": list(getattr(matrix_gate, "ORDERED_BODY_NAMES", ())),
+                "ordered_body_names_sha256": getattr(
+                    matrix_gate, "ORDERED_BODY_NAMES_SHA256", None
+                ),
                 "runtime": snapshot,
             },
         )

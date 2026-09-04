@@ -19,7 +19,7 @@ assert SPEC.loader is not None
 SPEC.loader.exec_module(SUMMARY)
 
 
-def _load_bootstrap_writer(monkeypatch):
+def _load_bootstrap_writer(monkeypatch, *, install_matrix=True):
     benchmark = types.ModuleType("bootstrap_benchmark_g009")
     benchmark.main = lambda: None
     matrix = types.ModuleType("isaac_walk_g009.matrix_gate01")
@@ -36,7 +36,10 @@ def _load_bootstrap_writer(monkeypatch):
     package.__path__ = []
     monkeypatch.setitem(sys.modules, "bootstrap_benchmark_g009", benchmark)
     monkeypatch.setitem(sys.modules, "isaac_walk_g009", package)
-    monkeypatch.setitem(sys.modules, "isaac_walk_g009.matrix_gate01", matrix)
+    if install_matrix:
+        monkeypatch.setitem(sys.modules, "isaac_walk_g009.matrix_gate01", matrix)
+    else:
+        monkeypatch.delitem(sys.modules, "isaac_walk_g009.matrix_gate01", raising=False)
     spec = importlib.util.spec_from_file_location(
         "g009_rev25_bootstrap_writer", ROOT / "scripts/bootstrap_matrix_gate01_g009.py"
     )
@@ -44,6 +47,128 @@ def _load_bootstrap_writer(monkeypatch):
     assert spec.loader is not None
     spec.loader.exec_module(module)
     return module
+
+
+def test_matrix_bootstrap_defers_matrix_module_until_after_app_launch(monkeypatch):
+    _load_bootstrap_writer(monkeypatch, install_matrix=False)
+    source = (ROOT / "scripts/bootstrap_matrix_gate01_g009.py").read_text(encoding="utf-8")
+    assert "from isaac_walk_g009.matrix_gate01 import" not in source
+    assert "isaac_walk_g009.matrix_gate01" not in sys.modules
+
+
+def test_matrix_bootstrap_real_isaac_python_keeps_app_dependent_modules_unloaded():
+    python_bat = Path.home() / "IsaacLab/_isaac_sim/python.bat"
+    probe = f"""
+import importlib.util
+import json
+from pathlib import Path
+import sys
+
+root = Path({str(ROOT)!r})
+sys.path.insert(0, str(root / "scripts"))
+names = ("isaac_walk_g009.matrix_gate01", "isaaclab.managers", "isaacsim.core")
+before = {{name: name in sys.modules for name in names}}
+spec = importlib.util.spec_from_file_location(
+    "g009_matrix_bootstrap_pre_app_probe",
+    root / "scripts/bootstrap_matrix_gate01_g009.py",
+)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+after = {{name: name in sys.modules for name in names}}
+print("G009_PRE_APP_IMPORT=" + json.dumps({{
+    "before": before,
+    "after": after,
+    "benchmark_imported": "bootstrap_benchmark_g009" in sys.modules,
+}}, sort_keys=True))
+"""
+    completed = subprocess.run(
+        [str(python_bat), "-c", f"exec({probe!r})"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    marker = next(
+        line.removeprefix("G009_PRE_APP_IMPORT=")
+        for line in completed.stdout.splitlines()
+        if line.startswith("G009_PRE_APP_IMPORT=")
+    )
+    result = json.loads(marker)
+    assert result == {
+        "before": {
+            "isaac_walk_g009.matrix_gate01": False,
+            "isaaclab.managers": False,
+            "isaacsim.core": False,
+        },
+        "after": {
+            "isaac_walk_g009.matrix_gate01": False,
+            "isaaclab.managers": False,
+            "isaacsim.core": False,
+        },
+        "benchmark_imported": True,
+    }
+
+
+def test_matrix_bootstrap_main_uses_runtime_installed_canonical_module(
+    tmp_path, monkeypatch
+):
+    bootstrap = _load_bootstrap_writer(monkeypatch, install_matrix=False)
+    output = tmp_path / "sentinel.matrix_gate01.json"
+    sentinel = types.ModuleType("isaac_walk_g009.matrix_gate01")
+    sentinel.TERRAIN_FILTER_PATHS = ("/sentinel/terrain",)
+    sentinel.MATRIX_OBSERVATION_DIM = 157
+    sentinel.MATRIX_POLICY_OBSERVATION_DIM = 240
+    sentinel.MATRIX_CRITIC_OBSERVATION_DIM = 264
+    sentinel.NOMINAL_BODY_WEIGHT_N = 999.25
+    sentinel.ORDERED_BODY_NAMES = ("sentinel_body",)
+    sentinel.ORDERED_BODY_NAMES_SHA256 = "a" * 64
+    runtime = {"sentinel_runtime": True}
+    telemetry_calls = []
+    sentinel.runtime_telemetry = lambda: telemetry_calls.append(sentinel) or runtime
+
+    def install_runtime_module():
+        monkeypatch.setitem(sys.modules, "isaac_walk_g009.matrix_gate01", sentinel)
+
+    monkeypatch.setattr(bootstrap, "benchmark_main", install_runtime_module)
+    monkeypatch.setattr(bootstrap, "telemetry_path", lambda _run_name: output)
+    monkeypatch.setattr(sys, "argv", ["bootstrap", "--run_name", "sentinel"])
+    bootstrap.main()
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert telemetry_calls == [sentinel]
+    assert payload["benchmark_completed"] is True
+    assert payload["runtime"] == runtime
+    assert payload["terrain_filter_paths"] == ["/sentinel/terrain"]
+    assert payload["matrix_observation_dimension"] == 157
+    assert payload["policy_observation_dimension"] == 240
+    assert payload["critic_observation_dimension"] == 264
+    assert payload["nominal_body_weight_n"] == 999.25
+    assert payload["ordered_body_names"] == ["sentinel_body"]
+    assert payload["ordered_body_names_sha256"] == "a" * 64
+
+
+def test_matrix_bootstrap_main_emits_fail_closed_identity_when_module_not_loaded(
+    tmp_path, monkeypatch
+):
+    bootstrap = _load_bootstrap_writer(monkeypatch, install_matrix=False)
+    output = tmp_path / "missing.matrix_gate01.json"
+    monkeypatch.setattr(bootstrap, "telemetry_path", lambda _run_name: output)
+    monkeypatch.setattr(sys, "argv", ["bootstrap", "--run_name", "missing"])
+    bootstrap.main()
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["benchmark_completed"] is True
+    assert payload["runtime"] == {
+        "bootstrap_error": "matrix_gate01_module_not_loaded_after_app_launch"
+    }
+    assert payload["terrain_filter_paths"] == []
+    assert payload["matrix_observation_dimension"] is None
+    assert payload["policy_observation_dimension"] is None
+    assert payload["critic_observation_dimension"] is None
+    assert payload["nominal_body_weight_n"] is None
+    assert payload["ordered_body_names"] == []
+    assert payload["ordered_body_names_sha256"] is None
 
 
 def test_preregistered_gate_manifest_matches_verifier_gate_names():
