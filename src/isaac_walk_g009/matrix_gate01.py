@@ -131,6 +131,23 @@ def _policy_world_xyz_without_host_sync(source: object | None) -> torch.Tensor:
     return source.sum(dim=2)
 
 
+def _sanitize_production_projection(
+    env, source: torch.Tensor, flattened: torch.Tensor
+) -> torch.Tensor:
+    """Flag invalid rows on-device and return a finite, action-safe projection."""
+
+    source_invalid = ~torch.isfinite(source).reshape(source.shape[0], -1).all(dim=-1)
+    output_invalid = ~torch.isfinite(flattened).all(dim=-1)
+    invalid = source_invalid | output_invalid
+    buffer = getattr(env, "_g009_actor_signal_invalid", None)
+    if buffer is None or buffer.shape != invalid.shape:
+        buffer = torch.zeros_like(invalid, dtype=torch.bool)
+        env._g009_actor_signal_invalid = buffer
+    buffer |= invalid.to(device=buffer.device, dtype=torch.bool)
+    sanitized = torch.nan_to_num(flattened, nan=0.0, posinf=0.0, neginf=0.0)
+    return torch.where(invalid.unsqueeze(-1), torch.zeros_like(sanitized), sanitized)
+
+
 def whole_body_terrain_contact_matrix_base_normalized(
     env,
     sensor_cfg: SceneEntityCfg = SceneEntityCfg("contact_forces"),
@@ -167,8 +184,9 @@ def whole_body_terrain_contact_matrix_base_normalized(
     flattened = bounded.reshape(bounded.shape[0], MATRIX_OBSERVATION_DIM)
 
     if not collect_gate_telemetry:
-        return flattened
+        return _sanitize_production_projection(env, source, flattened)
 
+    assert observation is not None
     body_hash = _body_order_sha256(body_names)
     previous_names = _RUNTIME["ordered_body_names"]
     if _RUNTIME["live_contract"] is None:

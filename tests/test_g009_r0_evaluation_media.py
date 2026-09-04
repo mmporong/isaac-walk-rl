@@ -57,6 +57,7 @@ def test_pose_gate_blocks_safety_termination_even_with_high_success_rate() -> No
         accumulator,
         minimum_success_rate=0.8,
         maximum_median_recovery_time_s=4.0,
+        expected_episode_count=10,
     )
     assert result["success_rate"] == 0.9
     assert result["gate_checks"]["success_rate"] is True
@@ -85,6 +86,7 @@ def test_pose_gate_blocks_raw_joint_limit_violation_above_solver_tolerance(
         accumulator,
         minimum_success_rate=0.8,
         maximum_median_recovery_time_s=4.0,
+        expected_episode_count=1,
     )
 
     assert result["gate_checks"]["joint_limit_violation_within_solver_tolerance"] is expected
@@ -92,24 +94,15 @@ def test_pose_gate_blocks_raw_joint_limit_violation_above_solver_tolerance(
 
 
 def test_report_preserves_four_pose_blocking_cells() -> None:
-    args = argparse.Namespace(
-        task=evaluation.DEFAULT_TASK,
-        seed=42,
-        device="cuda:0",
-        headless=True,
-        num_envs=256,
-        horizon_steps=400,
-        minimum_success_rate=0.8,
-        maximum_median_recovery_time_s=4.0,
-    )
+    args = argparse.Namespace(**evaluation.OFFICIAL_PROTOCOL)
     accumulators = {}
     for pose in evaluation.POSE_NAMES:
         accumulator = evaluation._new_accumulator()
         accumulator.update(
             {
-                "episode_count": 2,
-                "success_count": 2,
-                "recovery_times_s": [1.0, 2.0],
+                "episode_count": 256,
+                "success_count": 256,
+                "recovery_times_s": [1.0, 2.0] * 128,
             }
         )
         accumulators[pose] = accumulator
@@ -125,13 +118,121 @@ def test_report_preserves_four_pose_blocking_cells() -> None:
     )
     assert report["status"] == "pass"
     assert report["aggregate"] == {
-        "episode_count": 8,
-        "success_count": 8,
+        "episode_count": 1024,
+        "success_count": 1024,
         "success_rate": 1.0,
         "safety_termination_count": 0,
+        "other_termination_count": 0,
         "all_pose_gate_pass": True,
     }
     assert [item["pose_id"] for item in report["poses"]] == list(evaluation.POSE_NAMES)
+
+
+@pytest.mark.parametrize(("successes", "expected"), [(204, False), (205, True)])
+def test_pose_success_boundary_is_205_of_256(successes: int, expected: bool) -> None:
+    accumulator = evaluation._new_accumulator()
+    accumulator.update(
+        {
+            "episode_count": 256,
+            "success_count": successes,
+            "timeout_count": 256 - successes,
+            "recovery_times_s": [4.0] * successes,
+        }
+    )
+
+    result = evaluation.finalize_pose_metrics(
+        accumulator,
+        minimum_success_rate=0.8,
+        maximum_median_recovery_time_s=4.0,
+        expected_episode_count=256,
+    )
+
+    assert result["gate_checks"]["success_rate"] is expected
+    assert result["gate_pass"] is expected
+
+
+def test_pose_gate_rejects_wrong_denominator_and_recovery_count() -> None:
+    accumulator = evaluation._new_accumulator()
+    accumulator.update(
+        {
+            "episode_count": 255,
+            "success_count": 205,
+            "timeout_count": 50,
+            "recovery_times_s": [1.0] * 204,
+        }
+    )
+
+    result = evaluation.finalize_pose_metrics(
+        accumulator,
+        minimum_success_rate=0.8,
+        maximum_median_recovery_time_s=4.0,
+        expected_episode_count=256,
+    )
+
+    assert result["gate_checks"]["exact_episode_count"] is False
+    assert result["gate_checks"]["recovery_count_matches_success_count"] is False
+    assert result["gate_pass"] is False
+
+
+def test_pose_gate_rejects_unclassified_termination() -> None:
+    accumulator = evaluation._new_accumulator()
+    accumulator.update(
+        {
+            "episode_count": 256,
+            "success_count": 205,
+            "timeout_count": 50,
+            "other_termination_count": 1,
+            "recovery_times_s": [1.0] * 205,
+        }
+    )
+
+    result = evaluation.finalize_pose_metrics(
+        accumulator,
+        minimum_success_rate=0.8,
+        maximum_median_recovery_time_s=4.0,
+        expected_episode_count=256,
+    )
+
+    assert result["gate_checks"]["no_unclassified_termination"] is False
+
+
+def test_pose_gate_rejects_overlapping_termination_counts() -> None:
+    accumulator = evaluation._new_accumulator()
+    accumulator.update(
+        {
+            "episode_count": 256,
+            "success_count": 205,
+            "timeout_count": 51,
+            "numeric_invalid_count": 1,
+            "recovery_times_s": [1.0] * 205,
+        }
+    )
+
+    result = evaluation.finalize_pose_metrics(
+        accumulator,
+        minimum_success_rate=0.8,
+        maximum_median_recovery_time_s=4.0,
+        expected_episode_count=256,
+    )
+
+    assert result["gate_checks"]["termination_partition_matches_episode_count"] is False
+
+
+def test_evaluator_rejects_missing_required_termination_term() -> None:
+    with pytest.raises(RuntimeError, match="numeric_invalid"):
+        evaluation.validate_required_termination_terms(
+            ("stable_success", "time_out", "hard_joint_limit")
+        )
+
+
+def test_evaluation_report_writer_refuses_overwrite(tmp_path: Path) -> None:
+    output = tmp_path / "evaluation.json"
+    evaluation._write_json_atomic(output, {"status": "pass"})
+
+    with pytest.raises(FileExistsError):
+        evaluation._write_json_atomic(output, {"status": "replacement"})
+
+    assert json.loads(output.read_text(encoding="utf-8")) == {"status": "pass"}
 
 
 def test_local_video_names_keep_stage_and_pose_numbering() -> None:
@@ -203,13 +304,13 @@ def test_diagnostic_result_never_becomes_public_pass() -> None:
     args = argparse.Namespace(
         **{**evaluation.OFFICIAL_PROTOCOL, "minimum_success_rate": 0.1},
         diagnostic=True,
-        device="cuda:0",
-        headless=True,
     )
     accumulators = {}
     for pose in evaluation.POSE_NAMES:
         accumulator = evaluation._new_accumulator()
-        accumulator.update({"episode_count": 1, "success_count": 1, "recovery_times_s": [1.0]})
+        accumulator.update(
+            {"episode_count": 256, "success_count": 256, "recovery_times_s": [1.0] * 256}
+        )
         accumulators[pose] = accumulator
     state = {"commit": "c" * 40, "clean": True}
     report = evaluation.build_report(
@@ -226,37 +327,88 @@ def test_diagnostic_result_never_becomes_public_pass() -> None:
     assert report["protocol_mode"] == "diagnostic_only"
 
 
-def test_training_report_requires_scratch_1024x300_and_exact_bundle(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    source = tmp_path / "source.py"
-    checkpoint = tmp_path / "model_299.pt"
-    source.write_text("x = 1\n", encoding="utf-8")
-    checkpoint.write_bytes(b"checkpoint")
-    monkeypatch.setattr(evaluation, "REPO_ROOT", tmp_path)
-    monkeypatch.setattr(
-        evaluation,
-        "git_source_state",
-        lambda: {"commit": "c" * 40, "clean": True, "dirty_paths": [], "source_dirty_paths": []},
-    )
-    files = {"source.py": evaluation.file_sha256(source)}
-    report = {
+def _valid_training_report(files: dict[str, str], checkpoint_sha256: str) -> dict:
+    return {
         "task": evaluation.DEFAULT_TASK,
         "seed": 42,
         "num_envs": 1024,
         "max_iterations": 300,
         "headless": True,
         "resume": {"enabled": False},
+        "effective_hydra_overrides": [],
         "qualification_mode": {
             "enabled": True,
             "preflight_passed": True,
             "policy_qualification_status": "not_run",
         },
         "run_health_passed": True,
+        "passed": True,
+        "last_iteration": 299,
+        "iteration_target": 300,
+        "success_checks": {key: True for key in evaluation.REQUIRED_TRAINING_SUCCESS_CHECKS},
         "repository": {"commit": "c" * 40, "dirty": False},
-        "source_bundle": {"sha256": evaluation.source_bundle_sha256(files), "files": files},
-        "artifacts": {"checkpoint_sha256": evaluation.file_sha256(checkpoint)},
+        "source_bundle": {
+            "sha256": evaluation.source_bundle_sha256(files),
+            "files": files,
+            "matches_repository_commit": True,
+        },
+        "artifacts": {
+            "checkpoint": "%USERPROFILE%\\model_299.pt",
+            "checkpoint_sha256": checkpoint_sha256,
+        },
+        "training_entrypoint": {
+            "path": str(ROOT / "scripts" / "bootstrap_train_g009.py"),
+            "sha256": evaluation.file_sha256(ROOT / "scripts" / "bootstrap_train_g009.py"),
+            "repository_internal": True,
+        },
+        "upstream": {
+            "isaac_lab_expected_commit": evaluation.EXPECTED_ISAACLAB_COMMIT,
+            "isaac_lab_commit": evaluation.EXPECTED_ISAACLAB_COMMIT,
+            "official_train_path": "%USERPROFILE%\\IsaacLab\\scripts\\reinforcement_learning\\rsl_rl\\train.py",
+            "official_train_expected_sha256": evaluation.EXPECTED_TRAIN_SHA256,
+            "official_train_sha256": evaluation.EXPECTED_TRAIN_SHA256,
+            "tracked_clean": True,
+        },
+        "qualification_contract": {
+            "path": str(evaluation.QUALIFICATION_CONFIG_PATH),
+            "sha256": evaluation.file_sha256(evaluation.QUALIFICATION_CONFIG_PATH),
+            "source_binding_path_manifest_sha256": evaluation.EXPECTED_QUALIFICATION_SOURCE_MANIFEST_SHA256,
+        },
     }
+
+
+def test_training_report_requires_scratch_1024x300_and_exact_bundle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import torch
+
+    source = tmp_path / "source.py"
+    checkpoint = tmp_path / "model_299.pt"
+    source.write_text("x = 1\n", encoding="utf-8")
+    torch.save(
+        {
+            "iter": 299,
+            "model_state_dict": {
+                "actor.0.weight": torch.ones((512, 140)),
+                "critic.0.weight": torch.ones((512, 164)),
+            }
+        },
+        checkpoint,
+    )
+    monkeypatch.setattr(evaluation, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(evaluation, "QUALIFICATION_SOURCE_PATHS", ("source.py",))
+    monkeypatch.setattr(
+        evaluation,
+        "git_source_state",
+        lambda: {"commit": "c" * 40, "clean": True, "dirty_paths": [], "source_dirty_paths": []},
+    )
+    monkeypatch.setattr(
+        evaluation,
+        "_validate_upstream_binding",
+        lambda value: {"tracked_clean": True},
+    )
+    files = {"source.py": evaluation.file_sha256(source)}
+    report = _valid_training_report(files, evaluation.file_sha256(checkpoint))
     report_path = tmp_path / "training.json"
     report_path.write_text(json.dumps(report), encoding="utf-8")
     assert evaluation.validate_training_report(report_path, checkpoint)["source_bundle"]["files"] == files
@@ -269,6 +421,55 @@ def test_training_report_requires_scratch_1024x300_and_exact_bundle(
     report_path.write_text(json.dumps(report), encoding="utf-8")
     with pytest.raises(ValueError, match="max_iterations"):
         evaluation.validate_training_report(report_path, checkpoint)
+
+
+def test_training_report_rejects_resume_override_wrong_checkpoint_and_failed_checks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import torch
+
+    source = tmp_path / "source.py"
+    checkpoint = tmp_path / "model_299.pt"
+    source.write_text("x = 1\n", encoding="utf-8")
+    torch.save(
+        {
+            "iter": 299,
+            "model_state_dict": {
+                "actor.0.weight": torch.ones((512, 140)),
+                "critic.0.weight": torch.ones((512, 164)),
+            }
+        },
+        checkpoint,
+    )
+    monkeypatch.setattr(evaluation, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(evaluation, "QUALIFICATION_SOURCE_PATHS", ("source.py",))
+    monkeypatch.setattr(
+        evaluation,
+        "git_source_state",
+        lambda: {"commit": "c" * 40, "clean": True, "dirty_paths": [], "source_dirty_paths": []},
+    )
+    monkeypatch.setattr(
+        evaluation,
+        "_validate_upstream_binding",
+        lambda value: {"tracked_clean": True},
+    )
+    files = {"source.py": evaluation.file_sha256(source)}
+    report = _valid_training_report(files, evaluation.file_sha256(checkpoint))
+    report_path = tmp_path / "training.json"
+
+    for mutation, expected in (
+        (lambda value: value["resume"].update(enabled=True), "scratch"),
+        (lambda value: value.update(effective_hydra_overrides=["x=1"]), "no_hydra_overrides"),
+        (lambda value: value["artifacts"].update(checkpoint="%USERPROFILE%\\model_250.pt"), "checkpoint_name"),
+        (lambda value: value["success_checks"].update(process_exit_zero=False), "success_checks"),
+        (lambda value: value["training_entrypoint"].update(sha256="0" * 64), "entrypoint"),
+        (lambda value: value["qualification_contract"].update(sha256="0" * 64), "qualification contract"),
+    ):
+        candidate = json.loads(json.dumps(report))
+        mutation(candidate)
+        report_path.write_text(json.dumps(candidate), encoding="utf-8")
+        with pytest.raises(ValueError, match=expected):
+            evaluation.validate_training_report(report_path, checkpoint)
 
 
 def test_publish_transaction_rolls_back_multiple_outputs_when_second_install_fails(

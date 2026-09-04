@@ -259,6 +259,50 @@ class G009MatrixGate01ObservationsCfg:
 
 
 @configclass
+class G009MatrixPolicyCfg(RecoverPolicyCfg):
+    """Production P-RECOVER-140 actor without Gate01 host telemetry."""
+
+    whole_body_terrain_contact_matrix_base_normalized = ObsTerm(
+        func=whole_body_terrain_contact_matrix_base_normalized,
+        params={
+            "sensor_cfg": SceneEntityCfg("contact_forces"),
+            "asset_cfg": SceneEntityCfg("robot"),
+            "collect_gate_telemetry": False,
+        },
+    )
+
+
+@configclass
+class G009MatrixCriticCfg(G009MatrixPolicyCfg):
+    """Uncorrupted production actor prefix plus the 24-D privileged suffix."""
+
+    terrain_normal_gt = ObsTerm(func=recover_mdp.terrain_normal_gt)
+    base_height_gt = ObsTerm(func=recover_mdp.base_height_gt)
+    four_foot_effective_static_dynamic_friction = ObsTerm(
+        func=recover_mdp.four_foot_effective_static_dynamic_friction,
+        params={
+            "configured_static_friction": GROUND_STATIC_FRICTION * FOOT_STATIC_FRICTION,
+            "configured_dynamic_friction": GROUND_DYNAMIC_FRICTION * FOOT_DYNAMIC_FRICTION,
+        },
+    )
+    whole_body_com_base = ObsTerm(func=recover_mdp.whole_body_com_base)
+    total_mass = ObsTerm(func=recover_mdp.total_mass)
+    commanded_wrench = ObsTerm(func=recover_mdp.commanded_wrench)
+    normalized_pulse_time_remaining = ObsTerm(func=recover_mdp.normalized_pulse_time_remaining)
+    source_fall_class_one_hot = ObsTerm(func=recover_mdp.source_fall_class_one_hot)
+
+    def __post_init__(self):
+        self.enable_corruption = False
+        self.concatenate_terms = True
+
+
+@configclass
+class G009MatrixObservationsCfg:
+    policy: G009MatrixPolicyCfg = G009MatrixPolicyCfg()
+    critic: G009MatrixCriticCfg = G009MatrixCriticCfg()
+
+
+@configclass
 class RecoverRewardsCfg:
     upright_progress = RewTerm(
         func=recover_mdp.UprightProgress,
@@ -462,13 +506,30 @@ class G009FlatRecoverMatrixGate01EnvCfg(G009FlatRecoverEnvCfg):
         self.scene.contact_forces.history_length = 1
 
 
+@configclass
+class G009FlatRecoverMatrixEnvCfg(G009FlatRecoverEnvCfg):
+    """Production recovery task with the validated matrix observation path."""
+
+    observations: G009MatrixObservationsCfg = G009MatrixObservationsCfg()
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.observations = G009MatrixObservationsCfg()
+        self.scene.contact_forces.filter_prim_paths_expr = list(TERRAIN_FILTER_PATHS)
+        self.scene.contact_forces.history_length = 1
+
+
 __all__ = [
     "CONTACT_FORCE_THRESHOLD_N",
     "G009FlatRecoverEnvCfg",
+    "G009FlatRecoverMatrixEnvCfg",
     "G009FlatRecoverMatrixGate01EnvCfg",
+    "G009MatrixCriticCfg",
     "G009MatrixGate01CriticCfg",
     "G009MatrixGate01ObservationsCfg",
     "G009MatrixGate01PolicyCfg",
+    "G009MatrixObservationsCfg",
+    "G009MatrixPolicyCfg",
     "MAX_ANGULAR_SPEED_RAD_S",
     "MIN_BASE_HEIGHT_M",
     "MIN_FOOT_CONTACTS",

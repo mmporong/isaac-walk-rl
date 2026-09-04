@@ -276,8 +276,16 @@ function Test-ZeroFiniteSafetySummary {
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $isaacLabFullPath = [System.IO.Path]::GetFullPath($IsaacLabPath)
 $pythonBat = Join-Path $isaacLabFullPath '_isaac_sim\python.bat'
-$trainScript = Join-Path $isaacLabFullPath 'scripts\reinforcement_learning\rsl_rl\train.py'
+$officialTrainScript = Join-Path $isaacLabFullPath 'scripts\reinforcement_learning\rsl_rl\train.py'
+$trainScript = $officialTrainScript
 $rawLogRoot = Join-Path $isaacLabFullPath 'logs\harness'
+$g009QualificationTask = 'Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0'
+$g009QualificationConfigPath = Join-Path $repoRoot 'configs\g009_r0_rev26_qualification.json'
+$expectedIsaacLabCommit = '90b79bb2d44feb8d833f260f2bf37da3487180ba'
+$expectedOfficialTrainSha256 = '8b995f75ac57ce7403973ff1f3f2715fbff9563ef2cdcdc321a7edc5dd15f5df'
+$expectedQualificationSourceManifestSha256 = 'bd3023481434813fdaf10d80280ff243d4f2af04ed92975d68adec4bc96b1334'
+$qualificationTemperatureC = 90.0
+$qualificationSustainedTemperatureSamples = 3
 
 if (-not [string]::IsNullOrWhiteSpace($TrainingEntrypointPath)) {
     $candidateEntrypoint = [System.IO.Path]::GetFullPath($TrainingEntrypointPath)
@@ -334,12 +342,65 @@ if ($RequireZeroTrainingSafetyTerminations -and $HydraOverrides.Count -gt 0) {
 if ($Qualification -and $HydraOverrides.Count -gt 0) {
     throw 'Qualification 학습은 런타임 의미를 바꾸는 Hydra override를 허용하지 않습니다.'
 }
-$g009QualificationTask = 'Isaac-G009-Recover-Flat-Go2-R0-v0'
-if (
-    $Qualification -and
-    $Task -eq $g009QualificationTask -and
-    ($NumEnvs -ne 1024 -or $MaxIterations -ne 300 -or $Seed -ne 42)
-) {
+
+function Get-DescendantProcessIds {
+    param([Parameter(Mandatory = $true)][int]$RootProcessId)
+
+    $processes = @(Get-CimInstance Win32_Process -ErrorAction Stop | Select-Object ProcessId, ParentProcessId)
+    $pending = [System.Collections.Generic.Queue[int]]::new()
+    $pending.Enqueue($RootProcessId)
+    $descendants = [System.Collections.Generic.HashSet[int]]::new()
+    while ($pending.Count -gt 0) {
+        $parentId = $pending.Dequeue()
+        foreach ($candidate in $processes) {
+            $candidateId = [int]$candidate.ProcessId
+            if ([int]$candidate.ParentProcessId -eq $parentId -and $descendants.Add($candidateId)) {
+                $pending.Enqueue($candidateId)
+            }
+        }
+    }
+    return [int[]]@($descendants)
+}
+
+function Test-ProcessIdsExited {
+    param([int[]]$ProcessIds)
+
+    foreach ($processId in @($ProcessIds)) {
+        if ($null -ne (Get-Process -Id $processId -ErrorAction SilentlyContinue)) {
+            return $false
+        }
+    }
+    return $true
+}
+
+function Stop-VerifiedProcessTree {
+    param([Parameter(Mandatory = $true)][int]$RootProcessId)
+
+    $descendants = @(Get-DescendantProcessIds -RootProcessId $RootProcessId)
+    $targets = @($RootProcessId) + $descendants
+    $taskkill = Get-Command taskkill.exe -ErrorAction Stop
+    & $taskkill.Source /PID $RootProcessId /T /F *> $null
+    $deadline = (Get-Date).AddSeconds(15)
+    do {
+        if (Test-ProcessIdsExited -ProcessIds $targets) {
+            return [pscustomobject]@{
+                root_process_id = $RootProcessId
+                descendant_process_ids = $descendants
+                all_processes_exited = $true
+            }
+        }
+        Start-Sleep -Milliseconds 200
+    } while ((Get-Date) -lt $deadline)
+    return [pscustomobject]@{
+        root_process_id = $RootProcessId
+        descendant_process_ids = $descendants
+        all_processes_exited = $false
+    }
+}
+if ($Qualification -and $Task -ne $g009QualificationTask) {
+    throw "G009 R0 Qualification은 task=$g009QualificationTask 만 허용합니다."
+}
+if ($Qualification -and ($NumEnvs -ne 1024 -or $MaxIterations -ne 300 -or $Seed -ne 42)) {
     throw 'G009 R0 Qualification은 num_envs=1024, max_iterations=300, seed=42만 허용합니다.'
 }
 
@@ -348,6 +409,73 @@ if (-not (Test-Path -LiteralPath $pythonBat -PathType Leaf)) {
 }
 if (-not (Test-Path -LiteralPath $trainScript -PathType Leaf)) {
     throw "RSL-RL train.py를 찾을 수 없습니다: $trainScript"
+}
+$qualificationContract = $null
+$qualificationSourceBindingPaths = @()
+$isaacLabCommit = $null
+$officialTrainHash = $null
+$isaacLabTrackedClean = $null
+if ($Qualification) {
+    if (-not (Test-Path -LiteralPath $g009QualificationConfigPath -PathType Leaf)) {
+        throw "rev26 qualification preregistration을 찾을 수 없습니다: $g009QualificationConfigPath"
+    }
+    $qualificationContract = Get-Content -LiteralPath $g009QualificationConfigPath -Raw | ConvertFrom-Json
+    if (
+        $qualificationContract.schema_version -ne 'g009.r0.rev26.qualification_preregistration.v1' -or
+        $qualificationContract.task -ne $g009QualificationTask -or
+        $qualificationContract.evidence_id -ne 'G009-5-E019' -or
+        $qualificationContract.revision -ne 'rev26' -or
+        $qualificationContract.seed -ne 42 -or
+        $qualificationContract.num_envs -ne 1024 -or
+        $qualificationContract.max_iterations -ne 300 -or
+        $qualificationContract.ppo_num_learning_epochs -ne 5 -or
+        $qualificationContract.ppo_num_mini_batches -ne 4 -or
+        $qualificationContract.optimizer_mini_batch_updates -ne 6000 -or
+        $qualificationContract.scratch -ne $true -or
+        $qualificationContract.headless -ne $true -or
+        $qualificationContract.expected_checkpoint_name -ne 'model_299.pt' -or
+        $qualificationContract.training.task -ne $g009QualificationTask -or
+        $qualificationContract.training.seed -ne 42 -or
+        $qualificationContract.training.headless -ne $true -or
+        $qualificationContract.training.scratch -ne $true -or
+        $qualificationContract.training.num_envs -ne 1024 -or
+        $qualificationContract.training.num_steps_per_env -ne 24 -or
+        $qualificationContract.training.max_iterations -ne 300 -or
+        $qualificationContract.training.ppo_num_learning_epochs -ne 5 -or
+        $qualificationContract.training.ppo_num_mini_batches -ne 4 -or
+        $qualificationContract.training.optimizer_mini_batch_updates -ne 6000 -or
+        $qualificationContract.training.expected_checkpoint_name -ne 'model_299.pt' -or
+        $qualificationContract.evaluation.seed -ne 1042 -or
+        $qualificationContract.evaluation.num_envs -ne 1024 -or
+        ($qualificationContract.evaluation.poses -join ',') -ne 'prone,supine,left_side,right_side' -or
+        $qualificationContract.evaluation.environments_per_pose -ne 256 -or
+        $qualificationContract.evaluation.actor_corruption_enabled -ne $true -or
+        $qualificationContract.evaluation.minimum_success_rate_per_pose -ne 0.8 -or
+        $qualificationContract.evaluation.minimum_successes_per_pose -ne 205 -or
+        $qualificationContract.evaluation.maximum_median_recovery_time_seconds -ne 4.0 -or
+        $qualificationContract.evaluation.maximum_safety_terminations -ne 0 -or
+        $qualificationContract.evaluation.checkpoint_name -ne 'model_299.pt'
+    ) {
+        throw 'rev26 qualification preregistration의 고정 training 계약이 일치하지 않습니다.'
+    }
+    $qualificationSourceBindingPaths = @($qualificationContract.source_binding_paths)
+    [string[]]$sortedQualificationPaths = @($qualificationSourceBindingPaths)
+    [Array]::Sort($sortedQualificationPaths, [System.StringComparer]::Ordinal)
+    $uniqueQualificationPaths = [System.Collections.Generic.HashSet[string]]::new(
+        [System.StringComparer]::Ordinal
+    )
+    foreach ($qualificationPath in $qualificationSourceBindingPaths) {
+        [void]$uniqueQualificationPaths.Add($qualificationPath)
+    }
+    if (
+        $qualificationSourceBindingPaths.Count -eq 0 -or
+        $uniqueQualificationPaths.Count -ne $qualificationSourceBindingPaths.Count -or
+        (($qualificationSourceBindingPaths | ConvertTo-Json -Compress) -ne ($sortedQualificationPaths | ConvertTo-Json -Compress)) -or
+        (Get-TextSha256 ($qualificationSourceBindingPaths | ConvertTo-Json -Compress)) -ne $qualificationContract.source_binding_path_manifest_sha256 -or
+        $qualificationContract.source_binding_path_manifest_sha256 -ne $expectedQualificationSourceManifestSha256
+    ) {
+        throw 'rev26 qualification source binding path manifest가 유효하지 않습니다.'
+    }
 }
 $trainingEntrypointHash = (Get-FileHash -LiteralPath $trainScript -Algorithm SHA256).Hash.ToLowerInvariant()
 $sourceBindingFiles = [ordered]@{}
@@ -461,28 +589,40 @@ if ($Qualification) {
         $qualificationFailures.Add('repository 내부 training entrypoint가 지정되지 않음')
     }
     if ($Task -eq $g009QualificationTask) {
-        $requiredG009SourcePaths = @(
-            'configs/g009_r0.json',
-            'scripts/bootstrap_train_g009.py',
-            'scripts/run_training.ps1',
-            'src/isaac_walk_g009/agent_cfg.py',
-            'src/isaac_walk_g009/mdp/__init__.py',
-            'src/isaac_walk_g009/mdp/events.py',
-            'src/isaac_walk_g009/mdp/recover.py',
-            'src/isaac_walk_g009/recover_contracts.py',
-            'src/isaac_walk_g009/recover_env_cfg.py',
-            'src/isaac_walk_g009/registry.py'
-        )
-        foreach ($requiredPath in $requiredG009SourcePaths) {
-            if (-not $sourceBindingFiles.Contains($requiredPath)) {
-                $qualificationFailures.Add("G009 R0 필수 source binding 누락: $requiredPath")
-            }
+        $actualQualificationPaths = @($sourceBindingFiles.Keys)
+        if (
+            $actualQualificationPaths.Count -ne $qualificationSourceBindingPaths.Count -or
+            (($actualQualificationPaths | ConvertTo-Json -Compress) -ne ($qualificationSourceBindingPaths | ConvertTo-Json -Compress))
+        ) {
+            $qualificationFailures.Add('source binding paths가 rev26 preregistration exact set과 일치하지 않음')
         }
         $expectedG009Entrypoint = [System.IO.Path]::GetFullPath(
             (Join-Path $repoRoot 'scripts\bootstrap_train_g009.py')
         )
         if (-not $trainScript.Equals($expectedG009Entrypoint, [System.StringComparison]::OrdinalIgnoreCase)) {
             $qualificationFailures.Add('G009 R0 training entrypoint가 bootstrap_train_g009.py와 일치하지 않음')
+        }
+        [string[]]$isaacLabCommit = if ($null -ne $gitCommand) {
+            @(& $gitCommand.Source -C $isaacLabFullPath rev-parse HEAD 2>$null)
+        }
+        else { @() }
+        if ($isaacLabCommit.Count -eq 0 -or $LASTEXITCODE -ne 0 -or ([string]$isaacLabCommit[-1]).Trim() -ne $expectedIsaacLabCommit) {
+            $qualificationFailures.Add('Isaac Lab commit이 pinned v2.1.1 commit과 일치하지 않음')
+        }
+        [string[]]$isaacLabTrackedStatus = if ($null -ne $gitCommand) {
+            @(& $gitCommand.Source -C $isaacLabFullPath status --porcelain=v1 --untracked-files=no 2>$null)
+        }
+        else { @('__git_unavailable__') }
+        $isaacLabTrackedClean = $LASTEXITCODE -eq 0 -and @($isaacLabTrackedStatus).Count -eq 0
+        if (-not $isaacLabTrackedClean) {
+            $qualificationFailures.Add('Isaac Lab tracked worktree가 clean 상태가 아님')
+        }
+        $officialTrainHash = if (Test-Path -LiteralPath $officialTrainScript -PathType Leaf) {
+            (Get-FileHash -LiteralPath $officialTrainScript -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+        else { $null }
+        if ($officialTrainHash -ne $expectedOfficialTrainSha256) {
+            $qualificationFailures.Add('official train.py SHA-256이 pinned 값과 일치하지 않음')
         }
     }
     if ($qualificationFailures.Count -gt 0) {
@@ -501,7 +641,14 @@ New-Item -ItemType Directory -Path $rawLogRoot -Force | Out-Null
 
 $stdoutPath = Join-Path $rawLogRoot "$RunName.stdout.log"
 $stderrPath = Join-Path $rawLogRoot "$RunName.stderr.log"
-Remove-Item -LiteralPath $stdoutPath, $stderrPath -Force -ErrorAction SilentlyContinue
+foreach ($noOverwritePath in @($reportFullPath, $stdoutPath, $stderrPath)) {
+    if (Test-Path -LiteralPath $noOverwritePath) {
+        throw "기존 증거 파일을 덮어쓸 수 없습니다: $noOverwritePath"
+    }
+}
+$captureId = [guid]::NewGuid().ToString('N')
+$stdoutCapturePath = Join-Path $rawLogRoot ".$RunName.stdout.$captureId.tmp"
+$stderrCapturePath = Join-Path $rawLogRoot ".$RunName.stderr.$captureId.tmp"
 
 $arguments = @(
     $trainScript,
@@ -530,6 +677,10 @@ if ($baselineGpuMetrics.device_count -ne 1) {
 }
 $gpuSamples = [System.Collections.Generic.List[object]]::new()
 $gpuMeasurementFailureCount = 0
+$qualificationGpuAbortReason = $null
+$qualificationConsecutiveHotSamples = 0
+$qualificationMaximumConsecutiveHotSamples = 0
+$qualificationFatalPattern = '(?i)(CUDA\s+out\s+of\s+memory|out\s+of\s+memory|\bXid\b|driver\s+reset|device\s+lost)'
 $preexistingLogDirectories = @()
 $rslRlLogRoot = Join-Path $isaacLabFullPath 'logs\rsl_rl'
 if (Test-Path -LiteralPath $rslRlLogRoot -PathType Container) {
@@ -540,13 +691,15 @@ if (Test-Path -LiteralPath $rslRlLogRoot -PathType Container) {
 }
 $startedAt = Get-Date
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+$observedDescendantProcessIds = [System.Collections.Generic.HashSet[int]]::new()
+$processTreeTermination = $null
 
 $process = Start-Process -FilePath $pythonBat `
     -ArgumentList $argumentLine `
     -WorkingDirectory $isaacLabFullPath `
     -WindowStyle Hidden `
-    -RedirectStandardOutput $stdoutPath `
-    -RedirectStandardError $stderrPath `
+    -RedirectStandardOutput $stdoutCapturePath `
+    -RedirectStandardError $stderrCapturePath `
     -PassThru
 
 while (-not $process.HasExited) {
@@ -563,6 +716,47 @@ while (-not $process.HasExited) {
         temperature_c = if ($null -ne $gpuMetrics) { $gpuMetrics.temperature_c } else { $null }
         power_draw_w = if ($null -ne $gpuMetrics) { $gpuMetrics.power_draw_w } else { $null }
     })
+    if ($Qualification) {
+        try {
+            foreach ($descendantId in @(Get-DescendantProcessIds -RootProcessId $process.Id)) {
+                [void]$observedDescendantProcessIds.Add($descendantId)
+            }
+        }
+        catch {
+            $qualificationGpuAbortReason = 'process_tree_enumeration_failed'
+        }
+        if ($null -ne $gpuMetrics -and $null -ne $gpuMetrics.temperature_c -and $gpuMetrics.temperature_c -ge $qualificationTemperatureC) {
+            $qualificationConsecutiveHotSamples++
+        }
+        else {
+            $qualificationConsecutiveHotSamples = 0
+        }
+        $qualificationMaximumConsecutiveHotSamples = [math]::Max(
+            $qualificationMaximumConsecutiveHotSamples,
+            $qualificationConsecutiveHotSamples
+        )
+        if ($qualificationConsecutiveHotSamples -ge $qualificationSustainedTemperatureSamples) {
+            $qualificationGpuAbortReason = "sustained_gpu_temperature_at_or_above_$([int]$qualificationTemperatureC)c"
+        }
+        if ($null -eq $qualificationGpuAbortReason) {
+            $liveOutput = ''
+            foreach ($livePath in @($stdoutCapturePath, $stderrCapturePath)) {
+                if (Test-Path -LiteralPath $livePath -PathType Leaf) {
+                    $liveOutput += (Get-Content -LiteralPath $livePath -Tail 200 -ErrorAction SilentlyContinue | Out-String)
+                }
+            }
+            $liveFatal = [regex]::Match($liveOutput, $qualificationFatalPattern)
+            if ($liveFatal.Success) {
+                $qualificationGpuAbortReason = 'gpu_runtime_fatal:' + $liveFatal.Value
+            }
+        }
+        if ($null -ne $qualificationGpuAbortReason -and -not $process.HasExited) {
+            $processTreeTermination = Stop-VerifiedProcessTree -RootProcessId $process.Id
+            foreach ($descendantId in @($processTreeTermination.descendant_process_ids)) {
+                [void]$observedDescendantProcessIds.Add($descendantId)
+            }
+        }
+    }
     Start-Sleep -Seconds $GpuSampleIntervalSeconds
     $process.Refresh()
 }
@@ -587,14 +781,22 @@ do {
         temperature_c = if ($null -ne $recoveryMetrics) { $recoveryMetrics.temperature_c } else { $null }
         power_draw_w = if ($null -ne $recoveryMetrics) { $recoveryMetrics.power_draw_w } else { $null }
     })
-    if ($null -ne $recoveryUsedMiB -and $recoveryUsedMiB -le ($baselineGpuMiB + 128)) {
+    $qualificationDescendantsExited = Test-ProcessIdsExited -ProcessIds @($observedDescendantProcessIds)
+    if (
+        $null -ne $recoveryUsedMiB -and
+        $recoveryUsedMiB -le ($baselineGpuMiB + 128) -and
+        (-not $Qualification -or $qualificationDescendantsExited)
+    ) {
         break
     }
     Start-Sleep -Seconds 1
 } while ((Get-Date) -lt $gpuRecoveryDeadline)
+$qualificationDescendantsExited = Test-ProcessIdsExited -ProcessIds @($observedDescendantProcessIds)
 
-$stdout = if (Test-Path -LiteralPath $stdoutPath) { Get-Content -LiteralPath $stdoutPath -Raw } else { '' }
-$stderr = if (Test-Path -LiteralPath $stderrPath) { Get-Content -LiteralPath $stderrPath -Raw } else { '' }
+$stdout = if (Test-Path -LiteralPath $stdoutCapturePath) { Get-Content -LiteralPath $stdoutCapturePath -Raw } else { '' }
+$stderr = if (Test-Path -LiteralPath $stderrCapturePath) { Get-Content -LiteralPath $stderrCapturePath -Raw } else { '' }
+[System.IO.File]::Move($stdoutCapturePath, $stdoutPath)
+[System.IO.File]::Move($stderrCapturePath, $stderrPath)
 $combined = $stdout + [Environment]::NewLine + $stderr
 
 $logRootMatch = Get-LastMatchValue -Text $combined -Pattern '\[INFO\] Logging experiment in directory:\s*(.+?)\s*$'
@@ -662,9 +864,17 @@ $finalEpisodeLength = if ($null -ne $finalEpisodeLengthText) { [double]::Parse($
 
 $checkpoint = $null
 if ($actualLogDirectory -and (Test-Path -LiteralPath $actualLogDirectory -PathType Container)) {
-    $checkpoint = Get-ChildItem -LiteralPath $actualLogDirectory -Filter 'model_*.pt' -File |
-        Sort-Object LastWriteTimeUtc |
-        Select-Object -Last 1
+    if ($Qualification) {
+        $expectedCheckpointPath = Join-Path $actualLogDirectory 'model_299.pt'
+        if (Test-Path -LiteralPath $expectedCheckpointPath -PathType Leaf) {
+            $checkpoint = Get-Item -LiteralPath $expectedCheckpointPath
+        }
+    }
+    else {
+        $checkpoint = Get-ChildItem -LiteralPath $actualLogDirectory -Filter 'model_*.pt' -File |
+            Sort-Object LastWriteTimeUtc |
+            Select-Object -Last 1
+    }
 }
 $checkpointHash = if ($checkpoint) { (Get-FileHash -LiteralPath $checkpoint.FullName -Algorithm SHA256).Hash.ToLowerInvariant() } else { $null }
 $tensorboardExists = $false
@@ -711,6 +921,18 @@ $peakGpuTemperature = if ($gpuTemperatureValues.Count -gt 0) { ($gpuTemperatureV
 $peakGpuPower = if ($gpuPowerValues.Count -gt 0) { ($gpuPowerValues | Measure-Object -Maximum).Maximum } else { $null }
 $fatalPatterns = @('Traceback (most recent call last)', '[Error]')
 $fatalMatches = @($fatalPatterns | Where-Object { $combined.Contains($_) })
+$qualificationGpuFatalMatches = @(
+    [regex]::Matches($combined, $qualificationFatalPattern) | ForEach-Object { $_.Value }
+)
+$qualificationGpuSafetyPassed = if ($Qualification) {
+    $gpuMeasurementComplete -and
+    $recoveredToBaseline -and
+    $qualificationGpuFatalMatches.Count -eq 0 -and
+    $null -eq $qualificationGpuAbortReason -and
+    $qualificationMaximumConsecutiveHotSamples -lt $qualificationSustainedTemperatureSamples -and
+    $qualificationDescendantsExited
+}
+else { $null }
 $expectedLastIteration = if ($Resume) {
     # RSL-RL includes the loaded iteration in the resumed learning range.
     # model_N plus M iterations therefore ends at model_(N + M - 1).
@@ -732,6 +954,7 @@ $successChecks = [ordered]@{
     gpu_measurement_complete = $gpuMeasurementComplete
     gpu_recovered_to_baseline = $recoveredToBaseline
     qualification_training_safety_zero = if ($Qualification) { $trainingSafetyGatePassed } else { $null }
+    qualification_gpu_safety = if ($Qualification) { $qualificationGpuSafetyPassed } else { $null }
     requested_training_safety_gate_zero = if ($RequireZeroTrainingSafetyTerminations) { $trainingSafetyGatePassed } else { $null }
 }
 $passed = -not ($successChecks.Values -contains $false)
@@ -779,6 +1002,22 @@ $report = [ordered]@{
         sha256 = $trainingEntrypointHash
         repository_internal = -not [string]::IsNullOrWhiteSpace($TrainingEntrypointPath)
     }
+    upstream = [ordered]@{
+        isaac_lab_expected_commit = $expectedIsaacLabCommit
+        isaac_lab_commit = if ($Qualification) { ([string]$isaacLabCommit[-1]).Trim() } else { $null }
+        official_train_path = Convert-ToPortablePath $officialTrainScript
+        official_train_expected_sha256 = $expectedOfficialTrainSha256
+        official_train_sha256 = if ($Qualification) { $officialTrainHash } else { $null }
+        tracked_clean = if ($Qualification) { $isaacLabTrackedClean } else { $null }
+    }
+    qualification_contract = if ($Qualification) {
+        [ordered]@{
+            path = 'configs/g009_r0_rev26_qualification.json'
+            sha256 = (Get-FileHash -LiteralPath $g009QualificationConfigPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            source_binding_path_manifest_sha256 = $qualificationContract.source_binding_path_manifest_sha256
+        }
+    }
+    else { $null }
     repository = [ordered]@{
         commit = $repositoryCommit
         dirty = $repositoryDirty
@@ -810,6 +1049,22 @@ $report = [ordered]@{
         measurement_failure_count = $gpuMeasurementFailureCount
         measurement_complete = $gpuMeasurementComplete
         recovered_to_baseline = $recoveredToBaseline
+        qualification_safety = [ordered]@{
+            required = [bool]$Qualification
+            temperature_threshold_c = $qualificationTemperatureC
+            sustained_sample_count = $qualificationSustainedTemperatureSamples
+            consecutive_sample_observation_span_seconds = (
+                ($qualificationSustainedTemperatureSamples - 1) * $GpuSampleIntervalSeconds
+            )
+            maximum_consecutive_hot_samples = $qualificationMaximumConsecutiveHotSamples
+            fatal_pattern = $qualificationFatalPattern
+            fatal_matches = $qualificationGpuFatalMatches
+            abort_reason = $qualificationGpuAbortReason
+            observed_descendant_process_ids = @($observedDescendantProcessIds)
+            process_tree_termination = $processTreeTermination
+            descendants_exited = if ($Qualification) { $qualificationDescendantsExited } else { $null }
+            passed = $qualificationGpuSafetyPassed
+        }
     }
     performance = [ordered]@{
         metric_source = 'stdout; TensorBoard event file existence verified'
@@ -861,7 +1116,7 @@ $reportJson = $report | ConvertTo-Json -Depth 8
 $reportTempPath = Join-Path $reportDirectory ('.' + [System.IO.Path]::GetFileName($reportFullPath) + '.' + [guid]::NewGuid().ToString('N') + '.tmp')
 try {
     [System.IO.File]::WriteAllText($reportTempPath, $reportJson, [System.Text.UTF8Encoding]::new($false))
-    [System.IO.File]::Move($reportTempPath, $reportFullPath, $true)
+    [System.IO.File]::Move($reportTempPath, $reportFullPath)
 }
 finally {
     if (Test-Path -LiteralPath $reportTempPath -PathType Leaf) {

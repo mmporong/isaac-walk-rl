@@ -11,6 +11,7 @@ import os
 import statistics
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Iterable, Mapping
@@ -27,16 +28,130 @@ GOAL_ID = "g009"
 STAGE_NUMBER = "G009-5"
 STAGE_ID = "R0"
 REPORT_ID = "g009_r0_flat_quantitative_evaluation"
-DEFAULT_TASK = "Isaac-G009-Recover-Flat-Go2-R0-v0"
+QUALIFICATION_CONFIG_PATH = REPO_ROOT / "configs" / "g009_r0_rev26_qualification.json"
+TRAINING_ENTRYPOINT_PATH = REPO_ROOT / "scripts" / "bootstrap_train_g009.py"
+EXPECTED_QUALIFICATION_SOURCE_MANIFEST_SHA256 = (
+    "bd3023481434813fdaf10d80280ff243d4f2af04ed92975d68adec4bc96b1334"
+)
+EXPECTED_ISAACLAB_COMMIT = "90b79bb2d44feb8d833f260f2bf37da3487180ba"
+EXPECTED_TRAIN_SHA256 = "8b995f75ac57ce7403973ff1f3f2715fbff9563ef2cdcdc321a7edc5dd15f5df"
+REQUIRED_TERMINATION_TERMS = (
+    "stable_success",
+    "time_out",
+    "numeric_invalid",
+    "hard_joint_limit",
+)
+
+
+def _load_qualification_config(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise TypeError("rev26 qualification preregistration must be an object")
+    if (
+        value.get("schema_version") != "g009.r0.rev26.qualification_preregistration.v1"
+        or value.get("evidence_id") != "G009-5-E019"
+        or value.get("revision") != "rev26"
+    ):
+        raise ValueError("rev26 qualification identity mismatch")
+    paths = value.get("source_binding_paths")
+    if not isinstance(paths, list) or not paths or not all(isinstance(item, str) for item in paths):
+        raise ValueError("rev26 source_binding_paths must be a non-empty string list")
+    if paths != sorted(set(paths)):
+        raise ValueError("rev26 source_binding_paths must be unique and ordinal sorted")
+    manifest = hashlib.sha256(
+        json.dumps(paths, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    if (
+        value.get("source_binding_path_manifest_sha256") != manifest
+        or manifest != EXPECTED_QUALIFICATION_SOURCE_MANIFEST_SHA256
+    ):
+        raise ValueError("rev26 source binding path manifest mismatch")
+    training = value.get("training")
+    evaluation = value.get("evaluation")
+    if not isinstance(training, Mapping) or not isinstance(evaluation, Mapping):
+        raise ValueError("rev26 training/evaluation contracts are required")
+    required = {
+        "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+        "seed": 42,
+        "headless": True,
+        "scratch": True,
+        "num_envs": 1024,
+        "num_steps_per_env": 24,
+        "max_iterations": 300,
+        "ppo_num_learning_epochs": 5,
+        "ppo_num_mini_batches": 4,
+        "optimizer_mini_batch_updates": 6000,
+        "expected_checkpoint_name": "model_299.pt",
+    }
+    for key, expected in required.items():
+        if value.get(key) != expected or training.get(key) != expected:
+            raise ValueError(f"rev26 training contract mismatch: {key}")
+    expected_evaluation = {
+        "seed": 1042,
+        "num_envs": 1024,
+        "environments_per_pose": 256,
+        "actor_corruption_enabled": True,
+        "minimum_success_rate_per_pose": 0.8,
+        "minimum_successes_per_pose": 205,
+        "maximum_median_recovery_time_seconds": 4.0,
+        "maximum_safety_terminations": 0,
+        "checkpoint_name": "model_299.pt",
+    }
+    for key, expected in expected_evaluation.items():
+        if evaluation.get(key) != expected:
+            raise ValueError(f"rev26 evaluation contract mismatch: {key}")
+    if tuple(evaluation.get("poses", ())) != ("prone", "supine", "left_side", "right_side"):
+        raise ValueError("rev26 evaluation pose order mismatch")
+    policy = value.get("policy_observation")
+    critic = value.get("critic_observation")
+    if not isinstance(policy, Mapping) or not isinstance(critic, Mapping):
+        raise ValueError("rev26 policy/critic observation contracts are required")
+    if (
+        policy.get("total_dimension") != 140
+        or policy.get("collect_gate_telemetry") is not False
+        or policy.get("invalid_handling")
+        != "set per-environment _g009_actor_signal_invalid and return zeroed nan_to_num row"
+    ):
+        raise ValueError("rev26 production matrix observation contract mismatch")
+    if critic.get("actor_prefix_dimension") != 140 or critic.get("total_dimension") != 164:
+        raise ValueError("rev26 critic observation contract mismatch")
+    return value
+
+
+QUALIFICATION_CONFIG = _load_qualification_config(QUALIFICATION_CONFIG_PATH)
+DEFAULT_TASK = str(QUALIFICATION_CONFIG["task"])
 POSE_NAMES = ("prone", "supine", "left_side", "right_side")
 OFFICIAL_PROTOCOL = {
     "task": DEFAULT_TASK,
-    "seed": 42,
-    "num_envs": 256,
+    "seed": int(QUALIFICATION_CONFIG["evaluation"]["seed"]),
+    "device": "cuda:0",
+    "headless": True,
+    "num_envs": int(QUALIFICATION_CONFIG["evaluation"]["num_envs"]),
     "horizon_steps": 400,
-    "minimum_success_rate": 0.80,
-    "maximum_median_recovery_time_s": 4.0,
+    "minimum_success_rate": float(
+        QUALIFICATION_CONFIG["evaluation"]["minimum_success_rate_per_pose"]
+    ),
+    "maximum_median_recovery_time_s": float(
+        QUALIFICATION_CONFIG["evaluation"]["maximum_median_recovery_time_seconds"]
+    ),
 }
+EXPECTED_EPISODES_PER_POSE = int(QUALIFICATION_CONFIG["evaluation"]["environments_per_pose"])
+EXPECTED_TRAINING_CHECKPOINT = str(QUALIFICATION_CONFIG["expected_checkpoint_name"])
+EXPECTED_ACTOR_OBSERVATION_DIM = int(QUALIFICATION_CONFIG["policy_observation"]["total_dimension"])
+EXPECTED_CRITIC_OBSERVATION_DIM = int(QUALIFICATION_CONFIG["critic_observation"]["total_dimension"])
+QUALIFICATION_SOURCE_PATHS = tuple(QUALIFICATION_CONFIG["source_binding_paths"])
+REQUIRED_TRAINING_SUCCESS_CHECKS = (
+    "process_exit_zero",
+    "no_traceback_or_error",
+    "requested_iteration_reached",
+    "log_directory_exists",
+    "tensorboard_exists",
+    "checkpoint_exists",
+    "gpu_measurement_complete",
+    "gpu_recovered_to_baseline",
+    "qualification_training_safety_zero",
+    "qualification_gpu_safety",
+)
 MAX_RAW_HARD_JOINT_LIMIT_VIOLATION_RAD = SOLVER_JOINT_LIMIT_TOLERANCE_RAD
 
 
@@ -60,11 +175,28 @@ def portable_path(path: Path) -> str:
         return str(resolved)
 
 
+def resolve_portable_path(value: str) -> Path:
+    if value.startswith("%USERPROFILE%\\"):
+        return (Path.home() / value.removeprefix("%USERPROFILE%\\")).resolve()
+    path = Path(value)
+    return path.resolve() if path.is_absolute() else (REPO_ROOT / path).resolve()
+
+
 def _write_json_atomic(path: Path, value: Mapping[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    temporary.replace(path)
+    if path.exists():
+        raise FileExistsError(path)
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as stream:
+            json.dump(value, stream, ensure_ascii=False, indent=2, allow_nan=False)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -123,8 +255,57 @@ def validate_source_bundle(bundle: Mapping[str, Any]) -> dict[str, Any]:
     return {"sha256": actual_bundle, "files": normalized}
 
 
+def _validate_upstream_binding(binding: Mapping[str, Any]) -> dict[str, Any]:
+    official_path_value = binding.get("official_train_path")
+    if not isinstance(official_path_value, str):
+        raise ValueError("training upstream official_train_path is missing")
+    official_path = resolve_portable_path(official_path_value)
+    if not official_path.is_file() or official_path.name != "train.py":
+        raise ValueError("training upstream official train.py is missing")
+    try:
+        isaaclab_root = official_path.parents[3]
+    except IndexError as exc:
+        raise ValueError("training upstream path is not under an Isaac Lab tree") from exc
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=isaaclab_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    tracked_status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "--untracked-files=no"],
+        cwd=isaaclab_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    actual_sha256 = file_sha256(official_path)
+    checks = {
+        "expected_commit": binding.get("isaac_lab_expected_commit") == EXPECTED_ISAACLAB_COMMIT,
+        "actual_commit": binding.get("isaac_lab_commit") == commit == EXPECTED_ISAACLAB_COMMIT,
+        "expected_train_sha256": binding.get("official_train_expected_sha256") == EXPECTED_TRAIN_SHA256,
+        "actual_train_sha256": binding.get("official_train_sha256") == actual_sha256 == EXPECTED_TRAIN_SHA256,
+        "tracked_clean": binding.get("tracked_clean") is True and not tracked_status.strip(),
+    }
+    failed = [name for name, passed in checks.items() if not passed]
+    if failed:
+        raise ValueError(f"training upstream binding failed: {', '.join(failed)}")
+    return {
+        "isaac_lab_commit": commit,
+        "official_train_path": portable_path(official_path),
+        "official_train_sha256": actual_sha256,
+        "tracked_clean": True,
+    }
+
+
 def validate_training_report(path: Path, checkpoint: Path) -> dict[str, Any]:
     report = _read_json(path)
+    success_checks = report.get("success_checks")
+    required_checks_pass = isinstance(success_checks, Mapping) and all(
+        success_checks.get(name) is True for name in REQUIRED_TRAINING_SUCCESS_CHECKS
+    )
+    artifact_checkpoint = report.get("artifacts", {}).get("checkpoint")
     checks = {
         "task": report.get("task") == DEFAULT_TASK,
         "seed": report.get("seed") == 42,
@@ -132,22 +313,76 @@ def validate_training_report(path: Path, checkpoint: Path) -> dict[str, Any]:
         "max_iterations": report.get("max_iterations") == 300,
         "headless": report.get("headless") is True,
         "scratch": report.get("resume", {}).get("enabled") is False,
+        "no_hydra_overrides": report.get("effective_hydra_overrides") == [],
         "qualification_preflight": (
             report.get("qualification_mode", {}).get("enabled") is True
             and report.get("qualification_mode", {}).get("preflight_passed") is True
             and report.get("qualification_mode", {}).get("policy_qualification_status") == "not_run"
         ),
         "run_health": report.get("run_health_passed") is True,
+        "passed": report.get("passed") is True,
+        "last_iteration": report.get("last_iteration") == 299,
+        "iteration_target": report.get("iteration_target") == 300,
+        "success_checks": required_checks_pass,
         "repository_clean": report.get("repository", {}).get("dirty") is False,
+        "source_matches_commit": report.get("source_bundle", {}).get("matches_repository_commit") is True,
+        "checkpoint_name": (
+            isinstance(artifact_checkpoint, str)
+            and Path(artifact_checkpoint.replace("\\", "/")).name == EXPECTED_TRAINING_CHECKPOINT
+            and checkpoint.name == EXPECTED_TRAINING_CHECKPOINT
+        ),
         "checkpoint": report.get("artifacts", {}).get("checkpoint_sha256") == file_sha256(checkpoint),
     }
     failed = [name for name, passed in checks.items() if not passed]
     if failed:
         raise ValueError("training qualification binding failed: " + ", ".join(failed))
+    entrypoint = report.get("training_entrypoint", {})
+    entrypoint_path_value = entrypoint.get("path")
+    expected_entrypoint = TRAINING_ENTRYPOINT_PATH.resolve()
+    if (
+        not isinstance(entrypoint_path_value, str)
+        or resolve_portable_path(entrypoint_path_value) != expected_entrypoint
+        or entrypoint.get("sha256") != file_sha256(expected_entrypoint)
+        or entrypoint.get("repository_internal") is not True
+    ):
+        raise ValueError("training entrypoint binding mismatch")
+    upstream_binding = _validate_upstream_binding(report.get("upstream", {}))
+    qualification_contract = report.get("qualification_contract", {})
+    contract_path_value = qualification_contract.get("path")
+    if (
+        not isinstance(contract_path_value, str)
+        or resolve_portable_path(contract_path_value) != QUALIFICATION_CONFIG_PATH.resolve()
+        or qualification_contract.get("sha256") != file_sha256(QUALIFICATION_CONFIG_PATH)
+        or qualification_contract.get("source_binding_path_manifest_sha256")
+        != EXPECTED_QUALIFICATION_SOURCE_MANIFEST_SHA256
+    ):
+        raise ValueError("qualification contract binding mismatch")
     commit = report.get("repository", {}).get("commit")
     if not isinstance(commit, str) or len(commit) != 40:
         raise ValueError("training repository commit is missing or invalid")
     source_bundle = validate_source_bundle(report.get("source_bundle", {}))
+    if tuple(source_bundle["files"]) != QUALIFICATION_SOURCE_PATHS:
+        raise ValueError("training source bundle does not match rev26 preregistration")
+    import torch
+
+    checkpoint_value = torch.load(checkpoint, map_location="cpu", weights_only=True)
+    state_dict = checkpoint_value.get("model_state_dict")
+    if not isinstance(state_dict, Mapping):
+        raise ValueError("training checkpoint model_state_dict is missing")
+    actor_shape = tuple(getattr(state_dict.get("actor.0.weight"), "shape", ()))
+    critic_shape = tuple(getattr(state_dict.get("critic.0.weight"), "shape", ()))
+    if actor_shape != (512, EXPECTED_ACTOR_OBSERVATION_DIM):
+        raise ValueError(f"training checkpoint actor observation dimension mismatch: {actor_shape}")
+    if critic_shape != (512, EXPECTED_CRITIC_OBSERVATION_DIM):
+        raise ValueError(f"training checkpoint critic observation dimension mismatch: {critic_shape}")
+    if checkpoint_value.get("iter") != 299:
+        raise ValueError("training checkpoint iteration must be 299")
+    if not all(
+        bool(torch.isfinite(value).all().item())
+        for value in state_dict.values()
+        if isinstance(value, torch.Tensor)
+    ):
+        raise ValueError("training checkpoint model tensors must be finite")
     state = git_source_state()
     if not state["clean"]:
         raise ValueError("evaluation requires a clean repository")
@@ -159,6 +394,20 @@ def validate_training_report(path: Path, checkpoint: Path) -> dict[str, Any]:
         "repository": {"commit": commit, "clean": True},
         "source_bundle": source_bundle,
         "checkpoint_sha256": file_sha256(checkpoint),
+        "checkpoint_observation_dimensions": {
+            "actor": EXPECTED_ACTOR_OBSERVATION_DIM,
+            "critic": EXPECTED_CRITIC_OBSERVATION_DIM,
+        },
+        "training_entrypoint": {
+            "path": "scripts/bootstrap_train_g009.py",
+            "sha256": file_sha256(expected_entrypoint),
+        },
+        "upstream": upstream_binding,
+        "qualification_contract": {
+            "path": "configs/g009_r0_rev26_qualification.json",
+            "sha256": file_sha256(QUALIFICATION_CONFIG_PATH),
+            "source_binding_path_manifest_sha256": EXPECTED_QUALIFICATION_SOURCE_MANIFEST_SHA256,
+        },
     }
 
 
@@ -169,6 +418,16 @@ def protocol_mode(args: argparse.Namespace) -> str:
     if not getattr(args, "diagnostic", False):
         raise ValueError("official protocol values are fixed; use --diagnostic for non-qualifying runs")
     return "diagnostic_only"
+
+
+def validate_required_termination_terms(active_terms: Iterable[str]) -> tuple[str, ...]:
+    terms = tuple(active_terms)
+    missing = [name for name in REQUIRED_TERMINATION_TERMS if name not in terms]
+    if missing:
+        raise RuntimeError(
+            "official R0 evaluation missing required termination terms: " + ", ".join(missing)
+        )
+    return terms
 
 
 def _finite(values: Iterable[float]) -> list[float]:
@@ -208,6 +467,7 @@ def finalize_pose_metrics(
     *,
     minimum_success_rate: float,
     maximum_median_recovery_time_s: float,
+    expected_episode_count: int,
 ) -> dict[str, Any]:
     episodes = int(accumulator["episode_count"])
     successes = int(accumulator["success_count"])
@@ -218,12 +478,22 @@ def finalize_pose_metrics(
     )
     median_recovery = recovery["median"]
     max_raw_limit_violation = float(accumulator["max_raw_hard_joint_limit_violation_rad"])
+    termination_total = (
+        successes
+        + int(accumulator["timeout_count"])
+        + int(accumulator["numeric_invalid_count"])
+        + int(accumulator["hard_joint_limit_count"])
+        + int(accumulator["other_termination_count"])
+    )
     gate_checks = {
-        "episodes_present": episodes > 0,
+        "exact_episode_count": episodes == expected_episode_count,
+        "termination_partition_matches_episode_count": termination_total == episodes,
+        "recovery_count_matches_success_count": recovery["count"] == successes,
         "success_rate": success_rate >= minimum_success_rate,
         "median_recovery_time": median_recovery is not None
         and float(median_recovery) <= maximum_median_recovery_time_s,
         "no_safety_termination": safety_count == 0,
+        "no_unclassified_termination": int(accumulator["other_termination_count"]) == 0,
         "joint_limit_violation_within_solver_tolerance": (
             math.isfinite(max_raw_limit_violation)
             and max_raw_limit_violation <= MAX_RAW_HARD_JOINT_LIMIT_VIOLATION_RAD
@@ -242,6 +512,7 @@ def finalize_pose_metrics(
         },
         "safe_termination_rate": 0.0 if episodes == 0 else (episodes - safety_count) / episodes,
         "recovery_time_s": recovery,
+        "recovery_time_samples_s": [float(value) for value in accumulator["recovery_times_s"]],
         "max_raw_hard_joint_limit_violation_rad": max_raw_limit_violation,
         "gate_checks": gate_checks,
         "gate_pass": all(gate_checks.values()),
@@ -266,6 +537,7 @@ def build_report(
                 pose_accumulators[pose],
                 minimum_success_rate=args.minimum_success_rate,
                 maximum_median_recovery_time_s=args.maximum_median_recovery_time_s,
+                expected_episode_count=EXPECTED_EPISODES_PER_POSE,
             ),
         }
         for pose in POSE_NAMES
@@ -277,6 +549,7 @@ def build_report(
         + item["termination_counts"]["hard_joint_limit"]
         for item in poses
     )
+    other_terminations = sum(item["termination_counts"]["other"] for item in poses)
     gate_pass = all(item["gate_pass"] for item in poses)
     mode = protocol_mode(args)
     source_stable = source_state_before == source_state_after and source_state_after.get("clean") is True
@@ -297,9 +570,9 @@ def build_report(
         "seed": args.seed,
         "device": args.device,
         "headless": bool(args.headless),
-        "observation_corruption": False,
+        "observation_corruption": True,
         "num_envs": args.num_envs,
-        "episodes_per_pose": args.num_envs // len(POSE_NAMES),
+        "episodes_per_pose": EXPECTED_EPISODES_PER_POSE,
         "horizon_steps": args.horizon_steps,
         "step_dt_s": step_dt_s,
         "gate": {
@@ -322,6 +595,7 @@ def build_report(
             "success_count": total_successes,
             "success_rate": 0.0 if total_episodes == 0 else total_successes / total_episodes,
             "safety_termination_count": safety_terminations,
+            "other_termination_count": other_terminations,
             "all_pose_gate_pass": gate_pass,
         },
         "poses": poses,
@@ -366,7 +640,8 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
     register_tasks()
     env_cfg = parse_env_cfg(args.task, device=args.device, num_envs=args.num_envs)
     env_cfg.seed = args.seed
-    env_cfg.observations.policy.enable_corruption = False
+    if env_cfg.observations.policy.enable_corruption is not True:
+        raise RuntimeError("official R0 evaluation requires actor observation corruption enabled")
     env_cfg.events.reset_base.params.update(
         {"assignment_mode": "stratified", "pose_xy_range": (0.0, 0.0), "yaw_range": (0.0, 0.0)}
     )
@@ -376,6 +651,13 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
 
     raw_env = gym.make(args.task, cfg=env_cfg)
     env = RslRlVecEnvWrapper(raw_env, clip_actions=agent_cfg.clip_actions)
+    try:
+        active_termination_terms = validate_required_termination_terms(
+            env.unwrapped.termination_manager.active_terms
+        )
+    except RuntimeError:
+        env.close()
+        raise
     runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=args.device)
     runner.load(str(args.checkpoint.resolve()))
     policy = runner.get_inference_policy(device=env.unwrapped.device)
@@ -420,10 +702,10 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
                 pose = POSE_NAMES[int(class_ids[env_index].item())]
                 accumulator = accumulators[pose]
                 accumulator["episode_count"] += 1
-                is_success = bool(terms.get("stable_success", torch.zeros_like(done_now))[env_index].item())
-                is_timeout = bool(terms.get("time_out", torch.zeros_like(done_now))[env_index].item())
-                is_numeric = bool(terms.get("numeric_invalid", torch.zeros_like(done_now))[env_index].item())
-                is_limit = bool(terms.get("hard_joint_limit", torch.zeros_like(done_now))[env_index].item())
+                is_success = bool(terms["stable_success"][env_index].item())
+                is_timeout = bool(terms["time_out"][env_index].item())
+                is_numeric = bool(terms["numeric_invalid"][env_index].item())
+                is_limit = bool(terms["hard_joint_limit"][env_index].item())
                 accumulator["success_count"] += int(is_success)
                 accumulator["timeout_count"] += int(is_timeout)
                 accumulator["numeric_invalid_count"] += int(is_numeric)
@@ -489,10 +771,12 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
                 "valid_for_all_envs": True,
                 "derivation": "foot material readback multiplied by terrain material readback",
             },
-            "active_terminations": list(env.unwrapped.termination_manager.active_terms),
+            "active_terminations": list(active_termination_terms),
             "policy_observation_dim": int(observations.shape[1]),
             "action_dim": int(env.unwrapped.action_manager.total_action_dim),
         }
+        if physics_readback["policy_observation_dim"] != EXPECTED_ACTOR_OBSERVATION_DIM:
+            raise RuntimeError("official R0 policy observation dimension mismatch")
         checkpoint = {"path": portable_path(args.checkpoint), "sha256": file_sha256(args.checkpoint)}
         source_state_after = git_source_state()
         source_bundle_after = validate_source_bundle(training_binding["source_bundle"])
@@ -539,6 +823,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         raise ValueError("minimum_success_rate must be in [0, 1]")
     if args.maximum_median_recovery_time_s <= 0.0:
         raise ValueError("maximum_median_recovery_time_s must be positive")
+    if args.output.exists():
+        raise FileExistsError(args.output)
     protocol_mode(args)
     return args
 

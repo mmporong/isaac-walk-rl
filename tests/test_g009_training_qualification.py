@@ -11,6 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 HARNESS = ROOT / "scripts" / "run_training.ps1"
 PWSH = shutil.which("pwsh")
+QUALIFICATION_TASK = "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0"
 
 
 def test_source_binding_sort_matches_python_ordinal_order() -> None:
@@ -68,6 +69,7 @@ def test_source_binding_sort_matches_python_ordinal_order() -> None:
 def _run_qualification(
     *extra: str,
     num_envs: str = "1024",
+    task: str = QUALIFICATION_TASK,
 ) -> subprocess.CompletedProcess[str]:
     if PWSH is None:
         pytest.skip("pwsh is unavailable")
@@ -77,7 +79,7 @@ def _run_qualification(
         "-File",
         str(HARNESS),
         "-Task",
-        "Isaac-G009-Recover-Flat-Go2-R0-v0",
+        task,
         "-NumEnvs",
         num_envs,
         "-MaxIterations",
@@ -112,3 +114,31 @@ def test_g009_qualification_rejects_noncanonical_budget() -> None:
 
     assert result.returncode != 0
     assert "num_envs=1024" in result.stdout + result.stderr
+
+
+def test_qualification_rejects_every_nonproduction_task() -> None:
+    result = _run_qualification(task="Isaac-G009-Recover-Flat-Go2-R0-v0")
+
+    assert result.returncode != 0
+    assert QUALIFICATION_TASK in result.stdout + result.stderr
+
+
+def test_qualification_rejects_resume_even_with_canonical_budget() -> None:
+    result = _run_qualification(
+        "-Resume", "-LoadRun", "prior", "-ResumeCheckpoint", "model_299.pt"
+    )
+
+    assert result.returncode != 0
+    assert "scratch" in result.stdout + result.stderr
+
+
+def test_qualification_rejects_source_set_that_differs_from_preregistration() -> None:
+    result = _run_qualification(
+        "-TrainingEntrypointPath",
+        str(ROOT / "scripts" / "bootstrap_train_g009.py"),
+        "-SourceBindingPaths",
+        "configs/g009_r0_rev26_qualification.json",
+    )
+
+    assert result.returncode != 0
+    assert "exact set" in result.stdout + result.stderr

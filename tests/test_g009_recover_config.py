@@ -41,6 +41,7 @@ from isaac_walk_g009.recover_contracts import (
 )
 from isaac_walk_g009.recover_env_cfg import (
     G009FlatRecoverEnvCfg,
+    G009FlatRecoverMatrixEnvCfg,
     G009FlatRecoverMatrixGate01EnvCfg,
     MAX_ANGULAR_SPEED_RAD_S,
     MIN_BASE_HEIGHT_M,
@@ -54,6 +55,8 @@ from isaac_walk_g009.mdp.events import (
     reset_root_and_joints_for_recovery,
 )
 from isaac_walk_g009.matrix_gate01 import (
+    MATRIX_CRITIC_OBSERVATION_DIM,
+    MATRIX_POLICY_OBSERVATION_DIM,
     NOMINAL_BODY_WEIGHT_N,
     ORDERED_BODY_NAMES,
     ORDERED_BODY_NAMES_SHA256,
@@ -108,11 +111,15 @@ def test_r0_pose_curriculum_keeps_first_1200_training_steps_prone_only():
 
 def test_r0_registry_uses_task_specific_runner():
     task_id = "Isaac-G009-Recover-Flat-Go2-R0-v0"
+    production_matrix_task_id = "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0"
     matrix_task_id = "Isaac-G009-Recover-Flat-Go2-R0-MatrixGate01-v0"
     register_tasks()
     register_tasks()
     assert RECOVER_TASK_ENTRY_POINTS == {
         task_id: "isaac_walk_g009.recover_env_cfg:G009FlatRecoverEnvCfg",
+        production_matrix_task_id: (
+            "isaac_walk_g009.recover_env_cfg:G009FlatRecoverMatrixEnvCfg"
+        ),
         matrix_task_id: "isaac_walk_g009.recover_env_cfg:G009FlatRecoverMatrixGate01EnvCfg",
     }
     spec = gym.spec(task_id)
@@ -121,6 +128,94 @@ def test_r0_registry_uses_task_specific_runner():
     matrix_spec = gym.spec(matrix_task_id)
     assert matrix_spec.kwargs["env_cfg_entry_point"] == RECOVER_TASK_ENTRY_POINTS[matrix_task_id]
     assert matrix_spec.kwargs["rsl_rl_cfg_entry_point"] == AGENT_ENTRY_POINTS[matrix_task_id]
+    production_spec = gym.spec(production_matrix_task_id)
+    assert production_spec.kwargs["env_cfg_entry_point"] == RECOVER_TASK_ENTRY_POINTS[
+        production_matrix_task_id
+    ]
+    assert production_spec.kwargs["rsl_rl_cfg_entry_point"] == AGENT_ENTRY_POINTS[
+        production_matrix_task_id
+    ]
+
+
+def test_matrix_production_and_gate01_are_isolated_from_baseline():
+    baseline = G009FlatRecoverEnvCfg()
+    baseline_policy_terms = _term_names(baseline.observations.policy)
+    baseline_critic_terms = _term_names(baseline.observations.critic)
+    baseline_filter_paths = tuple(baseline.scene.contact_forces.filter_prim_paths_expr)
+    production = G009FlatRecoverMatrixEnvCfg()
+    gate = G009FlatRecoverMatrixGate01EnvCfg()
+    baseline_after = G009FlatRecoverEnvCfg()
+    name = "whole_body_terrain_contact_matrix_base_normalized"
+
+    assert not hasattr(baseline.observations.policy, name)
+    assert getattr(production.observations.policy, name).params["collect_gate_telemetry"] is False
+    assert getattr(production.observations.critic, name).params["collect_gate_telemetry"] is False
+    assert getattr(gate.observations.policy, name).params["collect_gate_telemetry"] is True
+    assert getattr(gate.observations.critic, name).params["collect_gate_telemetry"] is True
+    assert _term_names(production.observations.policy) == _term_names(gate.observations.policy)
+    assert _term_names(production.observations.critic) == _term_names(gate.observations.critic)
+    assert _term_names(production.observations.critic)[:11] == _term_names(
+        production.observations.policy
+    )
+    assert _term_names(production.observations.critic)[11:] == _term_names(
+        baseline.observations.critic
+    )[10:]
+    assert production.observations.policy.enable_corruption is True
+    assert production.observations.critic.enable_corruption is False
+    assert production.scene.contact_forces.filter_prim_paths_expr == list(
+        matrix_gate01.TERRAIN_FILTER_PATHS
+    )
+    assert production.scene.contact_forces.history_length == 1
+    assert MATRIX_POLICY_OBSERVATION_DIM == 140
+    assert MATRIX_CRITIC_OBSERVATION_DIM == 164
+    assert _term_names(baseline_after.observations.policy) == baseline_policy_terms
+    assert _term_names(baseline_after.observations.critic) == baseline_critic_terms
+    assert tuple(baseline_after.scene.contact_forces.filter_prim_paths_expr) == baseline_filter_paths
+
+
+def test_matrix_production_flags_and_sanitizes_nonfinite_rows_without_host_sync(monkeypatch):
+    source = torch.zeros((4, 19, 1, 3), dtype=torch.float32)
+    source[0, 0, 0] = torch.tensor((10.0, -4.0, 2.0))
+    source[1, 0, 0, 0] = torch.nan
+    source[2, 0, 0, 1] = torch.inf
+    quaternions = torch.tensor(((1.0, 0.0, 0.0, 0.0),) * 4)
+    quaternions[3, 0] = torch.nan
+    sensor = types.SimpleNamespace(
+        body_names=list(ORDERED_BODY_NAMES), data=types.SimpleNamespace(force_matrix_w=source)
+    )
+    asset = types.SimpleNamespace(data=types.SimpleNamespace(root_quat_w=quaternions))
+
+    class Scene(types.SimpleNamespace):
+        def __getitem__(self, name):
+            return {"robot": asset}[name]
+
+    env = types.SimpleNamespace(scene=Scene(sensors={"contact_forces": sensor}))
+    monkeypatch.setattr(
+        matrix_gate01,
+        "adapt_terrain_pair_force_matrix_w",
+        lambda _source: (_ for _ in ()).throw(AssertionError("authority adapter called")),
+    )
+    monkeypatch.setattr(
+        matrix_gate01,
+        "_live_contract_readback",
+        lambda *_args: (_ for _ in ()).throw(AssertionError("live USD readback called")),
+    )
+
+    with monkeypatch.context() as no_sync:
+        no_sync.setattr(
+            torch.Tensor,
+            "item",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("host sync called")),
+        )
+        result = whole_body_terrain_contact_matrix_base_normalized(
+            env, collect_gate_telemetry=False
+        )
+
+    expected_valid = torch.tanh(source[0].sum(dim=1).reshape(-1) / NOMINAL_BODY_WEIGHT_N)
+    torch.testing.assert_close(result[0], expected_valid)
+    torch.testing.assert_close(result[1:], torch.zeros_like(result[1:]))
+    assert torch.isfinite(result).all()
+    assert env._g009_actor_signal_invalid.tolist() == [False, True, True, True]
 
 
 def test_matrix_gate01_isolated_policy_observation_contract():

@@ -84,7 +84,7 @@ param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Remaining)
 $ErrorActionPreference = 'Stop'
 
 if ($Remaining.Count -gt 0 -and $Remaining[0] -eq '-c') {
-    $hardMaximum = if ($env:G009_FAKE_SAFETY_CASE -eq 'nonzero') { 1.0 } else { 0.0 }
+    $hardMaximum = if ($env:G009_FAKE_SAFETY_CASE -like 'nonzero*') { 1.0 } else { 0.0 }
     $hardSummary = [ordered]@{
         sample_count = 2
         latest = $hardMaximum
@@ -174,7 +174,7 @@ exit 0
 )
 [IO.File]::WriteAllLines(
     $nvidiaSmiFixture,
-    @('@echo off', 'echo 1000', 'exit /b 0'),
+    @('@echo off', 'echo 1000, 10, 50, 20, 12288', 'exit /b 0'),
     [Text.Encoding]::ASCII
 )
 
@@ -186,6 +186,19 @@ try {
     Assert ($pass.Report.passed -eq $true) 'pass report must be passed'
     Assert ($pass.Report.training_safety_gate.requested -eq $true) 'report must record requested gate'
     Assert ($pass.Report.training_safety_gate.passed -eq $true) 'report must record passing verdict'
+    $passReportHash = (Get-FileHash -LiteralPath (Join-Path $tempRoot 'pass.json') -Algorithm SHA256).Hash
+    $passCollision = Invoke-TrainingCase -CaseName 'pass' -SafetyGate
+    Assert ($passCollision.ExitCode -ne 0) 'existing raw logs/report must be rejected before execution'
+    Assert ($passCollision.Output.Contains('덮어쓸 수 없습니다')) 'no-overwrite rejection must be explicit'
+    Assert ((Get-FileHash -LiteralPath (Join-Path $tempRoot 'pass.json') -Algorithm SHA256).Hash -eq $passReportHash) 'existing report must remain unchanged'
+    $rawCollisionDirectory = Join-Path $fakeLab 'logs\harness'
+    New-Item -ItemType Directory -Path $rawCollisionDirectory -Force | Out-Null
+    $rawCollisionPath = Join-Path $rawCollisionDirectory 'g009_safety_raw_collision.stdout.log'
+    [IO.File]::WriteAllText($rawCollisionPath, 'preserve-me', [Text.UTF8Encoding]::new($false))
+    $rawCollision = Invoke-TrainingCase -CaseName 'raw_collision'
+    Assert ($rawCollision.ExitCode -ne 0) 'existing raw stdout must be rejected before execution'
+    Assert ($rawCollision.Output.Contains('덮어쓸 수 없습니다')) 'raw stdout no-overwrite rejection must be explicit'
+    Assert ((Get-Content -LiteralPath $rawCollisionPath -Raw) -eq 'preserve-me') 'existing raw stdout must remain unchanged'
 
     $nonzero = Invoke-TrainingCase -CaseName 'nonzero' -SafetyGate
     Assert ($nonzero.ExitCode -eq 1) 'nonzero hard_joint_limit maximum must fail closed'
@@ -211,7 +224,7 @@ try {
         Assert ($malformed.Report.training_safety_gate.passed -eq $false) "$malformedCase verdict must fail"
     }
 
-    $default = Invoke-TrainingCase -CaseName 'nonzero'
+    $default = Invoke-TrainingCase -CaseName 'nonzero_default'
     Assert ($default.ExitCode -eq 0) 'default execution must not enforce the diagnostic gate'
     Assert ($default.Report.training_safety_gate.requested -eq $false) 'default report must record gate not requested'
     Assert ($null -eq $default.Report.training_safety_gate.passed) 'default diagnostic verdict must remain null'
@@ -241,7 +254,7 @@ try {
     Assert (($overrideOutput -join "`n") -match 'Hydra override') 'override rejection must explain fixed scratch semantics'
 
     $qualificationOutput = @(& $pwsh -NoProfile -File $harness `
-        -Task 'Isaac-G009-Recover-Flat-Go2-R0-v0' -NumEnvs 512 -MaxIterations 300 -Seed 42 `
+        -Task 'Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0' -NumEnvs 512 -MaxIterations 300 -Seed 42 `
         -RunName 'g009_qualification_compatibility' -Qualification `
         -RequireZeroTrainingSafetyTerminations 2>&1)
     Assert ($LASTEXITCODE -ne 0) 'noncanonical qualification budget must remain rejected'
@@ -251,6 +264,52 @@ try {
         $qualificationText.Contains('max_iterations=300') -and
         $qualificationText.Contains('seed=42')
     ) 'qualification fixed budget guard must remain intact'
+
+    $harnessText = Get-Content -LiteralPath $harness -Raw
+    Assert ($harnessText.Contains("`$qualificationTemperatureC = 90.0")) 'qualification temperature threshold must remain 90C'
+    Assert ($harnessText.Contains("`$qualificationSustainedTemperatureSamples = 3")) 'sustained temperature must require three samples'
+    Assert ($harnessText.Contains("Join-Path `$actualLogDirectory 'model_299.pt'")) 'qualification must bind exact model_299.pt'
+    Assert ($harnessText.Contains('qualification_gpu_safety')) 'qualification GPU safety must remain a success check'
+    Assert ($harnessText.Contains('--untracked-files=no')) 'qualification must verify Isaac Lab tracked cleanliness'
+    Assert ($harnessText.Contains('taskkill.exe')) 'qualification abort must terminate the Windows process tree'
+    Assert ($harnessText.Contains('descendants_exited')) 'qualification report must record descendant exit verification'
+    Assert ($harnessText.Contains('[System.IO.File]::Move($stdoutCapturePath, $stdoutPath)')) 'raw stdout must publish with a no-overwrite move'
+    Assert ($harnessText.Contains('[System.IO.File]::Move($stderrCapturePath, $stderrPath)')) 'raw stderr must publish with a no-overwrite move'
+    foreach ($fatalToken in @('CUDA\s+out\s+of\s+memory', 'out\s+of\s+memory', '\bXid\b', 'driver\s+reset', 'device\s+lost')) {
+        Assert ($harnessText.Contains($fatalToken)) "qualification fatal detector must include $fatalToken"
+    }
+
+    $childPidPath = Join-Path $tempRoot 'descendant.pid'
+    $processTreeFixture = Join-Path $tempRoot 'process-tree-fixture.ps1'
+    [IO.File]::WriteAllText(
+        $processTreeFixture,
+        "`$child=Start-Process -FilePath '$pwsh' -ArgumentList '-NoProfile','-Command','Start-Sleep -Seconds 120' -PassThru;[IO.File]::WriteAllText('$childPidPath',[string]`$child.Id);Start-Sleep -Seconds 120",
+        [Text.UTF8Encoding]::new($false)
+    )
+    $fixtureParent = Start-Process -FilePath $pwsh -ArgumentList '-NoProfile', '-File', $processTreeFixture -PassThru -WindowStyle Hidden
+    try {
+        $pidDeadline = (Get-Date).AddSeconds(10)
+        while (-not (Test-Path -LiteralPath $childPidPath) -and (Get-Date) -lt $pidDeadline) {
+            Start-Sleep -Milliseconds 100
+        }
+        Assert (Test-Path -LiteralPath $childPidPath) 'child-survivor fixture must publish descendant PID'
+        $fixtureChildId = [int](Get-Content -LiteralPath $childPidPath -Raw)
+        & taskkill.exe /PID $fixtureParent.Id /T /F *> $null
+        $exitDeadline = (Get-Date).AddSeconds(10)
+        while (
+            ((Get-Process -Id $fixtureParent.Id -ErrorAction SilentlyContinue) -or (Get-Process -Id $fixtureChildId -ErrorAction SilentlyContinue)) -and
+            (Get-Date) -lt $exitDeadline
+        ) {
+            Start-Sleep -Milliseconds 100
+        }
+        Assert ($null -eq (Get-Process -Id $fixtureParent.Id -ErrorAction SilentlyContinue)) 'tree termination must stop parent'
+        Assert ($null -eq (Get-Process -Id $fixtureChildId -ErrorAction SilentlyContinue)) 'tree termination must stop surviving descendant'
+    }
+    finally {
+        if (-not $fixtureParent.HasExited) {
+            & taskkill.exe /PID $fixtureParent.Id /T /F *> $null
+        }
+    }
 
     Write-Host 'G009 training safety gate assertions PASS'
 }
