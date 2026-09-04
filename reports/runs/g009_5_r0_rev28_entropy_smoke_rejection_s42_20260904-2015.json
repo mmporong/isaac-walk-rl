@@ -1,0 +1,147 @@
+{
+  "schema_version": "g009.r0.rev28.entropy_smoke_rejection.v1",
+  "report_id": "G009-5-E021-rejected",
+  "status": "rejected",
+  "result": "hard_joint_limit_gate_failed",
+  "run_name": "go2_flat_g009_r0_rev28_entropy_smoke_retry01_s42_20260904-2015",
+  "source_commit": "876c4ae0a89760e5bf3d41180af3d64a53cdef49",
+  "single_experimental_variable": {
+    "name": "ppo_entropy_coefficient",
+    "previous_value": 0.01,
+    "candidate_value": 0.0
+  },
+  "training": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "device": "cuda:0",
+    "headless": true,
+    "seed": 42,
+    "scratch": true,
+    "num_envs": 1024,
+    "num_steps_per_env": 24,
+    "max_iterations": 50,
+    "transitions": 1228800,
+    "optimizer_mini_batch_updates": 1000,
+    "wall_time_seconds": 162.897
+  },
+  "evidence": {
+    "raw_report": {
+      "path": "reports/runs/go2_flat_g009_r0_rev28_entropy_smoke_retry01_s42_20260904-2015.json",
+      "sha256": "a3178b3e35969b94a234e98a97106c2be9c4a7fa182d0f8a1fee166201e4e49d"
+    },
+    "preregistration": {
+      "path": "configs/g009_r0_rev28_entropy_smoke.json",
+      "sha256": "e77b2050bc35dd423f676b50bb4ec2a067be1ac48e08787f0981d6ed74030f98"
+    },
+    "checkpoint": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_20-19-08_go2_flat_g009_r0_rev28_entropy_smoke_retry01_s42_20260904-2015\\model_49.pt",
+      "sha256": "091b1818c323ed509c504dbe52c3ccbf66537b8e655ff53383b76b0765b01482",
+      "iteration": 49,
+      "std_vector_dimension": 12,
+      "std_vector_all_finite": true,
+      "std_vector": [
+        0.49327242374420166,
+        0.47032037377357483,
+        0.46737930178642273,
+        0.48471492528915405,
+        0.4642338752746582,
+        0.462200403213501,
+        0.45766860246658325,
+        0.4734684228897095,
+        0.49035704135894775,
+        0.48866233229637146,
+        0.4781859219074249,
+        0.49766048789024353
+      ]
+    }
+  },
+  "acceptance_gate": {
+    "hard_joint_limit": {
+      "sample_count": 50,
+      "maximum": 0.0833333358168602,
+      "mean": 0.005000000149011612,
+      "nonzero_sample_count": 4,
+      "required_maximum": 0.0,
+      "required_nonzero_sample_count": 0,
+      "passed": false
+    },
+    "numeric_invalid": {
+      "sample_count": 50,
+      "maximum": 0.0,
+      "nonzero_sample_count": 0,
+      "passed": true
+    },
+    "mean_noise_std": {
+      "sample_count": 50,
+      "latest": 0.47734370827674866,
+      "maximum_allowed": 0.5513023734,
+      "passed": true
+    },
+    "gpu": {
+      "peak_used_mib": 4420.0,
+      "peak_temperature_c": 54.0,
+      "fatal_event_count": 0,
+      "descendants_exited": true,
+      "recovered_to_baseline": true,
+      "passed": true
+    },
+    "source_snapshot_stable": true,
+    "runtime_agent_yaml_readback_passed": true,
+    "overall_passed": false
+  },
+  "matched_first_50_iteration_comparison": {
+    "source_events": {
+      "rev26": {
+        "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_16-42-05_go2_flat_g009_r0_rev26_qualification_retry03_s42_20260904-1637\\events.out.tfevents.1788507731.DESKTOP-991BNBV.66596.0",
+        "sha256": "bb4ab311e58b65dba294e15f4b48cc3ba7227a2cf9e82bd406b89f4b805b955d"
+      },
+      "rev28": {
+        "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-04_20-19-08_go2_flat_g009_r0_rev28_entropy_smoke_retry01_s42_20260904-2015\\events.out.tfevents.1788520753.DESKTOP-991BNBV.32268.0",
+        "sha256": "a07336d8c2cd5e24a2efb9648d10f60e86883700bd57714e52668ac1874d608a"
+      },
+      "slice": "first 50 scalar samples for both runs"
+    },
+    "rev26_entropy_0_01": {
+      "hard_joint_limit_maximum": 0.0416666679084301,
+      "hard_joint_limit_mean": 0.006666666865348816,
+      "hard_joint_limit_nonzero_sample_count": 8,
+      "mean_noise_std_latest": 0.5513023734092712
+    },
+    "rev28_entropy_0_0": {
+      "hard_joint_limit_maximum": 0.0833333358168602,
+      "hard_joint_limit_mean": 0.005000000149011612,
+      "hard_joint_limit_nonzero_sample_count": 4,
+      "mean_noise_std_latest": 0.47734370827674866
+    },
+    "interpretation": "Entropy removal lowered the learned action-noise standard deviation and coincided with fewer nonzero hard-limit samples, but the maximum violation rate increased and the required zero-event gate still failed. One seed and one 50-iteration window do not establish causality."
+  },
+  "canonical_summarizer": {
+    "status": "fail_closed",
+    "error": "hard_joint_limit maximum must be zero",
+    "accepted_summary_written": false
+  },
+  "resume_point": {
+    "full_300_iteration_training_status": "forbidden",
+    "held_out_seed_evaluation_status": "forbidden",
+    "next_single_variable_candidate": {
+      "name": "action_scale",
+      "current_value": 0.7,
+      "candidate_value": 0.65,
+      "rationale": "Rev27 showed calf hard-limit events even when processed position targets remained inside the hard bounds, while rev28 showed that reducing stochastic exploration alone was insufficient. Narrowing the rescaled joint-position target range is the next direct, reversible control intervention to reduce dynamic excursions; it must be preregistered and tested with the same 50-iteration safety gate before any full run."
+    },
+    "frozen_for_next_smoke": [
+      "ppo_entropy_coefficient=0.0",
+      "ppo_init_noise_std=0.5",
+      "action_ema_alpha=0.2",
+      "asset_soft_joint_limit_factor=0.9",
+      "solver_position_iterations=8",
+      "solver_velocity_iterations=0",
+      "reset, reward, curriculum, seed, environment count, rollout length, and acceptance gate"
+    ]
+  },
+  "claim_limits": {
+    "policy_qualified": false,
+    "recovery_success_measured": false,
+    "entropy_change_proved_causal": false,
+    "checkpoint_may_be_used_for_qualification": false
+  }
+}
