@@ -1,4 +1,4 @@
-# 결과 요약 (G003~G008)
+# 결과 요약 (G003~G009)
 
 Isaac Sim 4.5 / Isaac Lab v2.1.1 / RSL-RL PPO로 Unitree Go2 보행 정책을 학습하고, **보상 항목·지형·외란을 한 번에 하나씩만 바꿔** baseline과 비교했다. RTX 3060 12GB 한 대에서 4,096 병렬 환경까지 올렸고, 모든 비교는 동일 budget과 seed 42/43/44 반복으로 수행했다. 개선이 확인되지 않은 실험은 개선되지 않았다고 기록했다.
 
@@ -121,7 +121,7 @@ upstream Isaac Lab은 수정하지 않고 별도 태스크로 등록했다.
 
 ## 8. 아직 진행 중 (미완결)
 
-`G009` 산 비탈 보행·전복 복구는 **R0 strict success = 0** 이며 완료가 아니다. rev14~rev23은 접촉력 진단과 관측 계약 기록이고, GPU 접촉 콜백 부재(`unavailable_on_gpu`) 등 플랫폼 한계를 수치와 권위 경계로 좁힌 단계다. rev24는 fresh 1024/2048 GPU throughput smoke를 canonical PASS해 이번 ladder의 stable maximum을 `2048 env`로 확정했다. 이는 처리량 증거이며 복구 성능 증거가 아니다. rev25 whole-body matrix connectivity/safety smoke는 준비 중이고 아직 실행하지 않았으며 recovery qualification은 false다. 상세는 [`G009_MOUNTAIN_SLOPE_RECOVERY.md`](G009_MOUNTAIN_SLOPE_RECOVERY.md)에 있다.
+`G009` 산 비탈 보행·전복 복구는 **R0 strict success = 0** 이며 완료가 아니다. rev14~rev23은 접촉력 진단과 관측 계약 기록이고, GPU 접촉 콜백 부재(`unavailable_on_gpu`) 등 플랫폼 한계를 수치와 권위 경계로 좁힌 단계다. rev24는 fresh 1024/2048 GPU throughput smoke를 canonical PASS해 이번 ladder의 stable maximum을 `2048 env`로 확정했다. rev25 E018은 pre-App import 실패와 missing-telemetry 실패를 보존한 뒤 clean retry02에서 whole-body terrain-contact matrix를 actor `140D`·critic `164D`에 연결하고 사전등록 gate `27/27`을 PASS했다. 이는 1-iteration connectivity/safety smoke이며 `policy qualification=not_run`, `recovery success=not_measured`다. 새 미디어와 Garden·포트폴리오 production 발행은 없고, 다음은 seed 42의 `1024 env × 24 steps × 300 iterations` R0 qualification이다. 상세는 [`G009_MOUNTAIN_SLOPE_RECOVERY.md`](G009_MOUNTAIN_SLOPE_RECOVERY.md)에 있다.
 
 실기체 이관은 범위 밖이다. 로봇이 바뀌면 링크 질량·관성·COM, 관절 범위와 순서, 모터 torque-speed envelope, action scale, 발 마찰, 제어 dt가 모두 달라지므로 정책 weight와 절대 임계값은 재사용하지 않는다. 재사용 가능한 것은 terrain generator, 평가 grid, reward 구조, support-plane 계측, media/report schema다.
 

@@ -8,7 +8,7 @@
 
 ## 지금 멈춘 위치
 
-교차언어 ordinal 정렬을 수정한 clean commit에서 rev24의 `1024 env`와 `2048 env` headless scratch PPO throughput rung을 새 실행 ID와 새 checkpoint로 다시 실행했다. 두 rung 모두 wrapper run-health와 canonical source binding, VRAM·NaN·exit gate를 통과했고 최종 synthesis는 `stable_max_envs=2048`로 PASS했다. 이는 처리량 smoke이며 복구 정책 qualification이나 복구 성공 증거가 아니다. Matrix Gate01은 별도 rev25 계약·코드·검증기 구현과 사전등록을 완료했지만 actual GPU Gate01은 아직 실행하지 않았고, 정식 policy qualification도 미실행이다. `15.01/15.02` 미디어도 아직 만들지 않았으므로 Garden 발행 판단은 보류한다.
+교차언어 ordinal 정렬을 수정한 clean commit에서 rev24의 `1024 env`와 `2048 env` headless scratch PPO throughput rung을 새 실행 ID와 새 checkpoint로 다시 실행했다. 두 rung 모두 wrapper run-health와 canonical source binding, VRAM·NaN·exit gate를 통과했고 최종 synthesis는 `stable_max_envs=2048`로 PASS했다. 이는 처리량 smoke이며 복구 정책 qualification이나 복구 성공 증거가 아니다. 이 체크포인트를 작성한 당시 rev25 Matrix Gate01은 계약·코드·검증기 사전등록까지만 끝나 actual GPU 실행 전이었다. 후속 clean commit `086fa82`의 retry02는 E018 Matrix Gate01 `27/27`을 PASS했으며, 현재도 정식 `policy qualification=not_run`, `recovery success=not_measured`다. 상세 계보는 [G009 산 비탈 횡단·전복 복구 문서](G009_MOUNTAIN_SLOPE_RECOVERY.md)에 있다. `15.01/15.02` 미디어와 rev25 새 미디어는 없으므로 Garden 발행 판단은 보류한다.
 
 | 항목 | 현재 상태 |
 | --- | --- |
@@ -110,7 +110,7 @@ source path를 repository-relative 실제 casing으로 정규화하고 ordinal �
 
 1024가 하나라도 실패하면 2048은 실행하지 않는다. 2048이 PASS해도 matrix Gate01이나 policy qualification을 자동 승인하지 않는다.
 
-## 다음 세션 실행 순서
+## 당시 rev24 실행 순서 (완료)
 
 PowerShell 하나로 진행한다. 먼저 원격과 동기화된 clean 상태를 확인한다.
 
@@ -208,14 +208,14 @@ throughput 단계는 카메라로 로봇 동작을 평가하는 실험이 아니
 
 원본 MP4는 30fps로 보존한다. 공개 GIF는 15fps를 목표로 만들며 12fps 아래로 낮추지 않는다. `15.01/15.02`처럼 그래프를 직접 그리는 텔레메트리는 몇 장의 정지 화면을 오래 표시하지 않고, 재생 구간 전체의 중간 프레임을 렌더링한다. GIF가 10 MiB를 넘으면 길이, 해상도, 팔레트 순서로 줄이고 프레임레이트는 유지한다. sidecar에는 source FPS, target·actual GIF FPS, frame count, duration, 가장 긴 frame 표시 시간과 temporal strategy를 남긴다. 고정 압축 우선순위와 실제 적용 단계는 각각 `compression_policy_order`, `compression_steps_applied`에 구분해 기록한다. `15.01/15.02` builder는 MP4를 ffprobe로 검사하고 실제 GIF를 `inspect_gif_encoding()`으로 측정한 뒤 계약 검사를 통과해야 한다.
 
-Garden 새 글은 아직 발행하지 않는다. rev24 canonical runtime 결과는 확보했지만 `15.01/15.02` 미디어가 없고 rev25 Matrix Gate01 actual run도 미실행이므로, 후속 실행과 미디어가 갖춰진 뒤 공개 가치를 다시 판단한다. 실패가 나면 내부 기록으로 먼저 보존하고, 후속 성공이나 원인 규명과 함께 설명할 수 있을 때 공개 글에 넣는다.
+Garden 새 글은 아직 발행하지 않는다. rev24 canonical runtime 결과와 후속 rev25 E018 Matrix Gate01 `27/27` PASS는 확보했지만 `15.01/15.02` 및 rev25 새 미디어가 없고 정식 R0 qualification도 `not_run`이다. 후속 qualification과 미디어가 갖춰진 뒤 공개 가치를 다시 판단한다. 앞선 두 rev25 실패는 내부 기각 evidence로 보존하고, 성공한 retry02 lifecycle 수정과 함께 설명할 수 있을 때 공개 글에 포함한다.
 
 ## 현재 상태와 rev24 이후 작업
 
 1. `[완료]` rev24 final synthesis에서 canonical `1024 env`와 `2048 env` PASS를 확인하고 stable maximum을 `2048 env`로 확정했다.
-2. `[준비 완료·미실행]` rev25 whole-body terrain-contact Matrix Gate01의 계약·코드·검증기를 사전등록했다.
-3. `[다음 실행]` Matrix Gate01을 fresh scratch `1024 env × 24 steps × 1 iteration`으로 실행해 connectivity, safety termination, observation provenance를 확인한다.
-4. Gate01 PASS 뒤에만 R0 scratch qualification을 실행한다.
+2. `[완료]` rev25 whole-body terrain-contact Matrix Gate01의 계약·코드·검증기를 사전등록했다.
+3. `[완료]` pre-App import와 missing-telemetry 실패를 분리 보존하고, clean `086fa82` retry02의 fresh scratch `1024 env × 24 steps × 1 iteration`에서 E018 `27/27`을 PASS했다.
+4. `[다음 실행]` seed `42`, headless scratch `1024 env × 24 steps × 300 iterations` R0 qualification을 실행한다. Gate 전용 telemetry path는 production에서 비활성화한다.
 5. 네 전복 자세별 성공률 `≥80%`, 중앙 복구시간 `≤4s`, safety termination `0`을 통과한 checkpoint만 복구 정책으로 승인한다.
 6. 승인 뒤 `S1-low` 횡경사 WALK, 외란, residual height, 발별·공간 마찰, 낮은/높은 경사 RECOVER, link-mass 순으로 연다.
 
