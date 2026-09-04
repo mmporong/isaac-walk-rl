@@ -15,6 +15,7 @@ function Assert {
 $root = Split-Path -Parent $PSScriptRoot
 $harness = Join-Path $root 'scripts\run_training.ps1'
 $pwsh = (Get-Command pwsh -ErrorAction Stop).Source
+$currentPowerShell = (Get-Process -Id $PID -ErrorAction Stop).Path
 $actualGit = (Get-Command git -ErrorAction Stop).Source
 $tempRoot = Join-Path $PSScriptRoot ('.g009-training-safety-' + [guid]::NewGuid().ToString('N'))
 $fakeLab = Join-Path $tempRoot 'IsaacLab'
@@ -86,6 +87,55 @@ function Invoke-TrainingCase {
     }
 }
 
+function Invoke-EntropySmokeSingleLinePreflightCase {
+    $env:G009_FAKE_SAFETY_CASE = 'entropy_preflight_single_line'
+    Remove-Item Env:G009_FAKE_GIT_CASE -ErrorAction SilentlyContinue
+    $entropySourcePaths = @(
+        (Get-Content -LiteralPath (Join-Path $root 'configs\g009_r0_rev28_entropy_smoke.json') -Raw |
+            ConvertFrom-Json).source_binding_paths
+    )
+    $entropyRepo = Join-Path $tempRoot 'entropy-repo'
+    & $actualGit clone --quiet --no-hardlinks $root $entropyRepo
+    if ($LASTEXITCODE -ne 0) { throw 'entropy fixture clone failed' }
+    foreach ($relativePath in $entropySourcePaths) {
+        $destination = Join-Path $entropyRepo $relativePath
+        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+        Copy-Item -LiteralPath (Join-Path $root $relativePath) -Destination $destination -Force
+    }
+    & $actualGit -C $entropyRepo add -- $entropySourcePaths
+    & $actualGit -C $entropyRepo -c user.name=g009-fixture -c user.email=g009-fixture@example.invalid commit --quiet -m 'fixture'
+    if ($LASTEXITCODE -ne 0) { throw 'entropy fixture commit failed' }
+    $entropyHarness = Join-Path $entropyRepo 'scripts\run_training.ps1'
+    $wrapperPath = Join-Path $tempRoot 'invoke-entropy-single-line.ps1'
+    $quotedSourcePaths = ($entropySourcePaths | ForEach-Object {
+        "'" + ([string]$_).Replace("'", "''") + "'"
+    }) -join ', '
+    $wrapper = @"
+& '$($entropyHarness.Replace("'", "''"))' ``
+    -Task 'Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0' ``
+    -NumEnvs 1024 -MaxIterations 50 -Seed 42 ``
+    -RunName 'g009_entropy_single_line_preflight' -EntropySmoke ``
+    -IsaacLabPath '$($fakeLab.Replace("'", "''"))' ``
+    -ReportPath '$((Join-Path $tempRoot 'entropy-single-line.json').Replace("'", "''"))' ``
+    -TrainingEntrypointPath '$((Join-Path $entropyRepo 'scripts\bootstrap_train_g009.py').Replace("'", "''"))' ``
+    -SourceBindingPaths @($quotedSourcePaths)
+"@
+    [IO.File]::WriteAllText($wrapperPath, $wrapper, [Text.UTF8Encoding]::new($true))
+    $nvidiaOnlyBin = Join-Path $tempRoot 'nvidia-only-bin'
+    New-Item -ItemType Directory -Path $nvidiaOnlyBin -Force | Out-Null
+    Copy-Item -LiteralPath $nvidiaSmiFixture -Destination (Join-Path $nvidiaOnlyBin 'nvidia-smi.cmd') -Force
+    $fixturePath = $env:PATH
+    try {
+        $env:PATH = $nvidiaOnlyBin + [IO.Path]::PathSeparator + $originalPath
+        $output = @(& $currentPowerShell -NoProfile -File $wrapperPath 2>&1)
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $env:PATH = $fixturePath
+    }
+    return [pscustomobject]@{ ExitCode = $exitCode; Output = $output -join "`n" }
+}
+
 New-Item -ItemType Directory -Path $fakePythonDirectory, $fakeLogRoot, $mockBin -Force | Out-Null
 $fakePythonBat = Join-Path $fakePythonDirectory 'python.bat'
 $fakePythonHelper = Join-Path $fakePythonDirectory 'fake_python.ps1'
@@ -107,6 +157,11 @@ $gitFixtureHelper = Join-Path $mockBin 'git-fixture.ps1'
     @'
 param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Remaining)
 $ErrorActionPreference = 'Stop'
+
+if ($Remaining.Count -gt 0 -and [IO.Path]::GetFileName($Remaining[0]) -eq 'validate_g009_r0_rev28_entropy_smoke.py') {
+    Write-Output '{"status":"pass","canonical_static_readback":{"entropy_coef":0.0}}'
+    exit 0
+}
 
 if ($Remaining.Count -gt 0 -and $Remaining[0] -eq '-c') {
     $hardMaximum = if ($env:G009_FAKE_SAFETY_CASE -like 'nonzero*') { 1.0 } else { 0.0 }
@@ -199,7 +254,12 @@ exit 0
 )
 [IO.File]::WriteAllLines(
     $nvidiaSmiFixture,
-    @('@echo off', 'echo 1000, 10, 50, 20, 12288', 'exit /b 0'),
+    @(
+        '@echo off',
+        'if "%G009_FAKE_SAFETY_CASE%"=="entropy_preflight_single_line" exit /b 19',
+        'echo 1000, 10, 50, 20, 12288',
+        'exit /b 0'
+    ),
     [Text.Encoding]::ASCII
 )
 [IO.File]::WriteAllText(
@@ -217,6 +277,7 @@ if (`$targetsFakeLab -and `$Remaining -contains 'rev-parse' -and `$Remaining -co
     Write-Output '90b79bb2d44feb8d833f260f2bf37da3487180ba'
     exit 0
 }
+
 if (`$targetsFakeLab -and `$Remaining -contains 'status' -and `$Remaining -contains '--untracked-files=no') {
     if (`$env:G009_FAKE_GIT_CASE -eq 'status_failure') {
         [Console]::Error.WriteLine('fatal: fixture-status-failure')
@@ -241,6 +302,28 @@ exit `$LASTEXITCODE
 $env:PATH = $mockBin + [IO.Path]::PathSeparator + $originalPath
 $env:G009_FAKE_LOG_ROOT = $fakeLogRoot
 try {
+    foreach ($validatorFixture in @(
+        [pscustomobject]@{ Content = ''; ExpectedCount = 0 },
+        [pscustomobject]@{ Content = '{"status":"pass"}'; ExpectedCount = 1 },
+        [pscustomobject]@{ Content = "first`nsecond"; ExpectedCount = 2 }
+    )) {
+        $validatorOutputPath = Join-Path $tempRoot "validator-$($validatorFixture.ExpectedCount).stdout"
+        [IO.File]::WriteAllText($validatorOutputPath, $validatorFixture.Content, [Text.UTF8Encoding]::new($false))
+        $validatorLines = @(
+            if (Test-Path -LiteralPath $validatorOutputPath) {
+                Get-Content -LiteralPath $validatorOutputPath -ErrorAction Stop
+            }
+            else { }
+        )
+        Assert ($validatorLines -is [array]) 'validator stdout capture must preserve the array type'
+        Assert ($validatorLines.Count -eq $validatorFixture.ExpectedCount) "validator stdout count mismatch: expected=$($validatorFixture.ExpectedCount) actual=$($validatorLines.Count)"
+    }
+
+    $entropyPreflight = Invoke-EntropySmokeSingleLinePreflightCase
+    Assert ($entropyPreflight.Output.Contains('nvidia-smi')) "single-line validator JSON must pass preflight and reach the GPU boundary; actual=$($entropyPreflight.Output)"
+    Assert (-not $entropyPreflight.Output.Contains('validator')) 'single-line validator JSON must not fail before the GPU boundary'
+    Assert (-not $entropyPreflight.Output.Contains("Property 'Count' cannot be found")) 'single-line validator stdout must remain an array under StrictMode'
+
     $cleanGit = Invoke-QualificationGitCase -CaseName 'clean_empty'
     Assert ($cleanGit.ExitCode -ne 0) "clean git fixture still stops at unrelated qualification prerequisites; actual=$($cleanGit.Output)"
     Assert (-not $cleanGit.Output.Contains('git status 실패')) 'clean empty status must not be reported as git failure'

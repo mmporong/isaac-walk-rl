@@ -599,7 +599,7 @@ if ($EntropySmoke) {
     ) {
         throw 'rev28 entropy smoke preregistration의 고정 계약이 일치하지 않습니다.'
     }
-    $entropySmokeSourceBindingPaths = @($entropySmokeContract.source_binding_paths)
+    [string[]]$entropySmokeSourceBindingPaths = @($entropySmokeContract.source_binding_paths)
     [string[]]$sortedEntropySmokePaths = @($entropySmokeSourceBindingPaths)
     [Array]::Sort($sortedEntropySmokePaths, [System.StringComparer]::Ordinal)
     $uniqueEntropySmokePaths = [System.Collections.Generic.HashSet[string]]::new(
@@ -651,7 +651,7 @@ foreach ($sourcePath in $SourceBindingPaths) {
     if (-not (Test-Path -LiteralPath $fullSourcePath -PathType Leaf)) {
         throw "SourceBindingPaths 파일을 찾을 수 없습니다: $fullSourcePath"
     }
-    $relativeSourcePath = [System.IO.Path]::GetRelativePath($repoRoot, $fullSourcePath).Replace('\', '/')
+    $relativeSourcePath = $fullSourcePath.Substring($repoBoundary.Length).Replace('\', '/')
     $canonicalRelativeSourcePath = $relativeSourcePath
     if ($trackedPathByCase.ContainsKey($relativeSourcePath)) {
         $canonicalRelativeSourcePath = $trackedPathByCase[$relativeSourcePath]
@@ -835,7 +835,7 @@ if ($Qualification) {
 }
 if ($EntropySmoke) {
     $entropySmokeFailures = [System.Collections.Generic.List[string]]::new()
-    $actualEntropySmokePaths = @($sourceBindingFiles.Keys)
+    [string[]]$actualEntropySmokePaths = @($sourceBindingFiles.Keys)
     if (
         $actualEntropySmokePaths.Count -ne $entropySmokeSourceBindingPaths.Count -or
         (($actualEntropySmokePaths | ConvertTo-Json -Compress) -ne ($entropySmokeSourceBindingPaths | ConvertTo-Json -Compress))
@@ -879,10 +879,12 @@ if ($EntropySmoke) {
             -Wait `
             -PassThru
         $entropyValidatorExitCode = $entropyValidatorProcess.ExitCode
-        $entropyValidatorOutput = if (Test-Path -LiteralPath $entropyValidatorStdout) {
-            @((Get-Content -LiteralPath $entropyValidatorStdout -ErrorAction Stop))
-        }
-        else { @() }
+        $entropyValidatorOutput = @(
+            if (Test-Path -LiteralPath $entropyValidatorStdout) {
+                Get-Content -LiteralPath $entropyValidatorStdout -ErrorAction Stop
+            }
+            else { }
+        )
         $entropyValidatorError = if (Test-Path -LiteralPath $entropyValidatorStderr) {
             [string](Get-Content -LiteralPath $entropyValidatorStderr -Raw)
         }
