@@ -1,0 +1,67 @@
+{
+  "schema_version": "g009.r0.rev27.model299_limit_diagnostic_preregistration.v1",
+  "evidence_id": "G009-5-E020",
+  "revision": "rev27",
+  "purpose": "diagnostic-only attribution of joint-limit behavior from rejected rev26 model_299.pt",
+  "training_report": {
+    "path": "reports/runs/go2_flat_g009_r0_rev26_qualification_retry03_s42_20260904-1637.json",
+    "sha256": "71a3b45129b79f2beaed14fab486423aafdd0f92e860022cf22c2c6242391234",
+    "passed": false,
+    "qualification_passed": false,
+    "qualification_passed_scope": "training_safety_aggregate",
+    "held_out_qualification_status": "not_run",
+    "only_failed_required_check": "qualification_training_safety_zero"
+  },
+  "checkpoint": {
+    "name": "model_299.pt",
+    "sha256": "75b38ac4c8f8b2ed17d73893350c1ca484ca3ef3c0d633273553e13efdf44c95",
+    "iteration": 299,
+    "actor_observation_dimension": 140,
+    "critic_observation_dimension": 164
+  },
+  "runtime": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "seed": 42,
+    "forbidden_held_out_seed": 1042,
+    "num_envs": 1024,
+    "environments_per_pose": 256,
+    "poses": ["prone", "supine", "left_side", "right_side"],
+    "horizon_steps": 400,
+    "action_mode": "stochastic",
+    "device": "cuda:0",
+    "headless": true,
+    "policy_updates": 0,
+    "optimizer_updates": 0
+  },
+  "instrumentation": {
+    "boundary": "RecorderManager.record_pre_reset instance wrapper",
+    "preserve_original_hard_termination_callable": true,
+    "active_recorder_terms": 0,
+    "active_first_episode_only": true,
+    "exclude_auto_reset_samples": true,
+    "sample_initial_reset_state_before_first_policy_step": true,
+    "rng_neutral": true,
+    "checkpoint_sha256_recheck_immediately_before_runner_load": true,
+    "checkpoint_sha256_stable_after_rollout": true,
+    "action_fields": {
+      "sampled_policy_action": "policy sample before RslRlVecEnvWrapper clamp",
+      "clipped_normalized_action": "ActionManager raw_actions after wrapper clamp",
+      "processed_target_rad": "post-action-term joint target in radians"
+    },
+    "event_sample_cap": 512
+  },
+  "diagnostic_source_binding_paths": [
+    "configs/g009_r0_rev27_model299_limit_diagnostic.json",
+    "scripts/diagnose_g009_r0_rev26_model299_joint_limits.py",
+    "tests/test_g009_r0_rev27_model299_limit_diagnostic.py"
+  ],
+  "diagnostic_source_binding_path_manifest_sha256": "35ef5f9201560da6e294039a6d88c60b39653e6ccb6d9e4418a89e69cc496505",
+  "outcomes": ["hard_limit_reproduced", "soft_only_reproduced", "not_reproduced"],
+  "claim_limits": {
+    "qualification_eligible": false,
+    "official_evaluation": false,
+    "success_rate_metrics": false,
+    "historical_training_event_attribution": false,
+    "completion_is_safety_pass": false
+  }
+}
