@@ -1915,9 +1915,9 @@ policy action은 wrapper 앞에서 범위를 벗어난 경우가 있었지만 cl
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | rev28 | entropy `0.01→0.0` | `0.0` | `0.70` | `4/50` | `0.08333334` | `0.47734371` | 기각 |
 | rev29 | action scale `0.70→0.65` | `0.0` | `0.65` | `1/50` | `0.04166667` | `0.47849047` | 기각 |
-| rev30 | action scale `0.65→0.60` | `0.0` | `0.60` | 실행 전 | 실행 전 | 실행 전 | 사전등록 |
+| rev30 | action scale `0.65→0.60` | `0.0` | `0.60` | `4/50` | `0.04166667` | `0.47671264` | 기각 |
 
-rev28은 탐색 노이즈를 낮췄지만 zero-event 조건을 만족하지 못했다. rev29는 noise가 거의 같은 상태에서 빈도와 최대값이 함께 줄었지만 iteration 19의 한 사건 때문에 기각됐다. 이 두 점만으로 action scale과 위반 감소의 인과나 단조 관계를 확정하지 않는다. rev30은 그 방향을 한 단계 더 검사하는 후보일 뿐이다.
+rev28은 탐색 노이즈를 낮췄지만 zero-event 조건을 만족하지 못했다. rev29는 noise가 거의 같은 상태에서 빈도와 최대값이 함께 줄었지만 iteration 19의 한 sample 때문에 기각됐다. rev30에서는 iteration `6`, `7`, `11`, `32`의 네 sample이 다시 nonzero였다. 네 sample 모두 prone probability `1.0`인 curriculum phase 0에서 나왔다. scale `0.65→0.60`은 maximum을 더 줄이지 못했고 nonzero 빈도와 mean을 다시 키웠다. 따라서 action scale과 위반 사이에 단조 관계가 있다는 가설을 기각하고, 더 작은 scale로 직진하지 않는다.
 
 rev30에서 soft-limit factor `0.9`와 action scale `0.60`을 곱한 effective target range는 hard joint interval의 `0.54`다. 중심 정렬을 가정한 계약상 양 끝 margin은 각각 hard interval의 `0.23`이다. 이 수치는 policy target의 기하학적 여유이며, 접촉 충격과 solver overshoot까지 포함한 실제 관절 안전을 보증하지 않는다. 그래서 TensorBoard termination을 다시 실측한다.
 
@@ -1931,14 +1931,17 @@ rev30에서 soft-limit factor `0.9`와 action scale `0.60`을 곱한 effective t
 - PPO epoch `5`, mini-batch `4`, iteration당 optimizer mini-batch update `20회`, 총 `1,000회`
 - reset, observation, reward, success gate, torque와 joint-limit tolerance는 변경하지 않음
 
-### rev30의 판정 뒤에 열리는 경로
+### rev30 기각 뒤에 열리는 경로
 
-1. hard-joint-limit이나 numeric-invalid가 한 번이라도 발생하면 rev30을 기각하고 full300을 열지 않는다.
-2. 두 safety series가 정확히 zero이고 GPU·source·runtime YAML 계약도 통과하면 rev30 smoke를 채택한다.
-3. 채택된 동일 계약으로 seed42 scratch full300을 새 사전등록에 묶는다.
-4. full300 학습 안전이 zero일 때만 네 자세 deterministic 평가를 수행한다.
-5. 네 자세 성능 관문까지 통과한 뒤 seed43·44, 정량 차트, MP4 `30fps`, GIF 목표 `15fps`를 만든다.
-6. 그전에는 실패 진단을 성공 영상처럼 편집하거나 Garden·포트폴리오에 성공 사례로 발행하지 않는다.
+1. rev30은 hard-joint-limit `4/50` 때문에 기각하며 full300을 열지 않는다.
+2. rev31은 dynamics와 PPO를 바꾸지 않는 진단 단계로 두고, 실제 훈련 termination 시점의 pose·joint·limit side·초과각을 기록한다.
+3. rev27에서 관측한 prone calf overshoot가 rev31 scratch 학습에서도 재현되면 calf-specific target/reset geometry나 contact-aware regularization을 우선 검토한다.
+4. 관절 목표가 hard bound 안쪽인데 실제 관절만 넘는 것이 재확인될 때만 solver/contact parameter A/B를 연다. tolerance 완화로 사건을 숨기지 않는다.
+5. attribution 뒤 선택한 한 변수의 새 50-iteration smoke가 exact zero gate를 통과해야 seed42 scratch full300을 연다.
+6. full300 학습 안전과 네 자세 deterministic 성능 관문까지 통과한 뒤에만 seed43·44, 정량 차트, MP4 `30fps`, GIF 목표 `15fps`를 만든다.
+7. 그전에는 실패 진단을 성공 영상처럼 편집하거나 Garden·포트폴리오에 성공 사례로 발행하지 않는다.
+
+rev30 raw report SHA-256은 `7fd14f3e8c0669e725bce733392bbf8bf5c1cf2f77b6e4b2f1496567a46d8889`, rejection synthesis SHA-256은 `9f3ec0594b120f60c7980b82dbb045615e284d4607d788033997f137786687d0`, checkpoint SHA-256은 `01e9eb6b10a32c56386a29c97fd429b51d1c5809f3637498860226f7527a95ea`다. 프로세스와 GPU 보호는 통과했지만 safety qualification은 실패했다는 경계를 유지한다.
 
 ## 포트폴리오에서 의미 있는 증거
 

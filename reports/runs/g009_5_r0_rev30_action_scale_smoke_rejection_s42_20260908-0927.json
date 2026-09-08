@@ -1,0 +1,203 @@
+{
+  "schema_version": "g009.r0.rev30.action_scale_smoke_rejection.v1",
+  "report_id": "G009-5-E023-rejected",
+  "status": "rejected",
+  "result": "hard_joint_limit_gate_failed",
+  "run_name": "go2_flat_g009_r0_rev30_action_scale_smoke_s42_20260908-0927",
+  "source_commit": "9e800a6a10e588a35e550a01d9c10c7f4b8894eb",
+  "source_bundle_sha256": "02fbff0d7927d42e2e949c733ef3ad0b4cac2d7e4be4e9b9dbb9464bede720a3",
+  "single_experimental_variable": {
+    "name": "normalized_joint_position_action_scale",
+    "previous_value": 0.65,
+    "candidate_value": 0.6
+  },
+  "training": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "device": "cuda:0",
+    "headless": true,
+    "seed": 42,
+    "scratch": true,
+    "num_envs": 1024,
+    "num_steps_per_env": 24,
+    "max_iterations": 50,
+    "transitions": 1228800,
+    "ppo_num_learning_epochs": 5,
+    "ppo_num_mini_batches": 4,
+    "optimizer_mini_batch_updates": 1000,
+    "wall_time_seconds": 237.679,
+    "mean_steps_per_second": 6072.02,
+    "median_steps_per_second": 6165.0,
+    "final_mean_reward": -6.79,
+    "final_mean_episode_length": 400.0
+  },
+  "evidence": {
+    "raw_report": {
+      "path": "reports/runs/go2_flat_g009_r0_rev30_action_scale_smoke_s42_20260908-0927.json",
+      "sha256": "7fd14f3e8c0669e725bce733392bbf8bf5c1cf2f77b6e4b2f1496567a46d8889"
+    },
+    "preregistration": {
+      "path": "configs/g009_r0_rev30_action_scale_smoke.json",
+      "sha256": "78b4bbfe14bde47eeaf3f53853f1face288f4d42ca312f1869b2f8dd304eb52b"
+    },
+    "tensorboard_event": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-08_09-30-05_go2_flat_g009_r0_rev30_action_scale_smoke_s42_20260908-0927\\events.out.tfevents.1788827414.DESKTOP-991BNBV.2928.0",
+      "sha256": "ab4b712aceb898eba5fd02be602801e795f8475b700b48b3431544777a773458"
+    },
+    "checkpoint": {
+      "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-08_09-30-05_go2_flat_g009_r0_rev30_action_scale_smoke_s42_20260908-0927\\model_49.pt",
+      "sha256": "01e9eb6b10a32c56386a29c97fd429b51d1c5809f3637498860226f7527a95ea",
+      "iteration": 49,
+      "std_vector_dimension": 12,
+      "std_vector_all_finite": true,
+      "std_vector_mean": 0.4767126391331355,
+      "std_vector": [
+        0.48046836256980896,
+        0.46771857142448425,
+        0.482436865568161,
+        0.4665304124355316,
+        0.46567490696907043,
+        0.47244417667388916,
+        0.4610341489315033,
+        0.48531636595726013,
+        0.48843997716903687,
+        0.4897628724575043,
+        0.4712221920490265,
+        0.48950281739234924
+      ]
+    },
+    "runtime_readback": {
+      "agent_yaml_sha256": "383ca24fce3245dd131fbc537a1e317c434cc9e221408d876b1fd57014d89a0b",
+      "env_yaml_sha256": "6d8d62fa2cb7c4bb4082486e3ec000bef4ccea6e35b096812e81ab15f983c4da",
+      "agent_contract_passed": true,
+      "environment_contract_passed": true,
+      "source_snapshot_stable": true
+    }
+  },
+  "acceptance_gate": {
+    "hard_joint_limit": {
+      "sample_count": 50,
+      "maximum": 0.0416666679084301,
+      "mean": 0.003333333432674408,
+      "nonzero_sample_count": 4,
+      "nonzero_samples": [
+        {
+          "iteration": 6,
+          "value": 0.0416666679084301,
+          "curriculum_phase_index": 0.0,
+          "probability_prone": 1.0
+        },
+        {
+          "iteration": 7,
+          "value": 0.0416666679084301,
+          "curriculum_phase_index": 0.0,
+          "probability_prone": 1.0
+        },
+        {
+          "iteration": 11,
+          "value": 0.0416666679084301,
+          "curriculum_phase_index": 0.0,
+          "probability_prone": 1.0
+        },
+        {
+          "iteration": 32,
+          "value": 0.0416666679084301,
+          "curriculum_phase_index": 0.0,
+          "probability_prone": 1.0
+        }
+      ],
+      "required_maximum": 0.0,
+      "required_nonzero_sample_count": 0,
+      "passed": false
+    },
+    "numeric_invalid": {
+      "sample_count": 50,
+      "maximum": 0.0,
+      "nonzero_sample_count": 0,
+      "passed": true
+    },
+    "mean_noise_std": {
+      "sample_count": 50,
+      "latest": 0.4767126441001892,
+      "all_finite": true,
+      "passed": true
+    },
+    "gpu": {
+      "peak_used_mib": 4829.0,
+      "peak_utilization_percent": 60.0,
+      "mean_utilization_percent": 30.73,
+      "peak_temperature_c": 59.0,
+      "peak_power_draw_w": 60.5,
+      "fatal_event_count": 0,
+      "descendants_exited": true,
+      "recovered_to_baseline": true,
+      "passed": true
+    },
+    "execution_completed": true,
+    "overall_passed": false
+  },
+  "matched_50_iteration_comparison": {
+    "rev28_action_scale_0_70": {
+      "hard_joint_limit_maximum": 0.0833333358168602,
+      "hard_joint_limit_mean": 0.005000000149011612,
+      "hard_joint_limit_nonzero_sample_count": 4,
+      "mean_noise_std_latest": 0.47734370827674866
+    },
+    "rev29_action_scale_0_65": {
+      "hard_joint_limit_maximum": 0.0416666679084301,
+      "hard_joint_limit_mean": 0.000833333358168602,
+      "hard_joint_limit_nonzero_sample_count": 1,
+      "mean_noise_std_latest": 0.4784904718399048
+    },
+    "rev30_action_scale_0_60": {
+      "hard_joint_limit_maximum": 0.0416666679084301,
+      "hard_joint_limit_mean": 0.003333333432674408,
+      "hard_joint_limit_nonzero_sample_count": 4,
+      "mean_noise_std_latest": 0.4767126441001892
+    },
+    "rev30_delta_from_rev29": {
+      "hard_joint_limit_maximum_delta": 0.0,
+      "hard_joint_limit_mean_delta": 0.002500000074505806,
+      "hard_joint_limit_nonzero_sample_count_delta": 3,
+      "mean_noise_std_latest_delta": -0.0017778277397156
+    },
+    "interpretation": "Action scale 0.60 did not continue the rev29 improvement: violation frequency returned from 1/50 to 4/50 while the maximum stayed 0.04166667 and exploration noise remained nearly unchanged. All four nonzero samples occurred in the prone-only curriculum phase. The three-point result rejects a monotonic action-scale explanation but does not identify the responsible joint without training-time attribution."
+  },
+  "canonical_summarizer": {
+    "status": "fail_closed",
+    "error": "hard_joint_limit maximum must be zero",
+    "accepted_summary_written": false
+  },
+  "resume_point": {
+    "full_300_iteration_training_status": "forbidden",
+    "held_out_seed_evaluation_status": "forbidden",
+    "next_stage": "rev31_training_time_hard_limit_attribution",
+    "next_stage_type": "diagnostic_only",
+    "next_stage_objective": "Record the violating pose, joint, limit side, and maximum excess during the same training loop before choosing another dynamics or control intervention.",
+    "frozen_until_attribution": [
+      "action_scale=0.60",
+      "ppo_entropy_coefficient=0.0",
+      "ppo_init_noise_std=0.5",
+      "action_ema_alpha=0.2",
+      "asset_soft_joint_limit_factor=0.9",
+      "solver_position_iterations=8",
+      "solver_velocity_iterations=0",
+      "max_depenetration_velocity_m_s=1.0",
+      "reset, reward, curriculum, seed, environment count, rollout length, and zero-event gate"
+    ],
+    "candidate_interventions_after_attribution": [
+      "calf-specific target or reset geometry if prone calf is reconfirmed",
+      "contact-aware regularization or impact reduction if commands stay inside the hard bounds",
+      "solver/contact parameter A/B only when attribution shows a physics-side overshoot",
+      "no further action-scale reduction without new evidence"
+    ]
+  },
+  "claim_limits": {
+    "policy_qualified": false,
+    "recovery_success_measured": false,
+    "action_scale_change_proved_causal": false,
+    "responsible_joint_identified_in_this_run": false,
+    "checkpoint_may_be_used_for_qualification": false,
+    "garden_or_portfolio_publication_allowed": false,
+    "new_visual_media_warranted": false
+  }
+}
