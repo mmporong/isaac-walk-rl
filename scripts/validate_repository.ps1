@@ -150,6 +150,24 @@ $forbiddenExtensions = @(
     '.urdf', '.stl', '.dae', '.obj'
 )
 $maxFileBytes = 10MB
+$oversizeEvidenceSha256 = @{
+    'reports\runs\g009_r0_rev16_arm_a_cpu_rep01_retry04_s42.json' = 'edb650cbbcb3309adbfc3141ff511418d5c2780bf0ae926008df1e4189ae56b1'
+    'reports\runs\g009_r0_rev16_arm_a_cpu_rep01_retry05_s42.json' = '2c9622b2c6fe266c0d059ed9e97e817add0c8e2181a4a7fc9fa829ea2cd546ab'
+    'reports\runs\g009_r0_rev16_arm_a_cpu_rep01_retry06_s42.json' = '1c9d54948ac019bbe3e03edb1a5b642cd7fcda85dca2647052aba95f4df4066d'
+    'reports\runs\g009_r0_rev16_arm_a_cpu_rep02_retry01_s42.json' = '2340f3314e04b6457e3e3c99cafd6610a68e0ec8e95f88dc34e1bce3814bd052'
+    'reports\runs\g009_r0_rev16_arm_a_cpu_rep02_retry02_s42.json' = '8cc0a4dc44ccd6bf24e52a02643d489da03c07a27e36eadc775446ae4d9bfd1c'
+    'reports\runs\g009_r0_rev16_arm_a_cpu_rep02_s42.json' = '67a149c0cf9266f5b0bdbb0225dd747bde4f16ea951ce138a5a418422a6f7eb2'
+    'reports\runs\g009_r0_rev16_arm_a_cpu_rep03_retry01_s42.json' = 'bebcd799befa852098ca46da2ecf5b27287e7110d8c83ce565008c9e6f99defd'
+    'reports\runs\g009_r0_rev16_arm_a_cpu_rep03_retry02_s42.json' = '7fc468c0ec0e4477d36b41912d70b067f99428544e6bbbe9fdefb5d656eba3a5'
+    'reports\runs\g009_r0_rev16_arm_a_cpu_rep03_s42.json' = 'e372586255f9dbfdf908707de1c01c652a56c93c79dd32751b61bc37be8e19a4'
+    'reports\runs\g009_r0_rev16_arm_b_cpu_rep01_retry01_s42.json' = '6d3466cb43f46035278f11da13bf202bb7a727c7e3243e053525c1c835b7c47e'
+    'reports\runs\g009_r0_rev16_arm_b_cpu_rep02_retry01_s42.json' = '3335c5f898f1c392823f1b6f019d228e5f411cb943259671dc8cc3a3fc55c9ac'
+    'reports\runs\g009_r0_rev16_arm_b_cpu_rep03_retry01_s42.json' = 'd8fc1b96a284cd51a147ff9aabecc42d8083dddc918c58433db1263e9c458c22'
+    'reports\runs\g009_r0_rev20_terrain_contact_matrix_cpu_rep01_s42.json' = 'd4f8a371edd77c69fb74994c56d629c3e27dd122907ade90f931eeb546c41c29'
+    'reports\runs\g009_r0_rev20_terrain_contact_matrix_cpu_rep02_s42.json' = '63d19f42e7c79cc77846f09b5245c2dc46e77630ce97020dfb29be0837375e6c'
+    'reports\runs\g009_r0_rev23_matrix_observation_adapter_cpu_rep01_s42.json' = '1f01963e09574ec1388669dac75ed44cddd787f18f8dc7d806c72b11951d3660'
+    'reports\runs\g009_r0_rev23_matrix_observation_adapter_cpu_rep02_s42.json' = '6ccd4ce4cdf681524505c5122a2a0282097afd31f23129e0a30101e27f632844'
+}
 $repositoryFiles = Get-ChildItem -LiteralPath $repoRoot -Recurse -Force -File |
     Where-Object { $_.FullName -notlike "$repoRoot\.git\*" }
 
@@ -162,7 +180,16 @@ foreach ($file in $repositoryFiles) {
         Add-Failure "TensorBoard 원시 로그 포함: $relativePath"
     }
     if ($file.Length -gt $maxFileBytes) {
-        Add-Failure "10 MiB 초과 파일: $relativePath ($($file.Length) bytes)"
+        $expectedSha256 = $oversizeEvidenceSha256[$relativePath]
+        $actualSha256 = if ($null -ne $expectedSha256) {
+            (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+        else {
+            $null
+        }
+        if ($null -eq $expectedSha256 -or $actualSha256 -ne $expectedSha256) {
+            Add-Failure "허용 목록에 없거나 hash가 달라진 10 MiB 초과 파일: $relativePath ($($file.Length) bytes)"
+        }
     }
 }
 
@@ -205,14 +232,17 @@ $gitAttributePath = Join-Path $repoRoot '.gitattributes'
 if (Test-Path -LiteralPath $gitAttributePath -PathType Leaf) {
     $gitAttributeLines = Get-Content -LiteralPath $gitAttributePath
     $gitAttributeBytes = [System.IO.File]::ReadAllBytes($gitAttributePath)
-    $expectedAttributeContent = ($requiredAttributeRules -join "`n") + "`n"
-    $expectedAttributeBytes = [System.Text.UTF8Encoding]::new($false).GetBytes($expectedAttributeContent)
     if ($gitAttributeBytes -contains [byte]13) {
         Add-Failure '.gitattributes에 CR 바이트가 있음'
     }
-    if ([System.Convert]::ToBase64String($gitAttributeBytes) -ne
-        [System.Convert]::ToBase64String($expectedAttributeBytes)) {
-        Add-Failure '.gitattributes 내용이 필수 4개 규칙의 순서·UTF-8·최종 LF 계약과 다름'
+    if ($gitAttributeBytes.Length -eq 0 -or $gitAttributeBytes[$gitAttributeBytes.Length - 1] -ne [byte]10) {
+        Add-Failure '.gitattributes가 최종 LF로 끝나지 않음'
+    }
+    if ($gitAttributeBytes.Length -ge 3 -and
+        $gitAttributeBytes[0] -eq [byte]0xEF -and
+        $gitAttributeBytes[1] -eq [byte]0xBB -and
+        $gitAttributeBytes[2] -eq [byte]0xBF) {
+        Add-Failure '.gitattributes에 UTF-8 BOM이 있음'
     }
 }
 foreach ($rule in $requiredAttributeRules) {

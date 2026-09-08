@@ -34,7 +34,10 @@ summary = _load(
 )
 
 
-def test_preregistration_locks_single_variable_budget_and_claim_order() -> None:
+def test_preregistration_locks_single_variable_budget_and_claim_order(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(validation, "ACTION_SCALE", 0.65)
     preregistration = validation.load_preregistration()
     readback = validation.validate_semantics(preregistration)
 
@@ -70,12 +73,12 @@ def test_preregistration_rejects_variable_or_frozen_mutation(mutation) -> None:
         validation.validate_semantics(preregistration)
 
 
-def test_canonical_manifest_matches_rev29_contract() -> None:
-    binding = validation.validate_canonical_manifest()
+def test_historical_validator_rejects_current_rev30_contract() -> None:
     manifest = json.loads((ROOT / "configs" / "g009_r0.json").read_text(encoding="utf-8"))
-    assert binding["sha256"] == validation.file_sha256(ROOT / "configs" / "g009_r0.json")
-    assert manifest["contract"]["contract_id"] == "g009_r0_recover_rev29"
-    assert manifest["contract"]["action"]["scale"] == 0.65
+    with pytest.raises(ValueError, match="canonical revision"):
+        validation.validate_canonical_manifest()
+    assert manifest["contract"]["contract_id"] == "g009_r0_recover_rev30"
+    assert manifest["contract"]["action"]["scale"] == 0.60
     assert manifest["contract"]["ppo"]["entropy_coefficient"] == 0.0
 
 

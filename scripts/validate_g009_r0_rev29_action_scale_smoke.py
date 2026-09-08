@@ -35,6 +35,12 @@ from isaac_walk_g009.recover_contracts import (  # noqa: E402
 
 SCHEMA_VERSION = "g009.r0.rev29.action_scale_smoke_preregistration.v1"
 EVIDENCE_ID = "G009-5-E022"
+REVISION = "rev29"
+PREVIOUS_REVISION = "rev28"
+PREVIOUS_ACTION_SCALE = 0.70
+CANDIDATE_ACTION_SCALE = 0.65
+CANONICAL_CONTRACT_ID = "g009_r0_recover_rev29"
+PRELAUNCH_SCHEMA_VERSION = "g009.r0.rev29.action_scale_smoke_prelaunch_validation.v1"
 DEFAULT_PREREGISTRATION = REPO_ROOT / "configs" / "g009_r0_rev29_action_scale_smoke.json"
 EXPECTED_SOURCE_MANIFEST_SHA256 = "cbd542ae61179ee47be8f313d083ae9dc75d27864af103693affa662d1b5892d"
 EXPECTED_ISAAC_LAB_COMMIT = "90b79bb2d44feb8d833f260f2bf37da3487180ba"
@@ -44,6 +50,8 @@ EXPECTED_HISTORICAL_SHA256 = {
     "rev28_training_report": "a3178b3e35969b94a234e98a97106c2be9c4a7fa182d0f8a1fee166201e4e49d",
     "rev28_rejection_report": "712d8f1e788c14d03e86211dd7d44813c3467a577f26a9ed8268b9c1b379577f",
 }
+HISTORICAL_NOISE_FIELD = "rev28_step49_mean_noise_std"
+EXPECTED_HISTORICAL_NOISE = 0.47734370827674866
 
 
 def require(condition: bool, message: str) -> None:
@@ -89,7 +97,7 @@ def load_preregistration(path: Path = DEFAULT_PREREGISTRATION) -> dict[str, Any]
     require(isinstance(payload, dict), "preregistration must be an object")
     require(payload.get("schema_version") == SCHEMA_VERSION, "schema_version mismatch")
     require(payload.get("evidence_id") == EVIDENCE_ID, "evidence_id mismatch")
-    require(payload.get("revision") == "rev29", "revision mismatch")
+    require(payload.get("revision") == REVISION, "revision mismatch")
     return payload
 
 
@@ -106,12 +114,15 @@ def validate_semantics(preregistration: dict[str, Any]) -> dict[str, Any]:
         variable
         == {
             "name": "normalized_joint_position_action_scale",
-            "rejected_rev28_value": 0.7,
-            "candidate_value": 0.65,
+            f"rejected_{PREVIOUS_REVISION}_value": PREVIOUS_ACTION_SCALE,
+            "candidate_value": CANDIDATE_ACTION_SCALE,
         },
         "single experimental variable mismatch",
     )
-    require(math.isclose(ACTION_SCALE, 0.65, abs_tol=1e-12), "canonical action scale mismatch")
+    require(
+        math.isclose(ACTION_SCALE, CANDIDATE_ACTION_SCALE, abs_tol=1e-12),
+        "canonical action scale mismatch",
+    )
     require(training["task"] == "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0", "task mismatch")
     require(training["device"] == "cuda:0" and training["headless"] is True, "GPU/headless mismatch")
     require(training["seed"] == 42 and training["scratch"] is True, "seed/scratch mismatch")
@@ -158,7 +169,7 @@ def validate_semantics(preregistration: dict[str, Any]) -> dict[str, Any]:
                 "device": "cuda:0",
             },
             "env_yaml": {
-                "action_scale": 0.65,
+                "action_scale": CANDIDATE_ACTION_SCALE,
                 "rescale_to_limits": True,
                 "action_ema_alpha": 0.2,
                 "asset_soft_joint_limit_factor": 0.9,
@@ -213,7 +224,7 @@ def validate_canonical_manifest() -> dict[str, Any]:
     contract = recover_contract()
     require(manifest.get("contract") == contract, "configs/g009_r0.json is not canonical")
     require(manifest.get("contract_sha256") == canonical_sha256(contract), "canonical contract hash mismatch")
-    require(contract.get("contract_id") == "g009_r0_recover_rev29", "canonical revision mismatch")
+    require(contract.get("contract_id") == CANONICAL_CONTRACT_ID, "canonical revision mismatch")
     return {"path": "configs/g009_r0.json", "sha256": file_sha256(path)}
 
 
@@ -231,8 +242,12 @@ def validate_historical_evidence(preregistration: dict[str, Any]) -> dict[str, A
         require(actual == expected_sha256, f"{name} file SHA-256 mismatch")
         result[name] = {"path": item["path"], "sha256": actual}
     require(
-        math.isclose(evidence["rev28_step49_mean_noise_std"], 0.47734370827674866, abs_tol=1e-15),
-        "rev28 step49 mean_noise_std mismatch",
+        math.isclose(
+            evidence[HISTORICAL_NOISE_FIELD],
+            EXPECTED_HISTORICAL_NOISE,
+            abs_tol=1e-15,
+        ),
+        f"{PREVIOUS_REVISION} step49 mean_noise_std mismatch",
     )
     return result
 
@@ -299,7 +314,7 @@ def validate(
 ) -> dict[str, Any]:
     preregistration = load_preregistration(path)
     return {
-        "schema_version": "g009.r0.rev29.action_scale_smoke_prelaunch_validation.v1",
+        "schema_version": PRELAUNCH_SCHEMA_VERSION,
         "status": "pass",
         "evidence_id": EVIDENCE_ID,
         "preregistration": {

@@ -180,15 +180,15 @@ def test_r0_reward_and_ppo_contract_match_the_frozen_document_revision() -> None
 
 def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     contract = recover_contract()
-    assert contract["contract_id"] == "g009_r0_recover_rev29"
+    assert contract["contract_id"] == "g009_r0_recover_rev30"
     assert contract["physics"] == {
         "articulation_solver_position_iteration_count": 8,
         "articulation_solver_velocity_iteration_count": 0,
         "max_depenetration_velocity_m_s": 1.0,
         "rev12_baseline_articulation_solver_position_iteration_count": 8,
         "single_variable_change": (
-            "rev29 changes only the normalized joint-position action scale from "
-            "the rejected rev28 value 0.70 to 0.65; retain solver iterations 8/0, "
+            "rev30 changes only the normalized joint-position action scale from "
+            "the rejected rev29 value 0.65 to 0.60; retain solver iterations 8/0, "
             "maximum depenetration velocity 1.0 m/s, EMA alpha 0.2, PPO entropy "
             "0.0 and initial noise 0.5, reset, reward, curriculum, torque, "
             "joint-limit tolerance, and observation-noise contracts"
@@ -229,7 +229,7 @@ def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     assert contract["materials"]["effective_foot_ground_friction"]["missing_value_policy"] == "fail_closed"
     assert contract["action"]["normalized_clip"] == [-1.0, 1.0]
     assert contract["action"]["type"] == "EMAJointPositionToLimitsAction"
-    assert contract["action"]["scale"] == ACTION_SCALE == 0.65
+    assert contract["action"]["scale"] == ACTION_SCALE == 0.60
     assert contract["action"]["ema_alpha"] == ACTION_EMA_ALPHA == 0.2
     assert contract["action"]["ema_control_frequency_hz"] == 50.0
     assert contract["action"]["ema_time_constant_s"] == pytest.approx(0.08963, rel=1.0e-4)
@@ -238,21 +238,21 @@ def test_runtime_dynamics_and_success_gate_are_hash_bound() -> None:
     ) == 0.9
     assert contract["action"]["effective_target_hard_limit_range_fraction"] == (
         EFFECTIVE_ACTION_TARGET_HARD_LIMIT_RANGE_FRACTION
-    ) == pytest.approx(0.585)
-    assert contract["action"]["hard_limit_margin_fraction_per_side"] == pytest.approx(0.2075)
+    ) == pytest.approx(0.54)
+    assert contract["action"]["hard_limit_margin_fraction_per_side"] == pytest.approx(0.23)
     assert contract["action"]["action_scale_experiment_evidence"] == {
-        "revision": "rev29",
+        "revision": "rev30",
         "single_variable": "normalized_joint_position_action_scale",
-        "rejected_rev28_value": 0.70,
+        "rejected_rev29_value": 0.65,
         "candidate_value": ACTION_SCALE,
         "all_other_training_and_environment_contracts_frozen": True,
         "contract_id_change_semantics": (
             "provenance identifier update only; not an additional physics or training variable"
         ),
         "interpretation": (
-            "rev29 narrows the soft-limit-rescaled target range after rev27 localized "
-            "the rejected checkpoint events to prone calf dynamics and rev28 showed "
-            "that entropy removal alone did not satisfy the zero-event safety gate"
+            "rev30 narrows the soft-limit-rescaled target range one more step after "
+            "rev29 reduced the prone-only smoke hard-limit events from 4/50 to 1/50 "
+            "while exploration noise remained nearly unchanged"
         ),
     }
     assert contract["collision_penalty"]["active_when_base_height_m_min"] == 0.30

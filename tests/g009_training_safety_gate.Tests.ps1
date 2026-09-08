@@ -103,7 +103,7 @@ function Invoke-EntropySmokeSingleLinePreflightCase {
         Copy-Item -LiteralPath (Join-Path $root $relativePath) -Destination $destination -Force
     }
     & $actualGit -C $entropyRepo add -- $entropySourcePaths
-    & $actualGit -C $entropyRepo -c user.name=g009-fixture -c user.email=g009-fixture@example.invalid commit --quiet -m 'fixture'
+    & $actualGit -C $entropyRepo -c user.name=g009-fixture -c user.email=g009-fixture@example.invalid commit --quiet --allow-empty -m 'fixture'
     if ($LASTEXITCODE -ne 0) { throw 'entropy fixture commit failed' }
     $entropyHarness = Join-Path $entropyRepo 'scripts\run_training.ps1'
     $wrapperPath = Join-Path $tempRoot 'invoke-entropy-single-line.ps1'
@@ -139,13 +139,13 @@ function Invoke-EntropySmokeSingleLinePreflightCase {
 function Invoke-ActionScaleSmokeSingleLinePreflightCase {
     $env:G009_FAKE_SAFETY_CASE = 'action_scale_preflight_single_line'
     Remove-Item Env:G009_FAKE_GIT_CASE -ErrorAction SilentlyContinue
-    $preregistration = Get-Content -LiteralPath (Join-Path $root 'configs\g009_r0_rev29_action_scale_smoke.json') -Raw |
+    $preregistration = Get-Content -LiteralPath (Join-Path $root 'configs\g009_r0_rev30_action_scale_smoke.json') -Raw |
         ConvertFrom-Json
     $sourcePaths = @($preregistration.source_binding_paths)
     $historicalPaths = @(
         $preregistration.historical_evidence.rev27_diagnostic_report.path,
-        $preregistration.historical_evidence.rev28_training_report.path,
-        $preregistration.historical_evidence.rev28_rejection_report.path
+        $preregistration.historical_evidence.rev29_training_report.path,
+        $preregistration.historical_evidence.rev29_rejection_report.path
     )
     $fixtureRepo = Join-Path $tempRoot 'action-scale-repo'
     & $actualGit clone --quiet --no-hardlinks $root $fixtureRepo
@@ -161,7 +161,7 @@ function Invoke-ActionScaleSmokeSingleLinePreflightCase {
         Copy-Item -LiteralPath (Join-Path $root $relativePath) -Destination $destination -Force
     }
     & $actualGit -C $fixtureRepo add -- $sourcePaths $historicalPaths
-    & $actualGit -C $fixtureRepo -c user.name=g009-fixture -c user.email=g009-fixture@example.invalid commit --quiet -m 'fixture'
+    & $actualGit -C $fixtureRepo -c user.name=g009-fixture -c user.email=g009-fixture@example.invalid commit --quiet --allow-empty -m 'fixture'
     if ($LASTEXITCODE -ne 0) { throw 'action-scale fixture commit failed' }
     $fixtureHarness = Join-Path $fixtureRepo 'scripts\run_training.ps1'
     $wrapperPath = Join-Path $tempRoot 'invoke-action-scale-single-line.ps1'
@@ -383,9 +383,9 @@ try {
     Assert (-not $entropyPreflight.Output.Contains("Property 'Count' cannot be found")) 'single-line validator stdout must remain an array under StrictMode'
 
     $actionScalePreflight = Invoke-ActionScaleSmokeSingleLinePreflightCase
-    Assert ($actionScalePreflight.Output.Contains('nvidia-smi')) "single-line rev29 validator JSON must pass preflight and reach the GPU boundary; actual=$($actionScalePreflight.Output)"
-    Assert (-not $actionScalePreflight.Output.Contains('validator 실패')) 'single-line rev29 validator JSON must not fail before the GPU boundary'
-    Assert (-not $actionScalePreflight.Output.Contains("Property 'Count' cannot be found")) 'single-line rev29 validator stdout must remain an array under StrictMode'
+    Assert ($actionScalePreflight.Output.Contains('nvidia-smi')) "single-line rev30 validator JSON must pass preflight and reach the GPU boundary; actual=$($actionScalePreflight.Output)"
+    Assert (-not $actionScalePreflight.Output.Contains('validator 실패')) 'single-line rev30 validator JSON must not fail before the GPU boundary'
+    Assert (-not $actionScalePreflight.Output.Contains("Property 'Count' cannot be found")) 'single-line rev30 validator stdout must remain an array under StrictMode'
 
     $cleanGit = Invoke-QualificationGitCase -CaseName 'clean_empty'
     Assert ($cleanGit.ExitCode -ne 0) "clean git fixture still stops at unrelated qualification prerequisites; actual=$($cleanGit.Output)"

@@ -47,7 +47,7 @@ ARTICULATION_SOLVER_VELOCITY_ITERATION_COUNT = 0
 MAX_DEPENETRATION_VELOCITY_M_S = 1.0
 REV12_BASELINE_ARTICULATION_SOLVER_POSITION_ITERATION_COUNT = 8
 
-ACTION_SCALE = 0.65
+ACTION_SCALE = 0.60
 ACTION_EMA_ALPHA = 0.2
 GO2_SOFT_JOINT_LIMIT_FACTOR = 0.9
 EFFECTIVE_ACTION_TARGET_HARD_LIMIT_RANGE_FRACTION = (
@@ -303,7 +303,7 @@ def recover_contract() -> dict[str, Any]:
         for pose in RECOVER_POSES.values()
     ]
     return {
-        "contract_id": "g009_r0_recover_rev29",
+        "contract_id": "g009_r0_recover_rev30",
         "stage_id": "R0",
         "policy_schema": "P-RECOVER-83/C-RECOVER-107",
         "poses": poses,
@@ -326,8 +326,8 @@ def recover_contract() -> dict[str, Any]:
                 REV12_BASELINE_ARTICULATION_SOLVER_POSITION_ITERATION_COUNT
             ),
             "single_variable_change": (
-                "rev29 changes only the normalized joint-position action scale from "
-                "the rejected rev28 value 0.70 to 0.65; retain solver iterations 8/0, "
+                "rev30 changes only the normalized joint-position action scale from "
+                "the rejected rev29 value 0.65 to 0.60; retain solver iterations 8/0, "
                 "maximum depenetration velocity 1.0 m/s, EMA alpha 0.2, PPO entropy "
                 "0.0 and initial noise 0.5, reset, reward, curriculum, torque, "
                 "joint-limit tolerance, and observation-noise contracts"
@@ -386,18 +386,18 @@ def recover_contract() -> dict[str, Any]:
             )
             / 2.0,
             "action_scale_experiment_evidence": {
-                "revision": "rev29",
+                "revision": "rev30",
                 "single_variable": "normalized_joint_position_action_scale",
-                "rejected_rev28_value": 0.70,
+                "rejected_rev29_value": 0.65,
                 "candidate_value": ACTION_SCALE,
                 "all_other_training_and_environment_contracts_frozen": True,
                 "contract_id_change_semantics": (
                     "provenance identifier update only; not an additional physics or training variable"
                 ),
                 "interpretation": (
-                    "rev29 narrows the soft-limit-rescaled target range after rev27 localized "
-                    "the rejected checkpoint events to prone calf dynamics and rev28 showed "
-                    "that entropy removal alone did not satisfy the zero-event safety gate"
+                    "rev30 narrows the soft-limit-rescaled target range one more step after "
+                    "rev29 reduced the prone-only smoke hard-limit events from 4/50 to 1/50 "
+                    "while exploration noise remained nearly unchanged"
                 ),
             },
             "safety_rationale": (
@@ -416,8 +416,9 @@ def recover_contract() -> dict[str, Any]:
                 "evaluation still requires zero; rev9 numeric-invalid terminations remained zero "
                 "throughout the pilot; rev26 full training was rejected with 57 nonzero hard-limit "
                 "samples, rev27 localized five replay events to prone calf joints despite processed "
-                "targets remaining inside the hard bounds, and rev28 entropy=0 still produced four "
-                "nonzero samples, so rev29 narrows only the action scale from 0.70 to 0.65"
+                "targets remaining inside the hard bounds, rev28 entropy=0 still produced four "
+                "nonzero samples, and rev29 action scale 0.65 produced one, so rev30 narrows only "
+                "the action scale from 0.65 to 0.60"
             ),
         },
         "materials": {

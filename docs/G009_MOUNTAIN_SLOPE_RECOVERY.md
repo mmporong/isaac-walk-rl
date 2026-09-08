@@ -1882,6 +1882,64 @@ seed 42/43/44 중 가장 좋은 하나만 고르지 않는다. 세 seed가 각�
 
 세 집합은 policy, terrain, evaluation namespace에서 서로 겹치지 않게 유지한다. final-heldout은 checkpoint, gate, trigger profile을 동결한 뒤 최초 한 번만 연다.
 
+## R0 rev26~rev30 qualification 계보
+
+### 안전 관문과 복구 성능을 분리한다
+
+R0의 첫 목적은 쓰러진 Go2가 네 초기 자세에서 일어나는 정책을 얻는 것이다. 다만 평균 reward가 오르거나 한 번 일어나는 장면이 보여도 바로 채택하지 않는다. 학습 중 수치 안전, 결정론적 복구 성능, 다중 seed 재현성을 서로 다른 관문으로 둔다.
+
+| 관문 | 입력 | 통과 조건 | 통과해도 아직 말할 수 없는 것 |
+| --- | --- | --- | --- |
+| 50-iteration safety smoke | seed 42, prone 100%, `1024×24×50` | numeric-invalid `0/50`, hard-joint-limit `0/50`, finite noise·checkpoint std, GPU 보호 PASS | 네 자세 복구 성공 |
+| seed42 full300 | scratch `1024×24×300` | 위 학습 안전 조건이 전체 300 sample에서 `0` | held-out 복구 성공과 seed 일반화 |
+| deterministic 4-pose 평가 | prone·supine·left·right 동일 분모 | 자세별 성공률 `≥80%`, median recovery time `≤4.0s`, safety termination `0` | seed43·44 재현성 |
+| 다중 seed | training seed `42/43/44`와 분리된 평가 seed | 세 lineage가 같은 계약 통과 | 더 높은 경사·혼합 마찰·링크 질량 강건성 |
+
+따라서 safety smoke는 “일어서는가”를 보는 축약 평가가 아니다. 복구 행동을 학습시키는 PPO를 짧게 실행하면서, full300을 열어도 되는 안전한 action envelope인지 먼저 보는 fail-closed 관문이다.
+
+### rev26: full300은 완주했지만 안전에서 기각됐다
+
+rev26은 seed `42`, `cuda:0`, headless scratch, `1,024 env × 24 steps × 300 iterations`로 실행했다. 총 transition은 `7,372,800`, PPO epoch는 `5`, mini-batch는 `4`, optimizer mini-batch update는 `6,000회`다. 프로세스는 exit code `0`으로 `model_299.pt`를 만들었고 numeric-invalid도 `0/300`이었다.
+
+그러나 hard-joint-limit이 `57/300`, maximum `0.125`, mean `0.0090277780`이었다. 학습 완주와 안전 자격은 다른 주장이라 checkpoint를 채택하지 않았다. raw report SHA-256은 `71a3b45129b79f2beaed14fab486423aafdd0f92e860022cf22c2c6242391234`, checkpoint SHA-256은 `75b38ac4c8f8b2ed17d73893350c1ca484ca3ef3c0d633273553e13efdf44c95`다.
+
+### rev27: target 범위 밖 명령이 아니라 prone calf 동역학을 좁혔다
+
+rev27은 rev26 checkpoint를 바꾸지 않고 read-only stochastic replay를 했다. 네 자세를 각각 256환경으로 배치하고 400 control step을 관측했다. `+0.01rad` margin을 넘은 사건은 5개였고 모두 prone의 calf joint였다. FR 2회, RL 2회, RR 1회였으며 supine·left-side·right-side에서는 같은 window의 사건이 없었다.
+
+policy action은 wrapper 앞에서 범위를 벗어난 경우가 있었지만 clip과 action manager를 지난 calf target은 hard lower bound 안쪽이었다. 이 결과는 “관절 목표 자체를 hard bound 밖으로 명령했다”는 설명보다 prone 접촉 중 동역학적 overshoot 설명을 지지한다. 한 seed의 짧은 replay라 일반 인과로 확대하지 않는다. report SHA-256은 `ffd373d3937558aa71b5afccc70468aff068a28443f728a94343e488046bc315`다.
+
+### rev28~rev30: 한 변수씩 action envelope를 좁힌다
+
+| revision | 바꾼 한 변수 | entropy | action scale | hard-limit nonzero | maximum | mean noise std latest | 판정 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| rev28 | entropy `0.01→0.0` | `0.0` | `0.70` | `4/50` | `0.08333334` | `0.47734371` | 기각 |
+| rev29 | action scale `0.70→0.65` | `0.0` | `0.65` | `1/50` | `0.04166667` | `0.47849047` | 기각 |
+| rev30 | action scale `0.65→0.60` | `0.0` | `0.60` | 실행 전 | 실행 전 | 실행 전 | 사전등록 |
+
+rev28은 탐색 노이즈를 낮췄지만 zero-event 조건을 만족하지 못했다. rev29는 noise가 거의 같은 상태에서 빈도와 최대값이 함께 줄었지만 iteration 19의 한 사건 때문에 기각됐다. 이 두 점만으로 action scale과 위반 감소의 인과나 단조 관계를 확정하지 않는다. rev30은 그 방향을 한 단계 더 검사하는 후보일 뿐이다.
+
+rev30에서 soft-limit factor `0.9`와 action scale `0.60`을 곱한 effective target range는 hard joint interval의 `0.54`다. 중심 정렬을 가정한 계약상 양 끝 margin은 각각 hard interval의 `0.23`이다. 이 수치는 policy target의 기하학적 여유이며, 접촉 충격과 solver overshoot까지 포함한 실제 관절 안전을 보증하지 않는다. 그래서 TensorBoard termination을 다시 실측한다.
+
+고정한 나머지 조건은 다음과 같다.
+
+- Isaac Sim `4.5.0`, Isaac Lab `2.1.1`, RSL-RL `2.3.3`
+- PhysX `dt=0.005s`, control decimation `4`, policy frequency `50Hz`
+- solver position/velocity iteration `8/0`, max depenetration velocity `1.0m/s`
+- action EMA alpha `0.2`, runner clip `[-1,1]`, PPO initial noise std `0.5`
+- seed `42`, `1024 env`, rollout horizon `24`, `50 iterations`, prone curriculum phase 0
+- PPO epoch `5`, mini-batch `4`, iteration당 optimizer mini-batch update `20회`, 총 `1,000회`
+- reset, observation, reward, success gate, torque와 joint-limit tolerance는 변경하지 않음
+
+### rev30의 판정 뒤에 열리는 경로
+
+1. hard-joint-limit이나 numeric-invalid가 한 번이라도 발생하면 rev30을 기각하고 full300을 열지 않는다.
+2. 두 safety series가 정확히 zero이고 GPU·source·runtime YAML 계약도 통과하면 rev30 smoke를 채택한다.
+3. 채택된 동일 계약으로 seed42 scratch full300을 새 사전등록에 묶는다.
+4. full300 학습 안전이 zero일 때만 네 자세 deterministic 평가를 수행한다.
+5. 네 자세 성능 관문까지 통과한 뒤 seed43·44, 정량 차트, MP4 `30fps`, GIF 목표 `15fps`를 만든다.
+6. 그전에는 실패 진단을 성공 영상처럼 편집하거나 Garden·포트폴리오에 성공 사례로 발행하지 않는다.
+
 ## 포트폴리오에서 의미 있는 증거
 
 G009를 포트폴리오에 넣을 때 핵심은 “Isaac Sim에서 로봇을 걸었다”가 아니다. 다음 문제 해결 연결이 보여야 한다.
@@ -1910,6 +1968,8 @@ G009를 포트폴리오에 넣을 때 핵심은 “Isaac Sim에서 로봇을 걸
 
 rev24의 첫 1024 diagnostic은 checkpoint까지 생성되고 wrapper run-health가 PASS했지만 aggregate source-bundle 정렬 불일치로 canonical FAIL 처리했다. 그 결과는 기각 원인 분석용으로만 보존했다. 정렬 수정 뒤에는 새 실행 ID·새 report·새 checkpoint로 1024와 2048을 다시 수행해 canonical PASS를 얻었다. 두 계보를 합치거나 첫 실행을 사후 승격하지 않는다. rev25 Matrix Gate01도 pre-App import 실패와 retry01 missing-telemetry 실패를 별도 report로 보존하고, before-close lifecycle 수정이 반영된 clean retry02만 E018 PASS로 승인했다. source의 raw authority는 world-frame `[N,19,3]`이고 policy에서만 base-frame 회전, nominal body-weight 정규화, `tanh` bound를 적용해 `57D`로 편다. 이 projection은 actor `83D` 뒤와 critic의 uncorrupted actor prefix에 모두 들어가므로 입력은 각각 `140D/164D`다.
 
+rev26 이후에는 full300 안전 기각, rev27 prone calf 귀속, rev28 entropy 단일 변수 기각, rev29 action-scale 단일 변수 기각까지가 추가 증거다. rev30은 action scale `0.60`을 검증할 실행 전 사전등록 상태다. 이 계보는 실패 원인 분리와 검증 절차로는 공개할 수 있지만, 복구 정책 성공이나 qualification 완료로 소개하지 않는다.
+
 ## 실물 로봇과 Mini Pupper에 대한 범위 제한
 
 G009의 Go2 checkpoint를 Mini Pupper나 3D 프린팅 로봇에 직접 옮기지 않는다. 로봇이 바뀌면 다음 항목이 달라진다.
@@ -1931,6 +1991,12 @@ G009의 Go2 checkpoint를 Mini Pupper나 3D 프린팅 로봇에 직접 옮기지
 
 - [S0 실행 계약](../configs/g009_s0.json)
 - [R0 실행 계약](../configs/g009_r0.json)
+- [R0 rev30 action-scale safety smoke 사전등록](../configs/g009_r0_rev30_action_scale_smoke.json)
+- [R0 rev26 full300 raw report](../reports/runs/go2_flat_g009_r0_rev26_qualification_retry03_s42_20260904-1637.json)
+- [R0 rev27 hard-joint-limit 귀속 report](../reports/runs/g009_5_r0_rev27_model299_joint_limit_diagnostic_s42_20260904-1813.json)
+- [R0 rev28 entropy smoke raw report](../reports/runs/go2_flat_g009_r0_rev28_entropy_smoke_retry01_s42_20260904-2015.json)
+- [R0 rev29 action-scale smoke raw report](../reports/runs/go2_flat_g009_r0_rev29_action_scale_smoke_retry01_s42_20260904-2103.json)
+- [R0 rev29 rejection synthesis](../reports/runs/g009_5_r0_rev29_action_scale_smoke_rejection_s42_20260904-2103.json)
 - [R0 GPU runtime probe](../reports/runs/g009_r0_runtime_probe_gpu.json)
 - [R0 CPU runtime probe](../reports/runs/g009_r0_runtime_probe_cpu.json)
 - [R0 probe synthesis](../reports/runs/g009_r0_runtime_probe_synthesis.json)

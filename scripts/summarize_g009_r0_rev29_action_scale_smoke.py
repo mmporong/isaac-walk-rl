@@ -28,6 +28,12 @@ from validate_g009_r0_rev29_action_scale_smoke import (  # noqa: E402
 
 
 SCHEMA_VERSION = "g009.r0.rev29.action_scale_smoke_summary.v1"
+REVISION = "rev29"
+PREVIOUS_REVISION = "rev28"
+PRELAUNCH_SCHEMA_VERSION = "g009.r0.rev29.action_scale_smoke_prelaunch_validation.v1"
+PREREGISTRATION_RELATIVE_PATH = "configs/g009_r0_rev29_action_scale_smoke.json"
+CANDIDATE_ACTION_SCALE = 0.65
+HISTORICAL_NOISE_FIELD = "rev28_step49_mean_noise_std"
 
 
 def require_mapping(value: Any, message: str) -> Mapping[str, Any]:
@@ -118,7 +124,10 @@ def validate_report(
     smoke = require_mapping(report.get("action_scale_smoke_mode"), "action-scale smoke mode missing")
     require(smoke.get("enabled") is True, "action-scale smoke mode missing")
     require(smoke.get("preflight_passed") is True, "action-scale smoke preflight did not pass")
-    require(smoke.get("runtime_action_scale") == 0.65, "runtime action scale mismatch")
+    require(
+        smoke.get("runtime_action_scale") == CANDIDATE_ACTION_SCALE,
+        "runtime action scale mismatch",
+    )
     require(smoke.get("held_out_evaluation_status") == "forbidden_until_full_300_training_safety_zero", "held-out gate opened")
     require(smoke.get("full_300_iteration_training_status") == "forbidden_until_smoke_accepted", "full-run gate opened")
 
@@ -128,7 +137,10 @@ def validate_report(
     paths = preregistration["source_binding_paths"]
     require(list(source_files.keys()) == paths, "source binding exact set mismatch")
     contract = require_mapping(report.get("action_scale_smoke_contract"), "action-scale smoke contract binding missing")
-    require(contract.get("path") == "configs/g009_r0_rev29_action_scale_smoke.json", "preregistration path mismatch")
+    require(
+        contract.get("path") == PREREGISTRATION_RELATIVE_PATH,
+        "preregistration path mismatch",
+    )
     require(contract.get("sha256") == file_sha256(DEFAULT_PREREGISTRATION), "preregistration SHA-256 mismatch")
     require(contract.get("source_binding_path_manifest_sha256") == preregistration["source_binding_path_manifest_sha256"], "source manifest mismatch")
 
@@ -139,13 +151,19 @@ def validate_report(
     commit = commit_value
     require(repository.get("dirty") is False, "training repository was dirty")
     preflight = require_mapping(contract.get("prelaunch_validation"), "preflight snapshot missing")
-    require(preflight.get("schema_version") == "g009.r0.rev29.action_scale_smoke_prelaunch_validation.v1", "preflight schema mismatch")
+    require(
+        preflight.get("schema_version") == PRELAUNCH_SCHEMA_VERSION,
+        "preflight schema mismatch",
+    )
     require(preflight.get("status") == "pass" and preflight.get("evidence_id") == EVIDENCE_ID, "preflight identity mismatch")
     preflight_prereg = require_mapping(preflight.get("preregistration"), "preflight preregistration binding missing")
-    require(preflight_prereg.get("path") == "configs/g009_r0_rev29_action_scale_smoke.json", "preflight preregistration path mismatch")
+    require(
+        preflight_prereg.get("path") == PREREGISTRATION_RELATIVE_PATH,
+        "preflight preregistration path mismatch",
+    )
     require(preflight_prereg.get("sha256") == contract.get("sha256"), "preflight preregistration SHA mismatch")
     expected_static = {
-        "action_scale": 0.65,
+        "action_scale": CANDIDATE_ACTION_SCALE,
         "agent_yaml": _expected_agent_readback(preregistration),
         "env_yaml": _expected_env_readback(preregistration),
     }
@@ -309,7 +327,9 @@ def validate_report(
     require(dict(checks) == expected_checks, "harness success checks mismatch")
     require(report.get("run_health_passed") is True and report.get("passed") is True, "raw smoke report failed")
     require(report.get("qualification_passed") is None, "smoke cannot claim qualification")
-    baseline_noise = float(preregistration["historical_evidence"]["rev28_step49_mean_noise_std"])
+    baseline_noise = float(
+        preregistration["historical_evidence"][HISTORICAL_NOISE_FIELD]
+    )
     latest_noise = float(noise["latest"])
     return {
         "training_safety": {"hard_joint_limit": dict(hard), "numeric_invalid": dict(numeric)},
@@ -317,8 +337,9 @@ def validate_report(
             "series": dict(noise),
             "checkpoint_std_vector": std_vector,
             "checkpoint_std_vector_mean": sum(std_vector) / len(std_vector),
-            "rev28_step49_mean_noise_std": baseline_noise,
-            "latest_delta_from_rev28_step49": latest_noise - baseline_noise,
+            HISTORICAL_NOISE_FIELD: baseline_noise,
+            f"latest_delta_from_{PREVIOUS_REVISION}_step49": latest_noise
+            - baseline_noise,
             "acceptance_gate": "finite_only; action scale is the sole intervention",
         },
         "runtime_agent_config": expected_agent,
@@ -354,7 +375,10 @@ def main() -> int:
     args = parser.parse_args()
     try:
         preregistration_path = args.preregistration.resolve()
-        require(preregistration_path == DEFAULT_PREREGISTRATION.resolve(), "only the canonical rev29 preregistration path is accepted")
+        require(
+            preregistration_path == DEFAULT_PREREGISTRATION.resolve(),
+            f"only the canonical {REVISION} preregistration path is accepted",
+        )
         report_path = args.report.resolve()
         preregistration = json.loads(preregistration_path.read_text(encoding="utf-8"))
         report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -368,7 +392,7 @@ def main() -> int:
             "status": "pass",
             "passed": True,
             "evidence_id": EVIDENCE_ID,
-            "revision": "rev29",
+            "revision": REVISION,
             "decision": "action_scale_smoke_accepted",
             "raw_report": {"path": str(report_path), "sha256": file_sha256(report_path)},
             "preregistration": {"path": str(preregistration_path), "sha256": file_sha256(preregistration_path)},

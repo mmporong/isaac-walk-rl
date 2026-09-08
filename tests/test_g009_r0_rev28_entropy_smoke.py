@@ -100,7 +100,7 @@ def test_canonical_manifest_remains_synced_after_rev28() -> None:
 
     assert binding["sha256"] == validation.file_sha256(ROOT / "configs" / "g009_r0.json")
     assert manifest["contract"]["ppo"]["entropy_coefficient"] == 0.0
-    assert manifest["contract"]["contract_id"] == "g009_r0_recover_rev29"
+    assert manifest["contract"]["contract_id"] == "g009_r0_recover_rev30"
 
 
 def _zero_series() -> dict:
