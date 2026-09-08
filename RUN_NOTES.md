@@ -786,3 +786,21 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 - GPU peak는 `4,829MiB`, peak/mean utilization은 `60%/30.73%`, peak temperature는 `59°C`, peak power는 `60.5W`였다. fatal GPU event는 없었고 모든 자식 프로세스가 종료됐으며 VRAM도 baseline으로 회복했다. checkpoint `model_49.pt` SHA-256은 `01e9eb6b10a32c56386a29c97fd429b51d1c5809f3637498860226f7527a95ea`, 12D std는 모두 finite이고 평균 `0.4767126391331355`였다. 이 checkpoint는 qualification에 사용하지 않는다.
 - [raw report](reports/runs/go2_flat_g009_r0_rev30_action_scale_smoke_s42_20260908-0927.json) SHA-256은 `7fd14f3e8c0669e725bce733392bbf8bf5c1cf2f77b6e4b2f1496567a46d8889`, [rejection synthesis](reports/runs/g009_5_r0_rev30_action_scale_smoke_rejection_s42_20260908-0927.json) SHA-256은 `9f3ec0594b120f60c7980b82dbb045615e284d4607d788033997f137786687d0`다. 300-iteration 학습·held-out seed·새 영상·Garden·포트폴리오 발행은 계속 금지한다.
 - 다음 단계는 `rev31 training-time hard-limit attribution`이다. action scale `0.60`과 나머지 학습·물리 조건을 동결한 진단 전용 실행에서 위반 pose, joint, lower/upper side, 최대 초과각을 실제 termination 시점에 누적 기록한다. rev27의 prone calf 결과가 새 scratch 학습에서도 재현되는지 먼저 확인한 뒤에만 calf-specific target/reset geometry, contact-aware regularization, solver/contact A/B 중 하나를 단일 변수로 선택한다.
+
+#### rev31 E024 reset reachability·training-time attribution 준비와 중단 지점
+
+- 이번 세션에서는 새 GPU 프로세스나 PPO 학습을 시작하지 않았다. 새 checkpoint, runtime report, MP4, GIF, PNG도 없으며 Garden·포트폴리오 production 발행은 계속 보류한다. rev31은 `구현·CPU 검증 완료 / GPU 미실행` 상태로 저장한다.
+- rev27에 보존된 calf hard limit `[-2.722700119, -0.837759912] rad`와 soft-limit factor `0.9`를 기존 inverse action map에 대입하면 reset calf `-2.37 rad`를 유지하는 데 scale `0.70`에서는 normalized action 약 `-0.9932865`가 필요해 도달 가능하다. scale `0.65`의 lower reachable target은 `-2.3315750 rad`, 오차는 `0.0384250 rad`(`2.20°`)이고, 현재 scale `0.60`은 `-2.2891639 rad`, 오차는 `0.0808361 rad`(`4.63°`)다. 이는 저장된 limit에 대한 계산 결과이며 live rev31 runtime 판정은 아직 아니다.
+- reset이 action envelope 밖에 있다는 사실만으로 hard-limit 원인을 확정하지 않는다. EMA는 실제 reset 관절 상태에서 시작할 수 있고 self-righting에는 의도적인 초기 전이가 필요할 수 있다. 또한 calf reset을 `-2.37 → -2.28 rad`로 바꾸면 접촉 형상과 지렛팔도 함께 달라지므로, 안전이 좋아져도 순수한 target-range 효과라고 단정할 수 없다.
+- [rev31 사전등록](configs/g009_r0_rev31_diagnostic.json)은 baseline `-2.37 rad`와 진단 후보 `-2.28 rad`만 허용한다. [무학습 runtime probe](scripts/probe_g009_r0_rev31_reset_reachability.py)는 `8 env × 150 control steps`, prone/supine/left/right × zero/hold action을 고정하고 live hard·soft limit, scale `0.70/0.65/0.60` reachability, pre-reset termination, torque·velocity·비발 접촉력을 기록한다. diagnostic FAIL도 증거 JSON을 남기고 정상 종료하며 시뮬레이터·입력·출력 오류만 운영 실패로 처리한다.
+- [training attribution wrapper](scripts/bootstrap_train_g009_rev31_attribution.py)는 공식 scratch PPO 경로를 바꾸지 않고 `RecorderManager.record_pre_reset` 경계에서 hard-limit 사건의 pose, joint, lower/upper side, 초과각, q/qdot, processed target, torque, root pose, foot/non-foot contact BW를 기록한다. 실행 budget은 `1024 env × 24 steps × 50 iterations = 1,228,800 transitions`, PPO epoch `5`, mini-batch `4`, optimizer update `1,000회`, seed `42`, headless `cuda:0`으로 잠근다.
+- 일반 `-RequireZeroTrainingSafetyTerminations` 진단도 qualification/smoke와 같은 GPU 보호를 사용하도록 [training harness](scripts/run_training.ps1)을 보완했다. 이에 따라 90°C sustained threshold, fatal GPU event, 자식 프로세스 종료와 VRAM 회복이 rev31 raw verdict에 포함된다. 기본 비진단 실행의 보호 동작은 바꾸지 않았다.
+- 중단 전 검증은 rev31·기존 runtime/qualification Python 회귀 `113 passed`, PowerShell training safety gate `PASS`, 두 Python entrypoint `py_compile` PASS, rev31 JSON parse PASS, `git diff --check` PASS, 전체 [repository validator](scripts/validate_repository.ps1) PASS다. Isaac/PhysX를 띄운 live GPU 검증은 의도적으로 수행하지 않았다.
+
+재개 순서는 다음과 같이 고정한다.
+
+1. `origin/main`과 일치하는 clean worktree, GPU lease availability, Isaac/Kit 잔류 프로세스가 없음을 확인한다.
+2. 현재 설정을 바꾸지 않은 baseline `-2.37 rad` 무학습 probe를 먼저 실행해 저장 계산과 live limit·첫 전이·접촉 안전을 대조한다. baseline의 reachability check가 FAIL이어도 예상된 진단 결과일 수 있으므로 JSON을 삭제하거나 PASS로 바꾸지 않는다.
+3. 같은 `action scale=0.60`, `calf reset=-2.37`의 scratch `1024×24×50` training attribution을 한 번 실행한다. numeric-invalid와 hard-limit은 모두 정확히 0이어야 하며, 사건이 재발하면 pose·joint·side·초과각을 판정 근거로 삼는다.
+4. baseline 학습에서 prone calf lower-side가 reset 부근에서 재현될 때만 `-2.28 rad` 무학습 probe를 실행한다. finite, hard/numeric `0`, non-foot contact `≤15 BW`, hold target error `≤1e-6 rad`를 모두 통과하지 못하면 후보를 즉시 기각한다.
+5. 후보의 50-iteration PPO A/B는 4번을 통과한 뒤 별도 사전등록으로 연다. full300, held-out, 새 영상, Garden·포트폴리오 발행은 이 중간 진단만으로 열지 않는다.

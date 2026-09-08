@@ -131,7 +131,7 @@ q_{des,t}=q_{default}+s_a a_t
 | `a_t` | actor의 정규화 출력 | 무차원 | 양·음 부호가 각 joint axis 방향으로 목표를 이동 |
 | `q_des,t` | actuator가 추종할 목표각 | `[rad]` | PD가 실제로 따라갈 관절 목표 |
 
-G006·G008 보행 기본 scale은 `0.25`예요. G009 RECOVER는 `EMAJointPositionToLimitsAction`, EMA `0.2`, soft-limit factor `0.9`를 유지해요. scale `0.70`인 rev28은 hard-joint-limit `4/50`, `0.65`인 rev29는 `1/50`, `0.60`인 rev30은 다시 `4/50`이라 모두 zero-event gate에서 기각됐어요. noise는 거의 같았으므로 “scale을 더 낮추면 계속 안전해진다”는 단순한 결론은 맞지 않아요. rev30의 네 nonzero sample은 모두 prone-only 구간에서 나왔지만 TensorBoard aggregate만으로 어느 관절인지 확정할 수는 없어요. 다음 rev31은 학습 중 pose·joint·limit side·초과각을 직접 기록한 뒤 한 가지 역학 개입을 고르는 진단 단계예요. RECOVER 경로는 [`recover_env_cfg.py`](../../src/isaac_walk_g009/recover_env_cfg.py)와 [`recover_contracts.py`](../../src/isaac_walk_g009/recover_contracts.py)에서 확인해요.
+G006·G008 보행 기본 scale은 `0.25`예요. G009 RECOVER는 `EMAJointPositionToLimitsAction`, EMA `0.2`, soft-limit factor `0.9`를 유지해요. scale `0.70`인 rev28은 hard-joint-limit `4/50`, `0.65`인 rev29는 `1/50`, `0.60`인 rev30은 다시 `4/50`이라 모두 zero-event gate에서 기각됐어요. noise는 거의 같았으므로 “scale을 더 낮추면 계속 안전해진다”는 단순한 결론은 맞지 않아요. rev30의 네 nonzero sample은 모두 prone-only 구간에서 나왔지만 TensorBoard aggregate만으로 어느 관절인지 확정할 수는 없어요. rev31은 학습 중 pose·joint·limit side·초과각을 직접 기록하는 계측과, reset 자세를 action envelope 안에서 그대로 유지할 수 있는지 검사하는 무학습 probe까지 구현했어요. 아직 GPU에서 실행하지 않았으므로 원인이나 개선 효과는 주장하지 않아요. RECOVER 경로는 [`recover_env_cfg.py`](../../src/isaac_walk_g009/recover_env_cfg.py)와 [`recover_contracts.py`](../../src/isaac_walk_g009/recover_contracts.py)에서 확인해요.
 
 따라서 “policy가 토크를 출력한다”라고 설명하면 현재 프로젝트에는 틀려요. 이 프로젝트의 WALK·RECOVER actor는 joint-position action을 출력하고, Action Manager가 scale·offset·clip·EMA를 적용해 joint target을 만든 뒤 actuator가 torque를 만들어요.
 

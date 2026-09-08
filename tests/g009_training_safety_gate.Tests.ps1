@@ -415,6 +415,10 @@ try {
     Assert ($pass.Report.passed -eq $true) 'pass report must be passed'
     Assert ($pass.Report.training_safety_gate.requested -eq $true) 'report must record requested gate'
     Assert ($pass.Report.training_safety_gate.passed -eq $true) 'report must record passing verdict'
+    Assert ($pass.Report.gpu.protected_run_safety.required -eq $true) 'strict training diagnostics must enable GPU protection'
+    Assert ($pass.Report.gpu.protected_run_safety.mode -eq 'training_safety_diagnostic') 'diagnostics must not claim qualification or smoke acceptance'
+    Assert ($pass.Report.gpu.protected_run_safety.passed -eq $true) 'diagnostic GPU protection must pass'
+    Assert ($pass.Report.success_checks.requested_training_gpu_safety -eq $true) 'diagnostic run verdict must include GPU protection'
     $passReportHash = (Get-FileHash -LiteralPath (Join-Path $tempRoot 'pass.json') -Algorithm SHA256).Hash
     $passCollision = Invoke-TrainingCase -CaseName 'pass' -SafetyGate
     Assert ($passCollision.ExitCode -ne 0) 'existing raw logs/report must be rejected before execution'
@@ -457,6 +461,7 @@ try {
     Assert ($default.ExitCode -eq 0) 'default execution must not enforce the diagnostic gate'
     Assert ($default.Report.training_safety_gate.requested -eq $false) 'default report must record gate not requested'
     Assert ($null -eq $default.Report.training_safety_gate.passed) 'default diagnostic verdict must remain null'
+    Assert ($default.Report.gpu.protected_run_safety.required -eq $false) 'default run protection behavior must stay unchanged'
 
     $noTimestamp = Invoke-TrainingCase -CaseName 'no_timestamp'
     Assert ($noTimestamp.ExitCode -eq 0) 'official benchmark-style output without exact timestamp must pass'

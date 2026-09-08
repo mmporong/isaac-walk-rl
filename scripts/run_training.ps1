@@ -304,7 +304,7 @@ $expectedEntropySmokeSourceManifestSha256 = '230473fa68c7121656a50beb01e8a013c72
 $expectedActionScaleSmokeSourceManifestSha256 = 'cf38974514c595251d40d981548b57699bc17716e99d2d871f4d04f9299506dd'
 $qualificationTemperatureC = 90.0
 $qualificationSustainedTemperatureSamples = 3
-$protectedGpuRun = [bool]($Qualification -or $EntropySmoke -or $ActionScaleSmoke)
+$protectedGpuRun = [bool]($Qualification -or $EntropySmoke -or $ActionScaleSmoke -or $RequireZeroTrainingSafetyTerminations)
 
 $exclusiveModeCount = [int][bool]$Qualification + [int][bool]$EntropySmoke + [int][bool]$ActionScaleSmoke
 if ($exclusiveModeCount -gt 1) {
@@ -1608,6 +1608,9 @@ $successChecks = [ordered]@{
     action_scale_smoke_env_yaml_readback = if ($ActionScaleSmoke) { $envYamlReadbackPassed } else { $null }
     requested_training_safety_gate_zero = if ($RequireZeroTrainingSafetyTerminations) { $trainingSafetyGatePassed } else { $null }
 }
+if ($RequireZeroTrainingSafetyTerminations -and -not ($Qualification -or $EntropySmoke -or $ActionScaleSmoke)) {
+    $successChecks['requested_training_gpu_safety'] = $protectedGpuSafetyPassed
+}
 $passed = -not ($successChecks.Values -contains $false)
 
 $report = [ordered]@{
@@ -1802,6 +1805,7 @@ $report = [ordered]@{
             }
             elseif ($EntropySmoke) { 'entropy_smoke' }
             elseif ($ActionScaleSmoke) { 'action_scale_smoke' }
+            elseif ($RequireZeroTrainingSafetyTerminations) { 'training_safety_diagnostic' }
             else { $null }
             temperature_threshold_c = $qualificationTemperatureC
             sustained_sample_count = $qualificationSustainedTemperatureSamples

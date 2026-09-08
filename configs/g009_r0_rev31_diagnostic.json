@@ -1,0 +1,103 @@
+{
+  "schema_version": "g009.r0.rev31.reset_reachability_attribution_preregistration.v1",
+  "evidence_id": "G009-5-E024",
+  "protocol_mode": "diagnostic_only",
+  "question": "Does the rev30 folded calf reset lie outside the live action envelope, and does a reachable calf reset change immediate contact safety or training-time hard-limit attribution?",
+  "baseline": {
+    "source_commit": "18c35bd750f686c4aca95d6cb871ddba03f2bfcf",
+    "training_report": "reports/runs/go2_flat_g009_r0_rev30_action_scale_smoke_s42_20260908-0927.json",
+    "training_report_sha256": "7fd14f3e8c0669e725bce733392bbf8bf5c1cf2f77b6e4b2f1496567a46d8889",
+    "action_scale": 0.6,
+    "calf_reset_rad": -2.37,
+    "hard_limit_nonzero_scalar_samples": 4,
+    "sample_count": 50
+  },
+  "single_intervention": {
+    "name": "calf_reset_rad",
+    "baseline": -2.37,
+    "candidate": -2.28,
+    "candidate_status": "diagnostic_only_not_adopted",
+    "rationale": "Stored PhysX limits predict a scale-0.60 calf target minimum of -2.289163871 rad. -2.28 is a bounded reachable candidate; live limits, reset geometry and contact safety must be checked before any candidate training."
+  },
+  "frozen": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "isaac_sim": "4.5.0",
+    "isaac_lab_commit": "90b79bb2d44feb8d833f260f2bf37da3487180ba",
+    "rsl_rl_version": "2.3.3",
+    "device": "cuda:0",
+    "headless": true,
+    "seed": 42,
+    "action_scale": 0.6,
+    "action_ema_alpha": 0.2,
+    "soft_joint_limit_factor": 0.9,
+    "solver_position_iterations": 8,
+    "solver_velocity_iterations": 0,
+    "max_depenetration_velocity_m_s": 1.0,
+    "hard_joint_limit_margin_rad": 0.01,
+    "physics_dt_s": 0.005,
+    "control_decimation": 4,
+    "ppo_entropy_coef": 0.0,
+    "ppo_initial_noise_std": 0.5,
+    "reward_observation_and_success_gate": "unchanged",
+    "friction_mass_contact_offsets_motor_properties": "unchanged"
+  },
+  "runtime_probe": {
+    "num_envs": 8,
+    "control_steps": 150,
+    "pose_assignment": "stratified prone/supine/left_side/right_side for each action mode",
+    "action_modes": ["zero_normalized", "reset_pose_hold"],
+    "reachability_scales_read_only": [0.7, 0.65, 0.6],
+    "ppo_updates": 0,
+    "measures": [
+      "live hard and soft joint limits",
+      "unclipped hold action and reachable target error",
+      "initial and first-step state",
+      "hard-limit excess and termination counts",
+      "joint velocity and applied torque",
+      "non-foot contact force normalized by total body weight",
+      "final root height and tilt"
+    ],
+    "candidate_training_requires": {
+      "all_finite": true,
+      "hard_joint_limit_termination_count": 0,
+      "numeric_invalid_termination_count": 0,
+      "maximum_nonfoot_contact_bodyweights": 15.0,
+      "candidate_reset_hold_maximum_target_error_rad": 0.000001
+    }
+  },
+  "training_attribution": {
+    "status": "conditional_on_runtime_probe_and_time_budget",
+    "arms": ["baseline", "candidate_if_probe_passes"],
+    "scratch": true,
+    "num_envs": 1024,
+    "num_steps_per_env": 24,
+    "iterations_per_arm": 50,
+    "transitions_per_arm": 1228800,
+    "ppo_epochs": 5,
+    "ppo_mini_batches": 4,
+    "optimizer_updates_per_arm": 1000,
+    "instrumentation": "pre-reset observation during official PPO execution; preserve step results and termination callables",
+    "measures": ["pose", "joint", "limit_side", "joint_position_rad", "joint_velocity_rad_s", "applied_torque_nm", "processed_target_rad", "hard_limit_excess_rad", "contact_force_bodyweights"],
+    "required_training_safety": "numeric-invalid and hard-limit must both remain zero; a diagnostic-complete report never authorizes full300",
+    "full300_and_heldout": "not_authorized_by_this_diagnostic"
+  },
+  "interpretation_limits": [
+    "Unreachable reset-hold targets are a calibration inconsistency, not by themselves proof of the hard-limit cause.",
+    "EMA can start at the measured reset position outside the eventual action envelope; inspect the transient separately.",
+    "Changing calf reset also changes collision geometry and leverage, so improved safety alone would not prove a pure target-range mechanism.",
+    "One seed and the observed 4/50 -> 1/50 -> 4/50 sequence do not establish or statistically reject a population-level monotonic relationship.",
+    "A short zero-action/hold probe does not demonstrate learned recovery or four-pose qualification."
+  ],
+  "session_stop": {
+    "deadline": "2026-09-08T11:00:00+09:00",
+    "last_new_training_start": "2026-09-08T10:47:00+09:00",
+    "reserve_for_verification_documentation_push": true,
+    "do_not_leave_new_gpu_job_running_after_handoff": true
+  },
+  "claim_limits": {
+    "policy_qualification": false,
+    "recovery_success_claim": false,
+    "garden_or_portfolio_production_publication": false,
+    "hardware_or_sim_to_real": false
+  }
+}
