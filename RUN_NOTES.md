@@ -809,3 +809,24 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 
 - 이 프로젝트는 Isaac Sim·Isaac Lab 안의 사족보행 학습과 검증으로 마무리한다. Mini Pupper를 포함한 실물 로봇 출력·구매·조립, Go2 정책의 실기체 전이와 Sim-to-Real 검증은 후속 goal로 남기지 않고 현재 계획에서 제외한다.
 - 링크 질량·관성, 마찰, actuator 강도·지연은 실물 부품 선정값이 아니라 simulation domain randomization과 held-out stress 축으로만 다룬다. 포트폴리오 완료 조건은 채택 정책의 안전 gate, 다중 seed, 경사·혼합 마찰 평가, 정량 차트와 시뮬레이션 영상이다.
+
+#### rev31 E024-P1 baseline reset reachability probe 실행 결과
+
+- clean source commit `bfeb037a82dffad65c78b157984a871988e2dafe`에서 `g009_r0_rev31_reset_reachability_baseline_calf237_s42_20260909-2217`을 정확히 한 번 실행했다. 실행 전 GPU는 idle이었고 Isaac/Kit 잔류 프로세스와 다른 세션의 VRAM 점유가 없었다. probe는 PPO를 적재하지 않으므로 policy update와 optimizer update가 모두 `0`이다.
+- 계약대로 `8 env × 150 control steps`, seed `42`, `cuda:0`, headless로 prone/supine/left_side/right_side × zero_normalized/reset_pose_hold를 계층 배정해 실행했다. wall time은 `62.782s`, 실행 전후 runtime action scale은 `0.60`, EMA `0.2`, reset calf `-2.37 rad`로 동일했고 source snapshot도 변하지 않았다.
+- 9개 진단 check 중 8개가 PASS했고 `reset_hold_target_max_error_within_1e_6_rad` 하나만 FAIL이라 `diagnostic_result=FAIL`이 됐다. 사전등록이 정한 대로 이 FAIL은 운영 실패가 아니라 진단 관측이며 JSON을 삭제하거나 PASS로 바꾸지 않는다.
+- live PhysX calf hard limit은 `[-2.7227001190185547, -0.8377599120140076] rad`로 rev27 보존값과 같았다. reset `-2.37 rad`를 hold하는 데 필요한 normalized action은 scale `0.70`에서 도달 가능(최대 target 오차 `1.1920928955078125e-07 rad`)했지만, scale `0.65`는 오차 `0.03842496871948242 rad`(`2.2016°`), 현재 scale `0.60`은 오차 `0.08083605766296387 rad`(`4.6316°`)로 도달할 수 없었고 8개 환경 전부에서 `FL/FR/RL/RR_calf_joint` 네 관절이 동시에 saturate했다. 이 실측값은 rev31 준비 단계에서 저장 limit으로 계산한 `0.0384250`·`0.0808361`과 일치한다.
+- 안전 계측은 통과했다. 150 step 동안 hard-joint-limit termination `0`, numeric-invalid termination `0`, 모든 기록값 finite, 비발 접촉력 최대 `10.598640441894531 BW`로 `15 BW` 한도 안이었다. initial reset 시점은 관절 속도가 `0 rad/s`인데도 적용 토크가 최대 `23.5 N·m`, 평균 `16.5 N·m`였고, step 1에서 토크 최대 `3.4107754230499268 N·m`, 관절 속도 최대 `5.51882791519165 rad/s`, 비발 접촉력 `1.9876164197921753 BW`가 관측됐다. 최종 step 150에서는 토크 최대 `8.204520225524902 N·m`, 관절 속도 최대 `0.15739643573760986 rad/s`, root height 평균 `0.10663801431655884 m`였다.
+- 해석 한계는 사전등록과 같다. reset target이 현재 action envelope 밖이라는 사실은 캘리브레이션 불일치이고, 그 자체로 hard-limit termination의 원인 증명이 아니다. EMA가 실제 reset 관절 상태에서 출발하는 전이 구간은 별도로 봐야 하며, zero/hold action의 짧은 rollout은 학습된 복구나 4자세 qualification을 뜻하지 않는다.
+- [raw probe report](reports/runs/g009_r0_rev31_reset_reachability_baseline_calf237_s42_20260909-2217.json) SHA-256은 `487be1909ecd57c78be681544f6b7be3850f847362c8cf085ee4cb3bff9c3308`이다.
+
+#### rev31 E024-T1 baseline training attribution 1차 실행과 계측 결함
+
+- 같은 날 `go2_flat_g009_r0_rev31_attribution_baseline_s42_20260909-2221`을 한 번 실행했다. `1024 env × 24 steps/env × 50 iterations = 1,228,800 transitions`, PPO epoch `5`, mini-batch `4`, optimizer update `1,000회`, seed `42`, headless `cuda:0`, action scale `0.60`, calf reset `-2.37 rad`를 계약대로 사용했다. process exit code는 `0`, 마지막 iteration은 `49/50`, wall time은 `204.666s`, 평균/중앙 steps/s는 `6,936.2/7,008.0`이었다.
+- 학습 지표는 rev30을 재현했다. final mean reward `-6.79`, final mean episode length `400`으로 rev30과 같았고, hard-joint-limit은 `4/50`, maximum `0.0416666679084301`, mean `0.003333333432674408`, latest `0`으로 rev30의 `4/50`·`0.0416666679084301`·`0.003333333432674408`과 정확히 일치했다. numeric-invalid는 `0/50`이었다. 진단 게이트는 zero-event를 요구하므로 `run_health_passed=false`, `passed=false`로 fail-closed했다.
+- GPU peak는 `4,808MiB`, peak/mean utilization은 `61%/20.61%`, peak temperature는 `63°C`, peak power는 `58.12W`였다. fatal GPU event는 없었고 VRAM도 baseline으로 회복했다.
+- 그러나 이 실행은 rev31이 목표한 pose·joint·limit side·초과각 귀속을 남기지 못했다. attribution wrapper는 리포트를 `finally`에서 기록하도록 구현돼 있었는데, upstream `train.py`가 `main()` 반환 직후 `simulation_app.close()`를 호출하고 이 호출이 프로세스를 그대로 끝내기 때문에 `finally`가 실행되지 않았다. `reports/runs/..._attribution.json`도 `.tmp`도 생성되지 않았다. rev31의 CPU 회귀 테스트는 observer 단위만 검증했고 `main()`의 기록 경로를 실행하지 않아 이 결함을 잡지 못했다.
+- 같은 실행에는 증거 등급 문제도 있다. probe 산출 JSON이 커밋되지 않은 상태여서 harness가 `repository.dirty=true`로 기록했고, `-SourceBindingPaths`를 지정하지 않아 `source_bundle.sha256`이 `null`, 바인딩 파일 목록이 비었다. rev30은 같은 자리에서 `dirty=false`와 17개 파일 bundle SHA `02fbff0d7927d42e2e949c733ef3ad0b4cac2d7e4be4e9b9dbb9464bede720a3`을 남겼다.
+- 따라서 이 실행은 `baseline 재현 관측`으로만 보존하고 rev31 귀속 증거로 사용하지 않는다. [raw report](reports/runs/go2_flat_g009_r0_rev31_attribution_baseline_s42_20260909-2221.json) SHA-256은 `396959808fa76a5f3563f9d9d448c483cb502fc3756152ac459afd896e4a4b4a`이며 삭제하지 않는다.
+- 수정은 두 가지다. 첫째, attribution wrapper에 `AttributionReportWriter`와 `install_close_finalizer`를 추가해 정상 경로에서는 `env.close()` 직전에, 예외 경로에서는 기존 `finally`에서 리포트를 정확히 한 번 기록하고 `report_written_at`에 어느 경로였는지 남긴다. 둘째, 재실행은 probe 산출물까지 커밋해 clean worktree를 만든 뒤 `-SourceBindingPaths`로 rev31 소스 경계 14개를 명시한다.
+- 이 실행은 policy qualification이나 recovery success가 아니다. full300, held-out seed, 새 영상, Garden·포트폴리오 발행은 계속 금지한다.

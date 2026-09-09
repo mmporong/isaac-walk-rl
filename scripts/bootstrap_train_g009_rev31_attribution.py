@@ -240,6 +240,44 @@ def install_pre_reset_observer(env: Any, observer: TrainingAttributionObserver) 
     return original_pre_reset, original_step
 
 
+class AttributionReportWriter:
+    """Write the attribution report exactly once, from whichever path runs first.
+
+    The upstream Isaac Lab trainer calls ``simulation_app.close()`` right after
+    ``main()`` returns, and that call ends the process without unwinding this
+    module's ``finally`` block. The report is therefore written at ``env.close()``
+    on the normal path and at ``finally`` only when an exception keeps the
+    process alive.
+    """
+
+    def __init__(self, output: Path) -> None:
+        self.output = output
+        self.written = False
+        self.trigger: str | None = None
+
+    def write(self, build_payload: Any, *, trigger: str) -> bool:
+        if self.written:
+            return False
+        payload = build_payload()
+        payload["report_written_at"] = trigger
+        _write_json_no_overwrite(self.output, payload)
+        self.written = True
+        self.trigger = trigger
+        return True
+
+
+def install_close_finalizer(env: Any, writer: AttributionReportWriter, build_payload: Any) -> Any:
+    """Record the attribution report before the simulator closes the process."""
+    original_close = env.close
+
+    def observed_close(*args: Any, **kwargs: Any) -> Any:
+        writer.write(build_payload, trigger="env_close")
+        return original_close(*args, **kwargs)
+
+    env.close = observed_close
+    return original_close
+
+
 def _write_json_no_overwrite(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
@@ -307,6 +345,7 @@ def main(argv: list[str] | None = None) -> int:
         raise FileExistsError(f"refusing to overwrite attribution report: {output}")
 
     hashes_before = source_hashes()
+    writer = AttributionReportWriter(output)
     observer: TrainingAttributionObserver | None = None
     raw_env: Any = None
     originals: tuple[Any, Any] | None = None
@@ -318,6 +357,29 @@ def main(argv: list[str] | None = None) -> int:
     import bootstrap_train_g009
 
     original_make = gym.make
+
+    def build_report(status_value: str) -> dict[str, Any]:
+        return {
+            "schema_version": 1,
+            "protocol": "g009_r0_rev31_training_time_pre_reset_attribution_v1",
+            "status": status_value,
+            "diagnostic_only": True,
+            "qualification_eligible": False,
+            "runtime": {
+                **custom.runtime,
+                "rollout_steps_per_iteration": ROLLOUT_STEPS_PER_ITERATION,
+                "physics_budget_env_steps": FIXED_NUM_ENVS * FIXED_MAX_ITERATIONS * ROLLOUT_STEPS_PER_ITERATION,
+                "requested_calf_reset_override_rad": custom.calf_reset,
+                "actual_cfg_calf_reset_rad": actual_calf_reset,
+                "calf_reset_override_applied": custom.calf_reset is not None,
+            },
+            "actual_environment_cfg": actual_env_cfg,
+            "attribution": observer.report() if observer is not None else None,
+            "source_hashes_before": hashes_before,
+            "source_hashes_after": source_hashes(),
+            "source_hashes_stable": hashes_before == source_hashes(),
+            "error": None if caught is None else f"{type(caught).__name__}: {caught}",
+        }
 
     def instrumented_make(task: str, **kwargs: Any) -> Any:
         nonlocal observer, raw_env, originals, actual_calf_reset, actual_env_cfg
@@ -342,6 +404,7 @@ def main(argv: list[str] | None = None) -> int:
         raw_env = original_make(task, **kwargs)
         observer = TrainingAttributionObserver(raw_env.unwrapped, event_cap=custom.attribution_event_cap)
         originals = install_pre_reset_observer(raw_env.unwrapped, observer)
+        install_close_finalizer(raw_env, writer, lambda: build_report("training_complete"))
         return raw_env
 
     gym.make = instrumented_make
@@ -358,28 +421,7 @@ def main(argv: list[str] | None = None) -> int:
         if originals is not None and raw_env is not None:
             raw_env.unwrapped.recorder_manager.record_pre_reset = originals[0]
             raw_env.unwrapped.step = originals[1]
-        report = {
-            "schema_version": 1,
-            "protocol": "g009_r0_rev31_training_time_pre_reset_attribution_v1",
-            "status": status,
-            "diagnostic_only": True,
-            "qualification_eligible": False,
-            "runtime": {
-                **custom.runtime,
-                "rollout_steps_per_iteration": ROLLOUT_STEPS_PER_ITERATION,
-                "physics_budget_env_steps": FIXED_NUM_ENVS * FIXED_MAX_ITERATIONS * ROLLOUT_STEPS_PER_ITERATION,
-                "requested_calf_reset_override_rad": custom.calf_reset,
-                "actual_cfg_calf_reset_rad": actual_calf_reset,
-                "calf_reset_override_applied": custom.calf_reset is not None,
-            },
-            "actual_environment_cfg": actual_env_cfg,
-            "attribution": observer.report() if observer is not None else None,
-            "source_hashes_before": hashes_before,
-            "source_hashes_after": source_hashes(),
-            "source_hashes_stable": hashes_before == source_hashes(),
-            "error": None if caught is None else f"{type(caught).__name__}: {caught}",
-        }
-        _write_json_no_overwrite(output, report)
+        writer.write(lambda: build_report(status), trigger="process_finally")
     if caught is not None:
         raise caught
     return 0

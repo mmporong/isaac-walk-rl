@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -178,3 +179,69 @@ def test_unapproved_or_duplicate_hydra_overrides_are_rejected(tokens) -> None:
     ]
     with pytest.raises(ValueError):
         MODULE.parse_and_strip_custom_args(argv)
+
+
+class FakeClosableEnv:
+    def __init__(self) -> None:
+        self.closed = 0
+        self.close_args: tuple = ()
+
+    def close(self, *args, **kwargs):
+        self.closed += 1
+        self.close_args = args
+        return "closed"
+
+
+def test_writer_records_once_and_tags_the_trigger(tmp_path) -> None:
+    output = tmp_path / "rev31_writer_once.json"
+    writer = MODULE.AttributionReportWriter(output)
+    calls = []
+
+    def build():
+        calls.append(1)
+        return {"status": "training_complete"}
+
+    assert writer.write(build, trigger="env_close") is True
+    assert writer.write(build, trigger="process_finally") is False
+    assert writer.written is True
+    assert writer.trigger == "env_close"
+    assert len(calls) == 1
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["status"] == "training_complete"
+    assert payload["report_written_at"] == "env_close"
+
+
+def test_close_finalizer_writes_before_the_simulator_closes(tmp_path) -> None:
+    output = tmp_path / "rev31_close_finalizer.json"
+    writer = MODULE.AttributionReportWriter(output)
+    env = FakeClosableEnv()
+    order = []
+
+    def build():
+        order.append("write")
+        return {"status": "training_complete"}
+
+    original = MODULE.install_close_finalizer(env, writer, build)
+    assert env.close is not original
+    assert env.close("a") == "closed"
+    order.append("close")
+
+    assert env.closed == 1
+    assert env.close_args == ("a",)
+    assert order == ["write", "close"]
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["report_written_at"] == "env_close"
+
+
+def test_close_finalizer_does_not_rewrite_on_repeated_close(tmp_path) -> None:
+    output = tmp_path / "rev31_close_idempotent.json"
+    writer = MODULE.AttributionReportWriter(output)
+    env = FakeClosableEnv()
+    MODULE.install_close_finalizer(env, writer, lambda: {"status": "training_complete"})
+
+    env.close()
+    env.close()
+
+    assert env.closed == 2
+    assert writer.trigger == "env_close"
+    assert json.loads(output.read_text(encoding="utf-8"))["report_written_at"] == "env_close"
