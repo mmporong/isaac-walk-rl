@@ -53,7 +53,7 @@ G009는 산 비탈에서 보행 영상을 만드는 작업이 아니라, 경사�
 | R0 contact authority·adapter | rev23 CPU/GPU `2×2` correctness PASS | actual `force_matrix_w`, source 불변성, XYZ·magnitude·mask oracle, non-alias, CPU/GPU repeatability | total·tangential force, 마찰 직접 효과, policy 연결, physics ground truth, 동작·학습 qualification |
 | supervisor | 미구현 | 상태 전이와 평가 계약이 정해짐 | `fall -> recover -> walk` 연결 성공 |
 | S0 미디어 녹화 | 완료 | 3개 로컬 MP4, 공개 GIF·PNG, capture JSON·summary·sidecar 해시 결합 | G009 WALK 성공 |
-| 실물 로봇 | 범위 밖 | Mini Pupper 재학습 원칙만 정함 | Go2 정책의 직접 전이, sim-to-real 완료 |
+| 실물 로봇 | 현행 범위에서 제외 | 제작·조립·정책 전이를 진행하지 않음 | 실기체 성능, Go2 직접 전이, sim-to-real 완료 |
 
 S0 증거의 source commit은 `4bad4dd8634c11aa452da41ad0c2fb852e70e607`이다. 원본 MP4는 저장소 밖에 두고 GIF·PNG·JSON만 공개한다. 25° 재생은 `termination.fall=false`였지만 최대 기울기가 `84.7832°`, 최대 하방 이동이 `2.3925 m`였다. 이를 통과나 보행 성공으로 판정하지 않고, 기존 G008 정책의 한계를 드러낸 stress 결과로 남긴다. C0는 동작 stage가 아닌 governance 변경이므로 영상이 없는 것이 계약에 맞다.
 
@@ -1982,20 +1982,13 @@ rev24의 첫 1024 diagnostic은 checkpoint까지 생성되고 wrapper run-health
 
 rev26 이후에는 full300 안전 기각, rev27 prone calf 귀속, rev28 entropy 단일 변수 기각, rev29·rev30 action-scale 단일 변수 기각까지가 추가 증거다. rev31은 원인 귀속용 코드와 사전등록만 준비했고 GPU 결과는 아직 없다. 이 계보는 실패 원인 분리와 검증 절차로는 공개할 수 있지만, 복구 정책 성공이나 qualification 완료로 소개하지 않는다.
 
-## 실물 로봇과 Mini Pupper에 대한 범위 제한
+## 실물 로봇은 현재 계획에서 제외한다
 
-G009의 Go2 checkpoint를 Mini Pupper나 3D 프린팅 로봇에 직접 옮기지 않는다. 로봇이 바뀌면 다음 항목이 달라진다.
+2026-09-08 결정에 따라 G009는 Isaac Sim·Isaac Lab 안의 학습과 검증으로 마무리한다. Mini Pupper나 다른 3D 프린팅 로봇을 만들지 않고, Go2 checkpoint를 실제 기체에 옮기는 후속 goal도 두지 않는다.
 
-- 링크 질량·관성·COM
-- 관절 범위와 joint order
-- 모터 torque-speed envelope
-- action scale과 nominal stance
-- 발 크기·마찰·구동 지연
-- 센서 noise와 control dt
+마찰, 링크 질량·관성, 모터 강도·지연은 simulation domain randomization과 held-out stress 조건으로 사용한다. 이 값으로 특정 실물 부품의 성능이나 안전 범위를 주장하지 않는다. 포트폴리오에는 재현 가능한 학습 계약, 단일 변수 실험, 안전 기각, 다중 seed와 경사·혼합 마찰 평가, 시뮬레이션 미디어만 포함한다.
 
-재사용 가능한 것은 terrain generator, 평가 grid, reward 구조, support-plane 계측, supervisor 상태 구조, media/report schema다. 정책 weight와 Go2의 절대 임계값은 재사용하지 않는다. Mini Pupper는 해당 물성과 actuator readback을 가진 별도 adapter를 만든 뒤 처음부터 다시 학습해야 한다.
-
-따라서 현재 결과로 “실제 로봇에서도 같은 경사와 마찰에서 걷는다”, “Mini Pupper로 직접 전이된다”, “sim-to-real이 완료됐다”라고 주장하지 않는다. 실물 제작과 전이는 G009 시뮬레이션 final-heldout 이후 별도 goal에서 검증한다.
+2026-08-27에 검토했던 Mini Pupper CAD·G-code·전원·URDF 자료는 제작 가능성 조사 기록으로만 보존한다. 현재 결과는 실기체 성능이나 Sim-to-Real 완료를 뜻하지 않는다.
 
 ## 근거와 재현 자료
 

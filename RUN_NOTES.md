@@ -804,3 +804,8 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 3. 같은 `action scale=0.60`, `calf reset=-2.37`의 scratch `1024×24×50` training attribution을 한 번 실행한다. numeric-invalid와 hard-limit은 모두 정확히 0이어야 하며, 사건이 재발하면 pose·joint·side·초과각을 판정 근거로 삼는다.
 4. baseline 학습에서 prone calf lower-side가 reset 부근에서 재현될 때만 `-2.28 rad` 무학습 probe를 실행한다. finite, hard/numeric `0`, non-foot contact `≤15 BW`, hold target error `≤1e-6 rad`를 모두 통과하지 못하면 후보를 즉시 기각한다.
 5. 후보의 50-iteration PPO A/B는 4번을 통과한 뒤 별도 사전등록으로 연다. full300, held-out, 새 영상, Garden·포트폴리오 발행은 이 중간 진단만으로 열지 않는다.
+
+#### 2026-09-08 포트폴리오 범위 결정
+
+- 이 프로젝트는 Isaac Sim·Isaac Lab 안의 사족보행 학습과 검증으로 마무리한다. Mini Pupper를 포함한 실물 로봇 출력·구매·조립, Go2 정책의 실기체 전이와 Sim-to-Real 검증은 후속 goal로 남기지 않고 현재 계획에서 제외한다.
+- 링크 질량·관성, 마찰, actuator 강도·지연은 실물 부품 선정값이 아니라 simulation domain randomization과 held-out stress 축으로만 다룬다. 포트폴리오 완료 조건은 채택 정책의 안전 gate, 다중 seed, 경사·혼합 마찰 평가, 정량 차트와 시뮬레이션 영상이다.

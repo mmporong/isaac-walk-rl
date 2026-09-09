@@ -1,8 +1,10 @@
-# Isaac Walk RL sim-to-real 포트폴리오 확장안
+# 보관 자료 · Isaac Walk RL sim-to-real 확장 검토
 
 - 기준일: 2026-08-26
-- 상태: G006·G008 실행 결과와 후속 실험
-- 현재 주장 범위: `sim-to-real 완료`가 아니라 `sim-to-real readiness`
+- 상태: 2026-09-08 현행 계획에서 제외, 과거 검토 기록
+- 현재 범위: Isaac Sim 안의 학습·강건성 평가. 실물 제작·정책 전이·Sim-to-Real 검증은 진행하지 않음
+
+이 문서는 G006·G008 결과에서 실물 전이를 검토하던 당시 계획을 보존한다. 아래의 held-out dynamics, cross-simulator, RMA 후보 가운데 시뮬레이션 안에서 검증할 수 있는 항목만 현재 계획에 남는다. 실물 Go2 동정과 정책 배포는 실행 순서와 포트폴리오 완료 조건에서 제외했다.
 
 ## 현재 증거
 
@@ -32,9 +34,9 @@ G008 S1의 마찰·다리 링크 질량 단일축 평가를 seed 42/43/44와 rou
 
 Isaac Sim 정책을 MuJoCo에서 평가해 PhysX 특성에 과적합됐는지 확인합니다. 이 결과는 `sim-to-sim`으로만 표시합니다. 관절·contact·actuator 모델이 다른 상태에서 수치가 떨어져도 실물 전이 실패라고 부르지 않습니다.
 
-### 3. 실물 접근 이후
+### 3. 현재 범위에서 제외한 실물 전이
 
-Go2의 관절 명령과 응답을 기록해 지연, 모터 강도, 감쇠, 마찰 범위를 수정합니다. zero-shot 배포와 소량 실물 데이터로 보정한 결과를 분리합니다. 실물 결과가 생기기 전에는 `sim-to-real 완료`라는 표현을 사용하지 않습니다.
+Go2 관절 응답 측정, zero-shot 배포, 실물 데이터 보정은 진행하지 않습니다. 관련 논문과 측정 항목은 과거 확장 후보로만 남기며 구현·성과 영역에 포함하지 않습니다.
 
 ## 논문별 적용 추천
 
@@ -59,7 +61,7 @@ RMA식 adaptation module의 목적은 이력에서 숨은 동역학을 추정하
 - 첫 화면: G008 G0·회전 보상 비교 GIF와 G006의 `유의한 개선 아님` 판정
 - 실험 표: G006의 seed·transitions·push trials·신뢰구간과 G008 S1의 통과·중단 gate
 - 시스템 그림: manifest → queue → training → evaluator → durable summary
-- 다음 실험: 방향별 reward 분해 → air-time threshold 단일축 → G0 3-seed gate → 마찰 F1 → cross-simulator → 실물 동정
-- 한계: 실물 Go2 부재, 상태 기반 관측, RBQ 자산 라이선스 blocker
+- 다음 실험: 방향별 reward 분해 → air-time threshold 단일축 → G0 3-seed gate → 마찰 F1 → cross-simulator
+- 한계: 상태 기반 관측, 시뮬레이션 전용 결과, RBQ 자산 라이선스 blocker
 
 포트폴리오 제목은 `Transformer 보행`보다 `반복 실험과 단일축 물성 gate로 검증하는 사족보행 RL`이 현재 증거에 맞습니다.

@@ -4,7 +4,7 @@
 
 프로젝트의 실행 기준은 재현성을 위해 Isaac Sim 4.5.0, Isaac Lab 2.1.1, RSL-RL 2.3.3으로 고정돼 있어요. 2026-08-31 현재 Isaac Lab 최신 공개판은 3.0 Beta 2 Patch 1이며 multi-backend physics, backend-neutral actuator, kit-less workflow를 확장하고 있지만 beta 단계예요. 따라서 최신판으로 즉시 이식하지 않고, 최신 문서의 개념과 API 변화는 비교 학습에만 쓰고 실험은 고정 버전에서 재현해요.
 
-공식 방향도 이 구분과 맞아요. NVIDIA의 최신 Physical AI 학습 경로는 `perceive → reason → act`를 시뮬레이션, 정책 학습, 평가, 실물 배포로 연결하고, Isaac Lab은 병렬 환경에서 robot policy를 학습하는 층으로 둬요. 이 프로젝트는 그중 상태 기반 사족보행 policy training과 sim-to-real readiness 검증에 집중해요.
+공식 학습 경로는 `perceive → reason → act`를 시뮬레이션, 정책 학습, 평가, 실물 배포로 연결하고 Isaac Lab을 병렬 정책 학습 층으로 둬요. 이 프로젝트는 그중 상태 기반 사족보행 policy training과 시뮬레이션 안의 강건성 평가까지만 다뤄요. 실물 로봇 제작과 Sim-to-Real은 현재 범위에서 제외했어요.
 
 공식 기준:
 
@@ -367,6 +367,7 @@ smoke는 wiring 검증이고 성능 실험이 아니에요. `64 env × 1 iterati
 |---|---|
 | upstream | Isaac Sim/PhysX, Isaac Lab manager와 내장 Go2 task, 기본 actuator·reward term, RSL-RL PPO |
 | 이 저장소 구현 | G006 push 비교, G008 command·마찰·질량·도로·reward variant, G009 terrain·RECOVER 계약·접촉 진단, 실행/평가/요약/검증 스크립트 |
-| 아직 구현 아님 | 실물 Go2 배포, 검증된 sim-to-real 성능, 정식 MPC/WBC controller, 자격을 통과한 G009 RECOVER policy |
+| 현재 범위에서 제외 | 실물 로봇 제작, 실물 Go2 배포, sim-to-real 성능 검증 |
+| 아직 구현 아님 | 정식 MPC/WBC controller, 자격을 통과한 G009 RECOVER policy |
 
 이 구분을 지키면 기존 결과를 과장하지 않으면서도 Python, 동역학, PPO, reward, 실험 설계를 하나의 Physical AI 제어 문제로 설명할 수 있어요.
