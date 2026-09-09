@@ -830,3 +830,25 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 - 따라서 이 실행은 `baseline 재현 관측`으로만 보존하고 rev31 귀속 증거로 사용하지 않는다. [raw report](reports/runs/go2_flat_g009_r0_rev31_attribution_baseline_s42_20260909-2221.json) SHA-256은 `396959808fa76a5f3563f9d9d448c483cb502fc3756152ac459afd896e4a4b4a`이며 삭제하지 않는다.
 - 수정은 두 가지다. 첫째, attribution wrapper에 `AttributionReportWriter`와 `install_close_finalizer`를 추가해 정상 경로에서는 `env.close()` 직전에, 예외 경로에서는 기존 `finally`에서 리포트를 정확히 한 번 기록하고 `report_written_at`에 어느 경로였는지 남긴다. 둘째, 재실행은 probe 산출물까지 커밋해 clean worktree를 만든 뒤 `-SourceBindingPaths`로 rev31 소스 경계 14개를 명시한다.
 - 이 실행은 policy qualification이나 recovery success가 아니다. full300, held-out seed, 새 영상, Garden·포트폴리오 발행은 계속 금지한다.
+
+#### rev31 E024-T2 baseline training attribution 재실행과 원인 귀속
+
+- clean source commit `a6a130a64066c2b02fd1b7d761cf66934ff79003`, source bundle SHA-256 `4e350bf37f32cbb3e8175053a750eda194c4581e3ef13e65a74f5eb0c48f83e5`(파일 14개, `matches_repository_commit=true`)에서 `go2_flat_g009_r0_rev31_attribution_baseline_retry01_s42_20260909-2233`을 정확히 한 번 실행했다. 1차 실행의 dirty worktree와 빈 source bundle 문제는 probe 산출물 커밋과 `-SourceBindingPaths` 명시로 교정했다.
+- 실행 계약은 `1024 env × 24 steps/env × 50 iterations = 1,228,800 transitions`, PPO epoch `5`, mini-batch `4`, optimizer update `1,000회`, seed `42`, headless `cuda:0`, action scale `0.60`, calf reset `-2.37 rad`다. process exit code는 `0`, 마지막 iteration은 `49/50`, wall time은 `194.83s`, 평균/중앙 steps/s는 `7,127.3/7,195.5`였다. GPU peak는 `4,586MiB`, peak utilization `61%`, peak temperature `63°C`, peak power `56.81W`이고 fatal event 없이 VRAM이 baseline으로 회복했다.
+- 안전 집계는 hard-joint-limit `4/50`, maximum `0.0416666679084301`, mean `0.003333333432674408`, numeric-invalid `0/50`이었다. final mean reward `-6.79`, final mean episode length `400`이다. rev30, rev31 1차, rev31 재실행이 같은 seed·설정에서 세 번 연속 같은 수치를 냈으므로 이 실패는 우연한 변동이 아니다. 진단 게이트는 zero-event를 요구하므로 `passed=false`로 fail-closed했고, 이는 사전등록대로 진단 관측이지 운영 실패가 아니다.
+- attribution wrapper는 `report_written_at=env_close`, `status=training_complete`, `source_hashes_stable=true`, `observer_rng_neutral=true`, `instrumentation_error=null`로 기록됐다. `control_steps_recorded=1200`, event sample cap `512`에 대해 기록 사건 `4`건, overflow `0`건이므로 모든 hard-limit 사건이 누락 없이 남았다.
+- 귀속 결과는 단일 패턴이다. 사건 `4`건 모두 pose `prone`, limit side `lower`, 관절은 뒷다리 calf(`RR_calf_joint` 3건, `RL_calf_joint` 1건)였다. 앞다리 calf, thigh, hip에서는 사건이 없었다.
+
+| # | iteration | episode step | env | joint | excess (rad) | q (rad) | qdot (rad/s) | processed target (rad) | torque (N·m) | foot contact (BW) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 0 | 7 | 44 | 171 | RL_calf | 0.016058683 | -2.73876 | -2.001 | -1.9450 | 22.13 | 3.596 |
+| 1 | 8 | 35 | 757 | RR_calf | 0.011630774 | -2.73433 | -0.590 | -1.6673 | 23.50 | 2.993 |
+| 2 | 12 | 26 | 179 | RR_calf | 0.011605501 | -2.73431 | 0.075 | -1.7855 | 23.50 | 3.689 |
+| 3 | 33 | 88 | 855 | RR_calf | 0.016845226 | -2.73955 | -1.464 | -1.7825 | 23.50 | 4.474 |
+
+- 네 사건 모두 PD target이 하한 `-2.7227001190185547 rad`보다 `0.78~1.06 rad` 위에 있었고 적용 토크는 관절을 하한에서 멀어지게 하는 방향으로 `22.13~23.50 N·m`였다. 세 사건은 정확히 `23.5 N·m`로 actuator 상한에 포화했다. 그런데도 관절 위치는 하한 아래로 `0.0116~0.0168 rad`(`0.67°~0.97°`) 넘어갔고 같은 순간 발 접촉력이 `2.99~4.47 BW`였다. 즉 이 위반은 정책이 한계 밖을 명령해서 생긴 것이 아니라, 최대 토크로 저항하는 중에 접촉 하중이 calf를 접는 방향으로 역구동한 결과다.
+- 이 관측은 rev28의 entropy 축소, rev29·rev30의 action scale 축소가 왜 위반을 없애지 못했는지 설명한다. 세 실험은 모두 명령 분포를 좁히는 개입인데, 계측된 위반 순간의 명령은 이미 반대 방향으로 포화해 있었다. action scale 축소는 위반 경로에 개입하지 못한 채 reset 자세를 유지할 여유만 줄였다.
+- 사건 발생 시점은 episode step `26·35·44·88`로 control dt `0.02s` 기준 `0.52s·0.70s·0.88s·1.76s`다. reset 직후 전이 구간이 아니라 복구 동작이 진행되며 뒷발에 하중이 실린 구간이다. 따라서 E024-P1이 확인한 `reset hold target 도달 불가`와 이 위반은 같은 관절 그룹에서 나타나지만 서로 다른 시점의 사건이며, 하나로 원인을 합치지 않는다.
+- 사전등록 재개 순서 4번은 `prone calf lower-side가 reset 부근에서 재현될 때만` 후보 `-2.28 rad` 무학습 probe를 실행하도록 정했다. prone calf lower-side는 재현됐지만 사건이 reset 부근이 아니고, target·토크 증거가 reset target range 가설이 아니라 접촉 역구동을 가리키므로 이 조건은 충족되지 않았다. 따라서 `-2.28 rad` 후보 probe와 그 A/B는 열지 않는다.
+- [raw report](reports/runs/go2_flat_g009_r0_rev31_attribution_baseline_retry01_s42_20260909-2233.json) SHA-256은 `ac0dbde040797fc343a7d69e51ea9f58329106a85e3642f612ec0488d65cf874`, [attribution report](reports/runs/go2_flat_g009_r0_rev31_attribution_baseline_retry01_s42_20260909-2233_attribution.json) SHA-256은 `d9b9a902dd2906cfd66285ce333dd589a9ae1187a65ccb667440990e532b0d60`이다.
+- 이 실행은 policy qualification이나 recovery success가 아니다. full300, held-out seed, 새 영상, Garden·포트폴리오 발행은 계속 금지한다. 다음 단계는 명령 범위를 더 좁히는 실험이 아니라, 접촉 하중에서 뒷다리 calf가 하한을 넘지 않게 하는 개입(하한 여유를 두는 reset·target geometry, contact-aware regularization, actuator 강도·solver 조건) 가운데 하나를 단일 변수로 고르는 새 사전등록이다. 어느 후보도 이 진단만으로 채택하지 않는다.

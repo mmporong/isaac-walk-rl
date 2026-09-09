@@ -5,8 +5,8 @@
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0·S0와 rev25 E018 Matrix Gate01 `27/27`까지 통과했다. rev26 full300은 학습을 완료했지만 hard-joint-limit으로 기각됐고, rev28·rev29·rev30의 50-iteration safety smoke도 각각 `4/50`, `1/50`, `4/50`으로 기각됐다. rev31 E024에는 reset reachability 무학습 probe와 training-time pre-reset 관절 귀속 계측을 구현하고 CPU 테스트를 마쳤지만 GPU 실행은 시작하지 않았다.
-- 현재 한계: 정식 판정은 `policy qualification=false`, `recovery success=not_measured`다. rev31 코드는 진단 준비물이지 실행 결과가 아니며 `-2.28 rad` calf reset도 채택값이 아닌 제한된 후보다. Garden·포트폴리오 production 발행과 새 동작 미디어는 qualification 또는 새 stage 성공 전까지 보류한다.
+- 현재 단계: C0·S0와 rev25 E018 Matrix Gate01 `27/27`까지 통과했다. rev26 full300은 학습을 완료했지만 hard-joint-limit으로 기각됐고, rev28·rev29·rev30의 50-iteration safety smoke도 각각 `4/50`, `1/50`, `4/50`으로 기각됐다. rev31 E024는 GPU 진단을 실행했다. 무학습 probe는 scale `0.60`에서 reset calf `-2.37 rad`가 도달 불가(오차 `0.0808361 rad`)임을 live limit으로 확인했고, training attribution은 hard-limit `4/50`을 재현하며 사건 4건이 모두 prone 자세 뒷다리 calf의 lower side에서, 토크가 반대 방향으로 최대 `23.5 N·m` 포화한 상태의 접촉 역구동으로 발생함을 기록했다.
+- 현재 한계: 정식 판정은 `policy qualification=false`, `recovery success=not_measured`다. rev31은 원인 귀속 진단이지 해결이 아니며, 사건이 reset 부근이 아니어서 `-2.28 rad` calf reset 후보는 사전등록 조건에 따라 열지 않았다. Garden·포트폴리오 production 발행과 새 동작 미디어는 qualification 또는 새 stage 성공 전까지 보류한다.
 
 ## 작업 순번
 
@@ -18,7 +18,7 @@
 | `G009-2` | `S0` | 6개 경사 × 4개 방위 analytic gate | `24/24` 통과 |
 | `G009-3` | `S0` | collision mesh, material, support-normal reset의 Isaac runtime readback | 완료 |
 | `G009-4` | `S0` | 5°·15°·25° 동일 조건 headless 재생 | 완료, 25°는 실패 경계 |
-| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO와 선행 안전·관측 진단 | rev26 full300·rev28~30 기각, rev31 진단 구현·CPU 검증 완료, GPU 미실행, qualification false |
+| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO와 선행 안전·관측 진단 | rev26 full300·rev28~30 기각, rev31 GPU 진단 완료(prone 뒷다리 calf 접촉 역구동 귀속), qualification false |
 | `G009-6` | `S1-low` | 5°·10° 횡경사 WALK PPO | R0·calibration 뒤 실행 |
 
 이후 `S1-high`, 외란, residual terrain, 발별·공간 마찰, 경사 RECOVER와 link-mass를 순차적으로 연다. 전체 stage 순서는 [다음 학습과 검증 순서](#다음-학습과-검증-순서)에 있다.
@@ -1945,6 +1945,14 @@ rev30에서 soft-limit factor `0.9`와 action scale `0.60`을 곱한 effective t
 
 rev30 raw report SHA-256은 `7fd14f3e8c0669e725bce733392bbf8bf5c1cf2f77b6e4b2f1496567a46d8889`, rejection synthesis SHA-256은 `9f3ec0594b120f60c7980b82dbb045615e284d4607d788033997f137786687d0`, checkpoint SHA-256은 `01e9eb6b10a32c56386a29c97fd429b51d1c5809f3637498860226f7527a95ea`다. 프로세스와 GPU 보호는 통과했지만 safety qualification은 실패했다는 경계를 유지한다.
 
+### rev31 E024 실행 결과: prone 뒷다리 calf의 접촉 역구동으로 귀속했다
+
+2026-09-09에 E024의 GPU 실행을 마쳤다. 무학습 probe는 live PhysX calf hard limit `[-2.7227001190185547, -0.8377599120140076] rad`를 읽어 scale `0.70`에서는 reset `-2.37 rad` hold가 가능하지만(`1.19e-07 rad` 오차) scale `0.65`는 `0.0384250 rad`, 현재 scale `0.60`은 `0.0808361 rad` 오차로 도달할 수 없고 8개 환경 전부에서 네 calf가 saturate함을 확인했다. 나머지 8개 진단 check는 통과했고 hard-limit·numeric-invalid termination은 `0`이었다.
+
+training attribution은 clean source에서 `1024 env × 24 steps × 50 iterations`를 실행해 hard-limit `4/50`을 재현했고, 사건 `4`건을 누락 없이 기록했다. 네 건 모두 pose `prone`, limit side `lower`, 관절은 뒷다리 calf(`RR` 3건, `RL` 1건)였다. 각 사건에서 PD target은 하한보다 `0.78~1.06 rad` 위에 있었고 적용 토크는 하한에서 멀어지는 방향으로 `22.13~23.50 N·m`(세 건은 actuator 상한 `23.5 N·m` 포화)였는데도 관절이 하한을 `0.0116~0.0168 rad` 넘었으며, 같은 순간 발 접촉력은 `2.99~4.47 BW`였다.
+
+따라서 이 위반은 정책이 관절 한계 밖을 명령한 결과가 아니라 최대 토크로 저항하는 중의 접촉 역구동이다. 사건 시점은 episode step `26~88`(control dt `0.02s` 기준 `0.52~1.76s`)로 reset 직후가 아니므로, 사전등록이 `reset 부근 재현`을 조건으로 걸었던 `-2.28 rad` 후보 probe는 열지 않았다. 상세 수치와 재현 명령은 `RUN_NOTES.md`의 E024-P1·E024-T1·E024-T2 항목에 있다.
+
 ### rev31 E024: 실행 전 계측을 준비하고 중단했다
 
 rev31은 action scale을 더 낮추는 실험이 아니다. 현재 scale `0.60`과 calf reset `-2.37 rad`를 유지한 채 live action reachability와 학습 중 실제 hard-limit termination을 같은 source에 귀속하는 진단이다. 저장된 rev27 limit로 계산하면 scale `0.60`에서 reset calf를 그대로 유지할 수 있는 lower target은 약 `-2.28916 rad`라서 `-2.37 rad`와 약 `0.08084 rad` 차이가 난다. 그러나 EMA 초기 상태와 접촉 동역학 때문에 이 계산만으로 위반 원인을 확정하지 않는다.
@@ -1980,7 +1988,7 @@ G009를 포트폴리오에 넣을 때 핵심은 “Isaac Sim에서 로봇을 걸
 
 rev24의 첫 1024 diagnostic은 checkpoint까지 생성되고 wrapper run-health가 PASS했지만 aggregate source-bundle 정렬 불일치로 canonical FAIL 처리했다. 그 결과는 기각 원인 분석용으로만 보존했다. 정렬 수정 뒤에는 새 실행 ID·새 report·새 checkpoint로 1024와 2048을 다시 수행해 canonical PASS를 얻었다. 두 계보를 합치거나 첫 실행을 사후 승격하지 않는다. rev25 Matrix Gate01도 pre-App import 실패와 retry01 missing-telemetry 실패를 별도 report로 보존하고, before-close lifecycle 수정이 반영된 clean retry02만 E018 PASS로 승인했다. source의 raw authority는 world-frame `[N,19,3]`이고 policy에서만 base-frame 회전, nominal body-weight 정규화, `tanh` bound를 적용해 `57D`로 편다. 이 projection은 actor `83D` 뒤와 critic의 uncorrupted actor prefix에 모두 들어가므로 입력은 각각 `140D/164D`다.
 
-rev26 이후에는 full300 안전 기각, rev27 prone calf 귀속, rev28 entropy 단일 변수 기각, rev29·rev30 action-scale 단일 변수 기각까지가 추가 증거다. rev31은 원인 귀속용 코드와 사전등록만 준비했고 GPU 결과는 아직 없다. 이 계보는 실패 원인 분리와 검증 절차로는 공개할 수 있지만, 복구 정책 성공이나 qualification 완료로 소개하지 않는다.
+rev26 이후에는 full300 안전 기각, rev27 prone calf 귀속, rev28 entropy 단일 변수 기각, rev29·rev30 action-scale 단일 변수 기각, rev31 GPU 원인 귀속까지가 추가 증거다. rev31은 위반 순간의 명령이 이미 반대 방향으로 포화해 있었음을 보여 명령 축소 계열 개입이 왜 실패했는지 설명한다. 이 계보는 실패 원인 분리와 검증 절차로는 공개할 수 있지만, 복구 정책 성공이나 qualification 완료로 소개하지 않는다.
 
 ## 실물 로봇은 현재 계획에서 제외한다
 
