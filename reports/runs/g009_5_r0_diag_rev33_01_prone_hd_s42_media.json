@@ -4,23 +4,23 @@
   "diagnostic_only": true,
   "qualification_eligible": false,
   "capture": {
-    "path": "reports/runs/g009_5_r0_diag_rev32_01_prone_hd_s42.json",
-    "sha256": "ffa981d24bec321d9c6686b51e3401cfbc917c37b0de263e895e705ba1d2beda"
+    "path": "reports/runs/g009_5_r0_diag_rev33_01_prone_hd_s42.json",
+    "sha256": "448ac52517c9e05c31a149f83b6bafc68a7f880802e6162c522c769939e42d4a"
   },
   "quantitative_report": {
-    "path": "reports/runs/go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910.json",
-    "sha256": "7312ecd32d8325d3a0857efab5389e827eb083f2587484799963ca2e662110e5",
+    "path": "reports/runs/go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931.json",
+    "sha256": "465d00a5c1e3221279fe56ed2f39897c2e62350d61767eef6e9fb78791efaf8e",
     "scope": "training safety telemetry, not recovery-rate evaluation"
   },
   "training_intervention": {
-    "path": "reports/runs/go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910_intervention.json",
-    "sha256": "b057abcfc5cdcffc1d89e973818f3edbac61d16f747a06a1459c2fa04bfb7823",
-    "protocol": "g009_r0_rev32_rear_calf_damping_smoke_v1"
+    "path": "reports/runs/go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931_intervention.json",
+    "sha256": "e953ef8a080f98ca66cb6d732a4bbb589558bf903a624d128f7c16b1b66b2a17",
+    "protocol": "g009_r0_rev33_front_calf_damping_smoke_v1"
   },
   "local_video": {
-    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev32_01_prone_hd_s42.mp4",
-    "sha256": "9afa1d98cc7a996c20fba901d94a3e104ac4fd9f03ebbd5806c175806af79237",
-    "bytes": 2514102
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev33_01_prone_hd_s42.mp4",
+    "sha256": "b42f36066bb5362b1caae3e0fd240a319afd3438bbe60100c01bba99547ab07e",
+    "bytes": 2683379
   },
   "source_video_probe": {
     "programs": [],
@@ -38,8 +38,8 @@
     }
   },
   "gif": {
-    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev32_01_prone_hd_s42.gif",
-    "sha256": "3f304bb86e5bddf48a14875ecc19665436ae66a5df1ba3e4b036665ce70695ce",
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev33_01_prone_hd_s42.gif",
+    "sha256": "fe290610fd00373e24025049c429c9985177be3dea13a55c923ab3bc000fea40",
     "encoding": {
       "actual_gif_fps": 15.0,
       "gif_frame_count": 60,
@@ -47,7 +47,7 @@
       "maximum_frame_duration_ms": 70.0,
       "width": 960,
       "height": 540,
-      "bytes": 8846793,
+      "bytes": 9224505,
       "source_video_fps": 30,
       "target_gif_fps": 15,
       "media_kind": "camera",
@@ -65,9 +65,9 @@
     }
   },
   "png": {
-    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev32_01_prone_hd_s42_still.png",
-    "sha256": "f7c8cd0291ebb8ef3d8f29b181bd18caf2824bc043f80c23e78fb89db97b02cc",
-    "bytes": 1039634
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev33_01_prone_hd_s42_still.png",
+    "sha256": "9735e937bf99384932248eea5d7f5be8f489388973fb091dd6734e0da227eaa5",
+    "bytes": 1039601
   },
-  "builder_source_sha256": "672447c404951d4066da3db6fd8140a04508678e5495e737ceee3355434220f2"
+  "builder_source_sha256": "a3e0163584214832143b14bf9966adedf307b2d67a2cb1f7a1f98541409fbf69"
 }

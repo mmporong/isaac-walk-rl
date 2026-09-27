@@ -89,10 +89,12 @@ G008-1 command smoke -> G008-2 command PPO
 | `G009-2` | 6개 경사 × 4개 방위 analytic gate (`S0`) | 지형 검증 | `24/24` 통과 |
 | `G009-3` | collision mesh·마찰·support-normal reset (`S0`) | Isaac runtime 검증 | 완료 |
 | `G009-4` | 5°·15°·25° 동일 조건 재생 (`S0`) | 시각 증거 | 완료, 25°는 실패 경계 |
-| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전·관측 진단 | rev25 Matrix Gate01 `27/27` PASS; rev26 full300·rev28·rev29·rev30 안전 기각; rev31 reset reachability·training-time 관절 attribution 구현·CPU 검증 완료, GPU 미실행, qualification false |
+| `G009-5` | 네 전복 자세의 평지 RECOVER (`R0`) | 강화학습·안전·관측 진단 | rev25 Matrix Gate01 `27/27` PASS; rev26 full300 기각; rev31 GPU 귀속 완료; rev32·33 감쇠 비교도 안전 기각, 1080p 진단 영상 확보, qualification false |
 | `G009-6` | 5°·10° 횡경사 WALK (`S1-low`) | 다음 강화학습 | R0·calibration 뒤 실행 |
 
-G008의 상세 번호표는 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md), G009의 전체 후속 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에서 이어집니다. rev24 처리량 재현 지점은 [`docs/G009_REV24_GPU_THROUGHPUT_CHECKPOINT.md`](docs/G009_REV24_GPU_THROUGHPUT_CHECKPOINT.md), 최신 중단 위치와 실행 순서는 [`RUN_NOTES.md`](RUN_NOTES.md)의 rev31 절에 고정했습니다.
+G008의 상세 번호표는 [`docs/G008_COMMAND_FRICTION_LINK_MASS.md`](docs/G008_COMMAND_FRICTION_LINK_MASS.md), G009의 후속 순서는 [`docs/G009_MOUNTAIN_SLOPE_RECOVERY.md`](docs/G009_MOUNTAIN_SLOPE_RECOVERY.md)에서 확인합니다. rev24 처리량 재현 지점은 [`docs/G009_REV24_GPU_THROUGHPUT_CHECKPOINT.md`](docs/G009_REV24_GPU_THROUGHPUT_CHECKPOINT.md), 최신 실행 기록은 [`RUN_NOTES.md`](RUN_NOTES.md)의 2026-09-27 rev32·33 절에 있습니다. 실물 제작은 범위에서 제외했습니다.
+
+이번 감쇠 비교는 복구 성공 사례가 아닙니다. 관절 한계 위반이 남아 장기 학습을 열지 않았습니다. [E025 뒷다리 감쇠 GIF](docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev32_01_prone_hd_s42.gif)와 [E026 전체 calf 감쇠 GIF](docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev33_01_prone_hd_s42.gif)는 `DIAGNOSTIC / NOT QUALIFIED`로 표시합니다. 원본 MP4는 로컬에만 보관하며 두 단계 모두 1080p·30fps로 촬영했습니다.
 
 ## 저장소 경계
 

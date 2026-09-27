@@ -1,5 +1,6 @@
 {
-  "schema_version": "g009.r0.rev32.hd_diagnostic.v1",
+  "schema_version": "g009.r0.damping.hd_diagnostic.v1",
+  "revision": "rev33",
   "status": "diagnostic_complete",
   "diagnostic_only": true,
   "qualification_eligible": false,
@@ -14,12 +15,17 @@
   "initial_pose_xy_and_yaw": "zero",
   "training_pose_curriculum": "prone only in first 50 iterations",
   "training_report": {
-    "path": "reports/runs/go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910.json",
-    "sha256": "7312ecd32d8325d3a0857efab5389e827eb083f2587484799963ca2e662110e5"
+    "path": "reports/runs/go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931.json",
+    "sha256": "465d00a5c1e3221279fe56ed2f39897c2e62350d61767eef6e9fb78791efaf8e"
+  },
+  "training_intervention": {
+    "path": "reports/runs/go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931_intervention.json",
+    "sha256": "e953ef8a080f98ca66cb6d732a4bbb589558bf903a624d128f7c16b1b66b2a17",
+    "protocol": "g009_r0_rev33_front_calf_damping_smoke_v1"
   },
   "checkpoint": {
-    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-27_09-09-11_go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910\\model_49.pt",
-    "sha256": "a5edc67a2369f0005c6c89dea4473cc64691f0c0fce912d868bad832d480d34d"
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\rsl_rl\\g009_recover_r0\\2026-09-27_09-27-12_go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931\\model_49.pt",
+    "sha256": "129dcf0e99c3b7a2037405be318a3a9e7c42e7474aaf2dbebf0583262c6cc57a"
   },
   "actuator_before": {
     "joint_names": [
@@ -45,8 +51,8 @@
       "FR_thigh_joint": 0.5,
       "RL_thigh_joint": 0.5,
       "RR_thigh_joint": 0.5,
-      "FL_calf_joint": 0.5,
-      "FR_calf_joint": 0.5,
+      "FL_calf_joint": 1.0,
+      "FR_calf_joint": 1.0,
       "RL_calf_joint": 1.0,
       "RR_calf_joint": 1.0
     },
@@ -104,8 +110,8 @@
       "FR_thigh_joint": 0.5,
       "RL_thigh_joint": 0.5,
       "RR_thigh_joint": 0.5,
-      "FL_calf_joint": 0.5,
-      "FR_calf_joint": 0.5,
+      "FL_calf_joint": 1.0,
+      "FR_calf_joint": 1.0,
       "RL_calf_joint": 1.0,
       "RR_calf_joint": 1.0
     },
@@ -232,7 +238,7 @@
     "terrain_dynamic_friction": 0.6,
     "friction_combine_mode": "multiply"
   },
-  "source_commit": "8486cf9bae13d24994f57d42d650e476a1a12677",
+  "source_commit": "336118c494585c162ba7fcf76b53ed6c13d04c3e",
   "camera": {
     "resolution": [
       1920,
@@ -514,9 +520,9 @@
     }
   },
   "local_video": {
-    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev32_01_prone_hd_s42.mp4",
-    "sha256": "9afa1d98cc7a996c20fba901d94a3e104ac4fd9f03ebbd5806c175806af79237",
-    "bytes": 2514102
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev33_01_prone_hd_s42.mp4",
+    "sha256": "b42f36066bb5362b1caae3e0fd240a319afd3438bbe60100c01bba99547ab07e",
+    "bytes": 2683379
   },
-  "recorder_source_sha256": "0e9290a60d8b3eefdebb2de4f8fcd8c1d94552dc1d45cbfcd69c88850679ff43"
+  "recorder_source_sha256": "acda9c5e9fb556b665f9e96827553abb679243b64386ab6ab79d84ef6c100965"
 }

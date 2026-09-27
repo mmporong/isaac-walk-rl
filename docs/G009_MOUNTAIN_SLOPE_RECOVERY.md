@@ -1,12 +1,13 @@
 # G009 산 비탈 횡단·전복 복구 강화학습
 
-- 기준일: 2026-09-08
+- 기준일: 2026-09-27
 - 시뮬레이터: Isaac Sim 4.5.0
 - 학습 프레임워크: Isaac Lab v2.1.1 (`90b79bb2d44feb8d833f260f2bf37da3487180ba`)
 - 강화학습: RSL-RL 2.3.3 PPO
 - 로봇: Isaac Lab 내장 Unitree Go2
-- 현재 단계: C0·S0와 rev25 E018 Matrix Gate01 `27/27`까지 통과했다. rev26 full300은 학습을 완료했지만 hard-joint-limit으로 기각됐고, rev28·rev29·rev30의 50-iteration safety smoke도 각각 `4/50`, `1/50`, `4/50`으로 기각됐다. rev31 E024는 GPU 진단을 실행했다. 무학습 probe는 scale `0.60`에서 reset calf `-2.37 rad`가 도달 불가(오차 `0.0808361 rad`)임을 live limit으로 확인했고, training attribution은 hard-limit `4/50`을 재현하며 사건 4건이 모두 prone 자세 뒷다리 calf의 lower side에서, 토크가 반대 방향으로 최대 `23.5 N·m` 포화한 상태의 접촉 역구동으로 발생함을 기록했다.
-- 현재 한계: 정식 판정은 `policy qualification=false`, `recovery success=not_measured`다. rev31은 원인 귀속 진단이지 해결이 아니며, 사건이 reset 부근이 아니어서 `-2.28 rad` calf reset 후보는 사전등록 조건에 따라 열지 않았다. Garden·포트폴리오 production 발행과 새 동작 미디어는 qualification 또는 새 stage 성공 전까지 보류한다.
+- 선행 단계: C0·S0와 rev25 E018 Matrix Gate01 `27/27`까지 통과했다. rev26 full300은 학습을 완료했지만 hard-joint-limit으로 기각됐고, rev28·rev29·rev30의50회 safety smoke도 각각4/50·1/50·4/50으로 기각됐다. rev31 GPU probe는 현재action scale에서 calf reset hold가 도달 불가임을 확인했다. training attribution의4건은 prone 뒷다리calf lower-side에서 복원 방향토크와 발접촉이 함께 관측된 사건이다. 접촉 역구동은 이 데이터의 해석이며, 접촉과solver를 분리한 인과 검증은 아직 없다.
+- 최신 실행: rev32 E025는 rear calf Kd만0.5→1.0으로, rev33 E026는 그 상태에서 front calf Kd만0.5→1.0으로 바꿔 각각 GPU PPO50회를 실행했다. hard-limit 실제 사건은 각각2건·1건으로 안전 기준을 통과하지 못했다. 두 단계의 native1080p30fps 진단 영상은 촬영했다. 자세한 비교와 다음 실험은 마지막의 2026-09-27 절에 있다.
+- 현재 한계: 정식 판정은 `policy qualification=false`, `recovery success=not_measured`다. 이 success는 다중환경 정식 성공률을 뜻한다. seed42 prone 진단 재생은 두 후보 모두8초 timeout이었다. rev31~33은 해결 완료가 아니며 reset 후보-2.28rad와 후속 full300을 열지 않았다. 새 사용자 요청에 따라 진단 미디어는 촬영하되 성공 사례와 구분한다. Garden·포트폴리오 production 발행은 보류한다.
 
 ## 작업 순번
 
@@ -18,7 +19,7 @@
 | `G009-2` | `S0` | 6개 경사 × 4개 방위 analytic gate | `24/24` 통과 |
 | `G009-3` | `S0` | collision mesh, material, support-normal reset의 Isaac runtime readback | 완료 |
 | `G009-4` | `S0` | 5°·15°·25° 동일 조건 headless 재생 | 완료, 25°는 실패 경계 |
-| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO와 선행 안전·관측 진단 | rev26 full300·rev28~30 기각, rev31 GPU 진단 완료(prone 뒷다리 calf 접촉 역구동 귀속), qualification false |
+| `G009-5` | `R0` | 평지 네 전복 자세 RECOVER PPO와 선행 안전·관측 진단 | rev26 full300·rev28~30 기각, rev31 GPU 귀속·rev32/33 감쇠 비교와1080p진단 촬영 완료, qualification false |
 | `G009-6` | `S1-low` | 5°·10° 횡경사 WALK PPO | R0·calibration 뒤 실행 |
 
 이후 `S1-high`, 외란, residual terrain, 발별·공간 마찰, 경사 RECOVER와 link-mass를 순차적으로 연다. 전체 stage 순서는 [다음 학습과 검증 순서](#다음-학습과-검증-순서)에 있다.
@@ -2098,3 +2099,58 @@ rev26 이후에는 full300 안전 기각, rev27 prone calf 귀속, rev28 entropy
 - [Policy Invariance Under Reward Transformations](https://ai.stanford.edu/~ang/papers/shaping-icml99.pdf): `γΦ(s')-Φ(s)` 형태의 잠재 보상으로 왕복 진동 보상 해킹을 막는 이론 근거로 사용했다.
 
 이 프로젝트는 위 논문의 전체 시스템을 재현한 것이 아니다. 연구에서 확인한 원칙을 Isaac Sim 4.5·Isaac Lab 2.1.1의 로컬 API와 현재 Go2 실험 계약에 맞춰 적용한다.
+
+## 2026-09-27: 감쇠 비교와 고화질 진단 증거
+
+실물 제작 없이 시뮬레이션으로 검증한다. 이번 실행은 PPO가 돌아갔다는 사실, 제어 gain이 실제로 반영됐다는 사실, 복구 성능을 구분해 남긴다. 두 후보 모두 관절 안전 기준을 통과하지 못했으므로 복구 성공 성과로 소개하지 않는다.
+
+### 같은 조건에서 변경한 것
+
+공식 Isaac Lab2.1.1 trainer와 RSL-RL2.3.3 PPO를 사용했다. 각 실행은 scratch, seed42, headless cuda:0, 1024환경, 환경당 rollout24step, PPO iteration50회다. iteration마다 epoch5회와 mini-batch4개를 처리해 각1,228,800 transitions·1,000 optimizer updates를 수행했다. epoch50회라는 뜻은 아니다.
+
+actor140차원·critic164차원, joint action scale0.60·EMA0.2, entropy0, initial noise0.5, calf reset-2.37rad, physics200Hz·control50Hz, Kp25N·m/rad, motor effort23.5N·m, solver8/0, reward·종료 기준은 유지했다. 관절 한계나 허용 초과각은 넓히지 않았다. 매 실험은 GPU lease로 직렬 실행했다.
+
+| 증거 번호 | 변경 변수 | hard-limit 로그 구간 / 전체 | 실제 종료 사건 | 위반 관절 | maximum excess(rad) | 판정 |
+| --- | --- | --- | --- | --- | --- | --- |
+| E024(rev31) | baseline: 모든Kd0.5 | 4/50 | 4 | RL1·RR3 calf | 0.0168452 | 기각 |
+| E025(rev32) | rear calf 그룹Kd0.5→1.0 | 2/50 | 2 | FR calf2 | 0.0139189 | 기각 |
+| E026(rev33) | front calf 그룹Kd0.5→1.0, rear1.0유지 | 1/50 | 1 | RL calf1 | 0.0107293 | 기각 |
+
+이는 동일 seed의 탐색 비교다. 사건 수가4→2→1로 줄었다고 성공률 개선이나 일반화 효과가 입증된 것은 아니다. 학습 궤적도 gain 변경 뒤 달라지므로, 위반 관절이 바뀐 것을 곧바로 특정 다리의 해결·악화로 해석하지 않는다. numeric-invalid는 세 실행 모두0이지만 hard-limit zero-event 기준은 충족하지 못했다.
+
+| 실행 | wall(s) | 평균steps/s | peakVRAM(MiB) | peakGPU온도(°C) | finalmeanreward |
+| --- | --- | --- | --- | --- | --- |
+| E025 | 248.860 | 6,662.58 | 4,133 | 54 | -6.68 |
+| E026 | 233.997 | 6,447.66 | 4,259 | 55 | -11.67 |
+
+GPU 보호는 두 실행 모두 통과했고, CUDA OOM·device lost·driver reset 없이 프로세스 종료와 VRAM 회복을 확인했다. 두 후보의 모든1024환경에서 gain·Kp·effort가 실행 전후 동일함을 readback으로 확인했다. reward가 더 낮아진 E026을 E025보다 우수한 정책이라고 부르지 않는다.
+
+### 역학적 해석과 한계
+
+[공식 actuator 설명](https://isaac-sim.github.io/IsaacLab/v2.1.1/source/overview/core-concepts/actuators.html)의 명시적 PD 계산은 `Kp(q_des-q)+Kd(qdot_des-qdot)` 뒤 모터의 속도 의존 effort clipping을 적용한다. 따라서 Kd 증가는 포화 이전 접근 속도를 줄일 수 있는 가설이며, 포화한 모터의 최대 토크를 늘리지 않는다.
+
+E026의 남은 사건은 prone RL calf lower-side, episode step202였다. 실제q=-2.7334294rad, 하한=-2.7227001rad, target=-1.6769111rad, appliedtorque=+23.5N·m, qdot=+0.3309273rad/s, 발 접촉=3.30887BW였다. 명령과 토크는 하한에서 벗어나는 방향인데 위치는 한계 밖이다. 이는 접촉·구속조건·모터 포화와 관련된 문제를 의심할 근거지만, 한 시점 관측만으로 어느 요인이 원인인지 확정하지 않는다. 특히 그 순간qdot은 양수여서 이미 되돌아오는 과정일 가능성도 있다.
+
+rev13 velocity iteration0→1과 rev15 position8→16에는 접촉력 기준 기각 이력이 있다. 반복 PPO나 solver 숫자 증가를 자동 해결책으로 사용하지 않는다. 감쇠 계열도 이번 두 개입에서 끝내고, 사건 직전 시계열을 확보한 뒤 다른 가설을 선택한다.
+
+### 영상 번호와 근거
+
+| 미디어 번호 | 단계 | 원본 | GIF | 결과 |
+| --- | --- | --- | --- | --- |
+| E025.1 | rear calf 감쇠 | local1080p30fps·240frames·8s | [진단GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev32_01_prone_hd_s42.gif) | prone1회 timeout, stable_success=false |
+| E026.1 | front calf 감쇠 확장 | local1080p30fps·240frames·8s | [진단GIF](media/g009/R0/diagnostic/g009_5_r0_diag_rev33_01_prone_hd_s42.gif) | prone1회 timeout, stable_success=false |
+
+두 원본은 `%USERPROFILE%\IsaacLab\logs\visual_evidence\g009\R0\diagnostic\`의 `g009_5_r0_diag_rev32_01_prone_hd_s42.mp4`, `g009_5_r0_diag_rev33_01_prone_hd_s42.mp4`다. 저장소에는 MP4를 넣지 않는다. 카메라 상태는50Hz control 상태에서30Hz로 샘플링하며 복사 프레임으로 FPS를 부풀리지 않는다. 자동reset 장면은 제외한다. GIF는 실제15fps·최대frame70ms이며 용량에 맞춰 길이·해상도 순으로 줄인다. 마지막 상태 PNG도 보존한다.
+
+- [E025 학습 report](../reports/runs/go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910.json), [사건 귀속](../reports/runs/go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910_attribution.json), [gain readback](../reports/runs/go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910_intervention.json)
+- [E026 학습 report](../reports/runs/go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931.json), [사건 귀속](../reports/runs/go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931_attribution.json), [gain readback](../reports/runs/go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931_intervention.json)
+- [E025 촬영·hash](../reports/runs/g009_5_r0_diag_rev32_01_prone_hd_s42.json), [GIF·PNG sidecar](../reports/runs/g009_5_r0_diag_rev32_01_prone_hd_s42_media.json)
+- [E026 촬영·hash](../reports/runs/g009_5_r0_diag_rev33_01_prone_hd_s42.json), [GIF·PNG sidecar](../reports/runs/g009_5_r0_diag_rev33_01_prone_hd_s42_media.json)
+
+### 다음 작업과 포트폴리오 완료선
+
+1. 다음 최소 작업은 사건 이전의 짧은 physics-substep 시계열 진단이다. 위치·속도·desired target·computed/applied effort·동일 다리 접촉력을 같은 시계로 기록해 하한 접근 시점과23.5N·m 포화 순서를 구분한다. 현재계측은 종료 시점만 있으므로 아직 이 진단을 수행한 것은 아니다.
+2. 그 결과로 reset/target geometry, contact-aware 비용, actuator/constraint 처리 가운데 한 변수만 사전등록한다. reward·관절 한계·모터 strength를 한꺼번에 바꾸지 않는다. 기존gain변경·기각된solver를 반복하지 않는다.
+3. 새로운50회 smoke가 안전 기준을 통과하면 별도로300회 학습과 네 자세 정량 평가를 등록한다. 자세별256환경, 성공률80%이상·median복구4초이하·안전종료0 기준은 유지한다. 과거rev26 qualification 자격을 새candidate에 붙이지 않는다.
+4. 대표policy가 통과한 뒤 seed42/43/44 반복,5°/10° 횡경사,held-out마찰 또는 외란 하나로 확장한다. 각 단계는 원본영상·GIF·PNG·수치report를 새로 남긴다. 심한경사·복합지형은 이 최소완료선 이후다.
+5. 포트폴리오 본문은 이미 검증된 학습·평가 결과를 중심으로 구성하고, G009는 문제분리와 기각 근거의 보조 사례로 둔다. 전복복구 성공을 대표성과로 내세우려면3·4의 검증이 더 필요하다. 이번 결과만으로 Garden 성공 글이나 portfolio production을 발행하지 않는다.

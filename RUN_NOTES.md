@@ -872,3 +872,41 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 - rev33은 앞 calf 그룹 FL/FR Kd만0.5→1.0으로 바꾸고 rear Kd1.0을 유지한다. 나머지 조건·학습 budget·안전 gate는 rev32와 같다. 위반이 남은 FR 계측에 근거한 단일 그룹 개입이며, 한도를 넓히거나 모터 토크를 올리지 않는다. 실패하면 감쇠 계열 반복을 멈추고 새로운 역학·학습 가설을 사전등록한다.
 - rev13의 solver velocity0→1과 rev15의 position8→16은 이미 접촉력 기준으로 기각된 이력이라 재학습으로 반복하지 않는다. gain 변경도23.5N·m 포화 이후 토크 여유를 만들지 않는다. 후속 full300·네 자세 정량 평가·독립 seed·경사·held-out perturbation은 각각 별도 gate로 남는다.
 - 새 capture identity 검증은 qualification-disabled, canonical run/report, exact source manifest, pre/post snapshot, checkpoint hash, training gain matrix와 runtime을 검사한다. 작성 뒤 별도 코드 리뷰에서 지적된 binding 공백을 보완하고 음성 회귀를 추가했다. CPU 회귀29passed, compile PASS, repository validator PASS다.
+
+#### 2026-09-27 rev33 E026 결과·HD 촬영 완료와 재개 지점
+
+- clean source `0cd6acd`의 `go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931`은1024환경·rollout24·PPO50iterations·epoch5·mini-batch4·seed42·headlesscuda:0으로1,228,800transitions와1,000optimizer updates를 완료했다. exit0, iteration49/50, wall233.997s, 평균6,447.66steps/s, peakVRAM4,259MiB, peakGPU55%·55°C다. GPU 보호PASS, 모든자식 종료·VRAM회복을 확인했다.
+- hard-limit nonzero scalar sample1/50, numeric0/50로 gateFAIL했다. 실제 사건은1건, proneRL_calf lower-side, iteration40·episode202·env109다. q=-2.7334294319rad, lower=-2.7227001190rad, excess0.0107293129rad, target=-1.6769111156rad, qdot=+0.3309272528rad/s, appliedtorque=23.5N·m, foot/nonfoot contact3.3088708612/0.7437773682BW다. before/after gainreadback과 sourcehash는 동일했고 계측오류·overflow는 없었다.
+- finalmeanreward는rev32 -6.68, rev33 -11.67이다. safety위반1건으로 줄었다는 사실을 더우수한정책·복구성공률로 바꾸지 않는다. 같은seed의2후보만 비교했고 정식다중환경 recovery success는not_measured, qualification=false다.
+- rev33 HD 촬영source는`336118c`다. native1920×1080, H264CRF18, 30fps,240frames,8.000s로rev32와 같은카메라·seed·prone조건을 재생했다. 결과는time_out·stable_success=false다. 두MP4의SHA256은rev32 `9afa1d98cc7a996c20fba901d94a3e104ac4fd9f03ebbd5806c175806af79237`, rev33 `b42f36066bb5362b1caae3e0fd240a319afd3438bbe60100c01bba99547ab07e`다.
+- E025.1/E026.1 GIF는실측15fps·60frames·4s·maximumframe70ms·960×540·palette256이다. 용량은8,846,793/9,224,505bytes로각10MiB미만이다. 길이→해상도압축만적용했고FPS를낮추지않았다. laststatePNG는1,039,634/1,039,601bytes다. 각sidecar에MP4·training·capture·gain·GIF·PNGhash와압축단계를연결했다. 기존rev32캡처도보강된bindingvalidator로소급검증했다.
+- 별도code-reviewer의두차례발견을수정했다. scratch/headless/noHydra/49of50/zero-event-gate요구와exactsource·gainmatrix를검사하고builder도같은validator를사용한다. 마지막한정재리뷰에서두결함해소를확인했다. LSP가없으므로그형식적승인까지얻었다고하지않는다. 현재target회귀39passed다.
+- 감쇠개입은여기서기각·동결한다. 다음작업은사건전physics-substep의짧은시계열(q/qdot/target/computed·appliedeffort/같은다리접촉)을확보해접근속도·토크포화·한계복원순서를분리하는진단이다. 새PPO나gain추가증가는시계열과새단일변수가설을등록한뒤에만연다. full300·네자세qualification·seed반복·5°/10°경사·held-out마찰/외란은미실행이다.
+- Garden/portfolio production은발행하지않는다. README현재상태의rev31 GPU미실행표현을수정하고E025/E026숫자와실패label을연결했다. 실물제작은제외한다. GPUlease는마지막HD촬영정상종료후available로반환했고공유gpu-ready.json에완료시각·exit0이기록됐다.
+- Git 증거 보존: 새 rev32·33 source/config는 LF로 고정하고 증거 JSON은 `-text`로 기록 바이트를 보존한다. 특히 PowerShell harness의 CRLF를 Git이 LF로 변환하면 sidecar training-report SHA가 깨지므로 기존 raw report도 명시 경로로 다시 스테이징해 실행 당시 바이트를 복원한다. working 파일의 데이터나 기존 SHA는 바꾸지 않는다.
+- 추가 checkout 검증에서 공통 source 7개의 기존 CRLF/LF 혼합 상태를 확인했다. 이 7개도 `-text`로 실행 바이트를 보존해 다시 스테이징하고, 나머지 pure-LF source는 LF로 고정했다. 내용·계수·로직은 바꾸지 않는다. `whitespace=...cr-at-eol`로 CRLF를 정상 줄바꿈으로 처리하면서 공백 검사는 유지한다. Windows Git checkout 변환 뒤에도 rev33의 source 16개 SHA가 일치하는지 별도로 검사한다.
+- 최종 검증: targeted pytest39 PASS, compile PASS, repository validator PASS, cached diff-check PASS. 별도 verifier가 수치·링크·진단 라벨·MP4/GIF 규격·미디어 SHA와 source checkout16/16을 대조해 PASS했다. JSON10개는 인덱스와 실행 파일의 바이트가 같고, 공통 source7개는 줄바꿈을 제외한 내용 차이가0이다. 이것은 증거·구현 검증 PASS이며 정책 qualification PASS가 아니다.
+
+실제학습명령(기존이름은재사용하면덮어쓰기보호로거부됨):
+
+```powershell
+cd "$HOME\worktrees\isaac-walk-rl-g009-r0"
+# 모든실행은 $HOME\CodexSignals\Use-GpuLease.ps1 -Owner G009 안에서 수행했다.
+$binding = @('configs/g009_r0.json','configs/g009_r0_rev33_damping.json',
+ 'scripts/bootstrap_train_g009.py','scripts/bootstrap_train_g009_rev31_attribution.py',
+ 'scripts/bootstrap_train_g009_rev33_damping.py','scripts/g009_r0_rev32.py','scripts/g009_r0_rev33.py',
+ 'scripts/run_training.ps1','src/isaac_walk_g009/agent_cfg.py','src/isaac_walk_g009/recover_env_cfg.py',
+ 'src/isaac_walk_g009/recover_contracts.py','src/isaac_walk_g009/mdp/events.py',
+ 'src/isaac_walk_g009/mdp/recover.py','src/isaac_walk_g009/matrix_gate01.py',
+ 'src/isaac_walk_g009/matrix_observation_adapter.py','src/isaac_walk_g009/registry.py')
+.\scripts\run_training.ps1 -Task Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0 -NumEnvs 1024 `
+ -MaxIterations 50 -Seed 42 -RunName go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931 `
+ -TrainingEntrypointPath "$PWD\scripts\bootstrap_train_g009_rev33_damping.py" `
+ -SourceBindingPaths $binding -RequireZeroTrainingSafetyTerminations
+# 촬영 역시 GPUlease 안에서 수행한다.
+& "$HOME\IsaacLab\_isaac_sim\python.bat" scripts/record_g009_r0_rev32_hd.py `
+ --training-report reports/runs/go2_flat_g009_r0_rev33_front_damping_s42_20260927_0931.json `
+ --revision rev33 --pose prone --headless --device cuda:0
+python scripts/build_g009_r0_damping_hd_media.py `
+ --capture reports/runs/g009_5_r0_diag_rev33_01_prone_hd_s42.json
+```

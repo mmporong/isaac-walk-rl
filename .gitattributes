@@ -35,3 +35,23 @@
 /tests/test_g009_r0_rev23_*.py text eol=lf
 /src/isaac_walk_g009/matrix_observation_adapter.py text eol=lf
 /scripts/validate_rbq_assets.py text eol=lf
+/configs/g009_r0_rev32_*.json text eol=lf
+/configs/g009_r0_rev33_*.json text eol=lf
+/scripts/*g009*rev32*.py text eol=lf
+/scripts/*g009*rev33*.py text eol=lf
+/scripts/build_g009_r0_damping_hd_media.py text eol=lf
+/tests/test_g009_r0_rev32_*.py text eol=lf
+/tests/test_g009_r0_rev33_*.py text eol=lf
+# Preserve measured evidence bytes, including historical CRLF harness reports.
+/reports/runs/*rev32*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/reports/runs/*rev33*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Preserve mixed historical line endings for the executed shared source bytes.
+/configs/g009_r0.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/scripts/bootstrap_train_g009.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/scripts/bootstrap_train_g009_rev31_attribution.py text eol=lf
+/scripts/run_training.ps1 -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/src/isaac_walk_g009/agent_cfg.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/src/isaac_walk_g009/matrix_gate01.py text eol=lf
+/src/isaac_walk_g009/recover_contracts.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/src/isaac_walk_g009/recover_env_cfg.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/src/isaac_walk_g009/registry.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
