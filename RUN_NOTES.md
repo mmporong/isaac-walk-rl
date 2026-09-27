@@ -852,3 +852,12 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 - 사전등록 재개 순서 4번은 `prone calf lower-side가 reset 부근에서 재현될 때만` 후보 `-2.28 rad` 무학습 probe를 실행하도록 정했다. prone calf lower-side는 재현됐지만 사건이 reset 부근이 아니고, target·토크 증거가 reset target range 가설이 아니라 접촉 역구동을 가리키므로 이 조건은 충족되지 않았다. 따라서 `-2.28 rad` 후보 probe와 그 A/B는 열지 않는다.
 - [raw report](reports/runs/go2_flat_g009_r0_rev31_attribution_baseline_retry01_s42_20260909-2233.json) SHA-256은 `ac0dbde040797fc343a7d69e51ea9f58329106a85e3642f612ec0488d65cf874`, [attribution report](reports/runs/go2_flat_g009_r0_rev31_attribution_baseline_retry01_s42_20260909-2233_attribution.json) SHA-256은 `d9b9a902dd2906cfd66285ce333dd589a9ae1187a65ccb667440990e532b0d60`이다.
 - 이 실행은 policy qualification이나 recovery success가 아니다. full300, held-out seed, 새 영상, Garden·포트폴리오 발행은 계속 금지한다. 다음 단계는 명령 범위를 더 좁히는 실험이 아니라, 접촉 하중에서 뒷다리 calf가 하한을 넘지 않게 하는 개입(하한 여유를 두는 reset·target geometry, contact-aware regularization, actuator 강도·solver 조건) 가운데 하나를 단일 변수로 고르는 새 사전등록이다. 어느 후보도 이 진단만으로 채택하지 않는다.
+
+#### 2026-09-27 rev32 E025 뒷다리 calf 감쇠 단일변수 사전등록
+
+- 사용자 요청에 따라 시뮬레이션 포트폴리오 실험을 재개한다. 실물 제작은 제외한다. 현행 정본은 rev31 GPU 계측이며, README의 과거 미실행 표현은 그 당시 상태다.
+- `configs/g009_r0_rev32_damping.json`은 RL/RR calf의 명시적 DC motor PD 감쇠만 `0.5→1.0 N·m·s/rad`로 변경한다. 나머지 열 관절, `Kp=25 N·m/rad`, 토크 한도 `23.5 N·m`, action scale `0.60`, reset, PPO, reward, 성공·안전 기준은 유지한다. canonical 설정과 과거 wrapper는 덮어쓰지 않는다.
+- 공식 v2.1.1 `actuator_pd.py`는 `Kp(q_des-q)+Kd(qdot_des-qdot)`를 계산한 뒤 속도 의존 motor envelope으로 제한한다. 감쇠 증가는 포화 전 접근 속도의 가설이며 포화 상태에서 토크 여유를 늘리지 않는다. rev31의 접촉 동시 관측만으로 접촉과 solver의 인과를 완전히 구분했다고 주장하지 않는다.
+- 첫 GPU budget은 `1024×24×50`, seed42, headless `cuda:0`, PPO epoch5, mini-batch4, `1,228,800 transitions`, `1,000 optimizer updates`다. 모든 환경의 gain·effort readback, hard/numeric 정확히 0, 기존 GPU 보호를 통과해야 후속 full300 사전등록을 연다.
+- 새 사용자 촬영 요청에 따라 각 실험 단계의 진단 영상도 `DIAGNOSTIC / NOT QUALIFIED`로 촬영할 수 있다. 이는 성공 qualification 또는 production 발행을 승인하지 않는다. 원본은 1920×1080 30fps CRF18, GIF는 목표15fps·최소12fps로 검증한다.
+- CPU 검증: rev32·rev31 관절 귀속 테스트 `16 passed`, 두 신규 Python 모듈 compile PASS, 저장소 validator PASS. 실행 결과는 아래에 별도로 기록한다.

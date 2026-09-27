@@ -1,0 +1,52 @@
+{
+  "evidence_id": "G009-5-E025",
+  "protocol": "g009_r0_rev32_rear_calf_damping_smoke_v1",
+  "baseline_report": "reports/runs/go2_flat_g009_r0_rev31_attribution_baseline_retry01_s42_20260909-2233.json",
+  "baseline_attribution": "reports/runs/go2_flat_g009_r0_rev31_attribution_baseline_retry01_s42_20260909-2233_attribution.json",
+  "single_variable": {
+    "name": "rear_calf_pd_damping_n_m_s_rad",
+    "joints": ["RL_calf_joint", "RR_calf_joint"],
+    "baseline": 0.5,
+    "candidate": 1.0
+  },
+  "mechanics_hypothesis": "Higher velocity feedback may reduce approach velocity before torque saturation. It cannot increase available torque once the 23.5 Nm actuator limit is saturated.",
+  "frozen": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "num_envs": 1024,
+    "steps_per_env": 24,
+    "iterations": 50,
+    "seed": 42,
+    "headless": true,
+    "device": "cuda:0",
+    "ppo_epochs": 5,
+    "mini_batches": 4,
+    "transitions": 1228800,
+    "optimizer_updates": 1000,
+    "action_scale": 0.6,
+    "entropy_coef": 0.0,
+    "reset_calf_rad": -2.37,
+    "stiffness_n_m_rad": 25.0,
+    "effort_limit_n_m": 23.5,
+    "solver": [8, 0],
+    "unchanged": "reward, observation, success, hard limits, friction, mass, remaining joint damping"
+  },
+  "acceptance": {
+    "hard_joint_limit_nonzero_scalar_samples": 0,
+    "numeric_invalid_nonzero_scalar_samples": 0,
+    "actuator_readback_stable": true,
+    "gpu_protection_pass": true,
+    "not_recovery_qualification": true
+  },
+  "next_gate": "Only an accepted smoke can open a separately registered full300 and four-pose qualification.",
+  "media": {
+    "local_mp4": "1920x1080, 30 fps, H.264 CRF18; physics-time sampling without repeated frames",
+    "public_gif": "15 fps target, 12 fps minimum, below 10 MiB",
+    "diagnostic_label_required": true,
+    "policy_success_claim_requires_quantitative_gate": true
+  },
+  "sources": [
+    "https://isaac-sim.github.io/IsaacLab/v2.1.0/source/api/lab/isaaclab.actuators.html",
+    "https://github.com/isaac-sim/IsaacLab/blob/v2.1.1/source/isaaclab/isaaclab/actuators/actuator_pd.py",
+    "https://github.com/isaac-sim/IsaacLab/blob/v2.1.1/source/isaaclab_assets/isaaclab_assets/robots/unitree.py"
+  ]
+}
