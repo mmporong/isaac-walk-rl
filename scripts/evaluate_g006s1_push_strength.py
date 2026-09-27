@@ -111,17 +111,19 @@ def main() -> int:
         from isaaclab.app import AppLauncher
 
         app = AppLauncher(args).app
+        # SimulationApp.close() ends the Python process in Isaac Sim 4.5, so the report must be
+        # written before it, exactly as evaluate_push_recovery.main() does.
         try:
             report = EVALUATOR.evaluate(args)
+            report["goal"] = REPORT_GOAL
+            report["experimental_use"] = REPORT_EXPERIMENTAL_USE
+            report["g006s1"] = {"phase": own.phase, **binding}
+            report["runtime"]["started_at_epoch"] = started_at
+            report["runtime"]["finished_at_epoch"] = time.time()
+            EVALUATOR.write_json_atomic(args.output.resolve(), report)
+            print(json.dumps({"status": report["status"], "output": str(args.output.resolve())}), flush=True)
         finally:
             app.close()
-        report["goal"] = REPORT_GOAL
-        report["experimental_use"] = REPORT_EXPERIMENTAL_USE
-        report["g006s1"] = {"phase": own.phase, **binding}
-        report["runtime"]["started_at_epoch"] = started_at
-        report["runtime"]["finished_at_epoch"] = time.time()
-        EVALUATOR.write_json_atomic(args.output.resolve(), report)
-        print(json.dumps({"status": report["status"], "output": str(args.output.resolve())}), flush=True)
         return 0 if report["status"] == "complete" else 1
     except Exception as exc:
         failure = {

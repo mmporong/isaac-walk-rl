@@ -187,3 +187,34 @@ def test_wrapper_preflight_rejects_changed_protocol_and_wrong_checkpoint(tmp_pat
     grid_path.write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(RuntimeError, match="only push_magnitudes_mps"):
         WRAPPER.preflight(contract_path, grid_path, fake_checkpoint, "baseline", 42)
+
+
+def test_wrapper_writes_report_before_simulation_app_close_ends_the_process(tmp_path, monkeypatch):
+    output = tmp_path / "report.json"
+
+    class FakeApp:
+        def close(self):
+            raise SystemExit(0)  # Isaac Sim 4.5 terminates the interpreter here
+
+    class FakeLauncher:
+        def __init__(self, args):
+            self.app = FakeApp()
+
+    fake_isaaclab = ModuleType("isaaclab")
+    fake_app_module = ModuleType("isaaclab.app")
+    fake_app_module.AppLauncher = FakeLauncher
+    monkeypatch.setitem(sys.modules, "isaaclab", fake_isaaclab)
+    monkeypatch.setitem(sys.modules, "isaaclab.app", fake_app_module)
+    args = type("Args", (), {})()
+    args.mode, args.protocol, args.checkpoint, args.variant, args.training_seed, args.output = (
+        "push", tmp_path / "grid.json", tmp_path / "model.pt", "baseline", 42, output
+    )
+    monkeypatch.setattr(WRAPPER.EVALUATOR, "parse_args", lambda: args)
+    monkeypatch.setattr(WRAPPER, "split_args", lambda: type("Own", (), {"sweep_contract": tmp_path / "c.json", "phase": "A1"})())
+    monkeypatch.setattr(WRAPPER, "preflight", lambda *a: {"evaluation_source_bundle_matches_g006": True})
+    monkeypatch.setattr(WRAPPER.EVALUATOR, "evaluate", lambda a: {"status": "complete", "goal": "G006", "runtime": {}})
+    with pytest.raises(SystemExit):
+        WRAPPER.main()
+    written = json.loads(output.read_text(encoding="utf-8"))
+    assert written["goal"] == REPORT_GOAL and written["experimental_use"] == REPORT_EXPERIMENTAL_USE
+    assert written["g006s1"]["phase"] == "A1"
