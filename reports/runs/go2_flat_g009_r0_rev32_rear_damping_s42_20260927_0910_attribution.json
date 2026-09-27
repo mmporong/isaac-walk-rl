@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "protocol": "g009_r0_rev31_training_time_pre_reset_attribution_v1",
+  "status": "training_complete",
+  "diagnostic_only": true,
+  "qualification_eligible": false,
+  "runtime": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "num_envs": 1024,
+    "max_iterations": 50,
+    "seed": 42,
+    "device": "cuda:0",
+    "run_name": "go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910",
+    "headless": true,
+    "rollout_steps_per_iteration": 24,
+    "physics_budget_env_steps": 1228800,
+    "requested_calf_reset_override_rad": null,
+    "actual_cfg_calf_reset_rad": -2.37,
+    "calf_reset_override_applied": false
+  },
+  "actual_environment_cfg": {
+    "task": "Isaac-G009-Recover-Flat-Go2-R0-Matrix-v0",
+    "num_envs": 1024,
+    "seed": 42,
+    "device": "cuda:0",
+    "decimation": 4,
+    "episode_length_s": 8.0,
+    "calf_reset_rad": -2.37
+  },
+  "attribution": {
+    "hard_termination_env_count": 2,
+    "hard_termination_joint_event_count": 2,
+    "hard_termination_by_pose": {
+      "prone": 2
+    },
+    "hard_termination_by_joint": {
+      "FR_calf_joint": 2
+    },
+    "event_sample_cap": 512,
+    "event_sample_count": 2,
+    "event_sample_overflow_count": 0,
+    "event_samples": [
+      {
+        "control_step": 27,
+        "iteration_index_zero_based": 1,
+        "iteration_number_one_based": 2,
+        "episode_step": 397,
+        "env_index": 591,
+        "pose": "prone",
+        "violations": [
+          {
+            "joint_name": "FR_calf_joint",
+            "joint_index": 9,
+            "limit_side": "lower",
+            "hard_limit_excess_rad": 0.013918876647949219,
+            "q_rad": -2.736618995666504,
+            "qdot_rad_s": 2.0294337272644043,
+            "lower_rad": -2.7227001190185547,
+            "upper_rad": -0.8377599120140076,
+            "applied_torque_nm": 23.5,
+            "processed_target_rad": -1.8163962364196777
+          }
+        ],
+        "root_position_w_m": [
+          -6.289891719818115,
+          -1.391135811805725,
+          0.14327405393123627
+        ],
+        "root_quaternion_wxyz": [
+          0.9494727253913879,
+          0.20656658709049225,
+          -0.007330583408474922,
+          0.23617395758628845
+        ],
+        "max_foot_net_contact_bodyweights": 4.706065965109921,
+        "max_nonfoot_net_contact_bodyweights": 0.953046510484479
+      },
+      {
+        "control_step": 553,
+        "iteration_index_zero_based": 23,
+        "iteration_number_one_based": 24,
+        "episode_step": 262,
+        "env_index": 874,
+        "pose": "prone",
+        "violations": [
+          {
+            "joint_name": "FR_calf_joint",
+            "joint_index": 9,
+            "limit_side": "lower",
+            "hard_limit_excess_rad": 0.013838052749633789,
+            "q_rad": -2.7365381717681885,
+            "qdot_rad_s": -1.520788311958313,
+            "lower_rad": -2.7227001190185547,
+            "upper_rad": -0.8377599120140076,
+            "applied_torque_nm": 22.065357208251953,
+            "processed_target_rad": -1.5781102180480957
+          }
+        ],
+        "root_position_w_m": [
+          -29.178518295288086,
+          -14.279923439025879,
+          0.18650950491428375
+        ],
+        "root_quaternion_wxyz": [
+          0.9143390655517578,
+          0.06863155215978622,
+          0.12376755475997925,
+          0.3794146776199341
+        ],
+        "max_foot_net_contact_bodyweights": 3.4199965829429857,
+        "max_nonfoot_net_contact_bodyweights": 0.0
+      }
+    ],
+    "pose_count_at_install": {},
+    "control_steps_recorded": 1200,
+    "observer_rng_neutral": true,
+    "instrumentation_error": null
+  },
+  "source_hashes_before": {
+    "scripts/bootstrap_train_g009.py": "f4f21b7b5c69163a43ecb919974b3b16e0d77f269d1eb0f84e95f6c7b97f48c2",
+    "scripts/bootstrap_train_g009_rev31_attribution.py": "ab9459b10d49d3fbd04739a2e03fc9004e193a9814f54a52e4414aa8cf923643",
+    "src/isaac_walk_g009/recover_env_cfg.py": "d0dfeb18bcd43e1c3263505c973cf7581492dd9de7f47e00739ddfdde3ba6947",
+    "src/isaac_walk_g009/mdp/events.py": "da474178b54d89f7a70bb80872869a486ec7751d8b7e185c72401f44e343cfdb",
+    "src/isaac_walk_g009/mdp/recover.py": "b3c5ac4b9c9007d3897d3e384531e2807a876371eefb4a8efab50f027f077a2d"
+  },
+  "source_hashes_after": {
+    "scripts/bootstrap_train_g009.py": "f4f21b7b5c69163a43ecb919974b3b16e0d77f269d1eb0f84e95f6c7b97f48c2",
+    "scripts/bootstrap_train_g009_rev31_attribution.py": "ab9459b10d49d3fbd04739a2e03fc9004e193a9814f54a52e4414aa8cf923643",
+    "src/isaac_walk_g009/recover_env_cfg.py": "d0dfeb18bcd43e1c3263505c973cf7581492dd9de7f47e00739ddfdde3ba6947",
+    "src/isaac_walk_g009/mdp/events.py": "da474178b54d89f7a70bb80872869a486ec7751d8b7e185c72401f44e343cfdb",
+    "src/isaac_walk_g009/mdp/recover.py": "b3c5ac4b9c9007d3897d3e384531e2807a876371eefb4a8efab50f027f077a2d"
+  },
+  "source_hashes_stable": true,
+  "error": null,
+  "report_written_at": "env_close"
+}
