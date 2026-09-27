@@ -64,3 +64,13 @@
 /tests/test_g006s1_*.py text eol=lf
 # Evaluator reports keep the bytes it wrote (Windows text mode), as for rev32/rev33.
 /reports/runs/g006s1_*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/configs/g006s2_*.json text eol=lf
+/scripts/*g006s2*.py text eol=lf
+/tests/test_g006s2_*.py text eol=lf
+/reports/runs/g006s2_*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# G006 training bytes are bound by training_source_bundle_sha256 (LF at execution).
+/scripts/bootstrap_train_g006.py text eol=lf
+/src/isaac_walk_g006/__init__.py text eol=lf
+/src/isaac_walk_g006/mdp/*.py text eol=lf
+/src/isaac_walk_g006/registry.py text eol=lf
+/src/isaac_walk_g006/rough_env_cfg.py text eol=lf

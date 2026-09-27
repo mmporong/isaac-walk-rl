@@ -1,0 +1,1677 @@
+{
+  "schema_version": 1,
+  "goal": "G006S1",
+  "analysis": "phase-B cell breakdown (descriptive, no new simulation)",
+  "sources": {
+    "baseline-s42": {
+      "path": "reports/runs/g006s1_B_baseline_s42_push.json",
+      "sha256": "3255b90ea9816b8183616e12a9a07fa73ba15a6969ed246d793370298dca461f"
+    },
+    "baseline-s43": {
+      "path": "reports/runs/g006s1_B_baseline_s43_push.json",
+      "sha256": "3117a7d69ef4d63204a409b61b3755b1d11223dee884e619e70db42783413784"
+    },
+    "baseline-s44": {
+      "path": "reports/runs/g006s1_B_baseline_s44_push.json",
+      "sha256": "66518259cce08aab23d5488797dcabe63e9e4ba5af4eabbe748c80e7f96eae39"
+    },
+    "push_curriculum-s42": {
+      "path": "reports/runs/g006s1_B_push_curriculum_s42_push.json",
+      "sha256": "0839b41bed5379ec3b5d83c9e546fdb1651e12319e339503d8ae07a91f3b5183"
+    },
+    "push_curriculum-s43": {
+      "path": "reports/runs/g006s1_B_push_curriculum_s43_push.json",
+      "sha256": "77deb4e5a72130d4685ff9459c1917250c78806ddf8eff2982a3060cd96dde42"
+    },
+    "push_curriculum-s44": {
+      "path": "reports/runs/g006s1_B_push_curriculum_s44_push.json",
+      "sha256": "fb11105fca80feafab911f564db51df8d3967eaca1385fa619958ffba2902878"
+    }
+  },
+  "per_checkpoint": {
+    "baseline-s42": {
+      "by_axis": {
+        "command_id": {
+          "forward": {
+            "recovered": 273,
+            "trials": 360,
+            "recovery_rate": 0.7583333333333333
+          },
+          "lateral": {
+            "recovered": 240,
+            "trials": 360,
+            "recovery_rate": 0.6666666666666666
+          },
+          "turning": {
+            "recovered": 181,
+            "trials": 360,
+            "recovery_rate": 0.5027777777777778
+          }
+        },
+        "push_direction_id": {
+          "backward": {
+            "recovered": 14,
+            "trials": 270,
+            "recovery_rate": 0.05185185185185185
+          },
+          "forward": {
+            "recovered": 255,
+            "trials": 270,
+            "recovery_rate": 0.9444444444444444
+          },
+          "left": {
+            "recovered": 183,
+            "trials": 270,
+            "recovery_rate": 0.6777777777777778
+          },
+          "right": {
+            "recovered": 242,
+            "trials": 270,
+            "recovery_rate": 0.8962962962962963
+          }
+        },
+        "terrain_row": {
+          "1": {
+            "recovered": 233,
+            "trials": 360,
+            "recovery_rate": 0.6472222222222223
+          },
+          "4": {
+            "recovered": 226,
+            "trials": 360,
+            "recovery_rate": 0.6277777777777778
+          },
+          "8": {
+            "recovered": 235,
+            "trials": 360,
+            "recovery_rate": 0.6527777777777778
+          }
+        },
+        "push_magnitude_mps": {
+          "2.0": {
+            "recovered": 253,
+            "trials": 360,
+            "recovery_rate": 0.7027777777777777
+          },
+          "2.5": {
+            "recovered": 225,
+            "trials": 360,
+            "recovery_rate": 0.625
+          },
+          "3.0": {
+            "recovered": 216,
+            "trials": 360,
+            "recovery_rate": 0.6
+          }
+        }
+      },
+      "direction_x_magnitude": {
+        "backward|2.0": {
+          "recovered": 14,
+          "trials": 90,
+          "recovery_rate": 0.15555555555555556
+        },
+        "backward|2.5": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "backward|3.0": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "forward|2.0": {
+          "recovered": 86,
+          "trials": 90,
+          "recovery_rate": 0.9555555555555556
+        },
+        "forward|2.5": {
+          "recovered": 85,
+          "trials": 90,
+          "recovery_rate": 0.9444444444444444
+        },
+        "forward|3.0": {
+          "recovered": 84,
+          "trials": 90,
+          "recovery_rate": 0.9333333333333333
+        },
+        "left|2.0": {
+          "recovered": 65,
+          "trials": 90,
+          "recovery_rate": 0.7222222222222222
+        },
+        "left|2.5": {
+          "recovered": 61,
+          "trials": 90,
+          "recovery_rate": 0.6777777777777778
+        },
+        "left|3.0": {
+          "recovered": 57,
+          "trials": 90,
+          "recovery_rate": 0.6333333333333333
+        },
+        "right|2.0": {
+          "recovered": 88,
+          "trials": 90,
+          "recovery_rate": 0.9777777777777777
+        },
+        "right|2.5": {
+          "recovered": 79,
+          "trials": 90,
+          "recovery_rate": 0.8777777777777778
+        },
+        "right|3.0": {
+          "recovered": 75,
+          "trials": 90,
+          "recovery_rate": 0.8333333333333334
+        }
+      },
+      "command_x_direction": {
+        "forward|backward": {
+          "recovered": 3,
+          "trials": 90,
+          "recovery_rate": 0.03333333333333333
+        },
+        "forward|forward": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "forward|left": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "forward|right": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "lateral|backward": {
+          "recovered": 4,
+          "trials": 90,
+          "recovery_rate": 0.044444444444444446
+        },
+        "lateral|forward": {
+          "recovered": 87,
+          "trials": 90,
+          "recovery_rate": 0.9666666666666667
+        },
+        "lateral|left": {
+          "recovered": 85,
+          "trials": 90,
+          "recovery_rate": 0.9444444444444444
+        },
+        "lateral|right": {
+          "recovered": 64,
+          "trials": 90,
+          "recovery_rate": 0.7111111111111111
+        },
+        "turning|backward": {
+          "recovered": 7,
+          "trials": 90,
+          "recovery_rate": 0.07777777777777778
+        },
+        "turning|forward": {
+          "recovered": 78,
+          "trials": 90,
+          "recovery_rate": 0.8666666666666667
+        },
+        "turning|left": {
+          "recovered": 8,
+          "trials": 90,
+          "recovery_rate": 0.08888888888888889
+        },
+        "turning|right": {
+          "recovered": 88,
+          "trials": 90,
+          "recovery_rate": 0.9777777777777777
+        }
+      },
+      "failure_kind": {
+        "fell_before_horizon": 314,
+        "recovered": 694,
+        "survived_without_recovery": 72
+      }
+    },
+    "baseline-s43": {
+      "by_axis": {
+        "command_id": {
+          "forward": {
+            "recovered": 173,
+            "trials": 360,
+            "recovery_rate": 0.48055555555555557
+          },
+          "lateral": {
+            "recovered": 251,
+            "trials": 360,
+            "recovery_rate": 0.6972222222222222
+          },
+          "turning": {
+            "recovered": 137,
+            "trials": 360,
+            "recovery_rate": 0.38055555555555554
+          }
+        },
+        "push_direction_id": {
+          "backward": {
+            "recovered": 46,
+            "trials": 270,
+            "recovery_rate": 0.17037037037037037
+          },
+          "forward": {
+            "recovered": 227,
+            "trials": 270,
+            "recovery_rate": 0.8407407407407408
+          },
+          "left": {
+            "recovered": 170,
+            "trials": 270,
+            "recovery_rate": 0.6296296296296297
+          },
+          "right": {
+            "recovered": 118,
+            "trials": 270,
+            "recovery_rate": 0.43703703703703706
+          }
+        },
+        "terrain_row": {
+          "1": {
+            "recovered": 189,
+            "trials": 360,
+            "recovery_rate": 0.525
+          },
+          "4": {
+            "recovered": 187,
+            "trials": 360,
+            "recovery_rate": 0.5194444444444445
+          },
+          "8": {
+            "recovered": 185,
+            "trials": 360,
+            "recovery_rate": 0.5138888888888888
+          }
+        },
+        "push_magnitude_mps": {
+          "2.0": {
+            "recovered": 289,
+            "trials": 360,
+            "recovery_rate": 0.8027777777777778
+          },
+          "2.5": {
+            "recovered": 184,
+            "trials": 360,
+            "recovery_rate": 0.5111111111111111
+          },
+          "3.0": {
+            "recovered": 88,
+            "trials": 360,
+            "recovery_rate": 0.24444444444444444
+          }
+        }
+      },
+      "direction_x_magnitude": {
+        "backward|2.0": {
+          "recovered": 35,
+          "trials": 90,
+          "recovery_rate": 0.3888888888888889
+        },
+        "backward|2.5": {
+          "recovered": 11,
+          "trials": 90,
+          "recovery_rate": 0.12222222222222222
+        },
+        "backward|3.0": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "forward|2.0": {
+          "recovered": 86,
+          "trials": 90,
+          "recovery_rate": 0.9555555555555556
+        },
+        "forward|2.5": {
+          "recovered": 79,
+          "trials": 90,
+          "recovery_rate": 0.8777777777777778
+        },
+        "forward|3.0": {
+          "recovered": 62,
+          "trials": 90,
+          "recovery_rate": 0.6888888888888889
+        },
+        "left|2.0": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "left|2.5": {
+          "recovered": 55,
+          "trials": 90,
+          "recovery_rate": 0.6111111111111112
+        },
+        "left|3.0": {
+          "recovered": 25,
+          "trials": 90,
+          "recovery_rate": 0.2777777777777778
+        },
+        "right|2.0": {
+          "recovered": 78,
+          "trials": 90,
+          "recovery_rate": 0.8666666666666667
+        },
+        "right|2.5": {
+          "recovered": 39,
+          "trials": 90,
+          "recovery_rate": 0.43333333333333335
+        },
+        "right|3.0": {
+          "recovered": 1,
+          "trials": 90,
+          "recovery_rate": 0.011111111111111112
+        }
+      },
+      "command_x_direction": {
+        "forward|backward": {
+          "recovered": 1,
+          "trials": 90,
+          "recovery_rate": 0.011111111111111112
+        },
+        "forward|forward": {
+          "recovered": 81,
+          "trials": 90,
+          "recovery_rate": 0.9
+        },
+        "forward|left": {
+          "recovered": 49,
+          "trials": 90,
+          "recovery_rate": 0.5444444444444444
+        },
+        "forward|right": {
+          "recovered": 42,
+          "trials": 90,
+          "recovery_rate": 0.4666666666666667
+        },
+        "lateral|backward": {
+          "recovered": 32,
+          "trials": 90,
+          "recovery_rate": 0.35555555555555557
+        },
+        "lateral|forward": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "lateral|left": {
+          "recovered": 77,
+          "trials": 90,
+          "recovery_rate": 0.8555555555555555
+        },
+        "lateral|right": {
+          "recovered": 52,
+          "trials": 90,
+          "recovery_rate": 0.5777777777777777
+        },
+        "turning|backward": {
+          "recovered": 13,
+          "trials": 90,
+          "recovery_rate": 0.14444444444444443
+        },
+        "turning|forward": {
+          "recovered": 56,
+          "trials": 90,
+          "recovery_rate": 0.6222222222222222
+        },
+        "turning|left": {
+          "recovered": 44,
+          "trials": 90,
+          "recovery_rate": 0.4888888888888889
+        },
+        "turning|right": {
+          "recovered": 24,
+          "trials": 90,
+          "recovery_rate": 0.26666666666666666
+        }
+      },
+      "failure_kind": {
+        "fell_before_horizon": 517,
+        "recovered": 561,
+        "survived_without_recovery": 2
+      }
+    },
+    "baseline-s44": {
+      "by_axis": {
+        "command_id": {
+          "forward": {
+            "recovered": 228,
+            "trials": 360,
+            "recovery_rate": 0.6333333333333333
+          },
+          "lateral": {
+            "recovered": 233,
+            "trials": 360,
+            "recovery_rate": 0.6472222222222223
+          },
+          "turning": {
+            "recovered": 208,
+            "trials": 360,
+            "recovery_rate": 0.5777777777777777
+          }
+        },
+        "push_direction_id": {
+          "backward": {
+            "recovered": 29,
+            "trials": 270,
+            "recovery_rate": 0.10740740740740741
+          },
+          "forward": {
+            "recovered": 192,
+            "trials": 270,
+            "recovery_rate": 0.7111111111111111
+          },
+          "left": {
+            "recovered": 230,
+            "trials": 270,
+            "recovery_rate": 0.8518518518518519
+          },
+          "right": {
+            "recovered": 218,
+            "trials": 270,
+            "recovery_rate": 0.8074074074074075
+          }
+        },
+        "terrain_row": {
+          "1": {
+            "recovered": 217,
+            "trials": 360,
+            "recovery_rate": 0.6027777777777777
+          },
+          "4": {
+            "recovered": 232,
+            "trials": 360,
+            "recovery_rate": 0.6444444444444445
+          },
+          "8": {
+            "recovered": 220,
+            "trials": 360,
+            "recovery_rate": 0.6111111111111112
+          }
+        },
+        "push_magnitude_mps": {
+          "2.0": {
+            "recovered": 289,
+            "trials": 360,
+            "recovery_rate": 0.8027777777777778
+          },
+          "2.5": {
+            "recovered": 225,
+            "trials": 360,
+            "recovery_rate": 0.625
+          },
+          "3.0": {
+            "recovered": 155,
+            "trials": 360,
+            "recovery_rate": 0.4305555555555556
+          }
+        }
+      },
+      "direction_x_magnitude": {
+        "backward|2.0": {
+          "recovered": 29,
+          "trials": 90,
+          "recovery_rate": 0.32222222222222224
+        },
+        "backward|2.5": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "backward|3.0": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "forward|2.0": {
+          "recovered": 85,
+          "trials": 90,
+          "recovery_rate": 0.9444444444444444
+        },
+        "forward|2.5": {
+          "recovered": 73,
+          "trials": 90,
+          "recovery_rate": 0.8111111111111111
+        },
+        "forward|3.0": {
+          "recovered": 34,
+          "trials": 90,
+          "recovery_rate": 0.37777777777777777
+        },
+        "left|2.0": {
+          "recovered": 86,
+          "trials": 90,
+          "recovery_rate": 0.9555555555555556
+        },
+        "left|2.5": {
+          "recovered": 72,
+          "trials": 90,
+          "recovery_rate": 0.8
+        },
+        "left|3.0": {
+          "recovered": 72,
+          "trials": 90,
+          "recovery_rate": 0.8
+        },
+        "right|2.0": {
+          "recovered": 89,
+          "trials": 90,
+          "recovery_rate": 0.9888888888888889
+        },
+        "right|2.5": {
+          "recovered": 80,
+          "trials": 90,
+          "recovery_rate": 0.8888888888888888
+        },
+        "right|3.0": {
+          "recovered": 49,
+          "trials": 90,
+          "recovery_rate": 0.5444444444444444
+        }
+      },
+      "command_x_direction": {
+        "forward|backward": {
+          "recovered": 24,
+          "trials": 90,
+          "recovery_rate": 0.26666666666666666
+        },
+        "forward|forward": {
+          "recovered": 61,
+          "trials": 90,
+          "recovery_rate": 0.6777777777777778
+        },
+        "forward|left": {
+          "recovered": 72,
+          "trials": 90,
+          "recovery_rate": 0.8
+        },
+        "forward|right": {
+          "recovered": 71,
+          "trials": 90,
+          "recovery_rate": 0.7888888888888889
+        },
+        "lateral|backward": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "lateral|forward": {
+          "recovered": 80,
+          "trials": 90,
+          "recovery_rate": 0.8888888888888888
+        },
+        "lateral|left": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "lateral|right": {
+          "recovered": 63,
+          "trials": 90,
+          "recovery_rate": 0.7
+        },
+        "turning|backward": {
+          "recovered": 5,
+          "trials": 90,
+          "recovery_rate": 0.05555555555555555
+        },
+        "turning|forward": {
+          "recovered": 51,
+          "trials": 90,
+          "recovery_rate": 0.5666666666666667
+        },
+        "turning|left": {
+          "recovered": 68,
+          "trials": 90,
+          "recovery_rate": 0.7555555555555555
+        },
+        "turning|right": {
+          "recovered": 84,
+          "trials": 90,
+          "recovery_rate": 0.9333333333333333
+        }
+      },
+      "failure_kind": {
+        "fell_before_horizon": 404,
+        "recovered": 669,
+        "survived_without_recovery": 7
+      }
+    },
+    "push_curriculum-s42": {
+      "by_axis": {
+        "command_id": {
+          "forward": {
+            "recovered": 226,
+            "trials": 360,
+            "recovery_rate": 0.6277777777777778
+          },
+          "lateral": {
+            "recovered": 68,
+            "trials": 360,
+            "recovery_rate": 0.18888888888888888
+          },
+          "turning": {
+            "recovered": 113,
+            "trials": 360,
+            "recovery_rate": 0.3138888888888889
+          }
+        },
+        "push_direction_id": {
+          "backward": {
+            "recovered": 71,
+            "trials": 270,
+            "recovery_rate": 0.26296296296296295
+          },
+          "forward": {
+            "recovered": 109,
+            "trials": 270,
+            "recovery_rate": 0.40370370370370373
+          },
+          "left": {
+            "recovered": 102,
+            "trials": 270,
+            "recovery_rate": 0.37777777777777777
+          },
+          "right": {
+            "recovered": 125,
+            "trials": 270,
+            "recovery_rate": 0.46296296296296297
+          }
+        },
+        "terrain_row": {
+          "1": {
+            "recovered": 141,
+            "trials": 360,
+            "recovery_rate": 0.39166666666666666
+          },
+          "4": {
+            "recovered": 129,
+            "trials": 360,
+            "recovery_rate": 0.35833333333333334
+          },
+          "8": {
+            "recovered": 137,
+            "trials": 360,
+            "recovery_rate": 0.38055555555555554
+          }
+        },
+        "push_magnitude_mps": {
+          "2.0": {
+            "recovered": 271,
+            "trials": 360,
+            "recovery_rate": 0.7527777777777778
+          },
+          "2.5": {
+            "recovered": 88,
+            "trials": 360,
+            "recovery_rate": 0.24444444444444444
+          },
+          "3.0": {
+            "recovered": 48,
+            "trials": 360,
+            "recovery_rate": 0.13333333333333333
+          }
+        }
+      },
+      "direction_x_magnitude": {
+        "backward|2.0": {
+          "recovered": 66,
+          "trials": 90,
+          "recovery_rate": 0.7333333333333333
+        },
+        "backward|2.5": {
+          "recovered": 4,
+          "trials": 90,
+          "recovery_rate": 0.044444444444444446
+        },
+        "backward|3.0": {
+          "recovered": 1,
+          "trials": 90,
+          "recovery_rate": 0.011111111111111112
+        },
+        "forward|2.0": {
+          "recovered": 68,
+          "trials": 90,
+          "recovery_rate": 0.7555555555555555
+        },
+        "forward|2.5": {
+          "recovered": 29,
+          "trials": 90,
+          "recovery_rate": 0.32222222222222224
+        },
+        "forward|3.0": {
+          "recovered": 12,
+          "trials": 90,
+          "recovery_rate": 0.13333333333333333
+        },
+        "left|2.0": {
+          "recovered": 76,
+          "trials": 90,
+          "recovery_rate": 0.8444444444444444
+        },
+        "left|2.5": {
+          "recovered": 23,
+          "trials": 90,
+          "recovery_rate": 0.25555555555555554
+        },
+        "left|3.0": {
+          "recovered": 3,
+          "trials": 90,
+          "recovery_rate": 0.03333333333333333
+        },
+        "right|2.0": {
+          "recovered": 61,
+          "trials": 90,
+          "recovery_rate": 0.6777777777777778
+        },
+        "right|2.5": {
+          "recovered": 32,
+          "trials": 90,
+          "recovery_rate": 0.35555555555555557
+        },
+        "right|3.0": {
+          "recovered": 32,
+          "trials": 90,
+          "recovery_rate": 0.35555555555555557
+        }
+      },
+      "command_x_direction": {
+        "forward|backward": {
+          "recovered": 33,
+          "trials": 90,
+          "recovery_rate": 0.36666666666666664
+        },
+        "forward|forward": {
+          "recovered": 69,
+          "trials": 90,
+          "recovery_rate": 0.7666666666666667
+        },
+        "forward|left": {
+          "recovered": 34,
+          "trials": 90,
+          "recovery_rate": 0.37777777777777777
+        },
+        "forward|right": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "lateral|backward": {
+          "recovered": 8,
+          "trials": 90,
+          "recovery_rate": 0.08888888888888889
+        },
+        "lateral|forward": {
+          "recovered": 17,
+          "trials": 90,
+          "recovery_rate": 0.18888888888888888
+        },
+        "lateral|left": {
+          "recovered": 41,
+          "trials": 90,
+          "recovery_rate": 0.45555555555555555
+        },
+        "lateral|right": {
+          "recovered": 2,
+          "trials": 90,
+          "recovery_rate": 0.022222222222222223
+        },
+        "turning|backward": {
+          "recovered": 30,
+          "trials": 90,
+          "recovery_rate": 0.3333333333333333
+        },
+        "turning|forward": {
+          "recovered": 23,
+          "trials": 90,
+          "recovery_rate": 0.25555555555555554
+        },
+        "turning|left": {
+          "recovered": 27,
+          "trials": 90,
+          "recovery_rate": 0.3
+        },
+        "turning|right": {
+          "recovered": 33,
+          "trials": 90,
+          "recovery_rate": 0.36666666666666664
+        }
+      },
+      "failure_kind": {
+        "fell_before_horizon": 626,
+        "recovered": 407,
+        "survived_without_recovery": 47
+      }
+    },
+    "push_curriculum-s43": {
+      "by_axis": {
+        "command_id": {
+          "forward": {
+            "recovered": 290,
+            "trials": 360,
+            "recovery_rate": 0.8055555555555556
+          },
+          "lateral": {
+            "recovered": 246,
+            "trials": 360,
+            "recovery_rate": 0.6833333333333333
+          },
+          "turning": {
+            "recovered": 201,
+            "trials": 360,
+            "recovery_rate": 0.5583333333333333
+          }
+        },
+        "push_direction_id": {
+          "backward": {
+            "recovered": 48,
+            "trials": 270,
+            "recovery_rate": 0.17777777777777778
+          },
+          "forward": {
+            "recovered": 193,
+            "trials": 270,
+            "recovery_rate": 0.7148148148148148
+          },
+          "left": {
+            "recovered": 262,
+            "trials": 270,
+            "recovery_rate": 0.9703703703703703
+          },
+          "right": {
+            "recovered": 234,
+            "trials": 270,
+            "recovery_rate": 0.8666666666666667
+          }
+        },
+        "terrain_row": {
+          "1": {
+            "recovered": 245,
+            "trials": 360,
+            "recovery_rate": 0.6805555555555556
+          },
+          "4": {
+            "recovered": 259,
+            "trials": 360,
+            "recovery_rate": 0.7194444444444444
+          },
+          "8": {
+            "recovered": 233,
+            "trials": 360,
+            "recovery_rate": 0.6472222222222223
+          }
+        },
+        "push_magnitude_mps": {
+          "2.0": {
+            "recovered": 312,
+            "trials": 360,
+            "recovery_rate": 0.8666666666666667
+          },
+          "2.5": {
+            "recovered": 238,
+            "trials": 360,
+            "recovery_rate": 0.6611111111111111
+          },
+          "3.0": {
+            "recovered": 187,
+            "trials": 360,
+            "recovery_rate": 0.5194444444444445
+          }
+        }
+      },
+      "direction_x_magnitude": {
+        "backward|2.0": {
+          "recovered": 48,
+          "trials": 90,
+          "recovery_rate": 0.5333333333333333
+        },
+        "backward|2.5": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "backward|3.0": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "forward|2.0": {
+          "recovered": 85,
+          "trials": 90,
+          "recovery_rate": 0.9444444444444444
+        },
+        "forward|2.5": {
+          "recovered": 70,
+          "trials": 90,
+          "recovery_rate": 0.7777777777777778
+        },
+        "forward|3.0": {
+          "recovered": 38,
+          "trials": 90,
+          "recovery_rate": 0.4222222222222222
+        },
+        "left|2.0": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "left|2.5": {
+          "recovered": 89,
+          "trials": 90,
+          "recovery_rate": 0.9888888888888889
+        },
+        "left|3.0": {
+          "recovered": 83,
+          "trials": 90,
+          "recovery_rate": 0.9222222222222223
+        },
+        "right|2.0": {
+          "recovered": 89,
+          "trials": 90,
+          "recovery_rate": 0.9888888888888889
+        },
+        "right|2.5": {
+          "recovered": 79,
+          "trials": 90,
+          "recovery_rate": 0.8777777777777778
+        },
+        "right|3.0": {
+          "recovered": 66,
+          "trials": 90,
+          "recovery_rate": 0.7333333333333333
+        }
+      },
+      "command_x_direction": {
+        "forward|backward": {
+          "recovered": 27,
+          "trials": 90,
+          "recovery_rate": 0.3
+        },
+        "forward|forward": {
+          "recovered": 85,
+          "trials": 90,
+          "recovery_rate": 0.9444444444444444
+        },
+        "forward|left": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "forward|right": {
+          "recovered": 88,
+          "trials": 90,
+          "recovery_rate": 0.9777777777777777
+        },
+        "lateral|backward": {
+          "recovered": 20,
+          "trials": 90,
+          "recovery_rate": 0.2222222222222222
+        },
+        "lateral|forward": {
+          "recovered": 60,
+          "trials": 90,
+          "recovery_rate": 0.6666666666666666
+        },
+        "lateral|left": {
+          "recovered": 83,
+          "trials": 90,
+          "recovery_rate": 0.9222222222222223
+        },
+        "lateral|right": {
+          "recovered": 83,
+          "trials": 90,
+          "recovery_rate": 0.9222222222222223
+        },
+        "turning|backward": {
+          "recovered": 1,
+          "trials": 90,
+          "recovery_rate": 0.011111111111111112
+        },
+        "turning|forward": {
+          "recovered": 48,
+          "trials": 90,
+          "recovery_rate": 0.5333333333333333
+        },
+        "turning|left": {
+          "recovered": 89,
+          "trials": 90,
+          "recovery_rate": 0.9888888888888889
+        },
+        "turning|right": {
+          "recovered": 63,
+          "trials": 90,
+          "recovery_rate": 0.7
+        }
+      },
+      "failure_kind": {
+        "fell_before_horizon": 343,
+        "recovered": 737
+      }
+    },
+    "push_curriculum-s44": {
+      "by_axis": {
+        "command_id": {
+          "forward": {
+            "recovered": 227,
+            "trials": 360,
+            "recovery_rate": 0.6305555555555555
+          },
+          "lateral": {
+            "recovered": 180,
+            "trials": 360,
+            "recovery_rate": 0.5
+          },
+          "turning": {
+            "recovered": 182,
+            "trials": 360,
+            "recovery_rate": 0.5055555555555555
+          }
+        },
+        "push_direction_id": {
+          "backward": {
+            "recovered": 20,
+            "trials": 270,
+            "recovery_rate": 0.07407407407407407
+          },
+          "forward": {
+            "recovered": 208,
+            "trials": 270,
+            "recovery_rate": 0.7703703703703704
+          },
+          "left": {
+            "recovered": 163,
+            "trials": 270,
+            "recovery_rate": 0.6037037037037037
+          },
+          "right": {
+            "recovered": 198,
+            "trials": 270,
+            "recovery_rate": 0.7333333333333333
+          }
+        },
+        "terrain_row": {
+          "1": {
+            "recovered": 194,
+            "trials": 360,
+            "recovery_rate": 0.5388888888888889
+          },
+          "4": {
+            "recovered": 205,
+            "trials": 360,
+            "recovery_rate": 0.5694444444444444
+          },
+          "8": {
+            "recovered": 190,
+            "trials": 360,
+            "recovery_rate": 0.5277777777777778
+          }
+        },
+        "push_magnitude_mps": {
+          "2.0": {
+            "recovered": 254,
+            "trials": 360,
+            "recovery_rate": 0.7055555555555556
+          },
+          "2.5": {
+            "recovered": 185,
+            "trials": 360,
+            "recovery_rate": 0.5138888888888888
+          },
+          "3.0": {
+            "recovered": 150,
+            "trials": 360,
+            "recovery_rate": 0.4166666666666667
+          }
+        }
+      },
+      "direction_x_magnitude": {
+        "backward|2.0": {
+          "recovered": 20,
+          "trials": 90,
+          "recovery_rate": 0.2222222222222222
+        },
+        "backward|2.5": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "backward|3.0": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "forward|2.0": {
+          "recovered": 81,
+          "trials": 90,
+          "recovery_rate": 0.9
+        },
+        "forward|2.5": {
+          "recovered": 65,
+          "trials": 90,
+          "recovery_rate": 0.7222222222222222
+        },
+        "forward|3.0": {
+          "recovered": 62,
+          "trials": 90,
+          "recovery_rate": 0.6888888888888889
+        },
+        "left|2.0": {
+          "recovered": 67,
+          "trials": 90,
+          "recovery_rate": 0.7444444444444445
+        },
+        "left|2.5": {
+          "recovered": 58,
+          "trials": 90,
+          "recovery_rate": 0.6444444444444445
+        },
+        "left|3.0": {
+          "recovered": 38,
+          "trials": 90,
+          "recovery_rate": 0.4222222222222222
+        },
+        "right|2.0": {
+          "recovered": 86,
+          "trials": 90,
+          "recovery_rate": 0.9555555555555556
+        },
+        "right|2.5": {
+          "recovered": 62,
+          "trials": 90,
+          "recovery_rate": 0.6888888888888889
+        },
+        "right|3.0": {
+          "recovered": 50,
+          "trials": 90,
+          "recovery_rate": 0.5555555555555556
+        }
+      },
+      "command_x_direction": {
+        "forward|backward": {
+          "recovered": 20,
+          "trials": 90,
+          "recovery_rate": 0.2222222222222222
+        },
+        "forward|forward": {
+          "recovered": 77,
+          "trials": 90,
+          "recovery_rate": 0.8555555555555555
+        },
+        "forward|left": {
+          "recovered": 78,
+          "trials": 90,
+          "recovery_rate": 0.8666666666666667
+        },
+        "forward|right": {
+          "recovered": 52,
+          "trials": 90,
+          "recovery_rate": 0.5777777777777777
+        },
+        "lateral|backward": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "lateral|forward": {
+          "recovered": 90,
+          "trials": 90,
+          "recovery_rate": 1.0
+        },
+        "lateral|left": {
+          "recovered": 8,
+          "trials": 90,
+          "recovery_rate": 0.08888888888888889
+        },
+        "lateral|right": {
+          "recovered": 82,
+          "trials": 90,
+          "recovery_rate": 0.9111111111111111
+        },
+        "turning|backward": {
+          "recovered": 0,
+          "trials": 90,
+          "recovery_rate": 0.0
+        },
+        "turning|forward": {
+          "recovered": 41,
+          "trials": 90,
+          "recovery_rate": 0.45555555555555555
+        },
+        "turning|left": {
+          "recovered": 77,
+          "trials": 90,
+          "recovery_rate": 0.8555555555555555
+        },
+        "turning|right": {
+          "recovered": 64,
+          "trials": 90,
+          "recovery_rate": 0.7111111111111111
+        }
+      },
+      "failure_kind": {
+        "fell_before_horizon": 491,
+        "recovered": 589
+      }
+    }
+  },
+  "pooled": {
+    "baseline": {
+      "by_axis": {
+        "command_id": {
+          "forward": {
+            "recovered": 674,
+            "trials": 1080,
+            "recovery_rate": 0.6240740740740741
+          },
+          "lateral": {
+            "recovered": 724,
+            "trials": 1080,
+            "recovery_rate": 0.6703703703703704
+          },
+          "turning": {
+            "recovered": 526,
+            "trials": 1080,
+            "recovery_rate": 0.48703703703703705
+          }
+        },
+        "push_direction_id": {
+          "backward": {
+            "recovered": 89,
+            "trials": 810,
+            "recovery_rate": 0.10987654320987654
+          },
+          "forward": {
+            "recovered": 674,
+            "trials": 810,
+            "recovery_rate": 0.8320987654320988
+          },
+          "left": {
+            "recovered": 583,
+            "trials": 810,
+            "recovery_rate": 0.7197530864197531
+          },
+          "right": {
+            "recovered": 578,
+            "trials": 810,
+            "recovery_rate": 0.7135802469135802
+          }
+        },
+        "terrain_row": {
+          "1": {
+            "recovered": 639,
+            "trials": 1080,
+            "recovery_rate": 0.5916666666666667
+          },
+          "4": {
+            "recovered": 645,
+            "trials": 1080,
+            "recovery_rate": 0.5972222222222222
+          },
+          "8": {
+            "recovered": 640,
+            "trials": 1080,
+            "recovery_rate": 0.5925925925925926
+          }
+        },
+        "push_magnitude_mps": {
+          "2.0": {
+            "recovered": 831,
+            "trials": 1080,
+            "recovery_rate": 0.7694444444444445
+          },
+          "2.5": {
+            "recovered": 634,
+            "trials": 1080,
+            "recovery_rate": 0.587037037037037
+          },
+          "3.0": {
+            "recovered": 459,
+            "trials": 1080,
+            "recovery_rate": 0.425
+          }
+        }
+      },
+      "direction_x_magnitude": {
+        "backward|2.0": {
+          "recovered": 78,
+          "trials": 270,
+          "recovery_rate": 0.28888888888888886
+        },
+        "backward|2.5": {
+          "recovered": 11,
+          "trials": 270,
+          "recovery_rate": 0.040740740740740744
+        },
+        "backward|3.0": {
+          "recovered": 0,
+          "trials": 270,
+          "recovery_rate": 0.0
+        },
+        "forward|2.0": {
+          "recovered": 257,
+          "trials": 270,
+          "recovery_rate": 0.9518518518518518
+        },
+        "forward|2.5": {
+          "recovered": 237,
+          "trials": 270,
+          "recovery_rate": 0.8777777777777778
+        },
+        "forward|3.0": {
+          "recovered": 180,
+          "trials": 270,
+          "recovery_rate": 0.6666666666666666
+        },
+        "left|2.0": {
+          "recovered": 241,
+          "trials": 270,
+          "recovery_rate": 0.8925925925925926
+        },
+        "left|2.5": {
+          "recovered": 188,
+          "trials": 270,
+          "recovery_rate": 0.6962962962962963
+        },
+        "left|3.0": {
+          "recovered": 154,
+          "trials": 270,
+          "recovery_rate": 0.5703703703703704
+        },
+        "right|2.0": {
+          "recovered": 255,
+          "trials": 270,
+          "recovery_rate": 0.9444444444444444
+        },
+        "right|2.5": {
+          "recovered": 198,
+          "trials": 270,
+          "recovery_rate": 0.7333333333333333
+        },
+        "right|3.0": {
+          "recovered": 125,
+          "trials": 270,
+          "recovery_rate": 0.46296296296296297
+        }
+      }
+    },
+    "push_curriculum": {
+      "by_axis": {
+        "command_id": {
+          "forward": {
+            "recovered": 743,
+            "trials": 1080,
+            "recovery_rate": 0.687962962962963
+          },
+          "lateral": {
+            "recovered": 494,
+            "trials": 1080,
+            "recovery_rate": 0.45740740740740743
+          },
+          "turning": {
+            "recovered": 496,
+            "trials": 1080,
+            "recovery_rate": 0.45925925925925926
+          }
+        },
+        "push_direction_id": {
+          "backward": {
+            "recovered": 139,
+            "trials": 810,
+            "recovery_rate": 0.17160493827160495
+          },
+          "forward": {
+            "recovered": 510,
+            "trials": 810,
+            "recovery_rate": 0.6296296296296297
+          },
+          "left": {
+            "recovered": 527,
+            "trials": 810,
+            "recovery_rate": 0.6506172839506172
+          },
+          "right": {
+            "recovered": 557,
+            "trials": 810,
+            "recovery_rate": 0.6876543209876543
+          }
+        },
+        "terrain_row": {
+          "1": {
+            "recovered": 580,
+            "trials": 1080,
+            "recovery_rate": 0.5370370370370371
+          },
+          "4": {
+            "recovered": 593,
+            "trials": 1080,
+            "recovery_rate": 0.549074074074074
+          },
+          "8": {
+            "recovered": 560,
+            "trials": 1080,
+            "recovery_rate": 0.5185185185185185
+          }
+        },
+        "push_magnitude_mps": {
+          "2.0": {
+            "recovered": 837,
+            "trials": 1080,
+            "recovery_rate": 0.775
+          },
+          "2.5": {
+            "recovered": 511,
+            "trials": 1080,
+            "recovery_rate": 0.47314814814814815
+          },
+          "3.0": {
+            "recovered": 385,
+            "trials": 1080,
+            "recovery_rate": 0.35648148148148145
+          }
+        }
+      },
+      "direction_x_magnitude": {
+        "backward|2.0": {
+          "recovered": 134,
+          "trials": 270,
+          "recovery_rate": 0.4962962962962963
+        },
+        "backward|2.5": {
+          "recovered": 4,
+          "trials": 270,
+          "recovery_rate": 0.014814814814814815
+        },
+        "backward|3.0": {
+          "recovered": 1,
+          "trials": 270,
+          "recovery_rate": 0.003703703703703704
+        },
+        "forward|2.0": {
+          "recovered": 234,
+          "trials": 270,
+          "recovery_rate": 0.8666666666666667
+        },
+        "forward|2.5": {
+          "recovered": 164,
+          "trials": 270,
+          "recovery_rate": 0.6074074074074074
+        },
+        "forward|3.0": {
+          "recovered": 112,
+          "trials": 270,
+          "recovery_rate": 0.4148148148148148
+        },
+        "left|2.0": {
+          "recovered": 233,
+          "trials": 270,
+          "recovery_rate": 0.8629629629629629
+        },
+        "left|2.5": {
+          "recovered": 170,
+          "trials": 270,
+          "recovery_rate": 0.6296296296296297
+        },
+        "left|3.0": {
+          "recovered": 124,
+          "trials": 270,
+          "recovery_rate": 0.45925925925925926
+        },
+        "right|2.0": {
+          "recovered": 236,
+          "trials": 270,
+          "recovery_rate": 0.8740740740740741
+        },
+        "right|2.5": {
+          "recovered": 173,
+          "trials": 270,
+          "recovery_rate": 0.6407407407407407
+        },
+        "right|3.0": {
+          "recovered": 148,
+          "trials": 270,
+          "recovery_rate": 0.5481481481481482
+        }
+      }
+    }
+  },
+  "seed_spread": {
+    "baseline": {
+      "command_id": {
+        "forward": {
+          "min": 0.48055555555555557,
+          "max": 0.7583333333333333
+        },
+        "lateral": {
+          "min": 0.6472222222222223,
+          "max": 0.6972222222222222
+        },
+        "turning": {
+          "min": 0.38055555555555554,
+          "max": 0.5777777777777777
+        }
+      },
+      "push_direction_id": {
+        "backward": {
+          "min": 0.05185185185185185,
+          "max": 0.17037037037037037
+        },
+        "forward": {
+          "min": 0.7111111111111111,
+          "max": 0.9444444444444444
+        },
+        "left": {
+          "min": 0.6296296296296297,
+          "max": 0.8518518518518519
+        },
+        "right": {
+          "min": 0.43703703703703706,
+          "max": 0.8962962962962963
+        }
+      },
+      "terrain_row": {
+        "1": {
+          "min": 0.525,
+          "max": 0.6472222222222223
+        },
+        "4": {
+          "min": 0.5194444444444445,
+          "max": 0.6444444444444445
+        },
+        "8": {
+          "min": 0.5138888888888888,
+          "max": 0.6527777777777778
+        }
+      },
+      "push_magnitude_mps": {
+        "2.0": {
+          "min": 0.7027777777777777,
+          "max": 0.8027777777777778
+        },
+        "2.5": {
+          "min": 0.5111111111111111,
+          "max": 0.625
+        },
+        "3.0": {
+          "min": 0.24444444444444444,
+          "max": 0.6
+        }
+      }
+    },
+    "push_curriculum": {
+      "command_id": {
+        "forward": {
+          "min": 0.6277777777777778,
+          "max": 0.8055555555555556
+        },
+        "lateral": {
+          "min": 0.18888888888888888,
+          "max": 0.6833333333333333
+        },
+        "turning": {
+          "min": 0.3138888888888889,
+          "max": 0.5583333333333333
+        }
+      },
+      "push_direction_id": {
+        "backward": {
+          "min": 0.07407407407407407,
+          "max": 0.26296296296296295
+        },
+        "forward": {
+          "min": 0.40370370370370373,
+          "max": 0.7703703703703704
+        },
+        "left": {
+          "min": 0.37777777777777777,
+          "max": 0.9703703703703703
+        },
+        "right": {
+          "min": 0.46296296296296297,
+          "max": 0.8666666666666667
+        }
+      },
+      "terrain_row": {
+        "1": {
+          "min": 0.39166666666666666,
+          "max": 0.6805555555555556
+        },
+        "4": {
+          "min": 0.35833333333333334,
+          "max": 0.7194444444444444
+        },
+        "8": {
+          "min": 0.38055555555555554,
+          "max": 0.6472222222222223
+        }
+      },
+      "push_magnitude_mps": {
+        "2.0": {
+          "min": 0.7055555555555556,
+          "max": 0.8666666666666667
+        },
+        "2.5": {
+          "min": 0.24444444444444444,
+          "max": 0.6611111111111111
+        },
+        "3.0": {
+          "min": 0.13333333333333333,
+          "max": 0.5194444444444445
+        }
+      }
+    }
+  },
+  "warnings": [
+    "Descriptive breakdown of existing trials; each cell has 30-360 trials and no multiple-comparison correction.",
+    "Push directions are in the robot body frame at injection time."
+  ]
+}

@@ -79,7 +79,21 @@ A1과 B에서 baseline s42를 같은 격자로 두 번 평가했는데, 1,080 tr
 
 1. 재학습 비교는 이 결과를 근거로 설계한다. 평가 grid는 `2.0/2.5/3.0 m/s`로 고정하고, seed는 최소 5개로 늘린다. 이번 seed 편차(같은 variant 안에서 3.0 m/s 기준 최대 38.6%p)를 보면 3개로는 부족하다.
 2. push curriculum의 학습 강도 상한을 1.0 m/s에서 평가 범위까지 올린 variant를 추가할지 검토한다. 이 경우 바뀌는 변수가 "curriculum 유무"에서 "curriculum 강도"로 달라지므로, 별도 계약으로 등록한다.
-3. seed별 실패가 어느 명령·방향·지형 row에 몰리는지 cell 단위로 먼저 확인하면, 재학습 없이도 seed 편차의 원인 후보를 좁힐 수 있다.
+3. seed별 실패가 어느 명령·방향·지형 row에 몰리는지 cell 단위로 먼저 확인하면, 재학습 없이도 seed 편차의 원인 후보를 좁힐 수 있다. 아래 절에서 수행했다.
+
+## cell 분석 (2026-09-27, 추가 시뮬레이션 없음)
+
+정본: [g006s1_cell_analysis.json](../reports/runs/g006s1_cell_analysis.json), 생성 스크립트 [analyze_g006s1_cells.py](../scripts/analyze_g006s1_cells.py). phase B 보고서 6개의 trial을 다시 나눈 기술 통계이며 다중 비교 보정은 하지 않았다.
+
+| 관찰 | 근거 |
+| --- | --- |
+| 지형 난도는 회복률을 가르지 않는다 | checkpoint마다 row 1/4/8 회복률 차이가 최대 7.2%p다. 예: push curriculum s43 `0.68 / 0.72 / 0.65` |
+| 뒤로 미는 push가 공통 약점이다 | 3 seed 합산 backward 회복률: baseline `28.9% / 4.1% / 0.0%`, push curriculum `49.6% / 1.5% / 0.4%` (2.0 / 2.5 / 3.0 m/s). 2.5 m/s부터는 두 정책 모두 바닥이라 이 cell은 variant를 가르지 못한다 |
+| push curriculum이 앞선 cell은 backward 2.0 m/s뿐이다 | 같은 강도에서 forward·left·right는 baseline이 높다(forward `95.2%` 대 `86.7%`) |
+| seed마다 명령×방향 비대칭이 다르다 | baseline s42는 회전 명령에서 왼쪽 push `9%`, 오른쪽 push `98%`. push curriculum s42는 횡이동 명령에서 오른쪽 push `2%`. push curriculum s44는 횡이동 명령에서 왼쪽 push `9%` |
+| 실패 대부분은 넘어짐이다 | 서 있지만 기준을 못 맞춘 trial은 checkpoint당 0~72개이고, 나머지 실패는 horizon 전 넘어짐이다 |
+
+해석: seed 편차는 지형 적응 차이가 아니라, seed마다 다른 좌우·전후 비대칭에서 온다는 가설과 맞는다. 이 가설은 아직 검증하지 않았다. 확인하려면 명령 없이 제자리에서 같은 push를 준 대칭 평가나, 정책의 좌우 대칭성 지표가 필요하다. 재학습 비교(G006S2)는 사전 등록한 격자를 유지하고, 방향별 회복률을 secondary로 함께 보고한다.
 
 ## 재현
 

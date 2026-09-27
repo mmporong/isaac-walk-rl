@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -210,6 +211,7 @@ def test_wrapper_writes_report_before_simulation_app_close_ends_the_process(tmp_
         "push", tmp_path / "grid.json", tmp_path / "model.pt", "baseline", 42, output
     )
     monkeypatch.setattr(WRAPPER.EVALUATOR, "parse_args", lambda: args)
+    (tmp_path / "c.json").write_text(json.dumps({"goal": REPORT_GOAL}), encoding="utf-8")
     monkeypatch.setattr(WRAPPER, "split_args", lambda: type("Own", (), {"sweep_contract": tmp_path / "c.json", "phase": "A1"})())
     monkeypatch.setattr(WRAPPER, "preflight", lambda *a: {"evaluation_source_bundle_matches_g006": True})
     monkeypatch.setattr(WRAPPER.EVALUATOR, "evaluate", lambda a: {"status": "complete", "goal": "G006", "runtime": {}})
@@ -218,3 +220,31 @@ def test_wrapper_writes_report_before_simulation_app_close_ends_the_process(tmp_
     written = json.loads(output.read_text(encoding="utf-8"))
     assert written["goal"] == REPORT_GOAL and written["experimental_use"] == REPORT_EXPERIMENTAL_USE
     assert written["g006s1"]["phase"] == "A1"
+
+def test_wrapper_preflight_accepts_only_passed_seed_extension_checkpoints(tmp_path, monkeypatch):
+    s2_contract = json.loads((ROOT / "configs" / "g006s2_seed_extension.json").read_text(encoding="utf-8"))
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "reports" / "runs").mkdir(parents=True)
+    shutil.copy(ROOT / "configs" / "g006_rough_push.json", tmp_path / "configs")
+    shutil.copy(ROOT / "reports" / "runs" / "g006_queue_state.json", tmp_path / "reports" / "runs")
+    contract_path = tmp_path / "configs" / "g006s2_seed_extension.json"
+    contract_path.write_text(json.dumps(s2_contract), encoding="utf-8")
+    grid_path = tmp_path / "configs" / "grid.json"
+    grid_path.write_text(json.dumps(build_grid_manifest(BASE, [2.0, 2.5, 3.0], sweep_sha256=WRAPPER.EVALUATOR.file_sha256(contract_path))), encoding="utf-8")
+    checkpoint = tmp_path / "model_1499.pt"
+    checkpoint.write_bytes(b"seed 45 weights")
+    training_path = tmp_path / "reports" / "runs" / "g006s2_production_baseline_e4096_i1500_s45.json"
+    monkeypatch.setattr(WRAPPER, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(
+        WRAPPER, "compute_evaluation_source_bundle", lambda root: {"sha256": s2_contract["base"]["evaluation_source_bundle_sha256"]}
+    )
+
+    training_path.write_text(json.dumps({"passed": True, "artifacts": {"checkpoint_sha256": WRAPPER.EVALUATOR.file_sha256(checkpoint)}}), encoding="utf-8")
+    binding = WRAPPER.preflight(contract_path, grid_path, checkpoint, "baseline", 45)
+    assert binding["checkpoint_matches_g006_queue"] == "reports/runs/g006s2_production_baseline_e4096_i1500_s45.json"
+
+    training_path.write_text(json.dumps({"passed": False, "artifacts": {"checkpoint_sha256": WRAPPER.EVALUATOR.file_sha256(checkpoint)}}), encoding="utf-8")
+    with pytest.raises(RuntimeError, match="did not pass"):
+        WRAPPER.preflight(contract_path, grid_path, checkpoint, "baseline", 45)
+    with pytest.raises(RuntimeError, match="missing from G006 queue"):
+        WRAPPER.preflight(contract_path, grid_path, checkpoint, "baseline", 47)

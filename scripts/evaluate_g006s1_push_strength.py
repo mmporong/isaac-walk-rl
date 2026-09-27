@@ -66,15 +66,29 @@ def preflight(sweep_path: Path, grid_manifest_path: Path, checkpoint: Path, vari
     if bundle["sha256"] != sweep["base"]["evaluation_source_bundle_sha256"]:
         raise RuntimeError("evaluation source bundle differs from G006")
 
+    checkpoint_sha = EVALUATOR.file_sha256(checkpoint)
     job = next(
         (item for item in queue["jobs"] if item["variant"] == variant and int(item["seed"]) == seed),
         None,
     )
-    if job is None:
-        raise RuntimeError("checkpoint job missing from G006 queue")
-    checkpoint_sha = EVALUATOR.file_sha256(checkpoint)
-    if checkpoint_sha != job["checkpoint_sha256"]:
-        raise RuntimeError("checkpoint sha256 differs from G006 queue")
+    if job is not None:
+        if checkpoint_sha != job["checkpoint_sha256"]:
+            raise RuntimeError("checkpoint sha256 differs from G006 queue")
+        checkpoint_source = job["id"]
+    else:
+        # Seed-extension checkpoints come from passed training reports listed in the contract.
+        entry = next(
+            (item for item in sweep.get("training_reports", []) if item["variant"] == variant and int(item["seed"]) == seed),
+            None,
+        )
+        if entry is None:
+            raise RuntimeError("checkpoint job missing from G006 queue")
+        training = read_json(REPO_ROOT / entry["path"])
+        if training.get("passed") is not True:
+            raise RuntimeError("seed-extension training report did not pass")
+        if checkpoint_sha != training.get("artifacts", {}).get("checkpoint_sha256"):
+            raise RuntimeError("checkpoint sha256 differs from training report")
+        checkpoint_source = entry["path"]
     return {
         "sweep_contract": {"path": "configs/" + sweep_path.name, "sha256": EVALUATOR.file_sha256(sweep_path)},
         "grid_manifest": {
@@ -84,7 +98,7 @@ def preflight(sweep_path: Path, grid_manifest_path: Path, checkpoint: Path, vari
         },
         "base_protocol_sha256": base_protocol_sha,
         "evaluation_source_bundle_matches_g006": True,
-        "checkpoint_matches_g006_queue": job["id"],
+        "checkpoint_matches_g006_queue": checkpoint_source,
         "wrapper_sha256": EVALUATOR.file_sha256(Path(__file__).resolve()),
     }
 
@@ -92,7 +106,7 @@ def preflight(sweep_path: Path, grid_manifest_path: Path, checkpoint: Path, vari
 def split_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--sweep-contract", required=True, type=Path)
-    parser.add_argument("--phase", required=True, choices=("A1", "A2", "B"))
+    parser.add_argument("--phase", required=True, choices=("A1", "A2", "B", "S2"))
     own, remaining = parser.parse_known_args()
     sys.argv = [sys.argv[0], *remaining]
     return own
@@ -115,8 +129,9 @@ def main() -> int:
         # written before it, exactly as evaluate_push_recovery.main() does.
         try:
             report = EVALUATOR.evaluate(args)
-            report["goal"] = REPORT_GOAL
-            report["experimental_use"] = REPORT_EXPERIMENTAL_USE
+            contract = read_json(own.sweep_contract.resolve())
+            report["goal"] = contract.get("goal", REPORT_GOAL)
+            report["experimental_use"] = contract.get("experimental_use", REPORT_EXPERIMENTAL_USE)
             report["g006s1"] = {"phase": own.phase, **binding}
             report["runtime"]["started_at_epoch"] = started_at
             report["runtime"]["finished_at_epoch"] = time.time()

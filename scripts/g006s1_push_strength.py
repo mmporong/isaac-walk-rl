@@ -71,8 +71,8 @@ def report_path(phase: str, variant: str, seed: int) -> Path:
     return RUNS / f"g006s1_{phase}_{variant}_s{seed}_push.json"
 
 
-def grid_manifest_path(grid: list[float]) -> Path:
-    return REPO_ROOT / "configs" / f"g006s1_grid_{grid_label(grid)}.json"
+def grid_manifest_path(grid: list[float], goal: str = REPORT_GOAL) -> Path:
+    return REPO_ROOT / "configs" / f"{goal.lower()}_grid_{grid_label(grid)}.json"
 
 
 def load_report(path: Path, *, phase: str, variant: str, seed: int, grid: list[float]) -> dict[str, Any]:
@@ -97,13 +97,14 @@ def load_report(path: Path, *, phase: str, variant: str, seed: int, grid: list[f
 
 
 def command_grid(args: argparse.Namespace) -> int:
-    contract = read_json(CONTRACT)
+    contract_path = (REPO_ROOT / args.contract) if not args.contract.is_absolute() else args.contract
+    contract = read_json(contract_path)
     grid = validate_grid(args.grid, contract["calibration"]["magnitude_ladder_mps"])
     base = read_json(REPO_ROOT / contract["base"]["manifest"])
-    manifest = build_grid_manifest(base, grid, sweep_sha256=G006_SUMMARY.file_sha256(CONTRACT))
-    path = grid_manifest_path(grid)
+    manifest = build_grid_manifest(base, grid, sweep_sha256=G006_SUMMARY.file_sha256(contract_path))
+    path = grid_manifest_path(grid, contract["goal"])
     write_json(path, manifest)
-    print(json.dumps({"grid_manifest": str(path.relative_to(REPO_ROOT)), "grid_mps": grid}))
+    print(json.dumps({"grid_manifest": "configs/" + path.name, "grid_mps": grid}))
     return 0
 
 
@@ -273,6 +274,7 @@ def main() -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     grid = sub.add_parser("grid")
     grid.add_argument("--grid", required=True, nargs=3, type=float)
+    grid.add_argument("--contract", type=Path, default=Path("configs/g006s1_push_strength_sweep.json"))
     grid.set_defaults(func=command_grid)
     select = sub.add_parser("select")
     select.set_defaults(func=command_select)

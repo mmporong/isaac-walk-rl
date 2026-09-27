@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "goal": "G006S2",
+  "experimental_use": "g006s2_seed_extension",
+  "title": "G006 baseline vs push curriculum with five training seeds at the G006S1 push grid",
+  "registered_on": "2026-09-27",
+  "question": "With five training seeds per variant, does the push-curriculum policy recover from 2.0/2.5/3.0 m/s body-frame pushes at a different rate than the baseline policy?",
+  "design": {
+    "seeds": [42, 43, 44, 45, 46],
+    "existing_seeds": {
+      "seeds": [42, 43, 44],
+      "training": "G006 production runs (reports/runs/g006_queue_state.json)",
+      "evaluation": "G006S1 phase-B reports reports/runs/g006s1_B_{variant}_s{seed}_push.json"
+    },
+    "new_seeds": [45, 46],
+    "why_reuse": "Training source bytes, entrypoint, task, budget and evaluator are identical to G006, so seeds 42-44 are the same experiment; only seeds 45 and 46 are trained.",
+    "known_command_difference": "The current run_training.ps1 passes an explicit '--device cuda:0'. G006 ran with the AppLauncher default, which its stdout recorded as cuda:0. The gate requires the new stdout to show 'Using device: cuda:0'."
+  },
+  "base": {
+    "manifest": "configs/g006_rough_push.json",
+    "protocol_sha256": "8fb22d72c8dd5dfbdffed0736de61bd0623d40f1762d685a1680f690aaa34787",
+    "queue_state": "reports/runs/g006_queue_state.json",
+    "evaluation_source_bundle_sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+    "training_source_bundle_sha256": "54c723524b36f9d1701bc72928841912cc6f282294aeac90f255410ef04e6bea",
+    "training_entrypoint_sha256": "9a9663b05e8fb9de6d65f2e72633e3667c09ea0c2bb1a5beeb33d0386b9dc708"
+  },
+  "training": {
+    "harness": "scripts/run_training.ps1 without Qualification/Smoke/safety switches and without Hydra overrides",
+    "entrypoint": "scripts/bootstrap_train_g006.py",
+    "num_envs": 4096,
+    "max_iterations": 1500,
+    "tasks": {
+      "baseline": "Isaac-G006-Velocity-Rough-Go2-Baseline-v0",
+      "push_curriculum": "Isaac-G006-Velocity-Rough-Go2-PushCurriculum-v0"
+    },
+    "order": ["baseline-s45", "push_curriculum-s45", "baseline-s46", "push_curriculum-s46"],
+    "run_name": "g006s2_production_{variant}_e4096_i1500_s{seed}",
+    "gates": [
+      "harness report passed == true (same eight run-health checks as G006)",
+      "training source bundle sha256 equals base.training_source_bundle_sha256 before and after the run",
+      "recorded command equals the G006 command with seed, run_name and the documented '--device cuda:0' as the only differences",
+      "stdout contains 'Using device: cuda:0'",
+      "peak VRAM <= 9830 MiB"
+    ],
+    "on_gate_failure": "stop the queue, keep every artifact, record the failure; an incomplete run is restarted from scratch under a new run name only after the cause is recorded"
+  },
+  "training_reports": [
+    {"variant": "baseline", "seed": 45, "path": "reports/runs/g006s2_production_baseline_e4096_i1500_s45.json"},
+    {"variant": "push_curriculum", "seed": 45, "path": "reports/runs/g006s2_production_push_curriculum_e4096_i1500_s45.json"},
+    {"variant": "baseline", "seed": 46, "path": "reports/runs/g006s2_production_baseline_e4096_i1500_s46.json"},
+    {"variant": "push_curriculum", "seed": 46, "path": "reports/runs/g006s2_production_push_curriculum_e4096_i1500_s46.json"}
+  ],
+  "calibration": {
+    "magnitude_ladder_mps": [2.0, 2.5, 3.0]
+  },
+  "evaluation": {
+    "grid_mps": [2.0, 2.5, 3.0],
+    "grid_source": "fixed by G006S1 pre-registered selection; not re-selected here",
+    "grid_manifest": "configs/g006s2_grid_m2p00_m2p50_m3p00.json",
+    "wrapper": "scripts/evaluate_g006s1_push_strength.py --phase S2",
+    "report": "reports/runs/g006s2_S2_{variant}_s{seed}_push.json",
+    "protocol_equivalence": "every report's protocol sha256 must equal the G006S1 phase-B reports' protocol sha256"
+  },
+  "analysis": {
+    "primary": "paired hierarchical bootstrap of push_curriculum minus baseline recovery over the 1080 grid trials, seeds 42-46, 108 strata, 10000 draws, bootstrap seed 20260824",
+    "difference_claim_rule": "state a direction only if the primary 95% CI excludes 0; otherwise report no detectable difference",
+    "secondary": [
+      "per-magnitude and per-direction pooled recovery with Wilson 95% intervals",
+      "per-seed recovery by magnitude",
+      "same paired delta for seeds 45-46 only (not used to select anything)"
+    ]
+  },
+  "claim_boundary": [
+    "Five training seeds per variant; the result is about these two training recipes in simulation, not about real robots.",
+    "Both variants saw pushes of at most 1.0 m/s in training; the 2.0-3.0 m/s grid is outside both training distributions.",
+    "Recovery after a push is not getting up from a fallen posture."
+  ],
+  "resource_gates": {
+    "gpu_lease": "%USERPROFILE%\\CodexSignals\\Use-GpuLease.ps1 owner G006S2, one lease per training run and per evaluation",
+    "vram_limit_mib": 9830
+  },
+  "outputs": {
+    "run_log": "reports/runs/g006s2_run_log.json",
+    "summary": "reports/runs/g006s2_summary.json",
+    "document": "docs/G006S2_SEED_EXTENSION.md"
+  }
+}
