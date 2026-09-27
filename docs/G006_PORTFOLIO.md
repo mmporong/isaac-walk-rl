@@ -258,6 +258,28 @@ cd "$HOME\IsaacLab"
   --headless
 ```
 
+## 다음 가설
+
+이번 비교에서 차이를 볼 수 없었던 이유는 두 가지로 정리된다. 하나는 baseline 회복률이 이미 `99.5370%`라 개선이 들어갈 여지가 거의 없었다는 점이고, 다른 하나는 variant당 seed가 3개라 `+0.0617%p` 수준의 차이를 가를 검정력이 없었다는 점이다.
+
+다음 비교는 아래 순서로 설계한다. 아직 실행하지 않았다.
+
+1. push 크기를 올려 baseline 회복률이 천장에서 내려오는 평가 강도를 먼저 찾는다. 학습 조건은 바꾸지 않고 평가 grid만 넓힌다.
+2. 그 강도에서 baseline과 push curriculum을 같은 budget으로 다시 비교하고, training seed를 최소 5개로 늘린다.
+3. 회복률과 함께 이번에 관찰한 trade-off, 즉 추적 오차 감소와 torque·mechanical power proxy 증가가 같은 방향으로 재현되는지 확인한다.
+
+## 보조 사례와 후속 연구
+
+G006을 주 사례로 두고, 같은 저장소의 다른 실험은 G006 설계를 뒷받침하거나 적용 범위의 경계를 보여 주는 근거로 붙인다.
+
+| 사례 | 무엇을 바꿨나 | 확인한 결과 | 판정과 한계 |
+| --- | --- | --- | --- |
+| [G005 보상 ablation](G005_REWARD_ABLATION.md) | `dof_torques_l2`, `action_rate_l2`, `feet_air_time`을 한 번에 하나씩 제거. 4 variants × seed 42/43/44, 4,096 env × 300 iterations | `action_rate` 제거 시 선속도 RMSE `0.1125 → 0.1242 m/s`, 일률 proxy `123.67 → 138.70 W`, action rate L2 `2.252 → 5.031`. `feet_air_time` 제거 시 일률 proxy `111.89 W`로 낮아졌지만 발을 덜 든 결과다 | 12/12 완주. `n=3`이라 탐색적 근거다. 서로 다른 보상 정의의 training reward는 같은 척도로 비교하지 않는다 |
+| [G008 방향 명령·마찰·질량](G008_COMMAND_FRICTION_LINK_MASS.md) | G006 checkpoint에서 1,024 env × 300 iterations warm-start. 네 방향 명령 term, 발 마찰, 링크 질량을 각각 단일축으로 추가 | 평면 네 방향 gate PASS: 생존 64/64, 선속도 RMSE `0.0466~0.0794 m/s`, yaw RMSE `0.0741~0.1154 rad/s`. friction S1도 평면 gate PASS | friction S1은 rough 학습 중 terrain level 평균이 `3.45 → 2.27`로 내려가 S2 미승인. leg-mass S1은 우회전 yaw RMSE `0.2956 / 0.2947 rad/s`로 기준 `0.25 rad/s` FAIL. [주기적 마찰·질량 경계](G008_PERIODIC_FRICTION_AND_LINK_MASS_LIMITS.md)와 [불규칙 도로](G008_IRREGULAR_ROAD.md)도 보편적 강건성 근거가 아니다 |
+| [G009 경사·전복 복구](G009_MOUNTAIN_SLOPE_RECOVERY.md) | 경사 기하 검증, contact 관측, 관절 제한 계측, calf 감쇠 단일변수 비교 | 경사 S0 기하 24/24 PASS. 최신 rev32/rev33 50-iteration smoke는 관절 hard-limit 사건이 남아 training safety gate FAIL, prone 재생 8초 timeout | 복구 성공이 아니다. 네 초기 자세의 정량 복구율은 측정하지 않았다. 안전 기준으로 후보를 기각하고 다음 역학 진단을 설계한 연구 기록으로만 쓴다 |
+
+G005는 G006에서 쓴 보상 weight가 무엇을 억제하는지, G008은 G006 정책을 명령·물성 변화로 넓혔을 때 어디서 멈췄는지를 보여 준다. G009 영상은 `DIAGNOSTIC / NOT QUALIFIED` 표시가 있는 실패 진단 자료이므로 주 사례 영상을 대체하지 않는다.
+
 ## 근거 파일과 한계
 
 - 실험 계약: [configs/g006_rough_push.json](../configs/g006_rough_push.json)

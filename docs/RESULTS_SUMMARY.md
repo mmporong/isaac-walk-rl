@@ -121,7 +121,11 @@ upstream Isaac Lab은 수정하지 않고 별도 태스크로 등록했다.
 
 ## 8. 아직 진행 중 (미완결)
 
-`G009` 산 비탈 보행·전복 복구는 **R0 strict success = 0** 이며 완료가 아니다. rev14~rev23은 접촉력 진단과 관측 계약 기록이고, GPU 접촉 콜백 부재(`unavailable_on_gpu`) 등 플랫폼 한계를 수치와 권위 경계로 좁힌 단계다. rev24는 fresh 1024/2048 GPU throughput smoke를 canonical PASS해 이번 ladder의 stable maximum을 `2048 env`로 확정했다. rev25 E018은 pre-App import 실패와 missing-telemetry 실패를 보존한 뒤 clean retry02에서 whole-body terrain-contact matrix를 actor `140D`·critic `164D`에 연결하고 사전등록 gate `27/27`을 PASS했다. 이는 1-iteration connectivity/safety smoke이며 `policy qualification=not_run`, `recovery success=not_measured`다. 새 미디어와 Garden·포트폴리오 production 발행은 없고, 다음은 seed 42의 `1024 env × 24 steps × 300 iterations` R0 qualification이다. 상세는 [`G009_MOUNTAIN_SLOPE_RECOVERY.md`](G009_MOUNTAIN_SLOPE_RECOVERY.md)에 있다.
+`G009` 산 비탈 보행·전복 복구는 **R0 strict success = 0** 이며 완료가 아니다. rev14~rev23은 접촉력 진단과 관측 계약 기록이고, GPU 접촉 콜백 부재(`unavailable_on_gpu`) 등 플랫폼 한계를 수치와 권위 경계로 좁힌 단계다. rev24는 fresh 1024/2048 GPU throughput smoke를 canonical PASS해 이번 ladder의 stable maximum을 `2048 env`로 확정했다. rev25 E018은 whole-body terrain-contact matrix를 actor `140D`·critic `164D`에 연결하고 사전등록 gate `27/27`을 PASS한 1-iteration connectivity/safety smoke였다.
+
+그 뒤 R0 qualification 경로는 모두 안전 관문에서 기각됐다. rev26 full300은 완주했지만 관절 제한 nonzero `57/300`으로 기각됐고, rev28/29/30 50-iteration smoke는 각각 `4/50`, `1/50`, `4/50`이었다. rev31에서는 hard-limit 사건 4건 모두 prone 뒷다리 calf lower-side에서 복원 방향 토크와 발접촉이 함께 관측됐다. 접촉 역구동은 후보 해석이며, 접촉과 solver를 분리한 인과 검증은 아직 없다. 2026-09-27 rev32(뒷다리 calf Kd `0.5 → 1.0`)와 rev33(앞다리 calf Kd 추가 `0.5 → 1.0`)도 각각 `2/50`, `1/50`으로 training safety gate **FAIL**, prone 고화질 재생은 둘 다 8초 timeout이었다. 단일 seed이고 정책 궤적이 달라지므로 사건 수 감소를 개선으로 해석하지 않는다. 네 초기 자세의 정량 복구율은 `not_measured`다.
+
+다음 단계는 사건 직전 200 Hz physics-substep 이력을 bounded ring buffer로 기록하는 진단의 사전 등록이며 아직 구현·실행하지 않았다. 더 높은 Kd 반복은 중단했다. G009 영상은 `DIAGNOSTIC / NOT QUALIFIED` 실패 진단 자료이고, Garden·포트폴리오 production에 성공 사례로 발행하지 않는다. 상세는 [`G009_MOUNTAIN_SLOPE_RECOVERY.md`](G009_MOUNTAIN_SLOPE_RECOVERY.md)와 [`HANDOFF_SIM_PORTFOLIO.md`](HANDOFF_SIM_PORTFOLIO.md)에 있다.
 
 실기체 이관은 범위 밖이다. 로봇이 바뀌면 링크 질량·관성·COM, 관절 범위와 순서, 모터 torque-speed envelope, action scale, 발 마찰, 제어 dt가 모두 달라지므로 정책 weight와 절대 임계값은 재사용하지 않는다. 재사용 가능한 것은 terrain generator, 평가 grid, reward 구조, support-plane 계측, media/report schema다.
 
