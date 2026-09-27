@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "goal": "G006S1",
+  "title": "G006 checkpoint push strength sweep (evaluation only)",
+  "registered_on": "2026-09-27",
+  "question": "At what body-frame push magnitude does the G006 baseline policy leave the recovery-rate ceiling, and how do the existing baseline and push-curriculum checkpoints compare there?",
+  "scope": {
+    "training": "none; the six existing G006 model_1499 checkpoints are only evaluated",
+    "unchanged_from_g006": [
+      "terrain, held-out rows/cols, initial states, commands, push directions, push timing",
+      "success_criteria, observation corruption off, evaluation domain randomization off",
+      "scripts/evaluate_push_recovery.py and src/isaac_walk_g006/evaluation (bundle sha256 must equal g006_queue_state.evaluation_source_bundle_sha256)"
+    ],
+    "single_changed_axis": "evaluation_protocol.push_magnitudes_mps",
+    "guardrail_mode": "not rerun; push magnitude does not enter no-push guardrail trials"
+  },
+  "base": {
+    "manifest": "configs/g006_rough_push.json",
+    "protocol_sha256": "8fb22d72c8dd5dfbdffed0736de61bd0623d40f1762d685a1680f690aaa34787",
+    "queue_state": "reports/runs/g006_queue_state.json",
+    "evaluation_source_bundle_sha256": "4277f55547c5ae636f43dc63d3fe7fe61dccff1d6c9ef6d3990b553412348897",
+    "reference_magnitudes_mps": [0.5, 1.0, 1.5]
+  },
+  "checkpoints": [
+    {"id": "baseline-s42", "variant": "baseline", "training_seed": 42, "queue_job": "baseline-e4096-s42"},
+    {"id": "baseline-s43", "variant": "baseline", "training_seed": 43, "queue_job": "baseline-e4096-s43"},
+    {"id": "baseline-s44", "variant": "baseline", "training_seed": 44, "queue_job": "baseline-e4096-s44"},
+    {"id": "push_curriculum-s42", "variant": "push_curriculum", "training_seed": 42, "queue_job": "push_curriculum-e4096-s42"},
+    {"id": "push_curriculum-s43", "variant": "push_curriculum", "training_seed": 43, "queue_job": "push_curriculum-e4096-s43"},
+    {"id": "push_curriculum-s44", "variant": "push_curriculum", "training_seed": 44, "queue_job": "push_curriculum-e4096-s44"}
+  ],
+  "calibration": {
+    "checkpoint": "baseline-s42",
+    "magnitude_ladder_mps": [2.0, 2.5, 3.0, 3.5, 4.0, 5.0],
+    "runs": [
+      {"phase": "A1", "grid_mps": [2.0, 2.5, 3.0], "condition": "always"},
+      {"phase": "A2", "grid_mps": [3.5, 4.0, 5.0], "condition": "only if every A1 magnitude has recovery_rate > ceiling_threshold"}
+    ],
+    "per_magnitude_trials": 360,
+    "ceiling_threshold": 0.95,
+    "selection_rule": "k = first ladder index whose calibration recovery_rate <= ceiling_threshold; comparison grid = three consecutive ladder values starting at max(0, min(k - 1, len(ladder) - 3)); if no index qualifies, stop with verdict no_knee_within_ladder and do not run phase B"
+  },
+  "comparison": {
+    "phase": "B",
+    "checkpoints": "all six",
+    "grid": "selected by calibration.selection_rule",
+    "primary_metric": "push recovery rate over the 1080 grid trials, paired hierarchical bootstrap of push_curriculum minus baseline, 108 strata, 10000 draws, bootstrap seed 20260824",
+    "secondary": [
+      "per-magnitude recovery rate with Wilson 95% interval, pooled and per seed",
+      "same paired delta restricted to seeds 43 and 44 because seed 42 baseline was used for calibration",
+      "tracking_error_sq, torque_l2, absolute_mechanical_power over post-push trials"
+    ],
+    "ceiling_exit_confirmed_if": "pooled three-seed baseline recovery rate at the knee magnitude (ladder[k]) is <= ceiling_threshold",
+    "difference_claim_rule": "state a direction only if the primary 95% CI excludes 0; otherwise report no detectable difference"
+  },
+  "claim_boundary": [
+    "Evaluation-only analysis of existing checkpoints; not the retrained step-2 comparison with five or more seeds.",
+    "Three training seeds per variant; seed 42 baseline also chose the grid.",
+    "A push is an instantaneous root velocity delta in simulation; magnitudes are not calibrated to any real robot or force.",
+    "Recovery after a push is not getting up from a fallen posture."
+  ],
+  "resource_gates": {
+    "gpu_lease": "%USERPROFILE%\\CodexSignals\\Use-GpuLease.ps1 owner G006S1",
+    "vram_limit_mib": 9830,
+    "require_process_exit_and_gpu_release": true,
+    "stop_on": ["evaluator status != complete", "protocol_blocked", "evaluation source bundle mismatch", "checkpoint sha256 mismatch"]
+  },
+  "outputs": {
+    "grid_manifest": "configs/g006s1_grid_m{m1}_m{m2}_m{m3}.json",
+    "push_report": "reports/runs/g006s1_{phase}_{variant}_s{seed}_push.json",
+    "run_log": "reports/runs/g006s1_run_log.json",
+    "summary": "reports/runs/g006s1_summary.json",
+    "document": "docs/G006S1_PUSH_STRENGTH_SWEEP.md"
+  }
+}

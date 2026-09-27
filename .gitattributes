@@ -55,3 +55,12 @@
 /src/isaac_walk_g009/recover_contracts.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 /src/isaac_walk_g009/recover_env_cfg.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 /src/isaac_walk_g009/registry.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# G006 evaluator bytes are bound by evaluation_source_bundle_sha256 (LF at execution).
+/scripts/evaluate_push_recovery.py text eol=lf
+/src/isaac_walk_g006/evaluation/*.py text eol=lf
+/configs/g006s1_*.json text eol=lf
+/scripts/*g006s1*.py text eol=lf
+/src/isaac_walk_g006/sweep/*.py text eol=lf
+/tests/test_g006s1_*.py text eol=lf
+# Evaluator reports keep the bytes it wrote (Windows text mode), as for rev32/rev33.
+/reports/runs/g006s1_*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
