@@ -59,6 +59,13 @@ def validate_binding(path: Path, revision: str = "rev32") -> tuple[dict, Path]:
         raise ValueError("training operational checks failed")
     if (report["task"], report["num_envs"], report["max_iterations"], report["seed"]) != (TASK, 1024, 50, 42):
         raise ValueError("rev32 training protocol mismatch")
+    gate = report.get("training_safety_gate", {})
+    if (report.get("headless") is not True or report.get("resume", {}).get("enabled") is not False
+        or report.get("effective_hydra_overrides") != [] or report.get("last_iteration") != 49
+        or report.get("iteration_target") != 50
+        or not all(gate.get(key) is True for key in
+                   ("requested", "required", "scratch_required", "requires_both_maximum_counts_zero"))):
+        raise ValueError("scratch/headless/safety-gated smoke contract mismatch")
     bundle = report["source_bundle"]
     expected_paths = BASE_SOURCE_PATHS | {f"configs/g009_r0_{revision}_damping.json",
                                         f"scripts/bootstrap_train_g009_{revision}_damping.py",

@@ -8,27 +8,41 @@ from pathlib import Path
 
 from record_g009_r0_diagnostic import file_sha256, portable_path, resolve_portable_path
 from g009_r0_rev32 import REPO_ROOT
+from record_g009_r0_rev32_hd import validate_binding
 
 sys.path.insert(0, str(REPO_ROOT / "src"))
 from isaac_walk_g009.media_contract import inspect_gif_encoding, validate_gif_encoding_metadata
 
 
-def build(capture_path: Path):
-    capture = json.loads(capture_path.read_text(encoding="utf-8"))
+def validate_capture_binding(capture):
     if capture.get("diagnostic_only") is not True or capture.get("qualification_eligible") is not False:
         raise ValueError("diagnostic capture required")
-    video = resolve_portable_path(capture["local_video"]["path"])
-    if file_sha256(video) != capture["local_video"]["sha256"]:
-        raise ValueError("local video hash mismatch")
     training_path = resolve_portable_path(capture["training_report"]["path"])
     if file_sha256(training_path) != capture["training_report"]["sha256"]:
         raise ValueError("quantitative training report hash mismatch")
-    # Include the verified training-time gain evidence, even for the original
-    # capture made before the sidecar field was added to the recorder.
+    revision = capture.get("revision", "rev32")
+    training, checkpoint = validate_binding(training_path, revision)
+    binding = training["verified_intervention"]
+    if "training_intervention" in capture and capture["training_intervention"] != binding:
+        raise ValueError("capture intervention sidecar mismatch")
+    if (capture["checkpoint"]["sha256"] != training["artifacts"]["checkpoint_sha256"]
+        or resolve_portable_path(capture["checkpoint"]["path"]).resolve() != checkpoint.resolve()):
+        raise ValueError("capture checkpoint mismatch")
     intervention_path = training_path.with_name(training_path.stem + "_intervention.json")
     intervention = json.loads(intervention_path.read_text(encoding="utf-8"))
-    if intervention.get("actuator_readback_stable") is not True:
-        raise ValueError("training gain readback was not stable")
+    for key in ("joint_names", "damping_by_joint", "stiffness_by_joint", "effort_limit_by_joint"):
+        if (capture["actuator_before"][key] != intervention["actuator_before"][key]
+            or capture["actuator_after"][key] != intervention["actuator_after"][key]):
+            raise ValueError("capture/training gain mismatch")
+    return training_path, intervention_path, intervention
+
+
+def build(capture_path: Path):
+    capture = json.loads(capture_path.read_text(encoding="utf-8"))
+    training_path, intervention_path, intervention = validate_capture_binding(capture)
+    video = resolve_portable_path(capture["local_video"]["path"])
+    if file_sha256(video) != capture["local_video"]["sha256"]:
+        raise ValueError("local video hash mismatch")
     probe = json.loads(subprocess.check_output([
         "ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0",
         "-show_entries", "stream=width,height,avg_frame_rate,nb_read_frames:format=duration",

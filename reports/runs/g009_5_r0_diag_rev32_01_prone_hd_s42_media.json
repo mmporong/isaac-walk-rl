@@ -1,0 +1,73 @@
+{
+  "schema_version": "g009.r0.damping.hd_media.v1",
+  "status": "diagnostic_media_complete",
+  "diagnostic_only": true,
+  "qualification_eligible": false,
+  "capture": {
+    "path": "reports/runs/g009_5_r0_diag_rev32_01_prone_hd_s42.json",
+    "sha256": "ffa981d24bec321d9c6686b51e3401cfbc917c37b0de263e895e705ba1d2beda"
+  },
+  "quantitative_report": {
+    "path": "reports/runs/go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910.json",
+    "sha256": "7312ecd32d8325d3a0857efab5389e827eb083f2587484799963ca2e662110e5",
+    "scope": "training safety telemetry, not recovery-rate evaluation"
+  },
+  "training_intervention": {
+    "path": "reports/runs/go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910_intervention.json",
+    "sha256": "b057abcfc5cdcffc1d89e973818f3edbac61d16f747a06a1459c2fa04bfb7823",
+    "protocol": "g009_r0_rev32_rear_calf_damping_smoke_v1"
+  },
+  "local_video": {
+    "path": "%USERPROFILE%\\IsaacLab\\logs\\visual_evidence\\g009\\R0\\diagnostic\\g009_5_r0_diag_rev32_01_prone_hd_s42.mp4",
+    "sha256": "9afa1d98cc7a996c20fba901d94a3e104ac4fd9f03ebbd5806c175806af79237",
+    "bytes": 2514102
+  },
+  "source_video_probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "width": 1920,
+        "height": 1080,
+        "avg_frame_rate": "30/1",
+        "nb_read_frames": "240"
+      }
+    ],
+    "format": {
+      "duration": "8.000000"
+    }
+  },
+  "gif": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev32_01_prone_hd_s42.gif",
+    "sha256": "3f304bb86e5bddf48a14875ecc19665436ae66a5df1ba3e4b036665ce70695ce",
+    "encoding": {
+      "actual_gif_fps": 15.0,
+      "gif_frame_count": 60,
+      "gif_duration_seconds": 4.0,
+      "maximum_frame_duration_ms": 70.0,
+      "width": 960,
+      "height": 540,
+      "bytes": 8846793,
+      "source_video_fps": 30,
+      "target_gif_fps": 15,
+      "media_kind": "camera",
+      "temporal_strategy": "source_frame_sampling",
+      "palette_colors": 256,
+      "compression_policy_order": [
+        "trim_duration",
+        "reduce_resolution",
+        "reduce_palette"
+      ],
+      "compression_steps_applied": [
+        "trim_duration",
+        "reduce_resolution"
+      ]
+    }
+  },
+  "png": {
+    "path": "docs/media/g009/R0/diagnostic/g009_5_r0_diag_rev32_01_prone_hd_s42_still.png",
+    "sha256": "f7c8cd0291ebb8ef3d8f29b181bd18caf2824bc043f80c23e78fb89db97b02cc",
+    "bytes": 1039634
+  },
+  "builder_source_sha256": "672447c404951d4066da3db6fd8140a04508678e5495e737ceee3355434220f2"
+}

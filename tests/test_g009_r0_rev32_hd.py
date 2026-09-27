@@ -57,7 +57,8 @@ def test_rejected_smoke_is_valid_diagnostic_not_qualification(bound_report):
     assert len(value["verified_intervention"]["sha256"]) == 64
 
 
-@pytest.mark.parametrize("mutation", ["identity", "qualification", "manifest", "snapshot", "runtime", "gains"])
+@pytest.mark.parametrize("mutation", ["identity", "qualification", "manifest", "snapshot", "runtime", "gains",
+                                      "headless", "resume", "hydra", "last_iteration", "iteration_target", "safety_gate"])
 def test_wrong_smoke_bindings_are_rejected(bound_report, mutation):
     _, value, intervention = bound_report
     if mutation == "identity":
@@ -73,5 +74,35 @@ def test_wrong_smoke_bindings_are_rejected(bound_report, mutation):
     elif mutation == "gains":
         for field in ("actuator_before", "actuator_after"):
             intervention[field]["damping_by_joint"]["FR_calf_joint"] = 1.0
+    elif mutation == "headless":
+        value["headless"] = False
+    elif mutation == "resume":
+        value["resume"]["enabled"] = True
+    elif mutation == "hydra":
+        value["effective_hydra_overrides"] = ["env.fake=1"]
+    elif mutation in ("last_iteration", "iteration_target"):
+        value[mutation] -= 1
+    elif mutation == "safety_gate":
+        value["training_safety_gate"]["required"] = False
     with pytest.raises(ValueError):
         hd.validate_binding(save_binding(bound_report))
+
+
+@pytest.mark.parametrize("mutation", ["protocol", "runtime", "gains", "qualification"])
+def test_builder_cannot_bypass_training_intervention_checks(bound_report, mutation):
+    import build_g009_r0_damping_hd_media as builder
+    _, value, intervention = bound_report
+    if mutation == "protocol":
+        intervention["protocol"] = "other experiment"
+    elif mutation == "runtime":
+        intervention["runtime"]["seed"] = 43
+    elif mutation == "gains":
+        for key in ("actuator_before", "actuator_after"):
+            intervention[key]["damping_by_joint"]["FR_calf_joint"] = 1.0
+    else:
+        intervention["qualification_eligible"] = True
+    path = save_binding(bound_report)
+    capture = {"diagnostic_only": True, "qualification_eligible": False,
+               "training_report": {"path": str(path), "sha256": hd.file_sha256(path)}}
+    with pytest.raises(ValueError):
+        builder.validate_capture_binding(capture)
