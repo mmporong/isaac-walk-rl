@@ -910,3 +910,18 @@ $binding = @('configs/g009_r0.json','configs/g009_r0_rev33_damping.json',
 python scripts/build_g009_r0_damping_hd_media.py `
  --capture reports/runs/g009_5_r0_diag_rev33_01_prone_hd_s42.json
 ```
+
+### G006S1 외란 강도 sweep (평가 전용, 2026-09-27)
+
+- 목적: G006 baseline 회복률 99.54% 천장 때문에 variant 차이를 볼 수 없었던 문제를 확인한다. 새 학습 없이 G006 `model_1499.pt` 6개를 더 강한 push로 평가한다.
+- commit: 사전 등록 `a4c6cf2`, 래퍼 수정 `c56cb18`. 계약 `configs/g006s1_push_strength_sweep.json`, 격자 `configs/g006s1_grid_m2p00_m2p50_m3p00.json`.
+- 설정 diff: `evaluation_protocol.push_magnitudes_mps`만 `[0.5,1.0,1.5]` → `[2.0,2.5,3.0]`. evaluator source bundle `4277f555…8897`이 G006과 같음을 실행 전에 확인했다. 확인 과정에서 `core.autocrlf=true` 체크아웃이 evaluator 6개 파일을 CRLF로 바꿔 bundle 해시가 달라지는 것을 발견하고, `.gitattributes`에 `eol=lf`를 추가해 G006 실행 바이트와 일치시켰다.
+- 규모: 평가당 1,080 env × 600 control steps, headless, `cuda:0`. A1(baseline s42) 1회 + B 6회. 평가당 wall time 60.6~63.4 s, peak VRAM 7,522~7,775 MiB, peak GPU 54~85%, peak 온도 59~64°C (성공 실행 7회 기준). 모든 실행은 `CodexSignals\Use-GpuLease.ps1 -Owner G006S1` 안에서 수행했다.
+- 실패 기록: A1 첫 시도는 exit 0이었으나 보고서가 없었다. 래퍼가 `SimulationApp.close()` 뒤에 쓰도록 되어 있었고 Isaac Sim 4.5는 close에서 프로세스를 끝낸다. 순서를 고치고 회귀 테스트를 추가했다. run log에 실패 시도를 보존했다.
+- GPU 회수: 마지막 실행 뒤 러너 게이트가 FAIL(종료 5 s 뒤 1,749 MiB, 시작 전 1,480 MiB, 허용 +256 MiB). 잔류 Isaac·Python 프로세스 없음, lease `completed/exit 0`, 직후 1,764 MiB는 같은 날 유휴 관찰 범위 1,701~1,821 MiB 안이라 데스크톱 VRAM 변동으로 판단했다(추론). run log 값은 수정하지 않았다.
+- A1 보정: baseline s42 `2.0/2.5/3.0 m/s` = 70.28% / 62.50% / 60.00%. 사전 등록 규칙에 따라 A2 생략, 격자 `[2.0,2.5,3.0]` 선택.
+- B 결과: baseline 3 seed 합산 76.94% / 58.70% / 42.50% (1.5 m/s는 G006에서 99.44%). 천장 이탈 조건 충족. 격자 전체 회복률 baseline 1924/3240(59.38%), push curriculum 1733/3240(53.49%). paired bootstrap 차이 `-6.00%p`, 95% CI `[-26.33, +15.96]%p`, seed 43/44만 `+4.34%p [-8.43, +17.36]`. 판정: 차이 검출 안 됨.
+- 재현성: A1과 B의 baseline s42는 1,080 trial 결과·회복 step·생존 여부가 모두 같고 torque 지표 차이 0.
+- 원인 해석: variant 차이보다 seed 편차가 크다. 3.0 m/s에서 push curriculum s42 13.33%, s43 51.94%.
+- 다음 가설: 재학습 비교는 평가 grid `2.0/2.5/3.0 m/s`, seed 5개 이상으로 설계한다. 재학습 전에 seed별 실패 cell 분포를 먼저 확인한다.
+- 근거: `reports/runs/g006s1_summary.json`, `reports/runs/g006s1_run_log.json`, `reports/runs/g006s1_{A1,B}_*_push.json`, `docs/G006S1_PUSH_STRENGTH_SWEEP.md`.

@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "goal": "G006S1",
+  "status": "complete",
+  "contract": {
+    "path": "configs/g006s1_push_strength_sweep.json",
+    "sha256": "fd0679d879be4b36df5e97d558154ee945b08d6564cf32bc41b3633c4d5d1477"
+  },
+  "calibration_decision": {
+    "verdict": "grid_selected",
+    "knee_index": 0,
+    "knee_magnitude_mps": 2.0,
+    "grid_mps": [
+      2.0,
+      2.5,
+      3.0
+    ],
+    "ceiling_threshold": 0.95,
+    "calibration_rates": {
+      "2.00": 0.7027777777777777,
+      "2.50": 0.625,
+      "3.00": 0.6
+    },
+    "calibration_evidence": [
+      {
+        "phase": "A1",
+        "path": "reports/runs/g006s1_A1_baseline_s42_push.json",
+        "sha256": "55fcb8713ecf84c9143af0d167618a2f4f088d6f3df825766f4e0b23ae0d1f73",
+        "per_magnitude": {
+          "2.00": {
+            "recovered": 253,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.7027777777777777
+          },
+          "2.50": {
+            "recovered": 225,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.625
+          },
+          "3.00": {
+            "recovered": 216,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.6
+          }
+        }
+      }
+    ]
+  },
+  "grid_mps": [
+    2.0,
+    2.5,
+    3.0
+  ],
+  "reports": {
+    "baseline-s42": {
+      "path": "reports/runs/g006s1_B_baseline_s42_push.json",
+      "sha256": "3255b90ea9816b8183616e12a9a07fa73ba15a6969ed246d793370298dca461f",
+      "checkpoint_sha256": "4ad0d9889b6e1163a81322ccc0afe0095824aac297af7cea4304eb05f59edcfd"
+    },
+    "baseline-s43": {
+      "path": "reports/runs/g006s1_B_baseline_s43_push.json",
+      "sha256": "3117a7d69ef4d63204a409b61b3755b1d11223dee884e619e70db42783413784",
+      "checkpoint_sha256": "0294c8e46697530fed5d837aac39ef3bc530c9a3c582d773206836b69b754a7b"
+    },
+    "baseline-s44": {
+      "path": "reports/runs/g006s1_B_baseline_s44_push.json",
+      "sha256": "66518259cce08aab23d5488797dcabe63e9e4ba5af4eabbe748c80e7f96eae39",
+      "checkpoint_sha256": "181bd9dfa27b50cff73b66bb8cb5d13cca18f3b03cb6fb53614a0ccd4fba5d2a"
+    },
+    "push_curriculum-s42": {
+      "path": "reports/runs/g006s1_B_push_curriculum_s42_push.json",
+      "sha256": "0839b41bed5379ec3b5d83c9e546fdb1651e12319e339503d8ae07a91f3b5183",
+      "checkpoint_sha256": "e91fc238d531f18e173c45d24d7ab77d111e2c279ea095cd39ffe058027b858c"
+    },
+    "push_curriculum-s43": {
+      "path": "reports/runs/g006s1_B_push_curriculum_s43_push.json",
+      "sha256": "77deb4e5a72130d4685ff9459c1917250c78806ddf8eff2982a3060cd96dde42",
+      "checkpoint_sha256": "1512c7e784d736478741a0e9b2f97aee77624536e7cd4a3a1f4a6e0addf15f41"
+    },
+    "push_curriculum-s44": {
+      "path": "reports/runs/g006s1_B_push_curriculum_s44_push.json",
+      "sha256": "fb11105fca80feafab911f564db51df8d3967eaca1385fa619958ffba2902878",
+      "checkpoint_sha256": "cc799d6c1972ccd417e1631916337aaec2b97b62282f5f3f511f0e5396e31440"
+    }
+  },
+  "recovery": {
+    "baseline": {
+      "recovered": 1924,
+      "eligible": 3240,
+      "recovery_rate": 0.5938271604938271,
+      "wilson95": [
+        0.576815018893177,
+        0.6106170759605091
+      ],
+      "per_magnitude": {
+        "2.00": {
+          "recovered": 831,
+          "eligible": 1080,
+          "recovery_rate": 0.7694444444444445,
+          "wilson95": [
+            0.7433962332141719,
+            0.7935826720154384
+          ]
+        },
+        "2.50": {
+          "recovered": 634,
+          "eligible": 1080,
+          "recovery_rate": 0.587037037037037,
+          "wilson95": [
+            0.5574143843558276,
+            0.6160427190516754
+          ]
+        },
+        "3.00": {
+          "recovered": 459,
+          "eligible": 1080,
+          "recovery_rate": 0.425,
+          "wilson95": [
+            0.39583439589777697,
+            0.45469724903831094
+          ]
+        }
+      },
+      "per_seed": {
+        "42": {
+          "2.00": {
+            "recovered": 253,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.7027777777777777,
+            "wilson95": [
+              0.6536265956765127,
+              0.7476470812519614
+            ]
+          },
+          "2.50": {
+            "recovered": 225,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.625,
+            "wilson95": [
+              0.5739179444882184,
+              0.6734425412896082
+            ]
+          },
+          "3.00": {
+            "recovered": 216,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.6,
+            "wilson95": [
+              0.5485949303747126,
+              0.6492934582475487
+            ]
+          }
+        },
+        "43": {
+          "2.00": {
+            "recovered": 289,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.8027777777777778,
+            "wilson95": [
+              0.7585709114291452,
+              0.8405911541215905
+            ]
+          },
+          "2.50": {
+            "recovered": 184,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.5111111111111111,
+            "wilson95": [
+              0.4596301495715245,
+              0.5623574491642822
+            ]
+          },
+          "3.00": {
+            "recovered": 88,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.24444444444444444,
+            "wilson95": [
+              0.20290166081059835,
+              0.29138356826584494
+            ]
+          }
+        },
+        "44": {
+          "2.00": {
+            "recovered": 289,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.8027777777777778,
+            "wilson95": [
+              0.7585709114291452,
+              0.8405911541215905
+            ]
+          },
+          "2.50": {
+            "recovered": 225,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.625,
+            "wilson95": [
+              0.5739179444882184,
+              0.6734425412896082
+            ]
+          },
+          "3.00": {
+            "recovered": 155,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.4305555555555556,
+            "wilson95": [
+              0.38040520801630195,
+              0.4821722998849055
+            ]
+          }
+        }
+      },
+      "raw_metrics": {
+        "tracking_error_sq_mean": 0.2453677441458513,
+        "torque_l2_mean": 243.84302282612836,
+        "absolute_mechanical_power_mean": 56.417687058188434
+      }
+    },
+    "push_curriculum": {
+      "recovered": 1733,
+      "eligible": 3240,
+      "recovery_rate": 0.5348765432098765,
+      "wilson95": [
+        0.5176707698266197,
+        0.5519997127999149
+      ],
+      "per_magnitude": {
+        "2.00": {
+          "recovered": 837,
+          "eligible": 1080,
+          "recovery_rate": 0.775,
+          "wilson95": [
+            0.7491458633637215,
+            0.7989047718706231
+          ]
+        },
+        "2.50": {
+          "recovered": 511,
+          "eligible": 1080,
+          "recovery_rate": 0.47314814814814815,
+          "wilson95": [
+            0.44351911297208685,
+            0.5029675253383644
+          ]
+        },
+        "3.00": {
+          "recovered": 385,
+          "eligible": 1080,
+          "recovery_rate": 0.35648148148148145,
+          "wilson95": [
+            0.3284712182925191,
+            0.38550908991851335
+          ]
+        }
+      },
+      "per_seed": {
+        "42": {
+          "2.00": {
+            "recovered": 271,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.7527777777777778,
+            "wilson95": [
+              0.705701583180089,
+              0.7945162880595158
+            ]
+          },
+          "2.50": {
+            "recovered": 88,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.24444444444444444,
+            "wilson95": [
+              0.20290166081059835,
+              0.29138356826584494
+            ]
+          },
+          "3.00": {
+            "recovered": 48,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.13333333333333333,
+            "wilson95": [
+              0.10206164152521574,
+              0.17234760019315948
+            ]
+          }
+        },
+        "43": {
+          "2.00": {
+            "recovered": 312,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.8666666666666667,
+            "wilson95": [
+              0.8276523998068406,
+              0.8979383584747842
+            ]
+          },
+          "2.50": {
+            "recovered": 238,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.6611111111111111,
+            "wilson95": [
+              0.6107443490300902,
+              0.7080758326391084
+            ]
+          },
+          "3.00": {
+            "recovered": 187,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.5194444444444445,
+            "wilson95": [
+              0.4679013995225557,
+              0.5705768982651064
+            ]
+          }
+        },
+        "44": {
+          "2.00": {
+            "recovered": 254,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.7055555555555556,
+            "wilson95": [
+              0.6565012420648282,
+              0.7502693345475979
+            ]
+          },
+          "2.50": {
+            "recovered": 185,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.5138888888888888,
+            "wilson95": [
+              0.4623856618703726,
+              0.5650988365493859
+            ]
+          },
+          "3.00": {
+            "recovered": 150,
+            "eligible": 360,
+            "trials": 360,
+            "recovery_rate": 0.4166666666666667,
+            "wilson95": [
+              0.36688124546274264,
+              0.4682117640187063
+            ]
+          }
+        }
+      },
+      "raw_metrics": {
+        "tracking_error_sq_mean": 0.2427585251283537,
+        "torque_l2_mean": 249.5787589143825,
+        "absolute_mechanical_power_mean": 57.50525699619133
+      }
+    }
+  },
+  "ceiling_exit": {
+    "knee_magnitude_mps": 2.0,
+    "pooled_baseline_rate_at_knee": 0.7694444444444445,
+    "threshold": 0.95,
+    "confirmed": true
+  },
+  "paired_delta_push_curriculum_minus_baseline": {
+    "primary_all_seeds": {
+      "seed": 20260824,
+      "draws": 10000,
+      "estimate": -0.05996027777777778,
+      "ci95": [
+        -0.26327160493827156,
+        0.1595679012345679
+      ],
+      "samples_sha256": "4381e74226ff59c9f783f14bfef8791bcb823f123b4d92dea845de1cf842e893"
+    },
+    "secondary_seeds_43_44": {
+      "seed": 20260824,
+      "draws": 10000,
+      "estimate": 0.04342875,
+      "ci95": [
+        -0.08425925925925926,
+        0.1736111111111111
+      ],
+      "samples_sha256": "ceffae7836686709bd10f94f047eea95c499f5c7091844e99c3ceffded91dd1f"
+    },
+    "direction_rule_result": "no_detectable_difference"
+  },
+  "warnings": [
+    "Evaluation-only analysis of existing G006 checkpoints; no policy was retrained.",
+    "Three training seeds per variant; seed 42 baseline also selected the grid.",
+    "Push magnitudes are instantaneous simulated root velocity deltas, not calibrated real forces.",
+    "Mechanical power is a simulation proxy and is not electrical energy consumption."
+  ]
+}

@@ -262,10 +262,10 @@ cd "$HOME\IsaacLab"
 
 이번 비교에서 차이를 볼 수 없었던 이유는 두 가지로 정리된다. 하나는 baseline 회복률이 이미 `99.5370%`라 개선이 들어갈 여지가 거의 없었다는 점이고, 다른 하나는 variant당 seed가 3개라 `+0.0617%p` 수준의 차이를 가를 검정력이 없었다는 점이다.
 
-다음 비교는 아래 순서로 설계한다. 아직 실행하지 않았다.
+다음 비교는 아래 순서로 설계했다.
 
-1. push 크기를 올려 baseline 회복률이 천장에서 내려오는 평가 강도를 먼저 찾는다. 학습 조건은 바꾸지 않고 평가 grid만 넓힌다.
-2. 그 강도에서 baseline과 push curriculum을 같은 budget으로 다시 비교하고, training seed를 최소 5개로 늘린다.
+1. push 크기를 올려 baseline 회복률이 천장에서 내려오는 평가 강도를 먼저 찾는다. 학습 조건은 바꾸지 않고 평가 grid만 넓힌다. **2026-09-27 수행: [G006S1](G006S1_PUSH_STRENGTH_SWEEP.md).** 같은 6개 checkpoint를 `2.0/2.5/3.0 m/s`로 평가하자 baseline 3 seed 합산 회복률이 `76.94% / 58.70% / 42.50%`로 내려갔다. 이 강도에서도 push curriculum과의 paired 차이는 `-6.00%p`, 95% CI `[-26.33, +15.96]%p`로 검출되지 않았다. 같은 variant 안의 seed 편차(3.0 m/s에서 `13.33%~51.94%`)가 variant 차이보다 컸다.
+2. 그 강도에서 baseline과 push curriculum을 같은 budget으로 다시 학습·비교하고, training seed를 최소 5개로 늘린다. 아직 실행하지 않았다.
 3. 회복률과 함께 이번에 관찰한 trade-off, 즉 추적 오차 감소와 torque·mechanical power proxy 증가가 같은 방향으로 재현되는지 확인한다.
 
 ## 보조 사례와 후속 연구
