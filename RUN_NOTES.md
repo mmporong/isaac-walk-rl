@@ -861,3 +861,14 @@ Get-FileHash -Algorithm SHA256 C:\Users\LIMMM\isaac-walk-rl\reports\runs\g009_r0
 - 첫 GPU budget은 `1024×24×50`, seed42, headless `cuda:0`, PPO epoch5, mini-batch4, `1,228,800 transitions`, `1,000 optimizer updates`다. 모든 환경의 gain·effort readback, hard/numeric 정확히 0, 기존 GPU 보호를 통과해야 후속 full300 사전등록을 연다.
 - 새 사용자 촬영 요청에 따라 각 실험 단계의 진단 영상도 `DIAGNOSTIC / NOT QUALIFIED`로 촬영할 수 있다. 이는 성공 qualification 또는 production 발행을 승인하지 않는다. 원본은 1920×1080 30fps CRF18, GIF는 목표15fps·최소12fps로 검증한다.
 - CPU 검증: rev32·rev31 관절 귀속 테스트 `16 passed`, 두 신규 Python 모듈 compile PASS, 저장소 validator PASS. 실행 결과는 아래에 별도로 기록한다.
+
+#### 2026-09-27 rev32 E025 결과와 rev33 E026 사전등록
+
+- rev32 실행 source는 `a84d735`, run은 `go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910`이다. GPU lease `Owner=G009` 아래 공식 scratch PPO를 `1024×24×50`, epoch5, mini-batch4, seed42, headless cuda:0으로 실행했다. 1,228,800 transitions와 1,000 optimizer updates를 완료했고 exit0, 마지막 iteration49, wall248.860s, 평균6,662.58steps/s였다. peak VRAM4,133MiB, utilization57%, temperature54°C, GPU 보호 PASS와 baseline VRAM 회복을 확인했다.
+- hard-limit nonzero scalar sample은 `2/50`, numeric-invalid는 `0/50`이다. 이는 termination 총건수와 다른 지표다. attribution의 실제 사건은 2건이며 모두 prone의 FR_calf lower-side다. 위반각0.013918877/0.013838053rad, qdot+2.0294/-1.5208rad/s, torque23.5/22.0654N·m, target-1.8164/-1.5781rad, foot contact4.7061/3.4200BW, episode step397/262다. 모든 1024 환경의 rear Kd1.0·나머지Kd0.5, Kp25, effort23.5가 전후 동일했다.
+- baseline4건 대비 사건이 줄고 뒷다리 사건은 없었으나, 동일 seed 한 쌍뿐이므로 감쇠 개선 효과·일반화·접촉의 단독 인과를 확정하지 않는다. 안전 gate는 정확히0을 요구하므로 `passed=false`이며 full300과 qualification을 열지 않았다.
+- 첫 HD 진단 촬영은 source `8486cf9`, native1920×1080, H264CRF18, 실제30fps·240frames·8.000s이다. physics200Hz/control50Hz 상태를 중복 없이30Hz로 샘플링하고 terminal auto-reset 프레임은 제외했다. seed42 prone 1회는 `time_out`, stable_success=false다. 이것은 다중환경 복구 성공률이 아니라 실패 동작의 정성 재생이다. 원본 MP4는 로컬에만 보존한다.
+- 촬영 명령: `Use-GpuLease.ps1 -Owner G009` 안에서 bundled `IsaacLab\_isaac_sim\python.bat scripts/record_g009_r0_rev32_hd.py --training-report reports/runs/go2_flat_g009_r0_rev32_rear_damping_s42_20260927_0910.json --pose prone --headless --device cuda:0`. 실제 실행 디렉터리는 `%USERPROFILE%\worktrees\isaac-walk-rl-g009-r0`이다.
+- rev33은 앞 calf 그룹 FL/FR Kd만0.5→1.0으로 바꾸고 rear Kd1.0을 유지한다. 나머지 조건·학습 budget·안전 gate는 rev32와 같다. 위반이 남은 FR 계측에 근거한 단일 그룹 개입이며, 한도를 넓히거나 모터 토크를 올리지 않는다. 실패하면 감쇠 계열 반복을 멈추고 새로운 역학·학습 가설을 사전등록한다.
+- rev13의 solver velocity0→1과 rev15의 position8→16은 이미 접촉력 기준으로 기각된 이력이라 재학습으로 반복하지 않는다. gain 변경도23.5N·m 포화 이후 토크 여유를 만들지 않는다. 후속 full300·네 자세 정량 평가·독립 seed·경사·held-out perturbation은 각각 별도 gate로 남는다.
+- 새 capture identity 검증은 qualification-disabled, canonical run/report, exact source manifest, pre/post snapshot, checkpoint hash, training gain matrix와 runtime을 검사한다. 작성 뒤 별도 코드 리뷰에서 지적된 binding 공백을 보완하고 음성 회귀를 추가했다. CPU 회귀29passed, compile PASS, repository validator PASS다.

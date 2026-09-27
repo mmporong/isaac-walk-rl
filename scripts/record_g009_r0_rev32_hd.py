@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -19,6 +20,14 @@ POSES = ("prone", "supine", "left_side", "right_side")
 OUTPUT = Path.home() / "IsaacLab/logs/visual_evidence/g009/R0/diagnostic"
 RESOLUTION = (1920, 1080)
 FPS = 30
+BASE_SOURCE_PATHS = {
+    "configs/g009_r0.json", "scripts/bootstrap_train_g009.py",
+    "scripts/bootstrap_train_g009_rev31_attribution.py", "scripts/run_training.ps1",
+    "src/isaac_walk_g009/agent_cfg.py", "src/isaac_walk_g009/recover_env_cfg.py",
+    "src/isaac_walk_g009/recover_contracts.py", "src/isaac_walk_g009/mdp/events.py",
+    "src/isaac_walk_g009/mdp/recover.py", "src/isaac_walk_g009/matrix_gate01.py",
+    "src/isaac_walk_g009/matrix_observation_adapter.py", "src/isaac_walk_g009/registry.py",
+}
 
 
 def sample_steps(horizon: int, control_hz: int = 50, fps: int = FPS) -> tuple[int, ...]:
@@ -28,8 +37,19 @@ def sample_steps(horizon: int, control_hz: int = 50, fps: int = FPS) -> tuple[in
     return tuple(round(i * control_hz / fps) for i in range(math.ceil(horizon * fps / control_hz)))
 
 
-def validate_binding(path: Path) -> tuple[dict, Path]:
+def validate_binding(path: Path, revision: str = "rev32") -> tuple[dict, Path]:
     report = json.loads(path.read_text(encoding="utf-8"))
+    if revision not in ("rev32", "rev33"):
+        raise ValueError("unknown damping revision")
+    group = "rear" if revision == "rev32" else "front"
+    run = report.get("run_name", "")
+    if not re.fullmatch(rf"go2_flat_g009_r0_{revision}_{group}_damping_s42_[A-Za-z0-9._-]+", run):
+        raise ValueError("canonical damping run identity mismatch")
+    if path.resolve() != (REPO_ROOT / "reports/runs" / (run + ".json")).resolve():
+        raise ValueError("canonical report path mismatch")
+    mode = report.get("qualification_mode", {})
+    if mode.get("enabled") is not False or mode.get("policy_qualification_status") != "not_run":
+        raise ValueError("diagnostic cannot be qualification-enabled")
     checks = report["success_checks"]
     required = (
         "process_exit_zero", "no_traceback_or_error", "requested_iteration_reached",
@@ -39,19 +59,46 @@ def validate_binding(path: Path) -> tuple[dict, Path]:
         raise ValueError("training operational checks failed")
     if (report["task"], report["num_envs"], report["max_iterations"], report["seed"]) != (TASK, 1024, 50, 42):
         raise ValueError("rev32 training protocol mismatch")
-    if report["repository"]["dirty"] or not report["source_bundle"]["postrun"]["stable"]:
+    bundle = report["source_bundle"]
+    expected_paths = BASE_SOURCE_PATHS | {f"configs/g009_r0_{revision}_damping.json",
+                                        f"scripts/bootstrap_train_g009_{revision}_damping.py",
+                                        f"scripts/g009_r0_{revision}.py"}
+    if revision == "rev33":
+        expected_paths.add("scripts/g009_r0_rev32.py")
+    if set(bundle["files"]) != expected_paths:
+        raise ValueError("damping source manifest mismatch")
+    if report["repository"]["dirty"] or not bundle["postrun"]["stable"]:
         raise ValueError("training source is not stable and clean")
-    validate_source_bundle(report["source_bundle"])
+    if (bundle.get("matches_repository_commit") is not True
+        or bundle["prelaunch"]["repository_commit"] != report["repository"]["commit"]
+        or bundle["postrun"]["repository_commit"] != report["repository"]["commit"]
+        or bundle["prelaunch"]["files"] != bundle["files"] or bundle["postrun"]["files"] != bundle["files"]
+        or bundle["prelaunch"]["sha256"] != bundle["sha256"] or bundle["postrun"]["sha256"] != bundle["sha256"]):
+        raise ValueError("training source snapshot binding mismatch")
+    validate_source_bundle(bundle)
     checkpoint = resolve_portable_path(report["artifacts"]["checkpoint"])
     if checkpoint.name != "model_49.pt" or file_sha256(checkpoint) != report["artifacts"]["checkpoint_sha256"]:
         raise ValueError("checkpoint identity mismatch")
     intervention_path = path.with_name(path.stem + "_intervention.json")
     intervention = json.loads(intervention_path.read_text(encoding="utf-8"))
-    if (intervention.get("protocol") != "g009_r0_rev32_rear_calf_damping_smoke_v1"
+    if (intervention.get("protocol") != f"g009_r0_{revision}_{group}_calf_damping_smoke_v1"
         or intervention.get("actuator_readback_stable") is not True
         or intervention.get("candidate_damping_n_m_s_rad") != 1.0
-        or intervention.get("runtime", {}).get("run_name") != report["run_name"]):
-        raise ValueError("rev32 intervention binding mismatch")
+        or intervention.get("diagnostic_only") is not True or intervention.get("qualification_eligible") is not False
+        or intervention.get("runtime") != {"task": TASK, "num_envs": 1024, "max_iterations": 50,
+                                           "seed": 42, "device": "cuda:0", "run_name": run, "headless": True}):
+        raise ValueError("damping intervention binding mismatch")
+    before = intervention["actuator_before"]
+    names = [f"{leg}_{joint}_joint" for joint in ("hip", "thigh", "calf") for leg in ("FL", "FR", "RL", "RR")]
+    expected_gains = {name: 1.0 if name in ("RL_calf_joint", "RR_calf_joint") or
+                      (revision == "rev33" and name.endswith("calf_joint")) else 0.5 for name in names}
+    if (before != intervention["actuator_after"] or before.get("joint_names") != names
+        or before.get("environments_checked") != 1024 or before.get("damping_by_joint") != expected_gains
+        or before.get("stiffness_by_joint") != dict.fromkeys(names, 25.0)
+        or before.get("effort_limit_by_joint") != dict.fromkeys(names, 23.5)):
+        raise ValueError("intervention joint gain matrix mismatch")
+    report["verified_intervention"] = {"path": portable_path(intervention_path),
+                                       "sha256": file_sha256(intervention_path), "protocol": intervention["protocol"]}
     return report, checkpoint
 
 
@@ -68,7 +115,11 @@ def record(args: argparse.Namespace) -> dict:
     sys.path.insert(0, str(REPO_ROOT / "src"))
     from isaac_walk_g009 import register_tasks
 
-    training, checkpoint = validate_binding(args.training_report)
+    training, checkpoint = validate_binding(args.training_report, args.revision)
+    configure = configure_damping
+    readback = actuator_readback
+    if args.revision == "rev33":
+        from g009_r0_rev33 import configure_damping as configure, actuator_readback as readback
     source_before = git_source_state()
     if not source_before["clean"]:
         raise ValueError("capture source must be clean outside reports/runs")
@@ -78,7 +129,7 @@ def record(args: argparse.Namespace) -> dict:
     cfg.seed = 42
     cfg.observations.policy.enable_corruption = False
     cfg.events.reset_base.params.update(assignment_mode="stratified", pose_xy_range=(0.0, 0.0), yaw_range=(0.0, 0.0))
-    configure_damping(cfg)
+    configure(cfg)
     selected = POSES.index(args.pose)
     cfg.viewer.origin_type = "env"
     cfg.viewer.env_index = selected
@@ -88,7 +139,7 @@ def record(args: argparse.Namespace) -> dict:
     raw = gym.make(TASK, cfg=cfg, render_mode="rgb_array")
     env = None
     encoder = None
-    stem = f"g009_5_r0_diag_rev32_{selected + 1:02d}_{args.pose}_hd_s42"
+    stem = f"g009_5_r0_diag_{args.revision}_{selected + 1:02d}_{args.pose}_hd_s42"
     video = OUTPUT / (stem + ".mp4")
     report_path = REPO_ROOT / "reports/runs" / (stem + ".json")
     if video.exists() or report_path.exists():
@@ -102,7 +153,7 @@ def record(args: argparse.Namespace) -> dict:
     elapsed = 0
     font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 30)
     try:
-        live_before = actuator_readback(raw.unwrapped)
+        live_before = readback(raw.unwrapped)
         agent = load_cfg_from_registry(TASK, "rsl_rl_cfg_entry_point")
         agent.device = args.device
         env = RslRlVecEnvWrapper(raw, clip_actions=agent.clip_actions)
@@ -143,8 +194,9 @@ def record(args: argparse.Namespace) -> dict:
             picture = Image.fromarray(pixels)
             draw = ImageDraw.Draw(picture)
             draw.rectangle((0, 0, 1920, 96), fill=(15, 20, 30))
-            draw.text((24, 8), "DIAGNOSTIC / NOT QUALIFIED - G009 R0 rev32", font=font, fill=(255, 200, 90))
-            draw.text((24, 50), f"{args.pose} | rear calf Kd=1.0 | sim t={step * 0.02:.2f}s | checkpoint {checkpoint_hash[:12]}", font=font, fill="white")
+            draw.text((24, 8), f"DIAGNOSTIC / NOT QUALIFIED - G009 R0 {args.revision}", font=font, fill=(255, 200, 90))
+            gain_label = "rear calf Kd=1.0" if args.revision == "rev32" else "all calf Kd=1.0"
+            draw.text((24, 50), f"{args.pose} | {gain_label} | sim t={step * 0.02:.2f}s | checkpoint {checkpoint_hash[:12]}", font=font, fill="white")
             assert encoder is not None and encoder.stdin is not None
             encoder.stdin.write(picture.tobytes())
             captured.append(step)
@@ -162,7 +214,7 @@ def record(args: argparse.Namespace) -> dict:
                 break  # Never show the automatic-reset state as recovery.
             if step in schedule:
                 frame(step)
-        live_after = actuator_readback(raw.unwrapped)
+        live_after = readback(raw.unwrapped)
         validate_source_bundle(training["source_bundle"])
         source_after = git_source_state()
         if source_before["commit"] != source_after["commit"] or not source_after["clean"]:
@@ -180,13 +232,14 @@ def record(args: argparse.Namespace) -> dict:
         if (stream["width"], stream["height"], stream["avg_frame_rate"], int(stream["nb_read_frames"])) != (1920, 1080, "30/1", len(captured)):
             raise RuntimeError("encoded video does not match native frames")
         result = {
-            "schema_version": "g009.r0.rev32.hd_diagnostic.v1",
+            "schema_version": "g009.r0.damping.hd_diagnostic.v1", "revision": args.revision,
             "status": "diagnostic_complete", "diagnostic_only": True,
             "qualification_eligible": False, "task": TASK, "pose": args.pose,
             "seed": 42, "headless": True, "actor_corruption": False,
             "elapsed_control_steps": elapsed, "stable_success": success, "termination_reason": reason,
             "initial_pose_xy_and_yaw": "zero", "training_pose_curriculum": "prone only in first 50 iterations",
             "training_report": {"path": portable_path(args.training_report), "sha256": file_sha256(args.training_report)},
+            "training_intervention": training["verified_intervention"],
             "checkpoint": {"path": portable_path(checkpoint), "sha256": file_sha256(checkpoint)},
             "actuator_before": live_before, "actuator_after": live_after,
             "physics_readback": physics,
@@ -215,13 +268,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--training-report", type=Path, required=True)
     parser.add_argument("--pose", choices=POSES, default="prone")
+    parser.add_argument("--revision", choices=("rev32", "rev33"), default="rev32")
     parser.add_argument("--ffmpeg", default="ffmpeg")
     parser.add_argument("--ffprobe", default="ffprobe")
     AppLauncher.add_app_launcher_args(parser)
     args = parser.parse_args()
     if not args.headless or args.device != "cuda:0":
         raise ValueError("capture is headless CUDA only")
-    validate_binding(args.training_report)
+    validate_binding(args.training_report, args.revision)
     args.enable_cameras = True
     args.kit_args = "--/app/vulkan=false --/app/window/hideUi=true --/app/renderer/resolution/width=1920 --/app/renderer/resolution/height=1080"
     app = AppLauncher(args).app
